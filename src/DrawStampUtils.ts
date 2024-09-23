@@ -55,6 +55,7 @@ export type IAgingEffectParams = {
 export type IAgingEffect = {
   applyAging: boolean
   agingIntensity: number
+  agingEffectParams: IAgingEffectParams[] // 保存做旧效果的参数数组
 }
 
 // 绘制五角星
@@ -109,6 +110,7 @@ export type IDrawStampConfig = {
   shouldDrawRuler: boolean
   innerCircle: IInnerCircle
   outThinCircle: IInnerCircle
+  openManualAging: boolean
 }
 
 // 标尺宽度
@@ -225,7 +227,8 @@ export class DrawStampUtils {
     agingEffect: this.agingEffect,
     shouldDrawRuler: true,
     innerCircle: this.innerCircle,
-    outThinCircle: this.outThinCircle
+    outThinCircle: this.outThinCircle,
+    openManualAging: true
   }
 
   private securityPatternParams: Array<{ angle: number; lineAngle: number }> = []
@@ -265,6 +268,23 @@ export class DrawStampUtils {
     return this.drawStampConfigs
   }
 
+  /**
+   * 手动做旧效果
+   * @param x 
+   * @param y 
+   * @param intensity 
+   */
+  addManualAgingEffect(x: number, y: number, intensity: number) {
+    const radius = 1.5 * this.mmToPixel; // 直径3mm，半径1.5mm
+    this.canvasCtx.beginPath();
+    this.canvasCtx.arc(x, y, radius, 0, Math.PI * 2, true);
+    this.canvasCtx.fillStyle = 'black'; // 圆圈颜色
+    this.canvasCtx.fill();
+
+
+
+  }
+
   // 设置绘制印章的配置，比如可以保存某些印章的配置，然后保存之后直接设置绘制，更加方便
   setDrawConfigs(drawConfigs: IDrawStampConfig) {
     this.drawStampConfigs = drawConfigs
@@ -279,6 +299,17 @@ export class DrawStampUtils {
     })
     this.canvas.addEventListener('mousedown', (event) => {
       this.onMouseDown(event)
+      if(this.drawStampConfigs.openManualAging) {
+        const rect = this.canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        console.log('手动做旧', x, y, this.drawStampConfigs.agingEffect.agingIntensity)
+        // 增加做旧效果的强度
+        const agingIntensity = this.drawStampConfigs.agingEffect.agingIntensity / 50; // 将强度调整为原来的2倍
+        this.addManualAgingEffect(x, y, agingIntensity);
+        // 立即刷新画布以显示效果
+        // this.refreshStamp(false, false);
+      }
     })
     this.canvas.addEventListener('mouseup', (event) => {
       this.onMouseUp()
@@ -1091,7 +1122,7 @@ export class DrawStampUtils {
     const data = imageData.data
 
     // 使用保存的参数应用做旧效果
-    this.agingEffectParams.forEach((param) => {
+    this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
       const { x, y, noiseSize, noise, strongNoiseSize, strongNoise, fade, seed } = param
       const realX = x
       const realY = y
@@ -1136,8 +1167,8 @@ export class DrawStampUtils {
     const radius = (Math.max(width, height) / 2) * this.mmToPixel
 
     // 如果需要刷新或者参数数组为空,则重新生成参数
-    if (forceRefresh || this.agingEffectParams.length === 0) {
-      this.agingEffectParams = []
+    if (forceRefresh || this.drawStampConfigs.agingEffect.agingEffectParams.length === 0) {
+      this.drawStampConfigs.agingEffect.agingEffectParams = []
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const index = (y * width + x) * 4
@@ -1150,7 +1181,7 @@ export class DrawStampUtils {
           ) {
             const intensityFactor = this.drawStampConfigs.agingEffect.agingIntensity / 100 // 可以根据需要调整
             const seed = Math.random()
-            this.agingEffectParams.push({
+            this.drawStampConfigs.agingEffect.agingEffectParams.push({
               x,
               y,
               noiseSize: Math.random() * 3 + 1,
@@ -1166,7 +1197,7 @@ export class DrawStampUtils {
     }
 
     // 使用保存的参数应用做旧效果
-    this.agingEffectParams.forEach((param) => {
+    this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
       const { x, y, noiseSize, noise, strongNoiseSize, strongNoise, fade, seed } = param
       const index = (y * width + x) * 4
 
@@ -1420,18 +1451,7 @@ export class DrawStampUtils {
       refreshOld
     )
   }
-
-  private agingEffectParams: Array<{
-    x: number
-    y: number
-    noiseSize: number
-    noise: number
-    strongNoiseSize: number
-    strongNoise: number
-    fade: number
-    seed: number
-  }> = []
-
+  
   /**
    * 绘制印章
    * @param x 圆心x坐标
