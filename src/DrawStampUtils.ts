@@ -192,7 +192,8 @@ export class DrawStampUtils {
   // 做旧效果
   private agingEffect: IAgingEffect = {
     applyAging: false,
-    agingIntensity: 50
+    agingIntensity: 50,
+    agingEffectParams: []
   }
 
   // 内圈圆
@@ -1451,7 +1452,7 @@ export class DrawStampUtils {
       refreshOld
     )
   }
-  
+
   /**
    * 绘制印章
    * @param x 圆心x坐标
