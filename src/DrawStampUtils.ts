@@ -5,6 +5,7 @@ export type ISecurityPattern = {
   securityPatternLength: number // 防伪纹路长度
   securityPatternCount: number // 防伪纹路数量
   securityPatternAngleRange: number // 防伪纹路角度范围
+  securityPatternParams: Array<{ angle: number; lineAngle: number }> // 保存防伪纹路的参数数组
 }
 
 // 绘制印章的公司
@@ -152,7 +153,8 @@ export class DrawStampUtils {
     securityPatternWidth: 0.15,
     securityPatternLength: 3,
     securityPatternCount: 5,
-    securityPatternAngleRange: 40
+    securityPatternAngleRange: 40,
+    securityPatternParams: []
   }
   private company: ICompany = {
     companyName: '印章绘制有限责任公司',
@@ -231,8 +233,6 @@ export class DrawStampUtils {
     outThinCircle: this.outThinCircle,
     openManualAging: true
   }
-
-  private securityPatternParams: Array<{ angle: number; lineAngle: number }> = []
 
   /**
    * 构造函数
@@ -412,16 +412,6 @@ export class DrawStampUtils {
         mainCtx.drawImage(canvas, 0, 0)
       }
     }
-  }
-
-  private setSecurityPattern(securityPattern: ISecurityPattern) {
-    this.securityPattern = securityPattern
-    // 刷新防伪纹路
-    this.refreshSecurityPattern()
-  }
-
-  private refreshSecurityPattern() {
-    this.securityPatternParams = []
   }
 
   /**
@@ -898,18 +888,18 @@ export class DrawStampUtils {
     const angleRangeRad = (this.securityPattern.securityPatternAngleRange * Math.PI) / 180
 
     // 如果需要刷新或者参数数组为空,则重新生成参数
-    if (forceRefresh || this.securityPatternParams.length === 0) {
-      this.securityPatternParams = []
+    if (forceRefresh ||  this.drawStampConfigs.securityPattern.securityPatternParams.length === 0) {
+      this.drawStampConfigs.securityPattern.securityPatternParams = []
       for (let i = 0; i < this.securityPattern.securityPatternCount; i++) {
         const angle = Math.random() * Math.PI * 2
         const normalAngle = Math.atan2(radiusY * Math.cos(angle), radiusX * Math.sin(angle))
         const lineAngle = normalAngle + (Math.random() - 0.5) * angleRangeRad
-        this.securityPatternParams.push({ angle, lineAngle })
+        this.drawStampConfigs.securityPattern.securityPatternParams.push({ angle, lineAngle })
       }
     }
 
     // 使用保存的参数绘制纹路
-    this.securityPatternParams.forEach(({ angle, lineAngle }) => {
+    this.drawStampConfigs.securityPattern.securityPatternParams.forEach(({ angle, lineAngle }) => {
       const x = centerX + radiusX * Math.cos(angle)
       const y = centerY + radiusY * Math.sin(angle)
 
