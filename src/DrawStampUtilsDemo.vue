@@ -247,6 +247,10 @@
             <input type="checkbox" v-model="applyAging" />
             启用做旧效果
           </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="manualAging" />
+            手动做旧
+          </label>
           <label v-if="applyAging">
             做旧强度:
             <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
@@ -264,7 +268,7 @@
         </div> -->
       </div>
 
-      <canvas ref="stampCanvas" width="1000" height="1000"></canvas>
+      <canvas ref="stampCanvas" width="600" height="600"></canvas>
     </div>
   </div>
 </template>
@@ -306,6 +310,8 @@ const circleBorderColor = ref('#ff0000')
 const starDiameter = ref(14)
 // 做旧效果
 const applyAging = ref(false)
+// 手动做旧
+const manualAging = ref(false)
 // 添加新的响应式数据
 const agingIntensity = ref(50)
 // 文字分布因子，控制公司名称文字在椭圆上的分布范围
@@ -382,6 +388,8 @@ const updateDrawConfigs = () => {
   const agingEffect = drawConfigs.agingEffect
   agingEffect.applyAging = applyAging.value
   agingEffect.agingIntensity = agingIntensity.value
+  drawConfigs.openManualAging = manualAging.value
+
   // 防伪纹路
   const securityPattern: ISecurityPattern = drawConfigs.securityPattern
   securityPattern.openSecurityPattern = securityPatternEnabled.value
@@ -500,6 +508,7 @@ const restoreDrawConfigs = () => {
 
   // 主题颜色
   circleBorderColor.value = drawConfigs.primaryColor
+  manualAging.value = drawConfigs.openManualAging
 }
 
 onMounted(() => {
@@ -558,7 +567,8 @@ watch(
     outThinCircleLineWidth,
     outThinCircleWidth,
     outThinCircleHeight,
-    drawOutThinCircle
+    drawOutThinCircle,
+    manualAging
   ],
   () => {
     updateDrawConfigs()

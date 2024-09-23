@@ -231,7 +231,7 @@ export class DrawStampUtils {
     shouldDrawRuler: true,
     innerCircle: this.innerCircle,
     outThinCircle: this.outThinCircle,
-    openManualAging: true
+    openManualAging: false
   }
 
   /**
@@ -275,14 +275,33 @@ export class DrawStampUtils {
    * @param y 
    * @param intensity 
    */
-  addManualAgingEffect(x: number, y: number, intensity: number) {
+  addManualAgingEffect(x: number, y: number, intensityFactor: number) {
+    console.log('手动做旧   1', x, y, this.drawStampConfigs.agingEffect.agingEffectParams)
     const radius = 1.5 * this.mmToPixel; // 直径3mm，半径1.5mm
     this.canvasCtx.beginPath();
     this.canvasCtx.arc(x, y, radius, 0, Math.PI * 2, true);
     this.canvasCtx.fillStyle = 'black'; // 圆圈颜色
     this.canvasCtx.fill();
 
+    // const intensityFactor = this.drawStampConfigs.agingEffect.agingIntensity / 100
+    for(let i = 0; i < 10; i++) {
+            // 将点击的地方增加一个做旧数据到做旧的列表里面
+            this.drawStampConfigs.agingEffect.agingEffectParams.push({
+              x: x,
+              y: y,
+              noiseSize: Math.random() * 3 + 1,
+              noise: Math.random() * 200 * intensityFactor,
+              strongNoiseSize: Math.random() * 5 + 2,
+              strongNoise: Math.random() * 250 * intensityFactor + 5,
+              fade: Math.random() * 50 * intensityFactor,
+              seed: Math.random()
+            })
+    }
 
+    // 立即刷新画布以显示效果
+    this.refreshStamp(false, false);
+
+    console.log('手动做旧   2', x, y, this.drawStampConfigs.agingEffect.agingEffectParams)
 
   }
 
@@ -301,15 +320,13 @@ export class DrawStampUtils {
     this.canvas.addEventListener('mousedown', (event) => {
       this.onMouseDown(event)
       if(this.drawStampConfigs.openManualAging) {
+        // 添加手动做旧效果
         const rect = this.canvas.getBoundingClientRect()
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        console.log('手动做旧', x, y, this.drawStampConfigs.agingEffect.agingIntensity)
         // 增加做旧效果的强度
-        const agingIntensity = this.drawStampConfigs.agingEffect.agingIntensity / 50; // 将强度调整为原来的2倍
+        const agingIntensity = this.drawStampConfigs.agingEffect.agingIntensity / 100; // 将强度调整为原来的2倍
         this.addManualAgingEffect(x, y, agingIntensity);
-        // 立即刷新画布以显示效果
-        // this.refreshStamp(false, false);
       }
     })
     this.canvas.addEventListener('mouseup', (event) => {
@@ -342,6 +359,9 @@ export class DrawStampUtils {
   }
 
   private onMouseMove = (event: MouseEvent) => {
+    if(this.drawStampConfigs.openManualAging) {
+      return
+    }
     if (this.isDragging) {
       const newOffsetX = (event.clientX - this.dragStartX) / this.mmToPixel
       const newOffsetY = (event.clientY - this.dragStartY) / this.mmToPixel
