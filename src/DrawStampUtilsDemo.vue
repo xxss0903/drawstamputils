@@ -264,7 +264,7 @@
         </div> -->
       </div>
 
-      <canvas ref="stampCanvas" width="1200" height="1200"></canvas>
+      <canvas ref="stampCanvas" width="1000" height="1000"></canvas>
     </div>
   </div>
 </template>
@@ -279,7 +279,7 @@ import {
   type ISecurityPattern,
   type IStampType,
   type ITaxNumber
-} from './SealMaker'
+} from './DrawStampUtils'
 const editorControls = ref<HTMLDivElement | null>(null)
 const stampCanvas = ref<HTMLCanvasElement | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素

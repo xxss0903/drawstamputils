@@ -2,8 +2,17 @@
   "name": "sealmaker",
   "private": true,
   "version": "0.0.1",
-  "keywords": ["seal.js", "sealmaker.js", "sealmaker", "seal", "印章制作", "电子印章", "seal maker", "digital seal", "印章生成", "电子印章生成", "印章生成器", "电子印章生成器"],
+  "description": "drawstamputils, stamp maker",
+  "keywords": ["stamp.js", "drawStampUtils.js", "stamp", "drawstamp", "印章制作", "电子印章", "stamp maker", "digital seal", "印章生成", "电子印章生成", "印章生成器", "电子印章生成器"],
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xxss0903/drawstamputils"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/xxss0903/drawstamputils",
+  "author": "xxss0903",
+  "main": "src/DrawStampUtils.ts",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",

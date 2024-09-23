@@ -17,7 +17,7 @@ SealMaker.js 是一个使用 JavaScript 制作电子印章的工具。该项目�
 首先，克隆仓库并安装依赖：
 
 ```bash
-git clone https://github.com/xxss0903/sealmaker.js.git
+git clone https://github.com/xxss0903/drawstamputils.git
 cd sealmaker.js
 npm install
 ```
@@ -47,12 +47,6 @@ npm run build
 ```bash
 npm run preview
 ```
-效果展示
-
-以下是使用 SealMaker.js 生成的电子印章示例：
-
-![Seal Example](src/assets/seal.png)
-
 
 SealMaker.ts 使用说明
 
@@ -94,20 +88,59 @@ SealMaker 支持以下配置选项：
 - borderColor (string): 印章边框的颜色。
 - borderWidth (number): 印章边框的宽度。
 - diameter (number): 印章的直径。
-- 配置做旧效果
-- 配置文字分布
-- 配置文字边距
-- 配置编码分布
-- 配置编码边距
-- 配置编码字体大小
-- 配置编码字体宽度
-- 配置编码字体颜色
-- 配置编码字体背景颜色
-- 配置编码字体背景透明度
 
 完整示例
-具体请参考SealEditor.vue中的方法作为参考
 
+以下是一个完整的示例，展示如何在 Vue 组件中使用 SealMaker：
+
+```typescript
+<template>
+  <div id="app">
+    <canvas ref="sealCanvas"></canvas>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent, onMounted, ref } from 'vue';
+import { SealMaker } from './SealMaker';
+
+export default defineComponent({
+  name: 'App',
+  setup() {
+    const sealCanvas = ref<HTMLCanvasElement | null>(null);
+
+    onMounted(() => {
+      if (sealCanvas.value) {
+        const sealMaker = new SealMaker({
+          text: '公司印章',
+          fontSize: 24,
+          color: 'red',
+          borderColor: 'black',
+          borderWidth: 2,
+          diameter: 100
+        });
+
+        const seal = sealMaker.createSeal();
+        sealCanvas.value.getContext('2d')?.drawImage(seal, 0, 0);
+      }
+    });
+
+    return {
+      sealCanvas
+    };
+  }
+});
+</script>
+
+<style>
+#app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
+```
 
 贡献
 
