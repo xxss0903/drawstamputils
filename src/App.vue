@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import SealEditor from './DrawStampUtilsDemo.vue'
+import DrawStampUtilsDemo from './DrawStampUtilsDemo.vue'
 </script>
 
 <template>
-  <SealEditor />
+  <DrawStampUtilsDemo />
 </template>
 
 <style scoped>
