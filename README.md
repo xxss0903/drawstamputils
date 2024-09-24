@@ -51,7 +51,9 @@ npm run preview
 
 以下是使用 DrawStampUtils.js 生成的电子印章示例：
 
-![Seal Example](public/seal.png)
+![Stamp Example](public/seal.png)
+
+![Stamp Designer](public/designer.png)
 
 
 DrawStampUtils.ts 使用说明
@@ -79,28 +81,179 @@ drawStampUtils.refreshStamp()
 配置选项<br>
 详细的配置请参考Demo文件[`DrawStampUtilsDemo.vue`](src/DrawStampUtilsDemo.vue)中的配置方法
 
-SealMaker 支持以下配置选项：
+DrawStampUtils 支持以下配置选项：
 
-- text (string): 印章上的文字。
-- fontSize (number): 文字的字体大小。
-- color (string): 文字的颜色。
-- borderColor (string): 印章边框的颜色。
-- borderWidth (number): 印章边框的宽度。
-- diameter (number): 印章的直径。
-- 配置做旧效果
-- 配置文字分布
-- 配置文字边距
-- 配置编码分布
-- 配置编码边距
-- 配置编码字体大小
-- 配置编码字体宽度
-- 配置编码字体颜色
-- 配置编码字体背景颜色
-- 配置编码字体背景透明度
-- 手动做旧效果
+以下是 DrawStampUtils 支持的主要配置选项及其功能：
+
+| 配置选项 | 功能描述 |
+|---------|--------|
+| ISecurityPattern | 控制防伪纹路的相关参数 |
+| - openSecurityPattern | 是否启用防伪纹路 |
+| - securityPatternWidth | 设置防伪纹路的宽度 |
+| - securityPatternLength | 设置防伪纹路的长度 |
+| - securityPatternCount | 设置防伪纹路的数量 |
+| - securityPatternAngleRange | 设置防伪纹路的角度范围 |
+| ICompany | 控制印章公司相关的参数 |
+| - companyName | 设置公司名称 |
+| - compression | 控制公司名称的压缩比例 |
+| - borderOffset | 设置边框偏移量 |
+| - textDistributionFactor | 控制文字分布因子 |
+| - fontFamily | 设置字体 |
+| - fontHeight | 设置字体高度 |
+| ICode | 控制印章编码相关的参数 |
+| - code | 设置编码内容 |
+| - compression | 控制编码的压缩比例 |
+| - fontHeight | 设置编码字体大小 |
+| - fontFamily | 设置编码字体 |
+| - borderOffset | 设置编码边框偏移量 |
+| - fontWidth | 设置编码字体宽度 |
+| - textDistributionFactor | 控制编码文字分布因子 |
+| ITaxNumber | 控制税号相关的参数 |
+| - code | 设置税号内容 |
+| - compression | 控制税号的压缩比例 |
+| - fontHeight | 设置税号字体大小 |
+| - fontFamily | 设置税号字体 |
+| - fontWidth | 设置税号字体宽度 |
+| - letterSpacing | 控制税号字符间距 |
+| - positionY | 设置税号文字垂直位置 |
+| - totalWidth | 设置税号文字总宽度 |
+| IAgingEffectParams | 控制做旧效果的相关参数 |
+| - x | 设置做旧效果的 x 轴位置 |
+| - y | 设置做旧效果的 y 轴位置 |
+| - noiseSize | 控制噪声大小 |
+| - noise | 控制噪声强度 |
+| - strongNoiseSize | 控制强噪声大小 |
+| - strongNoise | 控制强噪声强度 |
+| - fade | 控制淡化强度 |
+| - seed | 设置随机种子 |
+
+
+
+
+下面是配置参数
+```
+
+// 防伪纹路
+export type ISecurityPattern = {  
+  openSecurityPattern: boolean // 是否启用防伪纹路
+  securityPatternWidth: number // 防伪纹路宽度
+  securityPatternLength: number // 防伪纹路长度
+  securityPatternCount: number // 防伪纹路数量
+  securityPatternAngleRange: number // 防伪纹路角度范围
+  securityPatternParams: Array<{ angle: number; lineAngle: number }> // 保存防伪纹路的参数数组
+}
+
+// 绘制印章的公司
+export type ICompany = {
+  companyName: string // 公司名称
+  compression: number // 公司名称压缩比例
+  borderOffset: number // 边框偏移量
+  textDistributionFactor: number // 文字分布因子
+  fontFamily: string // 字体
+  fontHeight: number // 字体高度
+}
+
+// 印章编码
+export type ICode = {
+  code: string // 编码
+  compression: number // 编码压缩比例
+  fontHeight: number // 编码字体大小
+  fontFamily: string // 编码字体
+  borderOffset: number // 编码边框偏移量
+  fontWidth: number // 编码字体宽度
+  textDistributionFactor: number // 文字分布因子
+}
+
+export type ITaxNumber = {
+  code: string // 税号
+  compression: number // 税号压缩比例
+  fontHeight: number // 税号字体大小
+  fontFamily: string // 编码字体
+  fontWidth: number // 编码字体宽度
+  letterSpacing: number // 编码字符间距
+  positionY: number // 编码文字位置
+  totalWidth: number // 编码文字总宽度
+}
+
+// 做旧效果参数
+export type IAgingEffectParams = {
+  x: number // x轴位置
+  y: number // y轴位置
+  noiseSize: number // 噪声大小
+  noise: number // 噪声强度
+  strongNoiseSize: number // 强噪声大小
+  strongNoise: number // 强噪声强度
+  fade: number // 淡化强度
+  seed: number // 随机种子
+}
+
+// 做旧效果
+export type IAgingEffect = {
+  applyAging: boolean // 是否应用做旧效果
+  agingIntensity: number // 做旧效果强度
+  agingEffectParams: IAgingEffectParams[] // 保存做旧效果的参数数组
+}
+
+// 绘制五角星
+export type IDrawStar = {
+  svgPath: string // svg路径
+  drawStar: boolean // 是否绘制五角星
+  starDiameter: number // 五角星直径
+  starPositionY: number // 五角星位置
+  scaleToSmallStar: boolean // 是否缩放为小五角星
+}
+
+// 印章类型
+export type IStampType = {
+  stampType: string // 印章类型
+  fontHeight: number // 字体高度  
+  compression: number // 压缩比例
+  letterSpacing: number // 字符间距
+  positionY: number // 位置
+  fontWidth: number // 字体宽度
+}
+
+// 内圈圆
+export type IInnerCircle = {
+  drawInnerCircle: boolean // 是否绘制内圈圆
+  innerCircleLineWidth: number // 内圈圆线宽
+  innerCircleLineRadiusX: number // x轴半径
+  innerCircleLineRadiusY: number // y轴半径
+}
+
+// 是否绘制标尺
+export type IShowRuler = {
+  showRuler: boolean // 是否绘制标尺
+  showFullRuler: boolean // 是否绘制全标尺  
+}
+
+// 绘制印章的参数
+export type IDrawStampConfig = {
+  agingEffect: IAgingEffect // 做旧效果
+  ruler: IShowRuler // 是否绘制标尺
+  drawStar: IDrawStar // 是否绘制五角星
+  securityPattern: ISecurityPattern
+  company: ICompany // 公司
+  stampCode: ICode // 印章编码
+  taxNumber: ITaxNumber // 税号
+  stampType: IStampType // 印章类型
+  width: number // 印章宽度
+  height: number // 印章高度
+  borderWidth: number // 印章边框宽度
+  primaryColor: string // 印章主色
+  refreshSecurityPattern: boolean // 是否刷新防伪纹路
+  refreshOld: boolean // 是否刷新做旧效果
+  shouldDrawRuler: boolean // 是否绘制标尺
+  innerCircle: IInnerCircle // 内圈圆
+  outThinCircle: IInnerCircle // 比外圈细的稍微内圈
+  openManualAging: boolean // 是否开启手动做旧效果
+}
+
+
+```
 
 完整示例
-具体请参考SealEditor.vue中的方法作为参考
+DrawStampUtilsDemo.vue中的方法作为参考
 
 
 贡献
