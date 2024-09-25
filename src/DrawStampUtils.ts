@@ -278,31 +278,32 @@ export class DrawStampUtils {
   addManualAgingEffect(x: number, y: number, intensityFactor: number) {
     console.log('手动做旧   1', x, y, this.drawStampConfigs.agingEffect.agingEffectParams)
     const radius = 1.5 * this.mmToPixel; // 直径3mm，半径1.5mm
+  
+    // 考虑印章偏移量
+    const adjustedX = x - this.stampOffsetX * this.mmToPixel;
+    const adjustedY = y - this.stampOffsetY * this.mmToPixel;
+    
     this.canvasCtx.beginPath();
     this.canvasCtx.arc(x, y, radius, 0, Math.PI * 2, true);
     this.canvasCtx.fillStyle = 'black'; // 圆圈颜色
     this.canvasCtx.fill();
-
-    // const intensityFactor = this.drawStampConfigs.agingEffect.agingIntensity / 100
+  
     for(let i = 0; i < 10; i++) {
-            // 将点击的地方增加一个做旧数据到做旧的列表里面
-            this.drawStampConfigs.agingEffect.agingEffectParams.push({
-              x: x,
-              y: y,
-              noiseSize: Math.random() * 3 + 1,
-              noise: Math.random() * 200 * intensityFactor,
-              strongNoiseSize: Math.random() * 5 + 2,
-              strongNoise: Math.random() * 250 * intensityFactor + 5,
-              fade: Math.random() * 50 * intensityFactor,
-              seed: Math.random()
-            })
+      // 将点击的地方增加一个做旧数据到做旧的列表里面
+      this.drawStampConfigs.agingEffect.agingEffectParams.push({
+        x: adjustedX,
+        y: adjustedY,
+        noiseSize: Math.random() * 3 + 1,
+        noise: Math.random() * 200 * intensityFactor,
+        strongNoiseSize: Math.random() * 5 + 2,
+        strongNoise: Math.random() * 250 * intensityFactor + 5,
+        fade: Math.random() * 50 * intensityFactor,
+        seed: Math.random()
+      })
     }
-
+  
     // 立即刷新画布以显示效果
     this.refreshStamp(false, false);
-
-    console.log('手动做旧   2', x, y, this.drawStampConfigs.agingEffect.agingEffectParams)
-
   }
 
   // 设置绘制印章的配置，比如可以保存某些印章的配置，然后保存之后直接设置绘制，更加方便
@@ -1127,35 +1128,6 @@ export class DrawStampUtils {
     // ctx.restore()
   }
 
-  private addAgingEffectForSave(ctx: CanvasRenderingContext2D, width: number, height: number) {
-    if (!this.drawStampConfigs.agingEffect.applyAging) return
-    const imageData = ctx.getImageData(0, 0, width, height)
-    const data = imageData.data
-
-    // 使用保存的参数应用做旧效果
-    this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
-      const { x, y, noiseSize, noise, strongNoiseSize, strongNoise, fade, seed } = param
-      const realX = x
-      const realY = y
-      const index = (realY * width + realX) * 4
-
-      if (seed < 0.4) {
-        this.addCircularNoise(data, width, realX, realY, noiseSize, noise)
-      }
-
-      if (seed < 0.05) {
-        this.addCircularNoise(data, width, realX, realY, strongNoiseSize, strongNoise)
-      }
-
-      if (seed < 0.2) {
-        data[index] = Math.min(255, data[index] + fade)
-        data[index + 1] = Math.min(255, data[index + 1] + fade)
-        data[index + 2] = Math.min(255, data[index + 2] + fade)
-      }
-    })
-
-    ctx.putImageData(imageData, 0, 0)
-  }
 
   /**
    * 添加做旧效果
@@ -1163,73 +1135,78 @@ export class DrawStampUtils {
    * @param height 画布高度
    * @param forceRefresh 是否强制刷新
    */
-  private addAgingEffect(
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    forceRefresh: boolean = false
-  ) {
-    if (!this.drawStampConfigs.agingEffect.applyAging) return
-    const imageData = ctx.getImageData(0, 0, width, height)
-    const data = imageData.data
+  // ... 现有代码 ...
 
-    const centerX = width / 2
-    const centerY = height / 2
-    const radius = (Math.max(width, height) / 2) * this.mmToPixel
+private addAgingEffect(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  forceRefresh: boolean = false
+) {
+  if (!this.drawStampConfigs.agingEffect.applyAging) return
+  const imageData = ctx.getImageData(0, 0, width, height)
+  const data = imageData.data
 
-    // 如果需要刷新或者参数数组为空,则重新生成参数
-    if (forceRefresh || this.drawStampConfigs.agingEffect.agingEffectParams.length === 0) {
-      this.drawStampConfigs.agingEffect.agingEffectParams = []
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const index = (y * width + x) * 4
-          const distanceFromCenter = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2))
-          if (
-            distanceFromCenter <= radius &&
-            data[index] > 200 &&
-            data[index + 1] < 50 &&
-            data[index + 2] < 50
-          ) {
-            const intensityFactor = this.drawStampConfigs.agingEffect.agingIntensity / 100 // 可以根据需要调整
-            const seed = Math.random()
-            this.drawStampConfigs.agingEffect.agingEffectParams.push({
-              x,
-              y,
-              noiseSize: Math.random() * 3 + 1,
-              noise: Math.random() * 200 * intensityFactor,
-              strongNoiseSize: Math.random() * 5 + 2,
-              strongNoise: Math.random() * 250 * intensityFactor + 5,
-              fade: Math.random() * 50 * intensityFactor,
-              seed: seed
-            })
-          }
+  const centerX = width / 2 + this.stampOffsetX * this.mmToPixel
+  const centerY = height / 2 + this.stampOffsetY * this.mmToPixel
+  const radius = (Math.max(width, height) / 2) * this.mmToPixel
+
+  // 如果需要刷新或者参数数组为空,则重新生成参数
+  if (forceRefresh || this.drawStampConfigs.agingEffect.agingEffectParams.length === 0) {
+    this.drawStampConfigs.agingEffect.agingEffectParams = []
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const index = (y * width + x) * 4
+        const distanceFromCenter = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2))
+        if (
+          distanceFromCenter <= radius &&
+          data[index] > 200 &&
+          data[index + 1] < 50 &&
+          data[index + 2] < 50
+        ) {
+          const intensityFactor = this.drawStampConfigs.agingEffect.agingIntensity / 100
+          const seed = Math.random()
+          this.drawStampConfigs.agingEffect.agingEffectParams.push({
+            x: x - this.stampOffsetX * this.mmToPixel,
+            y: y - this.stampOffsetY * this.mmToPixel,
+            noiseSize: Math.random() * 3 + 1,
+            noise: Math.random() * 200 * intensityFactor,
+            strongNoiseSize: Math.random() * 5 + 2,
+            strongNoise: Math.random() * 250 * intensityFactor + 5,
+            fade: Math.random() * 50 * intensityFactor,
+            seed: seed
+          })
         }
       }
     }
-
-    // 使用保存的参数应用做旧效果
-    this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
-      const { x, y, noiseSize, noise, strongNoiseSize, strongNoise, fade, seed } = param
-      const index = (y * width + x) * 4
-
-      if (seed < 0.4) {
-        this.addCircularNoise(data, width, x, y, noiseSize, noise)
-      }
-
-      if (seed < 0.05) {
-        this.addCircularNoise(data, width, x, y, strongNoiseSize, strongNoise)
-      }
-
-      if (seed < 0.2) {
-        data[index] = Math.min(255, data[index] + fade)
-        data[index + 1] = Math.min(255, data[index + 1] + fade)
-        data[index + 2] = Math.min(255, data[index + 2] + fade)
-      }
-    })
-
-    ctx.putImageData(imageData, 0, 0)
   }
 
+  // 使用保存的参数应用做旧效果
+  this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
+    const { x, y, noiseSize, noise, strongNoiseSize, strongNoise, fade, seed } = param
+    const adjustedX = x + this.stampOffsetX * this.mmToPixel
+    const adjustedY = y + this.stampOffsetY * this.mmToPixel
+    const index = (Math.round(adjustedY) * width + Math.round(adjustedX)) * 4
+
+    if (seed < 0.4) {
+      this.addCircularNoise(data, width, adjustedX, adjustedY, noiseSize, noise)
+    }
+
+    if (seed < 0.05) {
+      this.addCircularNoise(data, width, adjustedX, adjustedY, strongNoiseSize, strongNoise)
+    }
+
+    if (seed < 0.2) {
+      data[index] = Math.min(255, data[index] + fade)
+      data[index + 1] = Math.min(255, data[index + 1] + fade)
+      data[index + 2] = Math.min(255, data[index + 2] + fade)
+    }
+  })
+
+  ctx.putImageData(imageData, 0, 0)
+}
+
+// ... 其余代码保持不变 ...
   private addCircularNoise(
     data: Uint8ClampedArray,
     width: number,
