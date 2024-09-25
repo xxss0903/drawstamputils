@@ -432,19 +432,20 @@ export class DrawStampUtils {
     const x = mmX * this.mmToPixel + RULER_WIDTH
     const y = mmY * this.mmToPixel + RULER_HEIGHT
 
-    // 高亮水平标尺
+  // 高亮水平标尺
     ctx.fillStyle = this.drawStampConfigs.primaryColor
     ctx.fillRect(RULER_WIDTH, y - 1, this.canvas.width - RULER_WIDTH, 2)
 
-    // 高亮垂直标尺
+  // 高亮垂直标尺
     ctx.fillRect(x - 1, RULER_HEIGHT, 2, this.canvas.height - RULER_HEIGHT)
 
-    // 显示坐标
-    ctx.fillStyle = 'black'
-    ctx.font = 'bold 12px Arial'
-    ctx.textAlign = 'left'
-    ctx.textBaseline = 'top'
-    ctx.fillText(`${mmX.toFixed(1)}mm, ${mmY.toFixed(1)}mm`, RULER_WIDTH + 5, RULER_HEIGHT + 5)
+  // 显示坐标
+  ctx.fillStyle = 'black';
+  ctx.font = 'bold 12px Arial';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`${mmX.toFixed(1)}mm, ${mmY.toFixed(1)}mm, scale: ${this.scale.toFixed(2)}`, RULER_WIDTH + 5, RULER_HEIGHT + 5);
+
   }
 
   private drawCrossLines = (x: number, y: number) => {
@@ -1188,13 +1189,14 @@ private addAgingEffect(
   height: number,
   forceRefresh: boolean = false
 ) {
-  if (!this.drawStampConfigs.agingEffect.applyAging) return
-  const imageData = ctx.getImageData(0, 0, width, height)
-  const data = imageData.data
+  if (!this.drawStampConfigs.agingEffect.applyAging) return;
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
 
-  const centerX = width / 2 + this.stampOffsetX * this.mmToPixel
-  const centerY = height / 2 + this.stampOffsetY * this.mmToPixel
-  const radius = (Math.max(width, height) / 2) * this.mmToPixel
+  const centerX = width / (2 * this.scale) + this.stampOffsetX * this.mmToPixel / this.scale;
+  const centerY = height / (2 * this.scale) + this.stampOffsetY * this.mmToPixel / this.scale;
+  const radius = (Math.max(width, height) / 2) * this.mmToPixel / this.scale;
+
 
   // 如果需要刷新或者参数数组为空,则重新生成参数
   if (forceRefresh || this.drawStampConfigs.agingEffect.agingEffectParams.length === 0) {
@@ -1226,28 +1228,28 @@ private addAgingEffect(
     }
   }
 
-  // 使用保存的参数应用做旧效果
-  this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
+    // 使用保存的参数应用做旧效果
+    this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
     const { x, y, noiseSize, noise, strongNoiseSize, strongNoise, fade, seed } = param
     const adjustedX = x + this.stampOffsetX * this.mmToPixel
     const adjustedY = y + this.stampOffsetY * this.mmToPixel
     const index = (Math.round(adjustedY) * width + Math.round(adjustedX)) * 4
-
-    if (seed < 0.4) {
+  
+      if (seed < 0.4) {
       this.addCircularNoise(data, width, adjustedX, adjustedY, noiseSize, noise)
-    }
-
-    if (seed < 0.05) {
+      }
+  
+      if (seed < 0.05) {
       this.addCircularNoise(data, width, adjustedX, adjustedY, strongNoiseSize, strongNoise)
-    }
-
-    if (seed < 0.2) {
+      }
+  
+      if (seed < 0.2) {
       data[index] = Math.min(255, data[index] + fade)
       data[index + 1] = Math.min(255, data[index + 1] + fade)
       data[index + 2] = Math.min(255, data[index + 2] + fade)
-    }
+      }
   })
-
+  
   ctx.putImageData(imageData, 0, 0)
 }
 
@@ -1283,30 +1285,32 @@ private addAgingEffect(
    * @param height 画布高度
    */
   private drawFullRuler(ctx: CanvasRenderingContext2D, width: number, height: number) {
-    if (!this.ruler.showFullRuler) return
+    if (!this.ruler.showFullRuler) return;
 
-    ctx.save()
-    ctx.strokeStyle = '#bbbbbb' // 浅灰色
-    ctx.lineWidth = 1
-    ctx.setLineDash([5, 5]) // 设置虚线样式
-
+    ctx.save();
+    ctx.strokeStyle = '#bbbbbb'; // 浅灰色
+    ctx.lineWidth = 1; // 保持线宽不变
+    ctx.setLineDash([5, 5]); // 保持虚线样式不变
+  
+    const step = this.mmToPixel * 5; // 5mm的像素长度
+  
     // 绘制垂直线
-    for (let x = RULER_WIDTH; x < width; x += 5 * this.mmToPixel) {
-      ctx.beginPath()
-      ctx.moveTo(x, RULER_HEIGHT)
-      ctx.lineTo(x, height)
-      ctx.stroke()
+    for (let x = RULER_WIDTH; x < width; x += step * this.scale) {
+      ctx.beginPath();
+      ctx.moveTo(x, RULER_HEIGHT);
+      ctx.lineTo(x, height);
+      ctx.stroke();
     }
-
+  
     // 绘制水平线
-    for (let y = RULER_HEIGHT; y < height; y += 5 * this.mmToPixel) {
-      ctx.beginPath()
-      ctx.moveTo(RULER_WIDTH, y)
-      ctx.lineTo(width, y)
-      ctx.stroke()
+    for (let y = RULER_HEIGHT; y < height; y += step * this.scale) {
+      ctx.beginPath();
+      ctx.moveTo(RULER_WIDTH, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
     }
-
-    ctx.restore()
+  
+    ctx.restore();
   }
 
   /**
@@ -1321,76 +1325,65 @@ private addAgingEffect(
     rulerSize: number,
     isHorizontal: boolean
   ) {
-    if (!this.ruler.showRuler) return
+    if (!this.ruler.showRuler) return;
 
-    const mmPerPixel = 1 / this.mmToPixel
-
-    // 绘制标尺背景
-    ctx.fillStyle = 'lightgray'
+    const mmPerPixel = 1 / this.mmToPixel;
+  
+    ctx.save();
+    ctx.fillStyle = 'lightgray';
     if (isHorizontal) {
-      ctx.fillRect(0, 0, rulerLength, rulerSize)
+      ctx.fillRect(0, 0, rulerLength, rulerSize);
     } else {
-      ctx.fillRect(0, 0, rulerSize, rulerLength)
+      ctx.fillRect(0, 0, rulerSize, rulerLength);
     }
-
-    // 绘制刻度和数字
-    ctx.fillStyle = 'black'
-    ctx.font = '10px Arial'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'top'
-
-    for (let i = 0; i <= rulerLength - rulerSize; i += this.mmToPixel / 10) {
-      const pos = i + rulerSize
-      const mm = Math.round(i * mmPerPixel * 10) / 10
-
+  
+    ctx.fillStyle = 'black';
+    ctx.font = '10px Arial'; // 保持字体大小不变
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+  
+    const step = this.mmToPixel; // 1mm的像素长度
+    const maxMM = Math.ceil((rulerLength - rulerSize) * mmPerPixel / this.scale);
+  
+    for (let mm = 0; mm <= maxMM; mm++) {
+      const pos = mm * step * this.scale + rulerSize;
+  
       if (mm % 5 === 0) {
-        // 5毫米刻度
-        ctx.beginPath()
+        ctx.beginPath();
         if (isHorizontal) {
-          ctx.moveTo(pos, 0)
-          ctx.lineTo(pos, rulerSize * 0.8)
+          ctx.moveTo(pos, 0);
+          ctx.lineTo(pos, rulerSize * 0.8);
         } else {
-          ctx.moveTo(0, pos)
-          ctx.lineTo(rulerSize * 0.8, pos)
+          ctx.moveTo(0, pos);
+          ctx.lineTo(rulerSize * 0.8, pos);
         }
-        ctx.lineWidth = 1
-        ctx.stroke()
-
-        ctx.save()
+        ctx.lineWidth = 1; // 保持线宽不变
+        ctx.stroke();
+  
+        ctx.save();
         if (isHorizontal) {
-          ctx.fillText(mm.toString(), pos, rulerSize * 0.8)
+          ctx.fillText(mm.toString(), pos, rulerSize * 0.8);
         } else {
-          ctx.translate(rulerSize * 0.8, pos)
-          ctx.rotate(-Math.PI / 2)
-          ctx.fillText(mm.toString(), 0, 0)
+          ctx.translate(rulerSize * 0.8, pos);
+          ctx.rotate(-Math.PI / 2);
+          ctx.fillText(mm.toString(), 0, 0);
         }
-        ctx.restore()
-      } else if (mm % 1 === 0) {
-        // 1毫米刻度
-        ctx.beginPath()
-        if (isHorizontal) {
-          ctx.moveTo(pos, 0)
-          ctx.lineTo(pos, rulerSize * 0.6)
-        } else {
-          ctx.moveTo(0, pos)
-          ctx.lineTo(rulerSize * 0.6, pos)
-        }
-        ctx.lineWidth = 0.5
-        ctx.stroke()
+        ctx.restore();
       } else {
-        // 0.1毫米刻度
-        ctx.beginPath()
+        ctx.beginPath();
         if (isHorizontal) {
-          ctx.moveTo(pos, 0)
-          ctx.lineTo(pos, rulerSize * 0.2)
+          ctx.moveTo(pos, 0);
+          ctx.lineTo(pos, rulerSize * 0.6);
         } else {
-          ctx.moveTo(0, pos)
-          ctx.lineTo(rulerSize * 0.2, pos)
+          ctx.moveTo(0, pos);
+          ctx.lineTo(rulerSize * 0.6, pos);
         }
-        ctx.lineWidth = 0.5
-        ctx.stroke()
+        ctx.lineWidth = 0.5; // 保持线宽不变
+        ctx.stroke();
       }
     }
+  
+    ctx.restore();
   }
 
   /**
