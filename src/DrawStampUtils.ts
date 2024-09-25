@@ -444,7 +444,9 @@ export class DrawStampUtils {
   ctx.font = 'bold 12px Arial';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText(`${mmX.toFixed(1)}mm, ${mmY.toFixed(1)}mm, scale: ${this.scale.toFixed(2)}`, RULER_WIDTH + 5, RULER_HEIGHT + 5);
+  const showPositionX = mmX / this.scale
+  const showPositionY = mmY / this.scale
+  ctx.fillText(`${showPositionX.toFixed(1)}mm, ${showPositionY.toFixed(1)}mm, scale: ${this.scale.toFixed(2)}`, RULER_WIDTH + 5, RULER_HEIGHT + 5);
 
   }
 
