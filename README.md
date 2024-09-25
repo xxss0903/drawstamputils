@@ -14,8 +14,13 @@ DrawStampUtils.js 是一个使用 JavaScript 制作电子印章的工具。该�
 
 安装
 
-首先，克隆仓库并安装依赖：
+在已有项目使用`drawstamputils`，使用如下命令安装：  
 
+```bash
+npm install drawstamputils
+```
+
+如果要查看示例程序，可以如下方式：
 ```bash
 git clone https://github.com/xxss0903/drawstamputils.git
 cd drawstamputils
