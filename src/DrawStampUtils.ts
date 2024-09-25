@@ -277,16 +277,11 @@ export class DrawStampUtils {
    */
   addManualAgingEffect(x: number, y: number, intensityFactor: number) {
     console.log('手动做旧   1', x, y, this.drawStampConfigs.agingEffect.agingEffectParams)
-    const radius = 1.5 * this.mmToPixel; // 直径3mm，半径1.5mm
+    const radius = 1 * this.mmToPixel; // 直径3mm，半径1.5mm
   
     // 考虑印章偏移量
     const adjustedX = x - this.stampOffsetX * this.mmToPixel;
     const adjustedY = y - this.stampOffsetY * this.mmToPixel;
-    
-    this.canvasCtx.beginPath();
-    this.canvasCtx.arc(x, y, radius, 0, Math.PI * 2, true);
-    this.canvasCtx.fillStyle = 'black'; // 圆圈颜色
-    this.canvasCtx.fill();
   
     for(let i = 0; i < 10; i++) {
       // 将点击的地方增加一个做旧数据到做旧的列表里面
@@ -304,6 +299,19 @@ export class DrawStampUtils {
   
     // 立即刷新画布以显示效果
     this.refreshStamp(false, false);
+  
+    // 绘制鼠标点击效果
+    this.canvasCtx.save();
+    this.canvasCtx.beginPath();
+    this.canvasCtx.arc(x, y, radius, 0, Math.PI * 2, true);
+    this.canvasCtx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // 半透明红色
+    this.canvasCtx.fill();
+    this.canvasCtx.restore();
+  
+    // 添加淡出效果
+    // setTimeout(() => {
+    //   this.refreshStamp(false, false);
+    // }, 50);
   }
 
   // 设置绘制印章的配置，比如可以保存某些印章的配置，然后保存之后直接设置绘制，更加方便
@@ -313,7 +321,15 @@ export class DrawStampUtils {
 
   private addCanvasListener() {
     this.canvas.addEventListener('mousemove', (event) => {
-      this.onMouseMove(event)
+      if(this.drawStampConfigs.openManualAging && event.buttons === 1) {
+        const rect = this.canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const agingIntensity = this.drawStampConfigs.agingEffect.agingIntensity / 100;
+        this.addManualAgingEffect(x, y, agingIntensity);
+      } else {
+        this.onMouseMove(event)
+      }
     })
     this.canvas.addEventListener('mouseleave', (event) => {
       this.onMouseLeave(event)
@@ -340,6 +356,7 @@ export class DrawStampUtils {
 
   private onMouseUp = () => {
     this.isDragging = false
+    this.refreshStamp(false, false);
   }
 
   // 点击印章区域，比如五角星等位置然后进行相应的跳转之类的
