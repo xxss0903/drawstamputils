@@ -123,6 +123,10 @@ const RULER_HEIGHT = 80
  * 绘制印章工具类
  */
 export class DrawStampUtils {
+  // 缩放参数
+  private scale: number = 1;
+  private offsetX: number = 0;
+  private offsetY: number = 0;
   // 主色
   private primaryColor: string = '#ff0000'
   // 毫米到像素的
@@ -352,6 +356,30 @@ export class DrawStampUtils {
     this.canvas.addEventListener('click', (event) => {
       this.onCanvasClick(event)
     })
+      // 添加鼠标滚轮事件监听器
+      this.canvas.addEventListener('wheel', (event: WheelEvent) => {
+        if (event.ctrlKey) {
+          event.preventDefault();
+          const zoom = event.deltaY > 0 ? 0.9 : 1.1;
+          this.zoomCanvas(event.offsetX, event.offsetY, zoom);
+        }
+      });
+          // 添加双击事件监听器来重置缩放
+    this.canvas.addEventListener('dblclick', (event: MouseEvent) => {
+      this.resetZoom();
+    });
+  }
+
+  private zoomCanvas(mouseX: number, mouseY: number, zoom: number) {
+    const oldScale = this.scale;
+    this.scale *= zoom;
+    this.scale = Math.max(0.1, Math.min(5, this.scale)); // 限制缩放范围
+
+    // 调整偏移量以保持鼠标位置不变
+    this.offsetX = mouseX - (mouseX - this.offsetX) * (this.scale / oldScale);
+    this.offsetY = mouseY - (mouseY - this.offsetY) * (this.scale / oldScale);
+
+    this.refreshStamp();
   }
 
   private onMouseUp = () => {
@@ -1433,16 +1461,27 @@ private addAgingEffect(
 
   // 刷新印章绘制
   refreshStamp(refreshSecurityPattern: boolean = false, refreshOld: boolean = false) {
-    // 计算画布中心点
-    const x = this.canvas.width / 2
-    const y = this.canvas.height / 2
-    const mmToPixel = this.mmToPixel
-    const drawRadiusX = (this.drawStampConfigs.width - this.drawStampConfigs.borderWidth) / 2
-    const drawRadiusY = (this.drawStampConfigs.height - this.drawStampConfigs.borderWidth) / 2
-    const offsetX = this.stampOffsetX * this.mmToPixel
-    const offsetY = this.stampOffsetY * this.mmToPixel
-    const centerX = x + offsetX
-    const centerY = y + offsetY
+    // 清除整个画布
+    this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // 保存当前状态
+    this.canvasCtx.save();
+
+    // 应用缩放和平移
+    this.canvasCtx.translate(this.offsetX, this.offsetY);
+    this.canvasCtx.scale(this.scale, this.scale);
+
+  // 计算画布中心点
+  const x = this.canvas.width / 2 / this.scale;
+  const y = this.canvas.height / 2 / this.scale;
+  const mmToPixel = this.mmToPixel;
+  const drawRadiusX = (this.drawStampConfigs.width - this.drawStampConfigs.borderWidth) / 2;
+  const drawRadiusY = (this.drawStampConfigs.height - this.drawStampConfigs.borderWidth) / 2;
+  const offsetX = this.stampOffsetX * this.mmToPixel;
+  const offsetY = this.stampOffsetY * this.mmToPixel;
+  const centerX = x + offsetX;
+  const centerY = y + offsetY;
+
 
     this.drawStamp(
       this.canvasCtx,
@@ -1455,7 +1494,45 @@ private addAgingEffect(
       refreshSecurityPattern,
       refreshOld
     )
+
+        // 恢复状态
+        this.canvasCtx.restore();
+
+         // 绘制标尺（如果需要）
+    if (this.drawStampConfigs.shouldDrawRuler) {
+      this.drawRuler(this.canvasCtx, this.canvas.width, RULER_HEIGHT, true);
+      this.drawRuler(this.canvasCtx, this.canvas.height, RULER_HEIGHT, false);
+      this.drawFullRuler(this.canvasCtx, this.canvas.width, this.canvas.height);
+    }
+
+      // 显示缩放比例
+    this.displayZoomLevel();
   }
+
+// 新增方法：显示缩放比例
+private displayZoomLevel() {
+  const zoomPercentage = Math.round(this.scale * 100);
+  this.canvasCtx.save();
+  this.canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  this.canvasCtx.fillRect(this.canvas.width - 70, 10, 60, 30);
+  this.canvasCtx.fillStyle = 'white';
+  this.canvasCtx.font = '14px Arial';
+  this.canvasCtx.textAlign = 'center';
+  this.canvasCtx.textBaseline = 'middle';
+  this.canvasCtx.fillText(`${zoomPercentage}%`, this.canvas.width - 40, 25);
+  this.canvasCtx.restore();
+}
+
+  /**
+   * 重置缩放比例为100%
+   */
+  resetZoom() {
+    this.scale = 1;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.refreshStamp();
+  }
+
 
   /**
    * 绘制印章
@@ -1585,12 +1662,12 @@ private addAgingEffect(
     // 在绘制完所有内容后，添加做旧效果
     this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
 
-    if (this.drawStampConfigs.shouldDrawRuler) {
-      // 绘制标尺
-      this.drawRuler(ctx, this.canvas.width, RULER_HEIGHT, true)
-      this.drawRuler(ctx, this.canvas.height, RULER_HEIGHT, false)
-      // 将全尺寸标尺绘制到离屏canvas上
-      this.drawFullRuler(ctx, this.canvas.width, this.canvas.height)
-    }
+    // if (this.drawStampConfigs.shouldDrawRuler) {
+    //   // 绘制标尺
+    //   this.drawRuler(ctx, this.canvas.width, RULER_HEIGHT, true)
+    //   this.drawRuler(ctx, this.canvas.height, RULER_HEIGHT, false)
+    //   // 将全尺寸标尺绘制到离屏canvas上
+    //   this.drawFullRuler(ctx, this.canvas.width, this.canvas.height)
+    // }
   }
 }
