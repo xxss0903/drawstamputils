@@ -365,9 +365,9 @@ export class DrawStampUtils {
         }
       });
           // 添加双击事件监听器来重置缩放
-    this.canvas.addEventListener('dblclick', (event: MouseEvent) => {
-      this.resetZoom();
-    });
+    // this.canvas.addEventListener('dblclick', (event: MouseEvent) => {
+    //   this.resetZoom();
+    // });
   }
 
   private zoomCanvas(mouseX: number, mouseY: number, zoom: number) {
@@ -1183,8 +1183,6 @@ export class DrawStampUtils {
    * @param height 画布高度
    * @param forceRefresh 是否强制刷新
    */
-  // ... 现有代码 ...
-
 private addAgingEffect(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -1499,24 +1497,7 @@ private addAgingEffect(
       this.drawRuler(this.canvasCtx, this.canvas.height, RULER_HEIGHT, false);
       this.drawFullRuler(this.canvasCtx, this.canvas.width, this.canvas.height);
     }
-
-      // 显示缩放比例
-    this.displayZoomLevel();
   }
-
-// 新增方法：显示缩放比例
-private displayZoomLevel() {
-  const zoomPercentage = Math.round(this.scale * 100);
-  this.canvasCtx.save();
-  this.canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-  this.canvasCtx.fillRect(this.canvas.width - 70, 10, 60, 30);
-  this.canvasCtx.fillStyle = 'white';
-  this.canvasCtx.font = '14px Arial';
-  this.canvasCtx.textAlign = 'center';
-  this.canvasCtx.textBaseline = 'middle';
-  this.canvasCtx.fillText(`${zoomPercentage}%`, this.canvas.width - 40, 25);
-  this.canvasCtx.restore();
-}
 
   /**
    * 重置缩放比例为100%
