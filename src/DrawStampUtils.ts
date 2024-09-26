@@ -282,7 +282,7 @@ export class DrawStampUtils {
   addManualAgingEffect(x: number, y: number, intensityFactor: number) {
     console.log('手动做旧   1', x, y, this.drawStampConfigs.agingEffect.agingEffectParams)
     const radius = 1 * this.mmToPixel; // 直径3mm，半径1.5mm
-  
+
     // 考虑印章偏移量
     const adjustedX = x - this.stampOffsetX * this.mmToPixel;
     const adjustedY = y - this.stampOffsetY * this.mmToPixel;
@@ -306,16 +306,12 @@ export class DrawStampUtils {
   
     // 绘制鼠标点击效果
     this.canvasCtx.save();
+    this.canvasCtx.globalCompositeOperation = 'destination-out'; // 改变这里
     this.canvasCtx.beginPath();
     this.canvasCtx.arc(x, y, radius, 0, Math.PI * 2, true);
-    this.canvasCtx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // 半透明红色
+    this.canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // 使用白色，但透明度降低
     this.canvasCtx.fill();
     this.canvasCtx.restore();
-  
-    // 添加淡出效果
-    // setTimeout(() => {
-    //   this.refreshStamp(false, false);
-    // }, 50);
   }
 
   // 设置绘制印章的配置，比如可以保存某些印章的配置，然后保存之后直接设置绘制，更加方便
@@ -1228,48 +1224,49 @@ private addAgingEffect(
     }
   }
 
-    // 使用保存的参数应用做旧效果
-    this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
+     // 使用保存的参数应用做旧效果
+  this.drawStampConfigs.agingEffect.agingEffectParams.forEach((param) => {
     const { x, y, noiseSize, noise, strongNoiseSize, strongNoise, fade, seed } = param
     const adjustedX = x + this.stampOffsetX * this.mmToPixel
     const adjustedY = y + this.stampOffsetY * this.mmToPixel
     const index = (Math.round(adjustedY) * width + Math.round(adjustedX)) * 4
-  
-      if (seed < 0.4) {
-      this.addCircularNoise(data, width, adjustedX, adjustedY, noiseSize, noise)
-      }
-  
-      if (seed < 0.05) {
-      this.addCircularNoise(data, width, adjustedX, adjustedY, strongNoiseSize, strongNoise)
-      }
-  
-      if (seed < 0.2) {
-      data[index] = Math.min(255, data[index] + fade)
-      data[index + 1] = Math.min(255, data[index + 1] + fade)
-      data[index + 2] = Math.min(255, data[index + 2] + fade)
-      }
+
+    if (seed < 0.4) {
+      this.addCircularNoise(data, width, adjustedX, adjustedY, noiseSize, noise, true)
+    }
+
+    if (seed < 0.05) {
+      this.addCircularNoise(data, width, adjustedX, adjustedY, strongNoiseSize, strongNoise, true)
+    }
+
+    if (seed < 0.2) {
+      data[index + 3] = Math.max(0, data[index + 3] - fade) // 修改这里，只改变透明度
+    }
   })
-  
+
   ctx.putImageData(imageData, 0, 0)
 }
 
-// ... 其余代码保持不变 ...
-  private addCircularNoise(
-    data: Uint8ClampedArray,
-    width: number,
-    x: number,
-    y: number,
-    size: number,
-    intensity: number
-  ) {
-    const radiusSquared = (size * size) / 4
-    for (let dy = -size / 2; dy < size / 2; dy++) {
-      for (let dx = -size / 2; dx < size / 2; dx++) {
-        if (dx * dx + dy * dy <= radiusSquared) {
-          const nx = Math.round(x + dx)
-          const ny = Math.round(y + dy)
-          const nIndex = (ny * width + nx) * 4
-          if (nIndex >= 0 && nIndex < data.length) {
+private addCircularNoise(
+  data: Uint8ClampedArray,
+  width: number,
+  x: number,
+  y: number,
+  size: number,
+  intensity: number,
+  transparent: boolean = false
+) {
+  const radiusSquared = (size * size) / 4
+  for (let dy = -size / 2; dy < size / 2; dy++) {
+    for (let dx = -size / 2; dx < size / 2; dx++) {
+      if (dx * dx + dy * dy <= radiusSquared) {
+        const nx = Math.round(x + dx)
+        const ny = Math.round(y + dy)
+        const nIndex = (ny * width + nx) * 4
+        if (nIndex >= 0 && nIndex < data.length) {
+          if (transparent) {
+            data[nIndex + 3] = Math.max(0, data[nIndex + 3] - intensity) // 只改变透明度
+          } else {
             data[nIndex] = Math.min(255, data[nIndex] + intensity)
             data[nIndex + 1] = Math.min(255, data[nIndex + 1] + intensity)
             data[nIndex + 2] = Math.min(255, data[nIndex + 2] + intensity)
@@ -1278,6 +1275,7 @@ private addAgingEffect(
       }
     }
   }
+}
 
   /**
    * 绘制全尺寸标尺
