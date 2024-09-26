@@ -1,5 +1,8 @@
 DrawStampUtils.js
 
+<font color="red">本项目仅供学习参考，勿做违法用途，后果自负</font>
+
+
 简介
 
 DrawStampUtils.js 是一个使用 JavaScript 制作电子印章的工具。该项目使用 Vue 3 和 TypeScript 构建，并通过 Vite 进行开发和构建。
@@ -132,6 +135,18 @@ DrawStampUtils 支持以下配置选项：
 | - fade | 控制淡化强度 |
 | - seed | 设置随机种子 |
 
+
+
+## 支持作者
+
+如果您觉得这个项目对您有帮助，欢迎给作者买杯咖啡！您的支持将激励我们继续改进和维护这个项目。
+
+<div style="display: flex; justify-content: center;">
+  <img src="public/alipay.png" alt="支付宝支付" style="width: 30%; margin-right: 10px;">
+  <img src="public/wechatpay.png" alt="微信支付" style="width: 30%;">
+</div>
+
+感谢您的支持！
 
 
 
