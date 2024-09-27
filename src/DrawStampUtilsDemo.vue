@@ -6,7 +6,7 @@
         class="button-group"
         style="position: sticky; top: 0; z-index: 1000; background-color: white; padding: 10px"
       >
-        <button @click="updateStamp()">刷新印章</button>
+        <button @click="extractStamp()">提取印章</button>
         <button @click="saveStampAsPNG">保存印章</button>
       </div>
 
@@ -365,8 +365,24 @@ const saveStampAsPNG = () => {
 const drawStampWidth = ref(40)
 const drawStampHeight = ref(30)
 
-const updateStamp = () => {
-  drawStamp()
+
+const extractStamp = () => {
+  // 选择图片进行印章提取
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  fileInput.onchange = (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      console.log('选择了图片', file)
+        // 这里可以进一步处理base64数据，比如传递给extractRedStamp函数
+        const dstImg = drawStampUtils.extractStampWithFile(file, '#ff0000', '#0000ff');
+        console.log(dstImg);
+    } else {
+      console.error('未选择图片')
+    }
+  };
+  fileInput.click();
 }
 
 // 绘制工具

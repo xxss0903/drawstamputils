@@ -1,3 +1,4 @@
+declare var cv: any;
 // 防伪纹路
 export type ISecurityPattern = {  
   openSecurityPattern: boolean // 是否启用防伪纹路
@@ -237,6 +238,7 @@ export class DrawStampUtils {
     outThinCircle: this.outThinCircle,
     openManualAging: false
   }
+  private cvReady: boolean = false;
 
   /**
    * 构造函数
@@ -262,7 +264,23 @@ export class DrawStampUtils {
       this.offscreenCanvas.height = canvas.height
     }
     this.addCanvasListener()
+    this.initOpenCV();
   }
+
+  
+  private initOpenCV() {
+    if (typeof cv !== 'undefined') {
+      this.cvReady = true;
+      console.log('OpenCV.js 已加载');
+    } else {
+      console.log('等待 OpenCV.js 加载...');
+      document.addEventListener('opencv-ready', () => {
+        this.cvReady = true;
+        console.log('OpenCV.js 已加载');
+      });
+    }
+  }
+
 
   private isDragging = false
   private dragStartX = 0
@@ -443,7 +461,6 @@ export class DrawStampUtils {
   const showPositionX = mmX / this.scale
   const showPositionY = mmY / this.scale
   ctx.fillText(`${showPositionX.toFixed(1)}mm, ${showPositionY.toFixed(1)}mm, scale: ${this.scale.toFixed(2)}`, RULER_WIDTH + 5, RULER_HEIGHT + 5);
-
   }
 
   private drawCrossLines = (x: number, y: number) => {
@@ -477,6 +494,245 @@ export class DrawStampUtils {
         mainCtx.drawImage(canvas, 0, 0)
       }
     }
+  }
+
+  /**
+   * 提取红色印章
+   * @param img 
+   * @returns 
+   */
+  extractRedStamp(img: any): any {
+    if (this.cvReady) {
+      const dstImg = this.extractRedStampWithColor(img, this.primaryColor)
+      return dstImg
+    } else {
+      console.error('OpenCV.js 未加载');
+      return null;
+    }
+  }
+
+  extractStampWithColor(img: any, extractColor: string, setColor: string): any {
+    if (this.cvReady) {
+      const dstImg = this.extractStampWithColor(img, extractColor, setColor)
+      return dstImg
+    } else {
+      console.error('OpenCV.js 未加载');
+      return null;
+    }
+  }
+
+  /**
+   * 将十六进制颜色值转换为RGBA
+   * @param hex 
+   * @returns 
+   */
+  private hexToRgba(hex: string) {
+    let r = parseInt(hex.slice(1, 3), 16)
+    let g = parseInt(hex.slice(3, 5), 16)
+    let b = parseInt(hex.slice(5, 7), 16)
+    let a = 255
+    if (hex.length === 9) {
+      a = parseInt(hex.slice(7, 9), 16)
+    }
+    return [r, g, b, a]
+  }
+
+  /**
+   * 根据文件提取红色印章 
+   * @param file 
+   * @returns 
+   */
+  extractRedStampWithFile(file: File) {
+  return new Promise((resolve, reject) => {
+  const img = new Image();
+    img.onload = () => {
+      const dstImg = this.extractRedStampWithColor(img, this.primaryColor);
+      resolve(dstImg);
+    };
+    img.onerror = (error) => {
+      console.error('图片加载失败', error)
+      reject(new Error('图片加载失败'));
+    };
+    img.src = URL.createObjectURL(file);
+  });
+  }
+
+  extractStampWithFile(file: File, extractColor: string, setColor: string) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const dstImg = this.extractStampWithColorImpl(img, extractColor, setColor);
+        resolve(dstImg);
+      };
+      img.onerror = (error) => {
+        console.error('图片加载失败', error)
+        reject(new Error('图片加载失败'));
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  /**
+   * 提取红色印章
+   * @param img 
+   * @param color 
+   * @returns 
+   */
+  private extractRedStampWithColor(img: any, color: string): any {
+    if (this.cvReady) {
+      // 获取图片的宽高
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      console.log('图片宽度:', imgWidth, '图片高度:', imgHeight);
+      let src = cv.imread(img)
+      let dst = new cv.Mat()
+      let mask = new cv.Mat()
+
+        // 转换为HSV颜色空间
+        cv.cvtColor(src, dst, cv.COLOR_RGBA2RGB)
+        cv.cvtColor(dst, dst, cv.COLOR_RGB2HSV)
+
+        // 定义红色的HSV范围
+        let lowRedA = new cv.Mat(dst.rows, dst.cols, dst.type(), [0, 100, 100, 0])
+        let highRedA = new cv.Mat(dst.rows, dst.cols, dst.type(), [10, 255, 255, 255])
+        let lowRedB = new cv.Mat(dst.rows, dst.cols, dst.type(), [160, 100, 100, 0])
+        let highRedB = new cv.Mat(dst.rows, dst.cols, dst.type(), [180, 255, 255, 255])
+
+        // 创建掩码
+        let maskA = new cv.Mat()
+        let maskB = new cv.Mat()
+        cv.inRange(dst, lowRedA, highRedA, maskA)
+        cv.inRange(dst, lowRedB, highRedB, maskB)
+        cv.add(maskA, maskB, mask)
+
+        // 将十六进制颜色值转换为RGB
+        const dstColor = this.hexToRgba(color)
+        console.log('dstColor:', dstColor)
+        // 创建纯红色图像
+        let red = new cv.Mat(src.rows, src.cols, src.type(), dstColor)
+
+        // 使用掩码将红色区域设置为纯红色
+        red.copyTo(dst, mask)
+
+        // 创建隐藏的canvas用来保存提取后的图片
+        const hiddenCanvas = document.createElement('canvas');
+        hiddenCanvas.width = dst.cols;
+        hiddenCanvas.height = dst.rows;
+        cv.imshow(hiddenCanvas, dst);
+        let dataURL = hiddenCanvas.toDataURL('image/png')
+        let link = document.createElement('a')
+        link.download = 'extracted_red_image.png'
+        link.href = dataURL
+        link.click()
+
+        // 释放内存
+        src.delete()
+        dst.delete()
+        mask.delete()
+        maskA.delete()
+        maskB.delete()
+        lowRedA.delete()
+        highRedA.delete()
+        lowRedB.delete()
+        highRedB.delete()
+        red.delete()
+      return dst;
+    } else {
+      console.error('OpenCV.js 未加载');
+      return img;
+    }
+  }
+
+  /**
+   * 提取指定颜色的印章
+   * @param img 要处理的图像
+   * @param extractColor 要提取的颜色，十六进制格式，如 "#FF0000"
+   * @param setColor 设置提取区域的新颜色，十六进制格式，如 "#0000FF"
+   * @returns 处理后的图像
+   * 
+   * @example
+   * // 提取红色印章并将其设置为蓝色
+   * const img = document.getElementById('myImage');
+   * const extractedImg = extractStampWithColor(img, "#FF0000", "#0000FF");
+   * 
+   * // 提取绿色印章并将其设置为黄色
+   * const greenStamp = document.querySelector('.stamp-image');
+   * const yellowStamp = extractStampWithColor(greenStamp, "#00FF00", "#FFFF00");
+   */
+  private extractStampWithColorImpl(img: any, extractColor: string = '#ff0000', setColor: string = '#ff0000'): any {
+    if (this.cvReady) {
+      // 获取图片的宽高
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      console.log('图片宽度:', imgWidth, '图片高度:', imgHeight);
+      let src = cv.imread(img)
+      let dst = new cv.Mat()
+      let mask = new cv.Mat()
+
+      // 转换为HSV颜色空间
+      cv.cvtColor(src, dst, cv.COLOR_RGBA2RGB)
+      cv.cvtColor(dst, dst, cv.COLOR_RGB2HSV)
+
+      // 将提取颜色转换为HSV
+      const extractColorRGB = this.hexToRgba(extractColor)
+      const extractColorHSV = cv.matFromArray(1, 1, cv.CV_8UC3, [extractColorRGB[0], extractColorRGB[1], extractColorRGB[2]])
+      cv.cvtColor(extractColorHSV, extractColorHSV, cv.COLOR_RGB2HSV)
+      const hsvValues = extractColorHSV.data32F
+
+      // 定义提取颜色的HSV范围
+      let lowColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [hsvValues[0] - 10, 100, 100, 0])
+      let highColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [hsvValues[0] + 10, 255, 255, 255])
+
+      // 创建掩码
+      cv.inRange(dst, lowColor, highColor, mask)
+
+      // 将十六进制颜色值转换为RGB
+      const dstColor = this.hexToRgba(setColor)
+      console.log('dstColor:', dstColor)
+      // 创建指定颜色的图像
+      let colorMat = new cv.Mat(src.rows, src.cols, src.type(), dstColor)
+
+      // 使用掩码将提取的区域设置为指定颜色
+      colorMat.copyTo(dst, mask)
+
+      // 创建隐藏的canvas用来保存提取后的图片
+      const hiddenCanvas = document.createElement('canvas');
+      hiddenCanvas.width = dst.cols;
+      hiddenCanvas.height = dst.rows;
+      cv.imshow(hiddenCanvas, dst);
+      let dataURL = hiddenCanvas.toDataURL('image/png')
+      let link = document.createElement('a')
+      link.download = 'extracted_color_image.png'
+      link.href = dataURL
+      link.click()
+
+      // 释放内存
+      src.delete()
+      dst.delete()
+      mask.delete()
+      lowColor.delete()
+      highColor.delete()
+      extractColorHSV.delete()
+      colorMat.delete()
+      return dst;
+    } else {
+      console.error('OpenCV.js 未加载');
+      return img;
+    }
+  }
+
+  private saveImage(cv: any, dst: any) {
+    let canvas = document.createElement('canvas')
+    canvas.width = dst.cols
+    canvas.height = dst.rows
+    cv.imshow(canvas, dst)
+
+    let dataURL = canvas.toDataURL('image/png')
+
+    let link = document.createElement('a')
+    link.download = 'extracted_red_image.png'
+    link.href = dataURL
+    link.click()
   }
 
   /**
