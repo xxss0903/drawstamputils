@@ -3,12 +3,12 @@ DrawStampUtils.js
 <font color="red">本项目仅供学习参考，勿做违法用途，后果自负</font>
 
 
-简介
+## 简介
 
 DrawStampUtils.js 是一个使用 JavaScript 制作电子印章的工具。该项目使用 Vue 3 和 TypeScript 构建，并通过 Vite 进行开发和构建。<br>
 [预览地址](https://xxss0903.github.io/drawstamputils/)
 
-目录
+## 目录
 
 - 安装
 - 使用
@@ -16,7 +16,7 @@ DrawStampUtils.js 是一个使用 JavaScript 制作电子印章的工具。该�
 - 贡献
 - 许可证
 
-安装
+## 安装
 
 在已有项目使用`drawstamputils`，使用如下命令安装：  
 
@@ -31,7 +31,7 @@ cd drawstamputils
 npm install
 ```
 
-使用
+## 使用
 
 开发
 
@@ -77,7 +77,7 @@ DrawStampUtils.ts 是该项目的核心文件之一，用于生成电子印章�
 import { DrawStampUtils } from './DrawStampUtils';
 ```
 
-创建印章
+## 创建印章
 
 使用 DrawStampUtils 创建一个新的印章：
 
@@ -87,7 +87,23 @@ const drawStampUtils = new DrawStampUtils(canvasRef, MM_PER_PIXEL)
 drawStampUtils.refreshStamp()
 ```
 
-配置选项<br>
+## 提取印章
+
+使用 DrawStampUtils 提取印章：<br>
+将混杂在文字中的红色（或其他纯色）印章提取出来，然后设置成目标颜色 <br>
+![Stamp Designer](public/stamp_origin.png)
+![Stamp Designer](public/stamp_extract.png)
+
+```typescript
+// 将imgFile替换为你的图片文件，#ff0000替换为你想要的目标颜色，#ff0000替换为你想要的目标颜色
+drawStampUtils.extractStampWithFile(imgFile, '#ff0000', '#ff0000')
+```
+注意：
+1. 必须需要在index.html中引入opencv.js `<script src="https://docs.opencv.org/4.5.2/opencv.js"></script>`
+2. 输入的颜色格式为16进制，例如红色为#ff0000
+3. 原图最好最好紧紧包裹印章，且印章的颜色为纯色效果更好
+
+## 配置选项<br>
 详细的配置请参考Demo文件[`DrawStampUtilsDemo.vue`](src/DrawStampUtilsDemo.vue)中的配置方法
 
 DrawStampUtils 支持以下配置选项：
