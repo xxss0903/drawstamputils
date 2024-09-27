@@ -378,6 +378,18 @@ const extractStamp = () => {
         // 这里可以进一步处理base64数据，比如传递给extractRedStamp函数
         drawStampUtils.extractStampWithFile(file, '#ff0000', '#ff0000')
         .then(res => {
+          // 下载提取的印章图片
+          const downloadExtractedStamp = (base64Data: string) => {
+            const link = document.createElement('a');
+            link.href = base64Data;
+            link.download = '提取的印章.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+          
+          // 调用下载函数
+          downloadExtractedStamp(res);
           console.log(res)
         });
         
