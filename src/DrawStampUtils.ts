@@ -675,17 +675,17 @@ export class DrawStampUtils {
       let src = cv.imread(img)
       let dst = new cv.Mat()
       let mask = new cv.Mat()
-
+  
       // 转换为HSV颜色空间
       cv.cvtColor(src, dst, cv.COLOR_RGBA2RGB)
       cv.cvtColor(dst, dst, cv.COLOR_RGB2HSV)
-
+  
       // 将提取颜色转换为HSV
       const extractColorRGB = this.hexToRgba(extractColor)
       const extractColorHSV = cv.matFromArray(1, 1, cv.CV_8UC3, [extractColorRGB[0], extractColorRGB[1], extractColorRGB[2]])
       cv.cvtColor(extractColorHSV, extractColorHSV, cv.COLOR_RGB2HSV)
       const hsvValues = extractColorHSV.data32F
-
+  
       // 定义提取颜色的HSV范围
       let lowColor, highColor;
       if (extractColor.toLowerCase() === '#ff0000') {
@@ -707,30 +707,30 @@ export class DrawStampUtils {
         lowColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [Math.max(0, hue - hueRange), 100, 100, 0]);
         highColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [Math.min(180, hue + hueRange), 255, 255, 255]);
       }
-
+  
       // 创建掩码
       cv.inRange(dst, lowColor, highColor, mask)
-
-      // 将十六进制颜色值转换为RGB
+  
+      // 将十六进制颜色值转换为RGBA
       const dstColor = this.hexToRgba(setColor)
       console.log('dstColor:', dstColor)
-      // 创建指定颜色的图像
-      let colorMat = new cv.Mat(src.rows, src.cols, src.type(), dstColor)
-
-      // 使用掩码将提取的区域设置为指定颜色
-      colorMat.copyTo(dst, mask)
-
+  
+      // 创建带有 alpha 通道的目标图像
+      let result = new cv.Mat(src.rows, src.cols, cv.CV_8UC4, [0, 0, 0, 0]);
+  
+      // 创建指定颜色的图像（带有 alpha 通道）
+      let colorMat = new cv.Mat(src.rows, src.cols, cv.CV_8UC4, [...dstColor.slice(0, 3), 255]);
+  
+      // 使用掩码将提取的区域设置为指定颜色，非提取区域保持透明
+      colorMat.copyTo(result, mask);
+  
       // 创建隐藏的canvas用来保存提取后的图片
       const hiddenCanvas = document.createElement('canvas');
-      hiddenCanvas.width = dst.cols;
-      hiddenCanvas.height = dst.rows;
-      cv.imshow(hiddenCanvas, dst);
+      hiddenCanvas.width = result.cols;
+      hiddenCanvas.height = result.rows;
+      cv.imshow(hiddenCanvas, result);
       let dataURL = hiddenCanvas.toDataURL('image/png')
-      // let link = document.createElement('a')
-      // link.download = 'extracted_color_image.png'
-      // link.href = dataURL
-      // link.click()
-
+  
       // 释放内存
       src.delete()
       dst.delete()
@@ -739,6 +739,7 @@ export class DrawStampUtils {
       highColor.delete()
       extractColorHSV.delete()
       colorMat.delete()
+      result.delete()
       return dataURL;
     } else {
       console.error('OpenCV.js 未加载');
