@@ -557,6 +557,13 @@ export class DrawStampUtils {
   });
   }
 
+  /**
+   * 提取指定颜色的印章
+   * @param file 图片文件   
+   * @param extractColor 提取的颜色
+   * @param setColor 设置的颜色，比如提取红色设置红色那么能够进行对印章的填充
+   * @returns 
+   */
   extractStampWithFile(file: File, extractColor: string, setColor: string) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -680,8 +687,26 @@ export class DrawStampUtils {
       const hsvValues = extractColorHSV.data32F
 
       // 定义提取颜色的HSV范围
-      let lowColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [hsvValues[0] - 10, 100, 100, 0])
-      let highColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [hsvValues[0] + 10, 255, 255, 255])
+      let lowColor, highColor;
+      if (extractColor.toLowerCase() === '#ff0000') {
+        // 红色的HSV范围
+        lowColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [0, 100, 100, 0]);
+        highColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [10, 255, 255, 255]);
+      } else if (extractColor.toLowerCase() === '#00ff00') {
+        // 绿色的HSV范围
+        lowColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [60, 100, 100, 0]);
+        highColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [80, 255, 255, 255]);
+      } else if (extractColor.toLowerCase() === '#000000') {
+        // 黑色的HSV范围
+        lowColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [0, 0, 0, 0]);
+        highColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [180, 255, 30, 255]);
+      } else {
+        // 其他颜色（包括随机颜色如#00ffff）使用动态计算的范围
+        const hue = hsvValues[0];
+        const hueRange = 10; // 色相范围，可以根据需要调整
+        lowColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [Math.max(0, hue - hueRange), 100, 100, 0]);
+        highColor = new cv.Mat(dst.rows, dst.cols, dst.type(), [Math.min(180, hue + hueRange), 255, 255, 255]);
+      }
 
       // 创建掩码
       cv.inRange(dst, lowColor, highColor, mask)
@@ -701,10 +726,10 @@ export class DrawStampUtils {
       hiddenCanvas.height = dst.rows;
       cv.imshow(hiddenCanvas, dst);
       let dataURL = hiddenCanvas.toDataURL('image/png')
-      let link = document.createElement('a')
-      link.download = 'extracted_color_image.png'
-      link.href = dataURL
-      link.click()
+      // let link = document.createElement('a')
+      // link.download = 'extracted_color_image.png'
+      // link.href = dataURL
+      // link.click()
 
       // 释放内存
       src.delete()
@@ -714,7 +739,7 @@ export class DrawStampUtils {
       highColor.delete()
       extractColorHSV.delete()
       colorMat.delete()
-      return dst;
+      return dataURL;
     } else {
       console.error('OpenCV.js 未加载');
       return img;

@@ -376,8 +376,11 @@ const extractStamp = () => {
     if (file) {
       console.log('选择了图片', file)
         // 这里可以进一步处理base64数据，比如传递给extractRedStamp函数
-        const dstImg = drawStampUtils.extractStampWithFile(file, '#ff0000', '#0000ff');
-        console.log(dstImg);
+        drawStampUtils.extractStampWithFile(file, '#ff0000', '#ff0000')
+        .then(res => {
+          console.log(res)
+        });
+        
     } else {
       console.error('未选择图片')
     }
