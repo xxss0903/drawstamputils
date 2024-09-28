@@ -9,6 +9,22 @@ export type ISecurityPattern = {
   securityPatternParams: Array<{ angle: number; lineAngle: number }> // 保存防伪纹路的参数数组
 }
 
+export type IRoughEdgeParams = {
+  angle: number
+  size: number
+}
+// 毛边效果
+export type IRoughEdge = {
+  drawRoughEdge: boolean // 是否绘制毛边效果
+  roughEdgeWidth: number // 毛边宽度
+  roughEdgeHeight: number // 毛边高度，按照边缘宽度的百分比
+  roughEdgeShift: number // 偏移
+  roughEdgeColor: string // 毛边颜色
+  roughEdgeParams: IRoughEdgeParams[] // 新增：用于存储毛边参数
+  roughEdgeProbability: number // 毛边概率
+  roughEdgePoints: number // 毛边点数
+}
+
 // 绘制印章的公司
 export type ICompany = {
   companyName: string // 公司名称
@@ -95,6 +111,7 @@ export type IShowRuler = {
 
 // 绘制印章的参数
 export type IDrawStampConfig = {
+  roughEdge: IRoughEdge // 毛边效果
   agingEffect: IAgingEffect // 做旧效果
   ruler: IShowRuler // 是否绘制标尺
   drawStar: IDrawStar // 是否绘制五角星
@@ -217,8 +234,20 @@ export class DrawStampUtils {
     innerCircleLineRadiusX: 36,
     innerCircleLineRadiusY: 27
   }
+  // 毛边效果
+  private roughEdge: IRoughEdge = {
+    drawRoughEdge: true,
+    roughEdgeWidth: 0.2,
+    roughEdgeHeight: 5,
+    roughEdgeColor: 'rgba(255, 0, 0, 0.5)',
+    roughEdgeParams: [],
+    roughEdgeProbability: 0.3,
+    roughEdgeShift: 0.5,
+    roughEdgePoints: 360
+  }
   // 总的印章绘制参数
   private drawStampConfigs: IDrawStampConfig = {
+    roughEdge: this.roughEdge,
     ruler: this.ruler,
     drawStar: this.drawStar,
     securityPattern: this.securityPattern,
@@ -1454,6 +1483,58 @@ export class DrawStampUtils {
     // ctx.restore()
   }
 
+  /**
+   * 添加毛边效果
+   * @param ctx 画布上下文  
+   * @param centerX 圆心x坐标
+   * @param centerY 圆心y坐标
+   * @param radiusX 椭圆长轴半径
+   * @param radiusY 椭圆短轴半径
+   * @param borderWidth 边框宽度
+   */
+  private addRoughEdge(
+    ctx: CanvasRenderingContext2D,
+    centerX: number,
+    centerY: number,
+    radiusX: number,
+    radiusY: number,
+    borderWidth: number,
+    forceRefresh: boolean = false
+  ) {
+    const roughness = borderWidth * this.drawStampConfigs.roughEdge.roughEdgeHeight * 0.01
+    const points = this.drawStampConfigs.roughEdge.roughEdgePoints;
+    const outwardShift = borderWidth * this.drawStampConfigs.roughEdge.roughEdgeShift;
+  
+    ctx.save();
+    ctx.fillStyle = 'white';
+    ctx.globalCompositeOperation = 'destination-out';
+  
+      // 如果需要刷新或者参数数组为空,则重新生成参数
+  if (forceRefresh || this.drawStampConfigs.roughEdge.roughEdgeParams.length === 0) {
+    this.drawStampConfigs.roughEdge.roughEdgeParams = [];
+    for (let i = 0; i < points; i++) {
+      const angle = (i / points) * Math.PI * 2;
+      const shouldDraw = Math.random() > this.drawStampConfigs.roughEdge.roughEdgeProbability; // 增加概率以获得更稀疏的效果
+      const size = shouldDraw ? Math.random() * roughness * 0.5 + this.drawStampConfigs.roughEdge.roughEdgeWidth : 0; // 减小圆形大小
+      this.drawStampConfigs.roughEdge.roughEdgeParams.push({ angle, size });
+    }
+  }
+
+  // 使用保存的参数绘制毛边
+  this.drawStampConfigs.roughEdge.roughEdgeParams.forEach(({ angle, size }) => {
+    const x = centerX + Math.cos(angle) * (radiusX + outwardShift);
+    const y = centerY + Math.sin(angle) * (radiusY + outwardShift);
+
+    if (size > 0) {
+      ctx.beginPath();
+      ctx.arc(x, y, size * this.mmToPixel, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+  
+    ctx.restore();
+  }
+
 
   /**
    * 添加做旧效果
@@ -1834,6 +1915,11 @@ private addCircularNoise(
 
     // 绘制椭圆
     this.drawEllipse(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, borderColor)
+
+    if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
+      // 添加毛边效果
+      this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshOld)
+    }
 
     if (this.drawStampConfigs.innerCircle.drawInnerCircle) {
       const innerCircle = this.drawStampConfigs.innerCircle
