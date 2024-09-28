@@ -62,9 +62,8 @@ npm run preview
 以下是使用 DrawStampUtils.js 生成的电子印章示例：
 
 ![Stamp Example](public/seal.png)
-
+![Stamp Designer](public/roughedge.png)
 ![Stamp Designer](public/designer.png)
-
 
 DrawStampUtils.ts 使用说明
 
@@ -151,6 +150,16 @@ DrawStampUtils 支持以下配置选项：
 | - strongNoise | 控制强噪声强度 |
 | - fade | 控制淡化强度 |
 | - seed | 设置随机种子 |
+| IRoughEdge | 控制印章边缘毛边效果的相关参数 |
+| - shouldDrawRoughEdge | 是否绘制毛边效果 |
+| - roughEdgeWidth | 设置毛边宽度 |
+| - roughEdgeHeight | 设置毛边高度 |
+| - roughEdgeProbability | 控制毛边出现的概率 |
+| - roughEdgeShift | 设置毛边偏移量 |
+| - roughEdgePoints | 设置毛边点的数量 |
+
+以下是毛边效果的详细配置参数：
+
 
 
 
@@ -303,6 +312,11 @@ DrawStampUtilsDemo.vue中的方法作为参考
 
 
 ## 更新日志
+
+### v0.0.8 (2024-09-27)
+- 新增: 字体粗细功能
+- 新增：印章边缘的毛边效果
+
 
 ### v0.0.6 (2024-09-27)
 - 新增: 提取印章功能，将文字和印章混合的提取印章出来
