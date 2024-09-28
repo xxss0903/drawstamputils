@@ -82,6 +82,22 @@
           >字体大小 (mm): <input type="number" v-model.number="companyFontSizeMM" step="0.1"
         /></label>
         <label>
+          字体粗细:
+          <select v-model="companyNameFontWeight">
+            <option value="normal">正常</option>
+            <option value="bold">粗体</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="700">700</option>
+            <option value="800">800</option>
+            <option value="900">900</option>
+          </select>
+        </label>
+        <label>
           <span>压缩比例：{{ companyNameCompression.toFixed(2) }}</span>
           <input
             type="range"
@@ -116,6 +132,22 @@
           <input type="number" v-model.number="bottomTextFontSizeMM" min="1" max="10" step="0.1"
         /></label>
         <label>
+          字体粗细:
+          <select v-model="bottomTextFontWeight">
+            <option value="normal">正常</option>
+            <option value="bold">粗体</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="700">700</option>
+            <option value="800">800</option>
+            <option value="900">900</option>
+          </select>
+        </label>
+        <label>
           <span>压缩比例：{{ bottomTextCompression.toFixed(2) }}</span>
           <input
             type="range"
@@ -149,6 +181,22 @@
           >字体大小 (mm): <input type="number" v-model.number="codeFontSizeMM" step="0.1"
         /></label>
         <label>
+          字体粗细:
+          <select v-model="codeFontWeight">
+            <option value="normal">正常</option>
+            <option value="bold">粗体</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="700">700</option>
+            <option value="800">800</option>
+            <option value="900">900</option>
+          </select>
+        </label>
+        <label>
           <span>压缩比例：{{ codeCompression.toFixed(2) }}</span>
           <input type="range" v-model.number="codeCompression" min="0.0" max="3" step="0.01" />
         </label>
@@ -172,6 +220,22 @@
       <div class="control-group" id="tax-number-settings">
         <h3>税号设置</h3>
         <label>税号: <input v-model="taxNumberValue" /></label>
+        <label>
+          字体粗细:
+          <select v-model="taxNumberFontWeight">
+            <option value="normal">正常</option>
+            <option value="bold">粗体</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="700">700</option>
+            <option value="800">800</option>
+            <option value="900">900</option>
+          </select>
+        </label>
         <label>
           <span>压缩比例：{{ taxNumberCompression.toFixed(2) }}</span>
           <input type="range" v-model.number="taxNumberCompression" min="0.0" max="3" step="0.01" />
@@ -368,6 +432,10 @@ const starPositionY = ref(0)
 // 底部文字垂直位置调整，默认 0
 const bottomTextPositionY = ref(-5)
 const companyNameCompression = ref(1)
+const companyNameFontWeight = ref(400)
+const bottomTextFontWeight = ref(400)
+const codeFontWeight = ref(400)
+const taxNumberFontWeight = ref(400)
 const bottomTextCompression = ref(1)
 const codeCompression = ref(1)
 // 防伪纹路
@@ -481,6 +549,7 @@ const updateDrawConfigs = () => {
   company.borderOffset = textMarginMM.value
   company.fontHeight = companyFontSizeMM.value
   company.compression = companyNameCompression.value
+  company.fontWeight = companyNameFontWeight.value
 
   // 税号
   const taxNumber: ITaxNumber = drawConfigs.taxNumber
@@ -488,6 +557,7 @@ const updateDrawConfigs = () => {
   taxNumber.compression = taxNumberCompression.value
   taxNumber.positionY = taxNumberPositionY.value
   taxNumber.letterSpacing = taxNumberLetterSpacing.value
+  taxNumber.fontWeight = taxNumberFontWeight.value
 
   // 印章类型
   const stampType: IStampType = drawConfigs.stampType
@@ -497,6 +567,7 @@ const updateDrawConfigs = () => {
   stampType.letterSpacing = bottomTextLetterSpacing.value
   stampType.positionY = bottomTextPositionY.value
   stampType.compression = bottomTextCompression.value
+  stampType.fontWeight = bottomTextFontWeight.value
 
   // 印章编码
   const code: ICode = drawConfigs.stampCode
@@ -506,7 +577,7 @@ const updateDrawConfigs = () => {
   code.fontWidth = codeFontWidthMM.value
   code.borderOffset = codeMarginMM.value
   code.textDistributionFactor = codeDistributionFactor.value
-
+  code.fontWeight = codeFontWeight.value
   // 印章配置
   drawConfigs.primaryColor = circleBorderColor.value
   drawConfigs.borderWidth = circleBorderWidth.value
@@ -670,7 +741,11 @@ watch(
     roughEdgeHeight,
     roughEdgeProbability,
     roughEdgeShift,
-    roughEdgePoints
+    roughEdgePoints,
+    companyNameFontWeight,
+    bottomTextFontWeight,
+    codeFontWeight,
+    taxNumberFontWeight
   ],
   () => {
     updateDrawConfigs()
