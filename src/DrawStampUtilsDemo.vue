@@ -240,6 +240,9 @@
     <!-- Canvas 容器 -->
     <div class="canvas-container">
       <div style="display: flex; flex-direction: row; margin-top: 12px">
+        <div>
+          <img ref="stampImageRef" style="width: 100px; height: 100px;"/>
+        </div>
         <!-- 做旧效果设置 -->
         <div class="control-group">
           <h3>做旧效果</h3>
@@ -357,6 +360,7 @@ const drawOutThinCircle = ref(false) // 是否绘制内圈圆
 const outThinCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
 const outThinCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
 const outThinCircleHeight = ref(12) // 内圈圆高度，单位为毫米
+const stampImageRef = ref<HTMLImageElement | null>(null)
 
 const saveStampAsPNG = () => {
   drawStampUtils.saveStampAsPNG(512)
@@ -391,6 +395,10 @@ const extractStamp = () => {
           // 调用下载函数
           downloadExtractedStamp(res);
           console.log(res)
+        // 将提取的印章图片设置给 stampImageRef
+        if (stampImageRef.value) {
+          stampImageRef.value.src = res;
+        }
         });
         
     } else {
