@@ -32,6 +32,7 @@ export type ICompany = {
   textDistributionFactor: number // 文字分布因子
   fontFamily: string // 字体
   fontHeight: number // 字体高度
+  fontWeight: string | number // 字体粗细
 }
 
 // 印章编码
@@ -43,6 +44,7 @@ export type ICode = {
   borderOffset: number // 编码边框偏移量
   fontWidth: number // 编码字体宽度
   textDistributionFactor: number // 文字分布因子
+  fontWeight: string | number // 编码字体粗细
 }
 
 export type ITaxNumber = {
@@ -54,6 +56,7 @@ export type ITaxNumber = {
   letterSpacing: number // 编码字符间距
   positionY: number // 编码文字位置
   totalWidth: number // 编码文字总宽度
+  fontWeight: string | number // 税号字体粗细
 }
 
 // 做旧效果参数
@@ -92,6 +95,7 @@ export type IStampType = {
   letterSpacing: number // 字符间距
   positionY: number // 位置
   fontWidth: number // 字体宽度
+  fontWeight: string | number // 字体粗细
 }
 
 // 内圈圆
@@ -183,7 +187,8 @@ export class DrawStampUtils {
     borderOffset: 1,
     textDistributionFactor: 20,
     fontFamily: 'SimSun',
-    fontHeight: 4.2
+    fontHeight: 4.2,
+    fontWeight: 'normal'
   }
   private taxNumber: ITaxNumber = {
     code: '000000000000000000',
@@ -193,7 +198,8 @@ export class DrawStampUtils {
     fontWidth: 1.3,
     letterSpacing: 8,
     positionY: 0,
-    totalWidth: 26
+    totalWidth: 26,
+    fontWeight: 'normal',
   }
   private stampCode: ICode = {
     code: '1234567890',
@@ -202,7 +208,8 @@ export class DrawStampUtils {
     fontFamily: 'Arial',
     borderOffset: 1,
     fontWidth: 1.2,
-    textDistributionFactor: 50
+    textDistributionFactor: 50,
+    fontWeight: 'normal',
   }
   private stampType: IStampType = {
     stampType: '发票专用章',
@@ -210,7 +217,8 @@ export class DrawStampUtils {
     fontWidth: 3,
     compression: 0.75,
     letterSpacing: 0,
-    positionY: -3
+    positionY: -3,
+    fontWeight: 'normal',
   }
   // 做旧效果
   private agingEffect: IAgingEffect = {
@@ -1205,9 +1213,10 @@ export class DrawStampUtils {
     const fontSize = stampType.fontHeight * this.mmToPixel
     const letterSpacing = stampType.letterSpacing
     const positionY = stampType.positionY
+    const fontWeight = stampType.fontWeight || 'normal'; // 新增字体粗细参数
 
     ctx.save()
-    ctx.font = `${fontSize}px SimSun`
+    ctx.font = `${fontWeight} ${fontSize}px SimSun`
     ctx.fillStyle = this.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -1335,8 +1344,9 @@ export class DrawStampUtils {
     radiusY: number
   ) {
     const fontSize = company.fontHeight * this.mmToPixel
+    const fontWeight = company.fontWeight || 'normal'; // 新增字体粗细参数
     ctx.save()
-    ctx.font = `${fontSize}px ${company.fontFamily}`
+    ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`;
     ctx.fillStyle = this.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'bottom'
@@ -1385,9 +1395,10 @@ export class DrawStampUtils {
   ) {
     const fontSize = code.fontHeight * this.mmToPixel
     const text = code.code
+    const fontWeight = code.fontWeight || 'normal'; // 新增字体粗细参数
 
     ctx.save()
-    ctx.font = `${fontSize}px ${code.fontFamily}`
+    ctx.font = `${fontWeight} ${fontSize}px ${code.fontFamily}`;
     ctx.fillStyle = this.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -1434,9 +1445,11 @@ export class DrawStampUtils {
     const fontSize = taxNumber.fontHeight * this.mmToPixel
     const totalWidth = taxNumber.totalWidth * this.mmToPixel
     const positionY = taxNumber.positionY * this.mmToPixel + 0.3
+    const fontWeight = taxNumber.fontWeight || 'normal'; // 新增字体粗细参数
 
     ctx.save()
-    ctx.font = `${fontSize}px ${taxNumber.fontFamily}`
+    
+    ctx.font = `${fontWeight} ${fontSize}px ${taxNumber.fontFamily}`;
     ctx.fillStyle = this.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
