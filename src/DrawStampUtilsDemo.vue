@@ -235,7 +235,37 @@
             step="0.05"
         /></label>
       </div>
+      <!-- 毛边效果设置 -->
+    <div class="control-group">
+      <h3>毛边效果设置</h3>
+      <label class="checkbox-label">
+        <input type="checkbox" v-model="shouldDrawRoughEdge" />
+        启用毛边效果
+      </label>
+      <label v-if="shouldDrawRoughEdge">
+        毛边宽度 (mm):
+        <input type="range" v-model.number="roughEdgeWidth" min="0.05" max="0.5" step="0.05" />
+      </label>
+      <label v-if="shouldDrawRoughEdge">
+        毛边高度 (mm):
+        <input type="range" v-model.number="roughEdgeHeight" min="0.1" max="5" step="0.1" />
+      </label>
+      <label v-if="shouldDrawRoughEdge">
+        毛边概率:
+        <input type="range" v-model.number="roughEdgeProbability" min="0" max="1" step="0.01" />
+      </label>
+      <label v-if="shouldDrawRoughEdge">
+        毛边偏移 (mm):
+        <input type="range" v-model.number="roughEdgeShift" min="0" max="1" step="0.01" />
+      </label>
+      <label v-if="shouldDrawRoughEdge">
+        毛边点数:
+        <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
+      </label>
+      <button @click="drawStamp(false, true)">刷新毛边</button>
+    </div>  
     </div>
+    
 
     <!-- Canvas 容器 -->
     <div class="canvas-container">
@@ -279,6 +309,7 @@
 import { ref, onMounted, watch } from 'vue'
 import {
   DrawStampUtils,
+  IRoughEdge,
   type ICode,
   type ICompany,
   type IDrawStar,
@@ -349,6 +380,7 @@ const securityPatternLength = ref(2) // 纹路长度，单位为毫米
 
 const showFullRuler = ref(false)
 const shouldDrawStar = ref(false) // 默认绘制五角星
+
 const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
 const taxNumberLetterSpacing = ref(0.3) // 税号文字间距（单位：毫米）
 const taxNumberPositionY = ref(0) // 税号垂直位置调整，默认为0
@@ -361,6 +393,12 @@ const outThinCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
 const outThinCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
 const outThinCircleHeight = ref(12) // 内圈圆高度，单位为毫米
 const stampImageRef = ref<HTMLImageElement | null>(null)
+const shouldDrawRoughEdge = ref(false) // 是否绘制毛边
+const roughEdgeWidth = ref(0.2) // 毛边宽度，单位为毫米
+const roughEdgeHeight = ref(5) // 毛边高度，单位为毫米
+const roughEdgeProbability = ref(0.5) // 毛边概率
+const roughEdgeShift = ref(0.5) // 毛边偏移
+const roughEdgePoints = ref(360) // 毛边点数
 
 const saveStampAsPNG = () => {
   drawStampUtils.saveStampAsPNG(512)
@@ -393,11 +431,11 @@ const extractStamp = () => {
           };
           
           // 调用下载函数
-          downloadExtractedStamp(res);
+          downloadExtractedStamp(res as string);
           console.log(res)
         // 将提取的印章图片设置给 stampImageRef
         if (stampImageRef.value) {
-          stampImageRef.value.src = res;
+          stampImageRef.value.src = res as string;
         }
         });
         
@@ -480,6 +518,25 @@ const updateDrawConfigs = () => {
   drawStar.drawStar = shouldDrawStar.value
   drawStar.starDiameter = starDiameter.value
   drawStar.starPositionY = starPositionY.value
+
+  /*
+  * 毛边效果
+      drawRoughEdge: true,
+    roughEdgeWidth: 0.2,
+    roughEdgeHeight: 5,
+    roughEdgeColor: 'rgba(255, 0, 0, 0.5)',
+    roughEdgeParams: [],
+    roughEdgeProbability: 0.3,
+    roughEdgeShift: 0.5,
+    roughEdgePoints: 360
+  */
+  const roughEdge: IRoughEdge = drawConfigs.roughEdge
+  roughEdge.drawRoughEdge = shouldDrawRoughEdge.value
+  roughEdge.roughEdgeWidth = roughEdgeWidth.value
+  roughEdge.roughEdgeHeight = roughEdgeHeight.value
+  roughEdge.roughEdgeProbability = roughEdgeProbability.value
+  roughEdge.roughEdgeShift = roughEdgeShift.value
+  roughEdge.roughEdgePoints = roughEdgePoints.value
 //   if(drawStar.drawStar) {
 //     drawStar.svgPath = `<svg width="40px" height="40px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
 //  <g transform="translate(0 -1028.4)">
@@ -607,7 +664,13 @@ watch(
     outThinCircleWidth,
     outThinCircleHeight,
     drawOutThinCircle,
-    manualAging
+    manualAging,
+    shouldDrawRoughEdge,
+    roughEdgeWidth,
+    roughEdgeHeight,
+    roughEdgeProbability,
+    roughEdgeShift,
+    roughEdgePoints
   ],
   () => {
     updateDrawConfigs()

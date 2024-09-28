@@ -19,7 +19,6 @@ export type IRoughEdge = {
   roughEdgeWidth: number // 毛边宽度
   roughEdgeHeight: number // 毛边高度，按照边缘宽度的百分比
   roughEdgeShift: number // 偏移
-  roughEdgeColor: string // 毛边颜色
   roughEdgeParams: IRoughEdgeParams[] // 新增：用于存储毛边参数
   roughEdgeProbability: number // 毛边概率
   roughEdgePoints: number // 毛边点数
@@ -239,7 +238,6 @@ export class DrawStampUtils {
     drawRoughEdge: true,
     roughEdgeWidth: 0.2,
     roughEdgeHeight: 5,
-    roughEdgeColor: 'rgba(255, 0, 0, 0.5)',
     roughEdgeParams: [],
     roughEdgeProbability: 0.3,
     roughEdgeShift: 0.5,
@@ -1515,7 +1513,7 @@ export class DrawStampUtils {
     for (let i = 0; i < points; i++) {
       const angle = (i / points) * Math.PI * 2;
       const shouldDraw = Math.random() > this.drawStampConfigs.roughEdge.roughEdgeProbability; // 增加概率以获得更稀疏的效果
-      const size = shouldDraw ? Math.random() * roughness * 0.5 + this.drawStampConfigs.roughEdge.roughEdgeWidth : 0; // 减小圆形大小
+      const size = shouldDraw ? Math.random() * roughness * Math.random() + this.drawStampConfigs.roughEdge.roughEdgeWidth : 0; // 减小圆形大小
       this.drawStampConfigs.roughEdge.roughEdgeParams.push({ angle, size });
     }
   }
