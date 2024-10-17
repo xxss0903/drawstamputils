@@ -636,12 +636,13 @@ export class DrawStampUtils {
       
       // 只绘制最大的3个圆（可以根据需要调整数量）
       const maxCirclesToDraw = Math.min(3, detectedCircles.length);
+      let scaleFactor = 1.2; // 增加10%的半径
       for (let i = 0; i < maxCirclesToDraw; i++) {
         let circle = detectedCircles[i];
         ctx.beginPath();
-        ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
-        ctx.strokeStyle = i === 0 ? 'green' : 'green'; // 最大的圆用蓝色，其他用红色
-        ctx.lineWidth = i === 0 ? 3 : 2;
+        ctx.arc(circle.x, circle.y, circle.radius * scaleFactor, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'green'; // 最大的圆用蓝色，其他用红色
+        ctx.lineWidth = 3;
         ctx.stroke();
       }
     }
@@ -664,7 +665,7 @@ export class DrawStampUtils {
       const img = new Image();
       img.onload = async () => {
         let dstImg = this.extractStampWithColorImpl(img, extractColor, setColor);
-        let debugCircle = false
+        let debugCircle = true
         if(debugCircle) {
           // 将base64的图像数据转换为Image对象
           const base64ToImage = (base64: string): Promise<HTMLImageElement> => {
