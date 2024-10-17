@@ -594,7 +594,113 @@ export class DrawStampUtils {
   });
   }
 
-  extractCircles(img: HTMLImageElement): string {
+  cropAndDownloadEllipse(img: HTMLImageElement, ellipse: any) {
+    const width = ellipse.size.height > ellipse.size.width ? ellipse.size.height : ellipse.size.width;
+    const height = ellipse.size.height < ellipse.size.width ? ellipse.size.height : ellipse.size.width;
+    const centerX = ellipse.center.x;
+    const centerY = ellipse.center.y;
+
+    // 定义缩放因子，使裁剪范围比椭圆大一些
+    const scaleFactor = 1.2;
+    const scaledWidth = width * scaleFactor;
+    const scaledHeight = height * scaleFactor;
+
+    // 创建一个新的canvas来裁剪椭圆
+    let cropCanvas = document.createElement('canvas');
+    cropCanvas.width = scaledWidth;
+    cropCanvas.height = scaledHeight;
+    let ctx = cropCanvas.getContext('2d');
+
+    if (ctx) {
+      // 裁剪椭圆区域
+      ctx.beginPath();
+      ctx.ellipse(scaledWidth / 2, scaledHeight / 2, width / 2, height / 2, 0, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+
+      // 计算源图像的裁剪区域
+      let sx = centerX - scaledWidth / 2;
+      let sy = centerY - scaledHeight / 2;
+      let sWidth = scaledWidth;
+      let sHeight = scaledHeight;
+
+      // 确保不会裁剪到图像边界外
+      if (sx < 0) {
+        sWidth += sx;
+        sx = 0;
+      }
+      if (sy < 0) {
+        sHeight += sy;
+        sy = 0;
+      }
+      if (sx + sWidth > img.width) {
+        sWidth = img.width - sx;
+      }
+      if (sy + sHeight > img.height) {
+        sHeight = img.height - sy;
+      }
+
+      // 绘制裁剪后的图像
+      ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, scaledWidth, scaledHeight);
+
+      // 将裁剪后的图像转换为数据URL
+      let dataURL = cropCanvas.toDataURL('image/png');
+      return dataURL;
+    }
+  }
+
+  cropAndDownloadCircle(img: HTMLImageElement, circle: any) {
+    // 定义缩放因子，使裁剪范围比圆形大一些
+    const scaleFactor = 1.2; // 增加20%的范围，您可以根据需要调整这个值
+    // 计算新的半径和尺寸
+    let newRadius = circle.radius * scaleFactor;
+    let size = newRadius * 2;
+
+    // 创建一个新的canvas来裁剪圆形
+    let cropCanvas = document.createElement('canvas');
+    cropCanvas.width = size;
+    cropCanvas.height = size;
+    let ctx = cropCanvas.getContext('2d');
+
+    if (ctx) {
+      // 裁剪圆形区域
+      ctx.beginPath();
+      ctx.arc(newRadius, newRadius, newRadius, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+
+      // 计算源图像的裁剪区域
+      let sx = circle.x - newRadius;
+      let sy = circle.y - newRadius;
+      let sWidth = size;
+      let sHeight = size;
+
+      // 确保不会裁剪到图像边界外
+      if (sx < 0) {
+        sWidth += sx;
+        sx = 0;
+      }
+      if (sy < 0) {
+        sHeight += sy;
+        sy = 0;
+      }
+      if (sx + sWidth > img.width) {
+        sWidth = img.width - sx;
+      }
+      if (sy + sHeight > img.height) {
+        sHeight = img.height - sy;
+      }
+
+      // 绘制裁剪后的图像
+      ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, size, size);
+
+      // 将裁剪后的图像转换为数据URL
+      let dataURL = cropCanvas.toDataURL('image/png');
+      return dataURL
+    }
+  }
+
+  extractCircles(img: HTMLImageElement, isCircle: boolean = true): any[] {
     let src = cv.imread(img);
     let dst = new cv.Mat();
     
@@ -611,31 +717,40 @@ export class DrawStampUtils {
     let ctx = canvas.getContext('2d');
     // 绘制原始图像
     ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-    let detectCircle = false
-    if(detectCircle) {
+    let croppedStamps: any[] = []
+    if(isCircle) {
       let circles: any[] = []
       // 检测圆形
       circles = this.detectCircles(dst);
+      console.log('circles:', circles)
+      circles.forEach((circle) => {
+        console.log('draw circle:', circle)
+        croppedStamps.push(this.cropAndDownloadCircle(img, circle));
+      });
       if (ctx) {
-
         // 绘制圆形
         this.drawCircles(ctx, circles);
       }
+    } else {
+      let ellipses: any[] = []
+      // 检测椭圆
+      ellipses = this.detectEllipses(dst);
+      console.log('ellipses:', ellipses)
+      ellipses.forEach((ellipse) => {
+        console.log('draw ellipse:', ellipse)
+        croppedStamps.push(this.cropAndDownloadEllipse(img, ellipse));
+      });
+      if (ctx) {
+          // 绘制椭圆
+          this.drawEllipses(ctx, ellipses);
+      }
     }
   
-    let detectEllipse = true
-    if(detectEllipse) {
-          // 检测椭圆
-          let ellipses = this.detectEllipses(dst);
-          if (ctx) {
-            // 绘制椭圆
-            this.drawEllipses(ctx, ellipses);
-          }
-    }
     // 释放内存
     src.delete(); dst.delete();
     
-    return canvas.toDataURL();
+    return croppedStamps
+    // return canvas.toDataURL();
   }
   
   private detectCircles(dst: any): any[] {
@@ -712,11 +827,13 @@ export class DrawStampUtils {
    * @param file 图片文件   
    * @param extractColor 提取的颜色
    * @param setColor 设置的颜色，比如提取红色设置红色那么能够进行对印章的填充
+   * @param isCircle 是否是圆形，如果是圆形，那么会进行圆形的裁剪，否则进行椭圆的裁剪
    * @returns 
    */
-  extractStampWithFile(file: File, extractColor: string, setColor: string) {
+  extractStampWithFile(file: File, extractColor: string, setColor: string, isCircle: boolean = true) {
     return new Promise((resolve, reject) => {
       const img = new Image();
+      let distImgList: any[] = []
       img.onload = async () => {
         let dstImg = this.extractStampWithColorImpl(img, extractColor, setColor);
         let debugCircle = true
@@ -733,10 +850,9 @@ export class DrawStampUtils {
           // 将base64转换回Image对象
           const resultRedImg = await base64ToImage(dstImg)
           // 提取圆圈并获取结果
-          const circleExtractedImg = this.extractCircles(resultRedImg);
-          dstImg = circleExtractedImg;  // 更新dstImg为提取圆圈后的图像
+          distImgList = this.extractCircles(resultRedImg, isCircle);
         }
-        resolve(dstImg);
+        resolve(distImgList);
       };
       img.onerror = (error) => {
         console.error('图片加载失败', error)
