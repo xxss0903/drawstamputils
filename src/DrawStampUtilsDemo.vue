@@ -500,7 +500,6 @@ const extractStamp = () => {
           
           // 调用下载函数
           downloadExtractedStamp(res as string);
-          console.log(res)
         // 将提取的印章图片设置给 stampImageRef
         if (stampImageRef.value) {
           stampImageRef.value.src = res as string;

@@ -33,6 +33,7 @@ export type ICompany = {
   fontFamily: string // 字体
   fontHeight: number // 字体高度
   fontWeight: string | number // 字体粗细
+  shape: 'ellipse' | 'rectangle' // 新增：印章形状
 }
 
 // 印章编码
@@ -188,7 +189,8 @@ export class DrawStampUtils {
     textDistributionFactor: 20,
     fontFamily: 'SimSun',
     fontHeight: 4.2,
-    fontWeight: 'normal'
+    fontWeight: 'normal',
+    shape: 'ellipse'
   }
   private taxNumber: ITaxNumber = {
     code: '000000000000000000',
@@ -592,6 +594,64 @@ export class DrawStampUtils {
   });
   }
 
+  // 提取圆圈
+  extractCircles(img: HTMLImageElement): string {
+    let src = cv.imread(img);
+    let dst = new cv.Mat();
+    let circles = new cv.Mat();
+    
+    // 转换为灰度图
+    cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+    
+    // 应用高斯模糊以减少噪声
+    cv.GaussianBlur(dst, dst, new cv.Size(5, 5), 2, 2);
+    
+    // 使用霍夫圆变换检测圆，调整参数以减少误检
+    let minRadius = Math.min(dst.rows, dst.cols) * 0.05; // 最小半径为图像尺寸的10%
+    let maxRadius = Math.min(dst.rows, dst.cols) * 0.5; // 最大半径为图像尺寸的50%
+    cv.HoughCircles(dst, circles, cv.HOUGH_GRADIENT, 1, dst.rows / 4, 100, 50, minRadius, maxRadius);
+    
+    // 创建一个画布
+    let canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    let ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // 首先绘制原始图像
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      // 对检测到的圆进行排序，只绘制最大的几个圆
+      let detectedCircles = [];
+      for (let i = 0; i < circles.cols; i++) {
+        detectedCircles.push({
+          x: circles.data32F[i * 3],
+          y: circles.data32F[i * 3 + 1],
+          radius: circles.data32F[i * 3 + 2]
+        });
+      }
+      
+      // 按半径大小降序排序
+      detectedCircles.sort((a, b) => b.radius - a.radius);
+      
+      // 只绘制最大的3个圆（可以根据需要调整数量）
+      const maxCirclesToDraw = Math.min(3, detectedCircles.length);
+      for (let i = 0; i < maxCirclesToDraw; i++) {
+        let circle = detectedCircles[i];
+        ctx.beginPath();
+        ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = i === 0 ? 'green' : 'green'; // 最大的圆用蓝色，其他用红色
+        ctx.lineWidth = i === 0 ? 3 : 2;
+        ctx.stroke();
+      }
+    }
+    
+    // 释放内存
+    src.delete(); dst.delete(); circles.delete();
+    
+    return canvas.toDataURL();
+  }
+
   /**
    * 提取指定颜色的印章
    * @param file 图片文件   
@@ -602,8 +662,25 @@ export class DrawStampUtils {
   extractStampWithFile(file: File, extractColor: string, setColor: string) {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.onload = () => {
-        const dstImg = this.extractStampWithColorImpl(img, extractColor, setColor);
+      img.onload = async () => {
+        let dstImg = this.extractStampWithColorImpl(img, extractColor, setColor);
+        let debugCircle = false
+        if(debugCircle) {
+          // 将base64的图像数据转换为Image对象
+          const base64ToImage = (base64: string): Promise<HTMLImageElement> => {
+            return new Promise((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => resolve(img);
+              img.onerror = (error) => reject(error);
+              img.src = base64;
+            });
+          };
+          // 将base64转换回Image对象
+          const resultRedImg = await base64ToImage(dstImg)
+          // 提取圆圈并获取结果
+          const circleExtractedImg = this.extractCircles(resultRedImg);
+          dstImg = circleExtractedImg;  // 更新dstImg为提取圆圈后的图像
+        }
         resolve(dstImg);
       };
       img.onerror = (error) => {
