@@ -13,6 +13,10 @@
       <!-- 印章基本设置 -->
       <div class="control-group" id="stamp-settings">
         <h3>印章基本设置</h3>
+        <label class="checkbox-label">
+            <input type="checkbox" v-model="isCircleDetect" />
+            提取圆形印章
+          </label>
         <label
           >印章宽度 (mm):
           <input type="number" v-model.number="drawStampWidth" min="1" max="50" step="1"
@@ -386,6 +390,7 @@ const editorControls = ref<HTMLDivElement | null>(null)
 const stampCanvas = ref<HTMLCanvasElement | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
+const isCircleDetect = ref(true)
 // 添加响应式数据
 const companyName = ref('绘制印章有限责任公司')
 // 印章编码
@@ -486,10 +491,10 @@ const extractStamp = () => {
     if (file) {
       console.log('选择了图片', file)
         // 这里可以进一步处理base64数据，比如传递给extractRedStamp函数
-        drawStampUtils.extractStampWithFile(file, '#ff0000', '#ff0000')
-        .then(res => {
-          // 下载提取的印章图片
-          const downloadExtractedStamp = (base64Data: string) => {
+        drawStampUtils.extractStampWithFile(file, '#ff0000', '#ff0000', isCircleDetect.value)
+        .then((stampImgList) => {
+           // 下载提取的印章图片
+           const downloadExtractedStamp = (base64Data: any) => {
             const link = document.createElement('a');
             link.href = base64Data;
             link.download = '提取的印章.png';
@@ -497,13 +502,15 @@ const extractStamp = () => {
             link.click();
             document.body.removeChild(link);
           };
-          
-          // 调用下载函数
-          downloadExtractedStamp(res as string);
+          stampImgList.forEach((stamp: any) => {
+            // 下载提取的印章图片
+            // 调用下载函数
+            downloadExtractedStamp(stamp);
+          })
         // 将提取的印章图片设置给 stampImageRef
-        if (stampImageRef.value) {
-          stampImageRef.value.src = res as string;
-        }
+          if (stampImageRef.value) {
+            stampImageRef.value.src = stampImgList[0];
+          }
         });
         
     } else {
