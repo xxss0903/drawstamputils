@@ -5,7 +5,7 @@ DrawStampUtils.js
 
 ## 简介
 
-DrawStampUtils.js 是一个使用 JavaScript 制作电子印章的工具。该项目使用 Vue 3 和 TypeScript 构建，并通过 Vite 进行开发和构建。<br>
+DrawStampUtils.js 是一个使用 TypeScript 制作电子印章的工具。该项目Demo使用 Vue 3，源码使用TypeScript，并通过 Vite 进行开发和构建。<br>
 [预览地址](https://xxss0903.github.io/drawstamputils/)
 
 ## 目录
@@ -64,7 +64,7 @@ npm run preview
 ![Stamp Example](public/seal.png)
 ![Stamp Designer](public/roughedge.png)
 ![Stamp Designer](public/designer.png)
-
+![Stamp Designer](public/stamp_break.png)
 DrawStampUtils.ts 使用说明
 
 DrawStampUtils.ts 是该项目的核心文件之一，用于生成电子印章。以下是如何使用 DrawStampUtils.ts 的示例：
@@ -124,6 +124,8 @@ DrawStampUtils 支持以下配置选项：
 | - textDistributionFactor | 控制文字分布因子 |
 | - fontFamily | 设置字体 |
 | - fontHeight | 设置字体高度 |
+| - adjustEllipseText | 是否调整椭圆文字间距 |
+| - adjustEllipseTextFactor | 椭圆文字间距调整因子 |
 | ICode | 控制印章编码相关的参数 |
 | - code | 设置编码内容 |
 | - compression | 控制编码的压缩比例 |
@@ -157,9 +159,17 @@ DrawStampUtils 支持以下配置选项：
 | - roughEdgeProbability | 控制毛边出现的概率 |
 | - roughEdgeShift | 设置毛边偏移量 |
 | - roughEdgePoints | 设置毛边点的数量 |
+| IStampType | 控制印章类型文字的相关参数 |
+| - stampType | 设置印章类型文字 |
+| - fontHeight | 设置印章类型文字高度 |
+| - compression | 设置印章类型文字压缩比例 |
+| - letterSpacing | 设置印章类型文字字符间距 |
+| - positionY | 设置印章类型文字位置 |
+| - fontWidth | 设置印章类型文字宽度 |
+| - lineSpacing | 设置印章类型文字行间距 |
+
 
 以下是毛边效果的详细配置参数：
-
 
 
 
@@ -197,6 +207,8 @@ export type ICompany = {
   textDistributionFactor: number // 文字分布因子
   fontFamily: string // 字体
   fontHeight: number // 字体高度
+  adjustEllipseText: boolean // 是否调整椭圆文字间距
+  adjustEllipseTextFactor: number // 椭圆文字间距调整因子
 }
 
 // 印章编码
@@ -257,6 +269,7 @@ export type IStampType = {
   letterSpacing: number // 字符间距
   positionY: number // 位置
   fontWidth: number // 字体宽度
+  lineSpacing: number // 行间距
 }
 
 // 内圈圆
@@ -312,6 +325,12 @@ DrawStampUtilsDemo.vue中的方法作为参考
 
 
 ## 更新日志
+
+### v0.0.9 (2024-09-27)
+- 新增: 印章类型文字行间距功能
+- 新增: 公司名称椭圆时候的间距调整
+- 新增: 印章类型文字行间距功能
+- 新增: 提取印章，区分椭圆印章和圆形印章，并裁剪印章
 
 ### v0.0.8 (2024-09-27)
 - 新增: 字体粗细功能
