@@ -99,6 +99,7 @@ export type IStampType = {
   positionY: number // 位置
   fontWidth: number // 字体宽度
   fontWeight: string | number // 字体粗细
+  lineSpacing: number // 新增：行间距
 }
 
 // 内圈圆
@@ -225,6 +226,7 @@ export class DrawStampUtils {
     letterSpacing: 0,
     positionY: -3,
     fontWeight: 'normal',
+    lineSpacing: 2 // 新增：行间距
   }
   // 做旧效果
   private agingEffect: IAgingEffect = {
@@ -1465,36 +1467,48 @@ export class DrawStampUtils {
     const fontSize = stampType.fontHeight * this.mmToPixel
     const letterSpacing = stampType.letterSpacing
     const positionY = stampType.positionY
-    const fontWeight = stampType.fontWeight || 'normal'; // 新增字体粗细参数
-
+    const fontWeight = stampType.fontWeight || 'normal';
+    const lineSpacing = stampType.lineSpacing * this.mmToPixel; // 新增：行间距
+  
     ctx.save()
     ctx.font = `${fontWeight} ${fontSize}px SimSun`
     ctx.fillStyle = this.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-
-    // 计算文字位置（在五角星正下方）
-    const textY = centerY + radiusX * 0.5 + positionY * this.mmToPixel
-
-    ctx.save()
-    ctx.translate(centerX, textY)
-
-    const chars = stampType.stampType.split('')
-    const charWidths = chars.map((char) => ctx.measureText(char).width)
-    const totalWidth =
-      charWidths.reduce((sum, width) => sum + width, 0) +
-      (chars.length - 1) * letterSpacing * this.mmToPixel
-
-    let currentX = -totalWidth / 2 // 从文本的左边缘开始
-
-    ctx.scale(this.drawStampConfigs.stampType.compression, 1)
-    chars.forEach((char, index) => {
-      ctx.fillText(char, currentX + charWidths[index] / 2, 0) // 绘制在字符的中心
-      currentX += charWidths[index] + letterSpacing * this.mmToPixel
-    })
-
+  
+    // 将印章类型文字按换行符分割成多行
+    const lines = stampType.stampType.split('\n');
+    const lineCount = lines.length;
+  
+    lines.forEach((line, lineIndex) => {
+      const chars = line.split('')
+      const charWidths = chars.map((char) => ctx.measureText(char).width)
+      const totalWidth =
+        charWidths.reduce((sum, width) => sum + width, 0) +
+        (chars.length - 1) * letterSpacing * this.mmToPixel
+  
+      // 计算每行的垂直偏移，使用新的 lineSpacing
+      const lineOffset = (lineIndex - (lineCount - 1) / 2) * (fontSize + lineSpacing);
+  
+      // 计算文字位置（在五角星正下方）
+      const textY = centerY + radiusX * 0.5 + positionY * this.mmToPixel + lineOffset
+  
+      ctx.save()
+      ctx.translate(centerX, textY)
+  
+      let currentX = -totalWidth / 2 // 从文本的左边缘开始
+  
+      ctx.scale(stampType.compression, 1)
+      chars.forEach((char, index) => {
+        ctx.fillText(char, currentX + charWidths[index] / 2, 0) // 绘制在字符的中心
+        currentX += charWidths[index] + letterSpacing * this.mmToPixel
+      })
+  
+      ctx.restore()
+    });
+  
     ctx.restore()
-  }
+  } 
 
   /**
    * 绘制防伪纹路

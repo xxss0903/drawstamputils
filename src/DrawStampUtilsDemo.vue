@@ -143,7 +143,9 @@
       <!-- 底部文字设置 -->
       <div class="control-group" id="bottom-text-settings">
         <h3>底部文字设置</h3>
-        <label>底部文字: <input type="text" v-model="bottomText" /></label>
+        <label>底部文字: 
+          <textarea v-model="bottomText" rows="3"></textarea>
+        </label>
         <label
           >字体大小 (mm):
           <input type="number" v-model.number="bottomTextFontSizeMM" min="1" max="10" step="0.1"
@@ -187,6 +189,10 @@
         <label>
           垂直位置调整 (mm):
           <input type="number" v-model.number="bottomTextPositionY" min="-10" max="10" step="0.1" />
+        </label>
+        <label>
+          行间距 (mm):
+          <input type="number" v-model.number="bottomTextLineSpacing" min="0" max="10" step="0.1" />
         </label>
       </div>
 
@@ -497,6 +503,8 @@ const saveStampAsPNG = () => {
 const drawStampWidth = ref(40)
 const drawStampHeight = ref(30)
 
+// 添加新的响应式变量
+const bottomTextLineSpacing = ref(1.2) // 默认行间距为1.2mm
 
 const extractStamp = () => {
   // 选择图片进行印章提取
@@ -593,6 +601,7 @@ const updateDrawConfigs = () => {
   stampType.positionY = bottomTextPositionY.value
   stampType.compression = bottomTextCompression.value
   stampType.fontWeight = bottomTextFontWeight.value
+  stampType.lineSpacing = bottomTextLineSpacing.value // 新增：设置行间距
 
   // 印章编码
   const code: ICode = drawConfigs.stampCode
@@ -772,7 +781,8 @@ watch(
     codeFontWeight,
     taxNumberFontWeight,
     adjustEllipseText,
-    adjustEllipseTextFactor
+    adjustEllipseTextFactor,
+    bottomTextLineSpacing
   ],
   () => {
     updateDrawConfigs()
@@ -877,5 +887,14 @@ canvas {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+
+.editor-controls textarea {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box;
+  resize: vertical;
 }
 </style>
