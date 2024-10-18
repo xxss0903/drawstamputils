@@ -34,6 +34,8 @@ export type ICompany = {
   fontHeight: number // 字体高度
   fontWeight: string | number // 字体粗细
   shape: 'ellipse' | 'rectangle' // 新增：印章形状
+  adjustEllipseText: boolean // 是否调整椭圆
+  adjustEllipseTextFactor: number // 调整椭圆的因子
 }
 
 // 印章编码
@@ -190,7 +192,9 @@ export class DrawStampUtils {
     fontFamily: 'SimSun',
     fontHeight: 4.2,
     fontWeight: 'normal',
-    shape: 'ellipse'
+    shape: 'ellipse',
+    adjustEllipseText: false,
+    adjustEllipseTextFactor: 0.5
   }
   private taxNumber: ITaxNumber = {
     code: '000000000000000000',
@@ -1607,19 +1611,46 @@ export class DrawStampUtils {
     const totalAngle = Math.PI * (1 + characterCount / company.textDistributionFactor)
     const startAngle = Math.PI + (Math.PI - totalAngle) / 2
     const anglePerChar = totalAngle / characterCount
+    const halfCharCount = (characterCount + 1) / 2
 
-    characters.forEach((char, index) => {
-      const angle = startAngle + anglePerChar * (index + 0.5)
-      const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-      const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
-
-      ctx.save()
-      ctx.translate(x, y)
-      ctx.rotate(angle + Math.PI / 2)
-      ctx.scale(company.compression, 1) // 应用压缩
-      ctx.fillText(char, 0, 0)
-      ctx.restore()
-    })
+    if(company.adjustEllipseText){
+      characters.forEach((char, index) => {
+        const halfIndex = halfCharCount - index - 1
+        const adjustmentFactor = Math.pow(halfIndex / halfCharCount, 2) // 二次函数曲线
+        const additionalAngle = adjustmentFactor * anglePerChar * company.adjustEllipseTextFactor // 最大额外角度为半个字符间隔
+        let indexValue = index - halfCharCount
+        let factor = indexValue / Math.abs(indexValue)
+        
+        let angle = startAngle + anglePerChar * (index + 0.5) 
+        let newAngle = angle + additionalAngle * factor
+        angle = newAngle
+        console.log('draw char angle', angle.toFixed(2), additionalAngle.toFixed(2), newAngle.toFixed(2), char)
+        
+        const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+        const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+  
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.rotate(angle + Math.PI / 2)
+        ctx.scale(company.compression, 1) // 应用压缩
+        ctx.fillText(char, 0, 0)
+        ctx.restore()
+      })
+    } else {
+      characters.forEach((char, index) => {
+        const angle = startAngle + anglePerChar * (index + 0.5)
+        const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+        const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+  
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.rotate(angle + Math.PI / 2)
+        ctx.scale(company.compression, 1) // 应用压缩
+        ctx.fillText(char, 0, 0)
+        ctx.restore()
+      })
+    }
+    
 
     ctx.restore()
   }

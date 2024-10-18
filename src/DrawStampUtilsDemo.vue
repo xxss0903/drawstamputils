@@ -111,13 +111,26 @@
             step="0.05"
           />
         </label>
+          <label class="checkbox-label">
+          <input type="checkbox" v-model="adjustEllipseText" /> 调整椭圆文字
+        </label>
+        <label v-if="adjustEllipseText">
+          <span>椭圆文字调整：{{ adjustEllipseTextFactor.toFixed(2) }}</span>
+          <input
+            type="range"
+            v-model.number="adjustEllipseTextFactor"
+            min="0"
+            max="2"
+            step="0.01"
+          />
+        </label>
         <label>
           <span>分布因子：{{ textDistributionFactor.toFixed(1) }}</span>
           <input
             type="range"
             v-model.number="textDistributionFactor"
             min="1"
-            max="100"
+            max="200"
             step="0.5"
           />
         </label>
@@ -419,6 +432,10 @@ const manualAging = ref(false)
 const agingIntensity = ref(50)
 // 文字分布因子，控制公司名称文字在椭圆上的分布范围
 const textDistributionFactor = ref(20)
+// 调整椭圆文字
+const adjustEllipseText = ref(false)
+// 调整椭圆文字因子
+const adjustEllipseTextFactor = ref(0.5)
 // 文字边距，控制公司名称文字距离椭圆边缘的距离（单位：毫米）
 const textMarginMM = ref(1) // 默认值为1mm
 // 编码边距，控制印章编码距离椭圆边缘的距离（单位：毫米）
@@ -556,6 +573,8 @@ const updateDrawConfigs = () => {
   company.fontHeight = companyFontSizeMM.value
   company.compression = companyNameCompression.value
   company.fontWeight = companyNameFontWeight.value
+  company.adjustEllipseText = adjustEllipseText.value
+  company.adjustEllipseTextFactor = adjustEllipseTextFactor.value
 
   // 税号
   const taxNumber: ITaxNumber = drawConfigs.taxNumber
@@ -751,7 +770,9 @@ watch(
     companyNameFontWeight,
     bottomTextFontWeight,
     codeFontWeight,
-    taxNumberFontWeight
+    taxNumberFontWeight,
+    adjustEllipseText,
+    adjustEllipseTextFactor
   ],
   () => {
     updateDrawConfigs()
