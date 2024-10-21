@@ -323,6 +323,9 @@ DrawStampUtilsDemo.vue中的方法作为参考
 
 本项目使用 Apache 许可证。
 
+## 星
+[![Stargazers over time](https://starchart.cc/xxss0903/drawstamputils.svg?variant=adaptive)](https://starchart.cc/xxss0903/drawstamputils)
+
 
 ## 更新日志
 
