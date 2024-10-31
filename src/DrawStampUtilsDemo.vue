@@ -82,6 +82,7 @@
       <div class="control-group" id="company-name-settings">
         <h3>公司名称设置</h3>
         <label>公司名称: <input v-model="companyName" /></label>
+        <label>字体: <input v-model="companyFontFamily" /></label>
         <label
           >字体大小 (mm): <input type="number" v-model.number="companyFontSizeMM" step="0.1"
         /></label>
@@ -146,6 +147,7 @@
         <label>底部文字: 
           <textarea v-model="bottomText" rows="3"></textarea>
         </label>
+        <label>字体: <input v-model="bottomTextFontFamily" /></label>
         <label
           >字体大小 (mm):
           <input type="number" v-model.number="bottomTextFontSizeMM" min="1" max="10" step="0.1"
@@ -200,6 +202,7 @@
       <div class="control-group" id="code-settings">
         <h3>印章编码设置</h3>
         <label>印章编码: <input v-model="stampCode" /></label>
+        <label>字体: <input v-model="codeFontFamily" /></label>
         <label
           >字体大小 (mm): <input type="number" v-model.number="codeFontSizeMM" step="0.1"
         /></label>
@@ -243,6 +246,7 @@
       <div class="control-group" id="tax-number-settings">
         <h3>税号设置</h3>
         <label>税号: <input v-model="taxNumberValue" /></label>
+        <label>字体: <input v-model="taxNumberFontFamily" /></label>
         <label>
           字体粗细:
           <select v-model="taxNumberFontWeight">
@@ -417,7 +421,9 @@ const stampCode = ref('1234567890123')
 // 税号
 const taxNumberValue = ref('000000000000000000')
 // 公司名称字体大小（毫米）
+const companyFontFamily = ref('Songti SC')
 const companyFontSizeMM = ref(4.2)
+const codeFontFamily = ref('SimSun')
 // 编码字体大小（毫米）
 const codeFontSizeMM = ref(1.2)
 // 编码字体宽度（毫米）
@@ -451,6 +457,7 @@ const codeDistributionFactor = ref(20) // 默认值可以根据需要调整
 // 印章底部文字
 const bottomText = ref('合同专用章')
 // 底部文字大小，默认 4mm
+const bottomTextFontFamily = ref('SimSun')
 const bottomTextFontSizeMM = ref(4.6)
 const bottomTextFontWidthMM = ref(3)
 // 底部文字字符间距，默认 0
@@ -463,6 +470,7 @@ const companyNameCompression = ref(1)
 const companyNameFontWeight = ref(400)
 const bottomTextFontWeight = ref(400)
 const codeFontWeight = ref(400)
+const taxNumberFontFamily = ref('Songti SC')
 const taxNumberFontWeight = ref(400)
 const bottomTextCompression = ref(1)
 const codeCompression = ref(1)
@@ -579,6 +587,7 @@ const updateDrawConfigs = () => {
   company.textDistributionFactor = textDistributionFactor.value
   company.borderOffset = textMarginMM.value
   company.fontHeight = companyFontSizeMM.value
+  company.fontFamily = companyFontFamily.value
   company.compression = companyNameCompression.value
   company.fontWeight = companyNameFontWeight.value
   company.adjustEllipseText = adjustEllipseText.value
@@ -590,11 +599,13 @@ const updateDrawConfigs = () => {
   taxNumber.compression = taxNumberCompression.value
   taxNumber.positionY = taxNumberPositionY.value
   taxNumber.letterSpacing = taxNumberLetterSpacing.value
+  taxNumber.fontFamily = taxNumberFontFamily.value
   taxNumber.fontWeight = taxNumberFontWeight.value
 
   // 印章类型
   const stampType: IStampType = drawConfigs.stampType
   stampType.stampType = bottomText.value
+  stampType.fontFamily = bottomTextFontFamily.value
   stampType.fontHeight = bottomTextFontSizeMM.value
   stampType.fontWidth = bottomTextFontWidthMM.value
   stampType.letterSpacing = bottomTextLetterSpacing.value
@@ -607,6 +618,7 @@ const updateDrawConfigs = () => {
   const code: ICode = drawConfigs.stampCode
   code.code = stampCode.value
   code.compression = codeCompression.value
+  code.fontFamily = codeFontFamily.value
   code.fontHeight = codeFontSizeMM.value
   code.fontWidth = codeFontWidthMM.value
   code.borderOffset = codeMarginMM.value
@@ -723,6 +735,7 @@ onMounted(() => {
 watch(
   [
     companyName,
+    companyFontFamily,
     stampCode,
     companyFontSizeMM,
     codeFontSizeMM,
@@ -736,6 +749,7 @@ watch(
     codeMarginMM,
     agingIntensity,
     bottomText,
+    bottomTextFontFamily,
     bottomTextFontSizeMM,
     bottomTextLetterSpacing,
     bottomTextPositionY,
@@ -758,6 +772,7 @@ watch(
     shouldDrawStar,
     starPositionY,
     taxNumberCompression,
+    taxNumberFontFamily,
     taxNumberLetterSpacing,
     taxNumberPositionY,
     starDiameter,
@@ -779,6 +794,7 @@ watch(
     companyNameFontWeight,
     bottomTextFontWeight,
     codeFontWeight,
+    codeFontFamily,
     taxNumberFontWeight,
     adjustEllipseText,
     adjustEllipseTextFactor,
