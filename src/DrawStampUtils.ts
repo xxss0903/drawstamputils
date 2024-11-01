@@ -94,6 +94,7 @@ export type IDrawStar = {
 export type IStampType = {
   stampType: string // 印章类型
   fontHeight: number // 字体高度  
+  fontFamily: string // 编码字体
   compression: number // 压缩比例
   letterSpacing: number // 字符间距
   positionY: number // 位置
@@ -221,6 +222,7 @@ export class DrawStampUtils {
   private stampType: IStampType = {
     stampType: '发票专用章',
     fontHeight: 4.6,
+    fontFamily: 'Arial',
     fontWidth: 3,
     compression: 0.75,
     letterSpacing: 0,
@@ -1471,7 +1473,7 @@ export class DrawStampUtils {
     const lineSpacing = stampType.lineSpacing * this.mmToPixel; // 新增：行间距
   
     ctx.save()
-    ctx.font = `${fontWeight} ${fontSize}px SimSun`
+    ctx.font = `${fontWeight} ${fontSize}px ${stampType.fontFamily}`
     ctx.fillStyle = this.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
