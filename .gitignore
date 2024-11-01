@@ -35,5 +35,3 @@ jspm_packages/
 *.sln
 package-lock.json
 .DS_Store
-
-docs
