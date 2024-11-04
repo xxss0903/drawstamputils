@@ -6,7 +6,6 @@
         class="button-group"
         style="position: sticky; top: 0; z-index: 1000; background-color: white; padding: 10px"
       >
-        <button @click="extractStamp()">提取印章</button>
         <button @click="saveStampAsPNG">保存印章</button>
       </div>
 
@@ -144,7 +143,7 @@
       <!-- 底部文字设置 -->
       <div class="control-group" id="bottom-text-settings">
         <h3>底部文字设置</h3>
-        <label>底部文字: 
+        <label>底部文字:
           <textarea v-model="bottomText" rows="3"></textarea>
         </label>
         <label>字体: <input v-model="bottomTextFontFamily" /></label>
@@ -354,9 +353,9 @@
         <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
       </label>
       <button @click="drawStamp(false, true)">刷新毛边</button>
-    </div>  
     </div>
-    
+    </div>
+
 
     <!-- Canvas 容器 -->
     <div class="canvas-container">
@@ -491,7 +490,7 @@ const taxNumberPositionY = ref(0) // 税号垂直位置调整，默认为0
 const drawInnerCircle = ref(false) // 是否绘制内圈圆
 const innerCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
 const innerCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
-const innerCircleHeight = ref(12) // 内圈圆高度，单位为毫米 
+const innerCircleHeight = ref(12) // 内圈圆高度，单位为毫米
 const drawOutThinCircle = ref(false) // 是否绘制内圈圆
 const outThinCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
 const outThinCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
@@ -513,45 +512,6 @@ const drawStampHeight = ref(30)
 
 // 添加新的响应式变量
 const bottomTextLineSpacing = ref(1.2) // 默认行间距为1.2mm
-
-const extractStamp = () => {
-  // 选择图片进行印章提取
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
-  fileInput.onchange = (event) => {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      console.log('选择了图片', file)
-        // 这里可以进一步处理base64数据，比如传递给extractRedStamp函数
-        drawStampUtils.extractStampWithFile(file, '#ff0000', '#ff0000', isCircleDetect.value)
-        .then((stampImgList) => {
-           // 下载提取的印章图片
-           const downloadExtractedStamp = (base64Data: any) => {
-            const link = document.createElement('a');
-            link.href = base64Data;
-            link.download = '提取的印章.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          };
-          stampImgList.forEach((stamp: any) => {
-            // 下载提取的印章图片
-            // 调用下载函数
-            downloadExtractedStamp(stamp);
-          })
-        // 将提取的印章图片设置给 stampImageRef
-          if (stampImageRef.value) {
-            stampImageRef.value.src = stampImgList[0];
-          }
-        });
-        
-    } else {
-      console.error('未选择图片')
-    }
-  };
-  fileInput.click();
-}
 
 // 绘制工具
 let drawStampUtils: DrawStampUtils

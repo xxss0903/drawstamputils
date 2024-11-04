@@ -22,7 +22,6 @@ DrawStampUtils.js 是一个使用 TypeScript 制作电子印章的工具。该�
 
 ```bash
 npm install drawstamputils
-在index.html中引入opencv.js `<script src="https://docs.opencv.org/4.5.2/opencv.js"></script>`
 ```
 
 如果要查看示例程序，可以如下方式：
@@ -69,27 +68,14 @@ DrawStampUtils.ts 使用说明
 
 DrawStampUtils.ts 是该项目的核心文件之一，用于生成电子印章。以下是如何使用 DrawStampUtils.ts 的示例：
 ## 提取印章
-
-使用 DrawStampUtils 提取印章：<br>
-将混杂在文字中的红色（或其他纯色）印章提取出来，然后设置成目标颜色 <br>
+提取印章放到了新的库:[extractstamp](https://github.com/xxss0903/extractstamp) <br>
+效果更好，颜色提取更好<br>
 ![Stamp Designer](public/stamp_origin.png)
 ![Stamp Designer](public/stamp_extract.png)
 
 ```typescript
 // 将imgFile替换为你的图片文件，#ff0000替换为你想要的目标颜色，#ff0000替换为你想要的目标颜色
 drawStampUtils.extractStampWithFile(imgFile, '#ff0000', '#ff0000')
-```
-注意：
-1. 必须需要在index.html中引入opencv.js `<script src="https://docs.opencv.org/4.5.2/opencv.js"></script>`
-2. 输入的颜色格式为16进制，例如红色为#ff0000
-3. 原图最好最好紧紧包裹印章，且印章的颜色为纯色效果更好
-
-导入 DrawStampUtils
-
-首先，在你的 Vue 组件或其他 TypeScript 文件中导入 DrawStampUtils：
-
-```typescript
-import { DrawStampUtils } from './DrawStampUtils';
 ```
 
 ## 创建印章
