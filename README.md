@@ -314,6 +314,9 @@ DrawStampUtilsDemo.vue中的方法作为参考
 
 
 ## 更新日志
+### v0.1.0 (2024-09-27)
+- 新增: 公司名称字体修改
+- 移除：提取印章移到新的库 [extractstamp](https://github.com/xxss0903/extractstamp)
 
 ### v0.0.9 (2024-09-27)
 - 新增: 印章类型文字行间距功能
