@@ -240,7 +240,7 @@
         </label>
       </div>
       <div class="control-group" id="stamp-type-list-settings">
-  <h3>印���类型列表设置</h3>
+  <h3>印章类型列表设置</h3>
   <div class="stamp-type-list">
     <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
       <div class="stamp-type-header">
@@ -582,7 +582,7 @@ const textMarginMM = ref(1) // 默认值为1mm
 const codeMarginMM = ref(1) // 默认值为1mm
 // 编码分布因子，控制印章编码在椭圆下方的分布范围
 const codeDistributionFactor = ref(20) // 默认值可以根据需要调整
-// 印章印章类���
+// 印章印章类型
 const bottomText = ref('合同专用章')
 // 印章类型大小，默认 4mm
 const bottomTextFontFamily = ref('SimSun')
