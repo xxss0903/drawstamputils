@@ -201,7 +201,7 @@ export class DrawStampUtils {
     companyName: '印章绘制有限责任公司',
     compression: 1,
     borderOffset: 1,
-    textDistributionFactor: 20,
+    textDistributionFactor: 5,
     fontFamily: 'SimSun',
     fontHeight: 4.2,
     fontWeight: 'normal',

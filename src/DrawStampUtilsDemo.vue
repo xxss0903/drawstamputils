@@ -234,10 +234,6 @@
           垂直位置调整 (mm):
           <input type="number" v-model.number="bottomTextPositionY" min="-10" max="10" step="0.1" />
         </label>
-        <label>
-          行间距 (mm):
-          <input type="number" v-model.number="bottomTextLineSpacing" min="0" max="10" step="0.1" />
-        </label>
       </div>
       <div class="control-group" id="stamp-type-list-settings">
   <h3>印章类型列表设置</h3>
@@ -310,16 +306,6 @@
           min="-20"
           max="20"
           step="0.5"
-        />
-      </label>
-      <label>
-        行间距 (mm):
-        <input
-          type="number"
-          v-model.number="type.lineSpacing"
-          min="0"
-          max="10"
-          step="0.1"
         />
       </label>
     </div>
@@ -595,7 +581,7 @@ const manualAging = ref(false)
 // 添加新的响应式数据
 const agingIntensity = ref(50)
 // 文字分布因子，控制公司名称文字在椭圆上的分布范围
-const textDistributionFactor = ref(20)
+const textDistributionFactor = ref(3)
 // 调整椭圆文字
 const adjustEllipseText = ref(false)
 // 调整椭圆文字因子
@@ -675,7 +661,7 @@ const companyList = ref<ICompany[]>([
     companyName: '绘制印章有限责任公司',
     compression: 1,
     borderOffset: 1,
-    textDistributionFactor: 20,
+    textDistributionFactor: 3,
     fontFamily: 'SimSun',
     fontHeight: 4.2,
     fontWeight: 'normal',
@@ -744,7 +730,7 @@ const addNewCompany = () => {
     companyName: '新公司名称',
     compression: 1,
     borderOffset: newBorderOffset,
-    textDistributionFactor: 20,
+    textDistributionFactor: 3,
     fontFamily: 'SimSun',
     fontHeight: 4.2,
     fontWeight: 'normal',
