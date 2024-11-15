@@ -138,6 +138,7 @@ export type IDrawStampConfig = {
   outThinCircle: IInnerCircle // 比外圈细的稍微内圈
   openManualAging: boolean // 是否开启手动做旧效果
   stampTypeList: IStampType[] // 印章类型列表
+  companyList: ICompany[] // 新增：公司名称列表
 }
 
 // 标尺宽度
@@ -287,6 +288,22 @@ export class DrawStampUtils {
     }
   ]
 
+  // 添加公司列表属性
+  private companyList: ICompany[] = [
+    {
+      companyName: '绘制印章有限责任公司',
+      compression: 1,
+      borderOffset: 1,
+      textDistributionFactor: 20,
+      fontFamily: 'SimSun',
+      fontHeight: 4.2,
+      fontWeight: 'normal',
+      shape: 'ellipse',
+      adjustEllipseText: false,
+      adjustEllipseTextFactor: 0.5
+    }
+  ]
+
   // 总的印章绘制参数
   private drawStampConfigs: IDrawStampConfig = {
     roughEdge: this.roughEdge,
@@ -308,7 +325,8 @@ export class DrawStampUtils {
     innerCircle: this.innerCircle,
     outThinCircle: this.outThinCircle,
     openManualAging: false,
-    stampTypeList: this.stampTypeList
+    stampTypeList: this.stampTypeList,
+    companyList: this.companyList
   }
 
   /**
@@ -1762,6 +1780,7 @@ private addCircularNoise(
   const centerY = y + offsetY;
 
 
+
     this.drawStamp(
       this.canvasCtx,
       centerX,
@@ -1796,6 +1815,20 @@ private addCircularNoise(
   }
 
 
+  // 添加绘制公司列表的方法
+  private drawCompanyList(
+    ctx: CanvasRenderingContext2D,
+    companyList: ICompany[],
+    centerX: number,
+    centerY: number,
+    radiusX: number,
+    radiusY: number
+  ) {
+    companyList.forEach((company) => {
+      this.drawCompanyName(ctx, company, centerX, centerY, radiusX, radiusY)
+    })
+  }
+  
   /**
    * 绘制印章
    * @param x 圆心x坐标
@@ -1899,9 +1932,9 @@ private addCircularNoise(
     }
 
     // 绘制公司名称
-    this.drawCompanyName(
+    this.drawCompanyList(
       offscreenCtx,
-      this.drawStampConfigs.company,
+      this.drawStampConfigs.companyList,
       centerX,
       centerY,
       radiusX,
@@ -1939,4 +1972,5 @@ private addCircularNoise(
     //   this.drawFullRuler(ctx, this.canvas.width, this.canvas.height)
     // }
   }
+
 }

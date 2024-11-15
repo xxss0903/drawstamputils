@@ -78,66 +78,90 @@
       </div>
       </div>
       <!-- 公司名称设置 -->
-      <div class="control-group" id="company-name-settings">
-        <h3>公司名称设置</h3>
-        <label>公司名称: <input v-model="companyName" /></label>
-        <label>字体: <input v-model="companyFontFamily" /></label>
-        <label
-          >字体大小 (mm): <input type="number" v-model.number="companyFontSizeMM" step="0.1"
-        /></label>
-        <label>
-          字体粗细:
-          <select v-model="companyNameFontWeight">
-            <option value="normal">正常</option>
-            <option value="bold">粗体</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500">500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-          </select>
-        </label>
-        <label>
-          <span>压缩比例：{{ companyNameCompression.toFixed(2) }}</span>
-          <input
-            type="range"
-            v-model.number="companyNameCompression"
-            min="0.5"
-            max="1.5"
-            step="0.05"
-          />
-        </label>
-          <label class="checkbox-label">
-          <input type="checkbox" v-model="adjustEllipseText" /> 调整椭圆文字
-        </label>
-        <label v-if="adjustEllipseText">
-          <span>椭圆文字调整：{{ adjustEllipseTextFactor.toFixed(2) }}</span>
-          <input
-            type="range"
-            v-model.number="adjustEllipseTextFactor"
-            min="0"
-            max="2"
-            step="0.01"
-          />
-        </label>
-        <label>
-          <span>分布因子：{{ textDistributionFactor.toFixed(1) }}</span>
-          <input
-            type="range"
-            v-model.number="textDistributionFactor"
-            min="1"
-            max="200"
-            step="0.5"
-          />
-        </label>
-        <label>
-          <span>边距 (mm): </span>
-          <input type="number" v-model.number="textMarginMM" min="-10" max="10" step="0.05" />
-        </label>
+      <div class="control-group" id="company-list-settings">
+        <h3>公司名称列表设置</h3>
+        <div class="company-list">
+          <div v-for="(company, index) in companyList" :key="index" class="company-item">
+            <div class="company-header">
+              <span>第 {{ index + 1 }} 行</span>
+              <button class="small-button delete-button" @click="removeCompany(index)">删除</button>
+            </div>
+            <label>
+              公司名称:
+              <input type="text" v-model="company.companyName" />
+            </label>
+            <label>
+              字体:
+              <select v-model="company.fontFamily">
+                <option value="SimSun">宋体</option>
+                <option value="SimHei">黑体</option>
+                <option value="KaiTi">楷体</option>
+                <option value="Microsoft YaHei">微软雅黑</option>
+              </select>
+            </label>
+            <label>
+              字体大小 (mm):
+              <input type="number" v-model.number="company.fontHeight" min="1" max="10" step="0.1" />
+            </label>
+            <label>
+              字体粗细:
+              <select v-model="company.fontWeight">
+                <option value="normal">正常</option>
+                <option value="bold">粗体</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="300">300</option>
+                <option value="400">400</option>
+                <option value="500">500</option>
+                <option value="600">600</option>
+                <option value="700">700</option>
+                <option value="800">800</option>
+                <option value="900">900</option>
+              </select>
+            </label>
+            <label>
+              压缩比例:
+              <input
+                type="range"
+                v-model.number="company.compression"
+                min="0.5"
+                max="1.5"
+                step="0.05"
+              />
+              <span>{{ company.compression.toFixed(2) }}</span>
+            </label>
+            <label>
+              分布因子:
+              <input
+                type="range"
+                v-model.number="company.textDistributionFactor"
+                min="1"
+                max="200"
+                step="0.5"
+              />
+              <span>{{ company.textDistributionFactor.toFixed(1) }}</span>
+            </label>
+            <label>
+              边距 (mm):
+              <input type="number" v-model.number="company.borderOffset" min="-10" max="10" step="0.05" />
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="company.adjustEllipseText" /> 调整椭圆文字
+            </label>
+            <label v-if="company.adjustEllipseText">
+              椭圆文字调整:
+              <input
+                type="range"
+                v-model.number="company.adjustEllipseTextFactor"
+                min="0"
+                max="2"
+                step="0.01"
+              />
+              <span>{{ company.adjustEllipseTextFactor.toFixed(2) }}</span>
+            </label>
+          </div>
+          <button class="add-button" @click="addNewCompany">添加新行</button>
+        </div>
       </div>
 
       <!-- 印章类型设置 -->
@@ -621,6 +645,23 @@ const stampTypeList = ref<IStampType[]>([
     fontWidth: 3
   }
 ])
+
+// 添加公司列表的响应式数据
+const companyList = ref<ICompany[]>([
+  {
+    companyName: '绘制印章有限责任公司',
+    compression: 1,
+    borderOffset: 1,
+    textDistributionFactor: 20,
+    fontFamily: 'SimSun',
+    fontHeight: 4.2,
+    fontWeight: 'normal',
+    shape: 'ellipse',
+    adjustEllipseText: false,
+    adjustEllipseTextFactor: 0.5
+  }
+])
+
 // 添加新的印章类型行
 const addNewStampType = () => {
   let newPositionY = -3
@@ -644,6 +685,32 @@ const addNewStampType = () => {
 // 删除指定的印章类型行
 const removeStampType = (index: number) => {
   stampTypeList.value.splice(index, 1)
+}
+
+// 添加新的公司行
+const addNewCompany = () => {
+  let newBorderOffset = 1
+  if(companyList.value.length > 0) {
+    const lastCompany = companyList.value[companyList.value.length - 1]
+    newBorderOffset = lastCompany.borderOffset + lastCompany.fontHeight
+  }
+  companyList.value.push({
+    companyName: '新公司名称',
+    compression: 1,
+    borderOffset: newBorderOffset,
+    textDistributionFactor: 20,
+    fontFamily: 'SimSun',
+    fontHeight: 4.2,
+    fontWeight: 'normal',
+    shape: 'ellipse',
+    adjustEllipseText: false,
+    adjustEllipseTextFactor: 0.5
+  })
+}
+
+// 删除指定的公司行
+const removeCompany = (index: number) => {
+  companyList.value.splice(index, 1)
 }
 
 const saveStampAsPNG = () => {
@@ -783,6 +850,9 @@ const updateDrawConfigs = () => {
   // 更新印章类型列表
   drawConfigs.stampTypeList = stampTypeList.value
 
+  // 更新公司列表
+  drawConfigs.companyList = companyList.value
+
   drawStamp()
 }
 
@@ -905,7 +975,8 @@ watch(
     adjustEllipseText,
     adjustEllipseTextFactor,
     bottomTextLineSpacing,
-    stampTypeList
+    stampTypeList,
+    companyList
   ],
   () => {
     updateDrawConfigs()
@@ -1015,6 +1086,7 @@ onMounted(() => {
 watch(stampTypePresets, () => {
   savePresetsToLocalStorage()
 }, { deep: true })
+
 </script>
 <style scoped>
 .container {
@@ -1197,5 +1269,25 @@ canvas {
 .stamp-type-item span {
   min-width: 30px;
   text-align: right;
+}
+
+.company-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.company-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.company-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 </style>
