@@ -28,7 +28,7 @@ export type ICompany = {
   companyName: string // 公司名称
   compression: number // 公司名称压缩比例
   borderOffset: number // 边框偏移量
-  textDistributionFactor: number // 文字分布因子
+  textDistributionFactor: number // 字分布因子
   fontFamily: string // 字体
   fontHeight: number // 字体高度
   fontWeight: string | number // 字体粗细
@@ -113,7 +113,7 @@ export type IInnerCircle = {
 // 是否绘制标尺
 export type IShowRuler = {
   showRuler: boolean // 是否绘制标尺
-  showFullRuler: boolean // 是否绘制全标尺
+  showFullRuler: boolean // 是否绘全标尺
 }
 
 // 绘制印章的参数
@@ -294,7 +294,7 @@ export class DrawStampUtils {
       companyName: '绘制印章有限责任公司',
       compression: 1,
       borderOffset: 1,
-      textDistributionFactor: 20,
+      textDistributionFactor: 10, // 将默认值从20改为10
       fontFamily: 'SimSun',
       fontHeight: 4.2,
       fontWeight: 'normal',
@@ -1186,7 +1186,7 @@ export class DrawStampUtils {
       }
     }
 
-    // 使用保存的参数绘制纹路
+    // 使用保存的参数制纹路
     this.drawStampConfigs.securityPattern.securityPatternParams.forEach(({ angle, lineAngle }) => {
       const x = centerX + radiusX * Math.cos(angle)
       const y = centerY + radiusY * Math.sin(angle)
@@ -1260,8 +1260,8 @@ export class DrawStampUtils {
     const characterCount = characters.length
     const borderOffset = company.borderOffset * this.mmToPixel
 
-    // 调整起始和结束角度，使文字均匀分布在椭圆上半部分
-    const totalAngle = Math.PI * (1 + characterCount / company.textDistributionFactor)
+    // 修改总角度的计算方式，使用更小的分布因子
+    const totalAngle = Math.PI * (0.5 + characterCount / (company.textDistributionFactor * 4))
     const startAngle = Math.PI + (Math.PI - totalAngle) / 2
     const anglePerChar = totalAngle / characterCount
     const halfCharCount = (characterCount + 1) / 2
@@ -1739,7 +1739,7 @@ private addCircularNoise(
         this.addAgingEffect(saveCtx, outputSize, outputSize, false)
       }
 
-      // 将新的 canvas 转换为 PNG 数据 URL
+      // 将的 canvas 转为 PNG 数据 URL
       const dataURL = saveCanvas.toDataURL('image/png')
 
       // 创建一个临时的 <a> 元素来触发下载
