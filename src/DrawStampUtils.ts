@@ -137,6 +137,7 @@ export type IDrawStampConfig = {
   innerCircle: IInnerCircle // 内圈圆
   outThinCircle: IInnerCircle // 比外圈细的稍微内圈
   openManualAging: boolean // 是否开启手动做旧效果
+  stampTypeList: IStampType[] // 印章类型列表
 }
 
 // 标尺宽度
@@ -260,6 +261,32 @@ export class DrawStampUtils {
     roughEdgeShift: 0.5,
     roughEdgePoints: 360
   }
+  // 印章类型列表，用于多行的文字显示，且可以设置每行的高度和文字宽度，默认添加一个发票专用章类型
+  private stampTypeList: IStampType[] = [
+    {
+      stampType: '发票专用章',
+      fontHeight: 4.6,
+      fontFamily: 'Arial',
+      fontWidth: 3,
+      compression: 0.75,
+      letterSpacing: 0,
+      positionY: -3,
+      fontWeight: 'normal',
+      lineSpacing: 2 // 新增：行间距
+    },
+    {
+      stampType: '合同专用章',
+      fontHeight: 4.6,
+      fontFamily: 'Arial',
+      fontWidth: 3,
+      compression: 0.75,
+      letterSpacing: 0,
+      positionY: -9,
+      fontWeight: 'normal',
+      lineSpacing: 2 // 新增：行间距
+    }
+  ]
+
   // 总的印章绘制参数
   private drawStampConfigs: IDrawStampConfig = {
     roughEdge: this.roughEdge,
@@ -280,7 +307,8 @@ export class DrawStampUtils {
     shouldDrawRuler: true,
     innerCircle: this.innerCircle,
     outThinCircle: this.outThinCircle,
-    openManualAging: false
+    openManualAging: false,
+    stampTypeList: this.stampTypeList
   }
 
   /**
@@ -1090,6 +1118,19 @@ export class DrawStampUtils {
     ctx.restore()
   }
 
+  private drawStampTypeList(
+    ctx: CanvasRenderingContext2D,
+    stampTypeList: IStampType[],
+    centerX: number,
+    centerY: number,
+    radiusX: number
+  ) {
+    stampTypeList.forEach((stampType) => {
+      this.drawStampType(ctx, stampType, centerX, centerY, radiusX)
+    })
+    ctx.restore()
+  }
+
   /**
    * 绘制防伪纹路
    * @param centerX 圆心x坐标
@@ -1868,7 +1909,9 @@ private addCircularNoise(
     )
 
     // 绘制印章类型
-    this.drawStampType(offscreenCtx, this.drawStampConfigs.stampType, centerX, centerY, radiusX)
+    // this.drawStampType(offscreenCtx, this.drawStampConfigs.stampType, centerX, centerY, radiusX)
+
+    this.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX)
 
     // 绘制印章编码
     this.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY)

@@ -215,7 +215,72 @@
           <input type="number" v-model.number="bottomTextLineSpacing" min="0" max="10" step="0.1" />
         </label>
       </div>
-
+      <div class="control-group" id="stamp-type-list-settings">
+  <h3>印章类型列表设置</h3>
+  <div class="stamp-type-list">
+    <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
+      <div class="stamp-type-header">
+        <span>第 {{ index + 1 }} 行</span>
+        <button class="small-button delete-button" @click="removeStampType(index)">删除</button>
+      </div>
+      <label>
+        文字内容:
+        <input type="text" v-model="type.stampType" />
+      </label>
+      <label>
+        字体大小 (mm):
+        <input type="number" v-model.number="type.fontHeight" min="1" max="10" step="0.1" />
+      </label>
+      <label>
+        字体:
+        <input type="text" v-model="type.fontFamily" />
+      </label>
+      <label>
+        压缩比例:
+        <input
+          type="range"
+          v-model.number="type.compression"
+          min="0.5"
+          max="1.5"
+          step="0.05"
+        />
+        <span>{{ type.compression.toFixed(2) }}</span>
+      </label>
+      <label>
+        字符间距 (mm):
+        <input
+          type="range"
+          v-model.number="type.letterSpacing"
+          min="-1"
+          max="10"
+          step="0.05"
+        />
+        <span>{{ type.letterSpacing.toFixed(2) }}</span>
+      </label>
+      <label>
+        垂直位置 (mm):
+        <input
+          type="number"
+          v-model.number="type.positionY"
+          min="-20"
+          max="20"
+          step="0.5"
+        />
+      </label>
+      <label>
+        行间距 (mm):
+        <input
+          type="number"
+          v-model.number="type.lineSpacing"
+          min="0"
+          max="10"
+          step="0.1"
+        />
+      </label>
+    </div>
+    <button class="add-button" @click="addNewStampType">添加新行</button>
+  </div>
+</div>
       <!-- 印章编码设置 -->
       <div class="control-group" id="code-settings">
         <h3>印章编码设置</h3>
@@ -521,6 +586,41 @@ const roughEdgeHeight = ref(5) // 毛边高度，单位为毫米
 const roughEdgeProbability = ref(0.5) // 毛边概率
 const roughEdgeShift = ref(0.5) // 毛边偏移
 const roughEdgePoints = ref(360) // 毛边点数
+// 添加印章类型列表的响应式数据
+const stampTypeList = ref<IStampType[]>([
+  {
+    stampType: '发票专用章',
+    fontHeight: 4.6,
+    fontFamily: 'SimSun',
+    compression: 0.75,
+    letterSpacing: 0,
+    positionY: -3,
+    fontWeight: 'normal',
+    lineSpacing: 2,
+    fontWidth: 3
+  }
+])
+// 添加新的印章类型行
+const addNewStampType = () => {
+  const lastStampType = stampTypeList.value[stampTypeList.value.length - 1]
+  const newPositionY = lastStampType.positionY + lastStampType.fontHeight 
+  stampTypeList.value.push({
+    stampType: '新印章类型',
+    fontHeight: 4.0,
+    fontFamily: 'SimSun',
+    compression: 0.75,
+    letterSpacing: 0,
+    positionY: newPositionY,
+    fontWeight: 'normal',
+    lineSpacing: 2,
+    fontWidth: 3
+  })
+}
+
+// 删除指定的印章类型行
+const removeStampType = (index: number) => {
+  stampTypeList.value.splice(index, 1)
+}
 
 const saveStampAsPNG = () => {
   drawStampUtils.saveStampAsPNG(512)
@@ -656,6 +756,9 @@ const updateDrawConfigs = () => {
   outThinCircle.innerCircleLineRadiusX = outThinCircleWidth.value
   outThinCircle.innerCircleLineRadiusY = outThinCircleHeight.value
 
+  // 更新印章类型列表
+  drawConfigs.stampTypeList = stampTypeList.value
+
   drawStamp()
 }
 
@@ -777,11 +880,13 @@ watch(
     taxNumberFontWeight,
     adjustEllipseText,
     adjustEllipseTextFactor,
-    bottomTextLineSpacing
+    bottomTextLineSpacing,
+    stampTypeList
   ],
   () => {
     updateDrawConfigs()
-  }
+  },
+  { deep: true }
 )
 
 // 添加新的类型定义
@@ -1012,5 +1117,61 @@ canvas {
 .small-button {
   padding: 4px 8px;
   font-size: 12px;
+}
+.stamp-type-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.stamp-type-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.stamp-type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.delete-button {
+  background-color: #ff4444;
+  padding: 4px 8px;
+}
+
+.delete-button:hover {
+  background-color: #cc0000;
+}
+
+.add-button {
+  margin-top: 10px;
+  background-color: #4CAF50;
+}
+
+.add-button:hover {
+  background-color: #45a049;
+}
+
+.stamp-type-item label {
+  margin-bottom: 5px;
+}
+
+.stamp-type-item input[type="text"],
+.stamp-type-item input[type="number"] {
+  width: 100%;
+}
+
+.stamp-type-item input[type="range"] {
+  width: calc(100% - 40px);
+  margin-right: 10px;
+}
+
+.stamp-type-item span {
+  min-width: 30px;
+  text-align: right;
 }
 </style>
