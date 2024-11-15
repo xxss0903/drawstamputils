@@ -87,6 +87,9 @@ export type IDrawStar = {
   starDiameter: number // 五角星直径
   starPositionY: number // 五角星位置
   scaleToSmallStar: boolean // 是否缩放为小五角星
+  useImage: boolean // 新增：是否使用图片
+  imageUrl: string // 新增：图片URL
+  imageSize: number // 新增：图片大小
 }
 
 // 印章类型
@@ -176,7 +179,10 @@ export class DrawStampUtils {
     drawStar: false,
     starDiameter: 14,
     starPositionY: 0,
-    scaleToSmallStar: false
+    scaleToSmallStar: false,
+    useImage: false,
+    imageUrl: '',
+    imageSize: 10
   }
   // 防伪纹路
   private securityPattern: ISecurityPattern = {
@@ -328,6 +334,9 @@ export class DrawStampUtils {
     stampTypeList: this.stampTypeList,
     companyList: this.companyList
   }
+
+  // 添加图片缓存
+  private imageCache: Map<string, HTMLImageElement> = new Map();
 
   /**
    * 构造函数
@@ -619,7 +628,7 @@ export class DrawStampUtils {
       // 绘制裁剪后的图像
       ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, scaledWidth, scaledHeight);
 
-      // 将裁剪后的图像转换为数据URL
+      // 将裁剪后的图像转换数据URL
       let dataURL = cropCanvas.toDataURL('image/png');
       return dataURL;
     }
@@ -1024,12 +1033,54 @@ export class DrawStampUtils {
    * @param y 圆心y坐标
    * @param r 半径
    */
-  private drawStarShape(ctx: CanvasRenderingContext2D, starSvgData: IDrawStar, x: number, y: number) {
-    const drawStarDia = starSvgData.starDiameter / 2 * this.mmToPixel
-    if(starSvgData.svgPath.startsWith('<svg')){
-      this.drawSVGContent(ctx, starSvgData.svgPath, x, y, 1)
-    }else{
-      this.drawSVGPath(ctx, starSvgData.svgPath, x, y, drawStarDia)
+  private drawStarShape(
+    ctx: CanvasRenderingContext2D,
+    starConfig: IDrawStar,
+    centerX: number,
+    centerY: number
+  ) {
+    if (starConfig.useImage && starConfig.imageUrl) {
+      // 检查缓存中是否已有该图片
+      let img = this.imageCache.get(starConfig.imageUrl);
+      
+      if (img) {
+        // 如果图片已加载，直接绘制
+        const size = starConfig.imageSize * this.mmToPixel;
+        const x = centerX - size / 2;
+        const y = centerY + starConfig.starPositionY * this.mmToPixel - size / 2;
+        
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.drawImage(img, x, y, size, size);
+        ctx.restore();
+      } else {
+        // 如果图片未加载，创建新的图片对象并加入缓存
+        img = new Image();
+        img.onload = () => {
+          // 将加载完成的图片存入缓存
+          this.imageCache.set(starConfig.imageUrl, img);
+          
+          const size = starConfig.imageSize * this.mmToPixel;
+          const x = centerX - size / 2;
+          const y = centerY + starConfig.starPositionY * this.mmToPixel - size / 2;
+          
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-atop';
+          ctx.drawImage(img, x, y, size, size);
+          ctx.restore();
+          
+          // 刷新画布以显示图片
+          this.refreshStamp();
+        };
+        img.src = starConfig.imageUrl;
+      }
+    } else {
+      const drawStarDia = starConfig.starDiameter / 2 * this.mmToPixel;
+      if(starConfig.svgPath.startsWith('<svg')){
+        this.drawSVGContent(ctx, starConfig.svgPath, centerX, centerY, 1);
+      } else {
+        this.drawSVGPath(ctx, starConfig.svgPath, centerX, centerY, drawStarDia);
+      }
     }
   }
 
@@ -1315,7 +1366,7 @@ export class DrawStampUtils {
    * @param radiusX 椭圆长轴半径
    * @param radiusY 椭圆短轴半径
    * @param text 编码文本
-   * @param fontSize 字体大小
+   * @param fontSize 字大小
    */
   private drawCode(
     ctx: CanvasRenderingContext2D,
@@ -1781,6 +1832,7 @@ private addCircularNoise(
 
 
 
+
     this.drawStamp(
       this.canvasCtx,
       centerX,
@@ -1973,4 +2025,16 @@ private addCircularNoise(
     // }
   }
 
+  // 添加清理缓存的方法
+  public clearImageCache() {
+    this.imageCache.clear();
+  }
+
+  // 在设置新的图片URL时清除旧的缓存
+  private updateStarImage(imageUrl: string) {
+    if (this.drawStampConfigs.drawStar.imageUrl !== imageUrl) {
+      this.imageCache.delete(this.drawStampConfigs.drawStar.imageUrl);
+      this.drawStampConfigs.drawStar.imageUrl = imageUrl;
+    }
+  }
 }

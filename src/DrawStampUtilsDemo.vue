@@ -413,19 +413,35 @@
 
       <!-- 五角星设置 -->
       <div class="control-group" id="star-settings">
-        <h3>五角星设置</h3>
+        <h3>五角星/图片设置</h3>
         <label class="checkbox-label">
           <input type="checkbox" v-model="shouldDrawStar" />
-          绘制五角星
+          绘制五��星/图片
         </label>
-        <label v-if="shouldDrawStar">
-          五角星直径 (mm):
-          <input type="number" v-model.number="starDiameter" step="0.1" />
+        <label class="checkbox-label">
+          <input type="checkbox" v-model="useStarImage" />
+          使用图片
         </label>
-        <label v-if="shouldDrawStar">
-          五角星垂直位置 (mm):
-          <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
-        </label>
+        <div v-if="shouldDrawStar">
+          <div v-if="useStarImage">
+            <label>
+              选择图片:
+              <input type="file" @change="handleStarImageUpload" accept="image/*" />
+            </label>
+            <label>
+              图片大小 (mm):
+              <input type="number" v-model.number="starImageSize" min="1" max="20" step="0.5" />
+            </label>
+          </div>
+          <label v-else>
+            五角星直径 (mm):
+            <input type="number" v-model.number="starDiameter" step="0.1" />
+          </label>
+          <label>
+            垂直位置 (mm):
+            <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
+          </label>
+        </div>
       </div>
 
       <!-- 防伪纹路设置 -->
@@ -631,7 +647,7 @@ const roughEdgeHeight = ref(5) // 毛边高度，单位为毫米
 const roughEdgeProbability = ref(0.5) // 毛边概率
 const roughEdgeShift = ref(0.5) // 毛边偏移
 const roughEdgePoints = ref(360) // 毛边点数
-// 添加印章类型列表的响应式数据
+// 添加印章类型列表的响式数据
 const stampTypeList = ref<IStampType[]>([
   {
     stampType: '发票专用章',
@@ -645,7 +661,6 @@ const stampTypeList = ref<IStampType[]>([
     fontWidth: 3
   }
 ])
-
 // 添加公司列表的响应式数据
 const companyList = ref<ICompany[]>([
   {
@@ -661,6 +676,27 @@ const companyList = ref<ICompany[]>([
     adjustEllipseTextFactor: 0.5
   }
 ])
+// 添加新的响应式变量
+const useStarImage = ref(false)
+const starImageSize = ref(10)
+
+// 修改图片上传处理函数
+const handleStarImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        const imageUrl = e.target.result as string;
+        // 使用新方法更新图片
+        drawStampUtils.updateStarImage(imageUrl);
+        drawStamp();
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
 
 // 添加新的印章类型行
 const addNewStampType = () => {
@@ -800,9 +836,11 @@ const updateDrawConfigs = () => {
   drawConfigs.width = drawStampWidth.value
   drawConfigs.height = drawStampHeight.value
 
-  // 五角星
+  // 五角星/图片配置
   const drawStar: IDrawStar = drawConfigs.drawStar
   drawStar.drawStar = shouldDrawStar.value
+  drawStar.useImage = useStarImage.value
+  drawStar.imageSize = starImageSize.value
   drawStar.starDiameter = starDiameter.value
   drawStar.starPositionY = starPositionY.value
 
@@ -890,8 +928,10 @@ const restoreDrawConfigs = () => {
   bottomTextLetterSpacing.value = stampTypeConfig.letterSpacing
   bottomTextPositionY.value = stampTypeConfig.positionY
 
-  // 五角星
+  // 五角星/图片配置
   shouldDrawStar.value = drawConfigs.drawStar.drawStar
+  useStarImage.value = drawConfigs.drawStar.useImage
+  starImageSize.value = drawConfigs.drawStar.imageSize
   starDiameter.value = drawConfigs.drawStar.starDiameter
   starPositionY.value = drawConfigs.drawStar.starPositionY
 
@@ -976,7 +1016,9 @@ watch(
     adjustEllipseTextFactor,
     bottomTextLineSpacing,
     stampTypeList,
-    companyList
+    companyList,
+    useStarImage,
+    starImageSize
   ],
   () => {
     updateDrawConfigs()
@@ -1086,6 +1128,7 @@ onMounted(() => {
 watch(stampTypePresets, () => {
   savePresetsToLocalStorage()
 }, { deep: true })
+
 
 </script>
 <style scoped>
@@ -1288,6 +1331,15 @@ canvas {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
+}
+
+/* 添加文件上传按钮样式 */
+input[type="file"] {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
   margin-bottom: 10px;
 }
 </style>
