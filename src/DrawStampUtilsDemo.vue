@@ -141,7 +141,7 @@
       </div>
 
       <!-- 印章类型设置 -->
-      <div class="control-group" id="bottom-text-settings">
+      <div v-if="false" class="control-group" id="bottom-text-settings">
         <h3>印章类型设置</h3>
         <!-- 添加预设列表 -->
         <div class="stamp-type-presets">
@@ -233,14 +233,35 @@
       </label>
       <label>
         字体:
-        <input type="text" v-model="type.fontFamily" />
+        <select v-model="type.fontFamily">
+          <option value="SimSun">宋体</option>
+          <option value="SimHei">黑体</option>
+          <option value="KaiTi">楷体</option>
+          <option value="Microsoft YaHei">微软雅黑</option>
+        </select>
+      </label>
+      <label>
+        字体粗细:
+        <select v-model="type.fontWeight">
+          <option value="normal">正常</option>
+          <option value="bold">粗体</option>
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="300">300</option>
+          <option value="400">400</option>
+          <option value="500">500</option>
+          <option value="600">600</option>
+          <option value="700">700</option>
+          <option value="800">800</option>
+          <option value="900">900</option>
+        </select>
       </label>
       <label>
         压缩比例:
         <input
           type="range"
           v-model.number="type.compression"
-          min="0.5"
+          min="0.1"
           max="1.5"
           step="0.05"
         />
@@ -570,7 +591,7 @@ const shouldDrawStar = ref(false) // 默认绘制五角星
 
 const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
 const taxNumberLetterSpacing = ref(0.3) // 税号文字间距（单位：毫米）
-const taxNumberPositionY = ref(0) // 税号垂直位置调���，默认为0
+const taxNumberPositionY = ref(0) // 税号垂直位置调，默认为0
 const drawInnerCircle = ref(false) // 是否绘制内圈圆
 const innerCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
 const innerCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
@@ -602,8 +623,11 @@ const stampTypeList = ref<IStampType[]>([
 ])
 // 添加新的印章类型行
 const addNewStampType = () => {
-  const lastStampType = stampTypeList.value[stampTypeList.value.length - 1]
-  const newPositionY = lastStampType.positionY + lastStampType.fontHeight 
+  let newPositionY = -3
+  if(stampTypeList.value.length > 0){
+    const lastStampType = stampTypeList.value[stampTypeList.value.length - 1]
+    newPositionY = lastStampType.positionY + lastStampType.fontHeight 
+  }
   stampTypeList.value.push({
     stampType: '新印章类型',
     fontHeight: 4.0,
