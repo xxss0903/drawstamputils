@@ -61,6 +61,8 @@ npm run preview
 
 以下是使用 DrawStampUtils.js 生成的电子印章示例：
 
+![Stamp Example](public/stamp_withimage.png)
+![Stamp Example](public/stamp_multiline.png)
 ![Stamp Example](public/seal.png)
 ![Stamp Designer](public/roughedge.png)
 ![Stamp Designer](public/designer.png)
@@ -154,6 +156,35 @@ DrawStampUtils 支持以下配置选项：
 | - positionY | 设置印章类型文字位置 |
 | - fontWidth | 设置印章类型文字宽度 |
 | - lineSpacing | 设置印章类型文字行间距 |
+| IDrawStar | 控制五角星/图片相关的参数 |
+| - drawStar | 是否绘制五角星/图片 |
+| - useImage | 是否使用图片代替五角星 |
+| - imageUrl | 图片的URL |
+| - imageWidth | 图片宽度(mm) |
+| - imageHeight | 图片高度(mm) |
+| - keepAspectRatio | 是否保持图片原始宽高比 |
+| - starDiameter | 五角星直径（使用五角星时有效） |
+| - starPositionY | 五角星/图片的垂直位置 |
+| companyList | 公司名称列表，支持多行公司名称 |
+| - companyName | 设置公司名称 |
+| - compression | 控制公司名称的压缩比例 |
+| - borderOffset | 设置边框偏移量 |
+| - textDistributionFactor | 控制文字分布因子 |
+| - fontFamily | 设置字体 |
+| - fontHeight | 设置字体高度 |
+| - fontWeight | 设置字体粗细 |
+| - adjustEllipseText | 是否调整椭圆文字间距 |
+| - adjustEllipseTextFactor | 椭圆文字间距调整因子 |
+| stampTypeList | 印章类型列表，支持多行印章类型 |
+| - stampType | 设置印章类型文字 |
+| - fontHeight | 设置字体高度 |
+| - fontFamily | 设置字体 |
+| - compression | 设置压缩比例 |
+| - letterSpacing | 设置字符间距 |
+| - positionY | 设置垂直位置 |
+| - fontWidth | 设置字体宽度 |
+| - fontWeight | 设置字体粗细 |
+| - lineSpacing | 设置行间距 |
 
 
 以下是毛边效果的详细配置参数：
@@ -188,6 +219,11 @@ DrawStampUtilsDemo.vue中的方法作为参考
 
 
 ## 更新日志
+### v0.2.0 (2024-11-15)
+- 新增: 公司名称的数组，可单独控制每行公司名称的样式
+- 新增：印章类型的数组，可单独控制每行印章类型的样式
+- 新增：图片绘制功能，可以选择图片替代五角星，支持设置宽高和保持宽高比
+
 ### v0.1.0 (2024-09-27)
 - 新增: 公司名称字体修改
 - 移除：提取印章移到新的库 [extractstamp](https://github.com/xxss0903/extractstamp)
