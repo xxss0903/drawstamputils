@@ -416,7 +416,7 @@
         <h3>五角星/图片设置</h3>
         <label class="checkbox-label">
           <input type="checkbox" v-model="shouldDrawStar" />
-          绘制五��星/图片
+          绘制五角星/图片
         </label>
         <label class="checkbox-label">
           <input type="checkbox" v-model="useStarImage" />
@@ -429,8 +429,16 @@
               <input type="file" @change="handleStarImageUpload" accept="image/*" />
             </label>
             <label>
-              图片大小 (mm):
-              <input type="number" v-model.number="starImageSize" min="1" max="20" step="0.5" />
+              图片宽度 (mm):
+              <input type="number" v-model.number="starImageWidth" min="1" max="20" step="0.5" />
+            </label>
+            <label>
+              图片高度 (mm):
+              <input type="number" v-model.number="starImageHeight" min="1" max="20" step="0.5" />
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="keepAspectRatio" />
+              保持宽高比
             </label>
           </div>
           <label v-else>
@@ -678,7 +686,9 @@ const companyList = ref<ICompany[]>([
 ])
 // 添加新的响应式变量
 const useStarImage = ref(false)
-const starImageSize = ref(10)
+const starImageWidth = ref(10) // 图片宽度，单位mm
+const starImageHeight = ref(10) // 图片高度，单位mm
+const keepAspectRatio = ref(true) // 是否保持宽高比
 
 // 修改图片上传处理函数
 const handleStarImageUpload = (event: Event) => {
@@ -840,7 +850,9 @@ const updateDrawConfigs = () => {
   const drawStar: IDrawStar = drawConfigs.drawStar
   drawStar.drawStar = shouldDrawStar.value
   drawStar.useImage = useStarImage.value
-  drawStar.imageSize = starImageSize.value
+  drawStar.imageWidth = starImageWidth.value
+  drawStar.imageHeight = starImageHeight.value
+  drawStar.keepAspectRatio = keepAspectRatio.value
   drawStar.starDiameter = starDiameter.value
   drawStar.starPositionY = starPositionY.value
 
@@ -931,7 +943,9 @@ const restoreDrawConfigs = () => {
   // 五角星/图片配置
   shouldDrawStar.value = drawConfigs.drawStar.drawStar
   useStarImage.value = drawConfigs.drawStar.useImage
-  starImageSize.value = drawConfigs.drawStar.imageSize
+  starImageWidth.value = drawConfigs.drawStar.imageWidth
+  starImageHeight.value = drawConfigs.drawStar.imageHeight
+  keepAspectRatio.value = drawConfigs.drawStar.keepAspectRatio
   starDiameter.value = drawConfigs.drawStar.starDiameter
   starPositionY.value = drawConfigs.drawStar.starPositionY
 
@@ -1018,7 +1032,9 @@ watch(
     stampTypeList,
     companyList,
     useStarImage,
-    starImageSize
+    starImageWidth,
+    starImageHeight,
+    keepAspectRatio
   ],
   () => {
     updateDrawConfigs()

@@ -87,9 +87,11 @@ export type IDrawStar = {
   starDiameter: number // 五角星直径
   starPositionY: number // 五角星位置
   scaleToSmallStar: boolean // 是否缩放为小五角星
-  useImage: boolean // 新增：是否使用图片
-  imageUrl: string // 新增：图片URL
-  imageSize: number // 新增：图片大小
+  useImage: boolean // 是否使用图片
+  imageUrl: string // 图片URL
+  imageWidth: number // 图片宽度(mm)
+  imageHeight: number // 图片高度(mm)
+  keepAspectRatio: boolean // 是否保持宽高比
 }
 
 // 印章类型
@@ -182,7 +184,9 @@ export class DrawStampUtils {
     scaleToSmallStar: false,
     useImage: false,
     imageUrl: '',
-    imageSize: 10
+    imageWidth: 10,
+    imageHeight: 10,
+    keepAspectRatio: true
   }
   // 防伪纹路
   private securityPattern: ISecurityPattern = {
@@ -251,7 +255,7 @@ export class DrawStampUtils {
     innerCircleLineRadiusX: 16,
     innerCircleLineRadiusY: 12
   }
-  // 比外圈细的稍微内圈
+  // 比外圈细的稍微内
   private outThinCircle: IInnerCircle = {
     drawInnerCircle: true,
     innerCircleLineWidth: 0.2,
@@ -336,7 +340,7 @@ export class DrawStampUtils {
   }
 
   // 添加图片缓存
-  private imageCache: Map<string, HTMLImageElement> = new Map();
+  private imageCache: Map<string, ImageBitmap> = new Map();
 
   /**
    * 构造函数
@@ -1033,7 +1037,7 @@ export class DrawStampUtils {
    * @param y 圆心y坐标
    * @param r 半径
    */
-  private drawStarShape(
+  private async drawStarShape(
     ctx: CanvasRenderingContext2D,
     starConfig: IDrawStar,
     centerX: number,
@@ -1044,35 +1048,67 @@ export class DrawStampUtils {
       let img = this.imageCache.get(starConfig.imageUrl);
       
       if (img) {
-        // 如果图片已加载，直接绘制
-        const size = starConfig.imageSize * this.mmToPixel;
-        const x = centerX - size / 2;
-        const y = centerY + starConfig.starPositionY * this.mmToPixel - size / 2;
+        // 计算绘制尺寸
+        let width = starConfig.imageWidth * this.mmToPixel;
+        let height = starConfig.imageHeight * this.mmToPixel;
+        
+        if (starConfig.keepAspectRatio) {
+          // 如果需要保持宽高比，计算缩放比例
+          const scale = Math.min(width / img.width, height / img.height);
+          width = img.width * scale;
+          height = img.height * scale;
+        }
+        
+        // 计算居中位置
+        const x = centerX - width / 2;
+        const y = centerY + starConfig.starPositionY * this.mmToPixel - height / 2;
         
         ctx.save();
-        ctx.globalCompositeOperation = 'source-atop';
-        ctx.drawImage(img, x, y, size, size);
+        ctx.drawImage(img, x, y, width, height);
         ctx.restore();
       } else {
-        // 如果图片未加载，创建新的图片对象并加入缓存
-        img = new Image();
-        img.onload = () => {
-          // 将加载完成的图片存入缓存
-          this.imageCache.set(starConfig.imageUrl, img);
+        try {
+          // 创建一个新的图片对象
+          const tempImg = new Image();
+          tempImg.src = starConfig.imageUrl;
           
-          const size = starConfig.imageSize * this.mmToPixel;
-          const x = centerX - size / 2;
-          const y = centerY + starConfig.starPositionY * this.mmToPixel - size / 2;
+          // 等待图片加载完成
+          await new Promise((resolve, reject) => {
+            tempImg.onload = resolve;
+            tempImg.onerror = reject;
+          });
+          
+          // 将图片转换为 ImageBitmap
+          const bitmap = await createImageBitmap(tempImg);
+          
+          // 存入缓存
+          this.imageCache.set(starConfig.imageUrl, bitmap);
+          
+          // 计算绘制尺寸
+          let width = starConfig.imageWidth * this.mmToPixel;
+          let height = starConfig.imageHeight * this.mmToPixel;
+          
+          if (starConfig.keepAspectRatio) {
+            // 如果需要保持宽高比，计算缩放比例
+            const scale = Math.min(width / bitmap.width, height / bitmap.height);
+            width = bitmap.width * scale;
+            height = bitmap.height * scale;
+          }
+          
+          // 计算居中位置
+          const x = centerX - width / 2;
+          const y = centerY + starConfig.starPositionY * this.mmToPixel - height / 2;
           
           ctx.save();
-          ctx.globalCompositeOperation = 'source-atop';
-          ctx.drawImage(img, x, y, size, size);
+          ctx.drawImage(bitmap, x, y, width, height);
           ctx.restore();
           
-          // 刷新画布以显示图片
-          this.refreshStamp();
-        };
-        img.src = starConfig.imageUrl;
+          requestAnimationFrame(() => {
+            this.refreshStamp();
+          });
+        } catch (error) {
+          console.error("Error loading or processing image:", error);
+        }
       }
     } else {
       const drawStarDia = starConfig.starDiameter / 2 * this.mmToPixel;
@@ -1101,7 +1137,7 @@ export class DrawStampUtils {
     const svgBlob = new Blob([svgContent], {type: 'image/svg+xml;charset=utf-8'});
     const url = URL.createObjectURL(svgBlob);
 
-    // 当图片加载完成时，在 canvas 上绘制它
+    // 当图片加载完成时在 canvas 上绘制它
     img.onload = () => {
       console.log("svg content img loaded", x, y, svgWidth, svgHeight, img);
       ctx.save();
@@ -1450,7 +1486,7 @@ export class DrawStampUtils {
     // 计算整个文本的实际宽度
     const actualWidth = charCount * charWidth + (charCount - 1) * letterSpacing
 
-    // 计算起始位置，确保文字居中
+    // 计算起始位置，确保文居中
     const startX = centerX - actualWidth / 2 + charWidth / 2
     const adjustedCenterY = centerY + positionY * this.mmToPixel
 
@@ -1833,6 +1869,7 @@ private addCircularNoise(
 
 
 
+
     this.drawStamp(
       this.canvasCtx,
       centerX,
@@ -1904,40 +1941,43 @@ private addCircularNoise(
     // 清除整个画布
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-    // 在离屏 canvas 上绘制椭圆边框
+    // 在离屏 canvas 上绘制
     const offscreenCanvas = this.offscreenCanvas
     offscreenCanvas.width = this.canvas.width
     offscreenCanvas.height = this.canvas.height
     const offscreenCtx = offscreenCanvas.getContext('2d')
     if (!offscreenCtx) return
+
+    // 创建一个临时的 canvas 用于存储原始图片
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = this.canvas.width
+    tempCanvas.height = this.canvas.height
+    const tempCtx = tempCanvas.getContext('2d')
+    if (!tempCtx) return
+
+    // 先在临时 canvas 上绘制图片（如果有的话）
+    if (this.drawStampConfigs.drawStar.drawStar && this.drawStampConfigs.drawStar.useImage) {
+      this.drawStarShape(tempCtx, this.drawStampConfigs.drawStar, centerX, centerY)
+    }
+
+    // 在离屏 canvas 上绘制印章基本形状
     offscreenCtx.beginPath()
     offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
-    offscreenCtx.strokeStyle = 'white' // 使用白色，稍后会变成红色
+    offscreenCtx.strokeStyle = borderColor
     offscreenCtx.lineWidth = borderWidth
     offscreenCtx.stroke()
 
-    // // 设置填充颜色为白色
-    offscreenCtx.fillStyle = 'white'
+    // 创建裁剪区域
+    offscreenCtx.save()
+    offscreenCtx.beginPath()
+    offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
+    offscreenCtx.clip()
 
-    // 设置画布背景
-    ctx.fillStyle = 'white'
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-
-    // 绘制椭圆
-    this.drawEllipse(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, borderColor)
-
-    if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
-      // 添加毛边效果
-      this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshOld)
-    }
-
+    // 绘制内圈
     if (this.drawStampConfigs.innerCircle.drawInnerCircle) {
       const innerCircle = this.drawStampConfigs.innerCircle
-      const innerCircleWidth =
-        (innerCircle.innerCircleLineRadiusX - innerCircle.innerCircleLineWidth) / 2
-      const innerCircleHeight =
-        (innerCircle.innerCircleLineRadiusY - innerCircle.innerCircleLineWidth) / 2
-      // 绘制内圈椭圆
+      const innerCircleWidth = (innerCircle.innerCircleLineRadiusX - innerCircle.innerCircleLineWidth) / 2
+      const innerCircleHeight = (innerCircle.innerCircleLineRadiusY - innerCircle.innerCircleLineWidth) / 2
       this.drawEllipse(
         offscreenCtx,
         centerX,
@@ -1945,18 +1985,15 @@ private addCircularNoise(
         innerCircleWidth * this.mmToPixel,
         innerCircleHeight * this.mmToPixel,
         innerCircle.innerCircleLineWidth * this.mmToPixel,
-        this.drawStampConfigs.primaryColor
+        borderColor
       )
     }
 
-    // 内部细圈
+    // 绘制外部细圈
     if (this.drawStampConfigs.outThinCircle.drawInnerCircle) {
       const outThinCircle = this.drawStampConfigs.outThinCircle
-      const outThinCircleWidth =
-        (outThinCircle.innerCircleLineRadiusX - outThinCircle.innerCircleLineWidth) / 2
-      const outThinCircleHeight =
-        (outThinCircle.innerCircleLineRadiusY - outThinCircle.innerCircleLineWidth) / 2
-      // 绘制外部细圈椭圆
+      const outThinCircleWidth = (outThinCircle.innerCircleLineRadiusX - outThinCircle.innerCircleLineWidth) / 2
+      const outThinCircleHeight = (outThinCircle.innerCircleLineRadiusY - outThinCircle.innerCircleLineWidth) / 2
       this.drawEllipse(
         offscreenCtx,
         centerX,
@@ -1964,77 +2001,72 @@ private addCircularNoise(
         outThinCircleWidth * this.mmToPixel,
         outThinCircleHeight * this.mmToPixel,
         outThinCircle.innerCircleLineWidth * this.mmToPixel,
-        this.drawStampConfigs.primaryColor
+        borderColor
       )
     }
 
-    // 在椭圆边框上绘制防伪纹路
-    this.drawSecurityPattern(
-      offscreenCtx!!,
-      centerX,
-      centerY,
-      radiusX,
-      radiusY,
-      refreshSecurityPattern
-    )
+    // 绘制防伪纹路
+    this.drawSecurityPattern(offscreenCtx, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
 
-    // 绘制五角星
-    if (this.drawStampConfigs.drawStar.drawStar) {
+    // 如果没有图片，绘制五角星
+    if (this.drawStampConfigs.drawStar.drawStar && !this.drawStampConfigs.drawStar.useImage) {
       this.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY)
     }
 
-    // 绘制公司名称
-    this.drawCompanyList(
-      offscreenCtx,
-      this.drawStampConfigs.companyList,
-      centerX,
-      centerY,
-      radiusX,
-      radiusY
-    )
-
-    // 绘制印章类型
-    // this.drawStampType(offscreenCtx, this.drawStampConfigs.stampType, centerX, centerY, radiusX)
-
+    // 绘制文字内容
+    this.drawCompanyList(offscreenCtx, this.drawStampConfigs.companyList, centerX, centerY, radiusX, radiusY)
     this.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX)
-
-    // 绘制印章编码
     this.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY)
-
-    // 绘制纳税识别号
     this.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY)
 
-    // 将离屏 canvas 的内容作为蒙版应用到主 canvas
+    offscreenCtx.restore()
+
+    // 将离屏 canvas 的内容绘制到主 canvas
     ctx.save()
+    
+    // 先绘制临时 canvas 上的图片（如果有的话）
+    if (this.drawStampConfigs.drawStar.drawStar && this.drawStampConfigs.drawStar.useImage) {
+      ctx.drawImage(tempCanvas, 0, 0)
+    }
+
+    // 设置合成模式，确保印章内容只在椭圆区域内显示
     ctx.globalCompositeOperation = 'source-over'
-    ctx.fillStyle = borderColor
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-    ctx.globalCompositeOperation = 'destination-in'
     ctx.drawImage(offscreenCanvas, 0, 0)
+
     ctx.restore()
 
-    // 在绘制完所有内容后，添加做旧效果
-    this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
+    // 添加做旧效果
+    if (this.drawStampConfigs.agingEffect.applyAging) {
+      this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
+    }
 
-    // if (this.drawStampConfigs.shouldDrawRuler) {
-    //   // 绘制标尺
-    //   this.drawRuler(ctx, this.canvas.width, RULER_HEIGHT, true)
-    //   this.drawRuler(ctx, this.canvas.height, RULER_HEIGHT, false)
-    //   // 将全尺寸标尺绘制到离屏canvas上
-    //   this.drawFullRuler(ctx, this.canvas.width, this.canvas.height)
-    // }
+    // 如果需要显示标尺
+    if (this.drawStampConfigs.shouldDrawRuler) {
+      this.drawRuler(ctx, this.canvas.width, RULER_HEIGHT, true)
+      this.drawRuler(ctx, this.canvas.height, RULER_HEIGHT, false)
+      this.drawFullRuler(ctx, this.canvas.width, this.canvas.height)
+    }
   }
 
   // 添加清理缓存的方法
-  public clearImageCache() {
+  public async clearImageCache() {
+    // 关闭所有 ImageBitmap
+    for (const bitmap of this.imageCache.values()) {
+      bitmap.close();
+    }
     this.imageCache.clear();
   }
 
   // 在设置新的图片URL时清除旧的缓存
-  private updateStarImage(imageUrl: string) {
-    if (this.drawStampConfigs.drawStar.imageUrl !== imageUrl) {
-      this.imageCache.delete(this.drawStampConfigs.drawStar.imageUrl);
-      this.drawStampConfigs.drawStar.imageUrl = imageUrl;
-    }
+  public async updateStarImage(imageUrl: string) {
+    console.log("Updating star image:", imageUrl);
+    // 清除旧的缓存
+    await this.clearImageCache();
+    // 更新配置
+    this.drawStampConfigs.drawStar.imageUrl = imageUrl;
+    this.drawStampConfigs.drawStar.useImage = true;
+    this.drawStampConfigs.drawStar.drawStar = true;
+    // 立即刷新绘制
+    this.refreshStamp();
   }
 }
