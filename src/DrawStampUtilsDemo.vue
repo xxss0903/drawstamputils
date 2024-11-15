@@ -140,11 +140,30 @@
         </label>
       </div>
 
-      <!-- 底部文字设置 -->
+      <!-- 印章类型设置 -->
       <div class="control-group" id="bottom-text-settings">
-        <h3>底部文字设置</h3>
-        <label>底部文字:
-          <textarea v-model="bottomText" rows="3"></textarea>
+        <h3>印章类型设置</h3>
+        <!-- 添加预设列表 -->
+        <div class="stamp-type-presets">
+          <select v-model="selectedPreset" @change="applyPreset">
+            <option value="">选择预设模板</option>
+            <option v-for="(preset, index) in stampTypePresets" 
+                    :key="index" 
+                    :value="preset.id">
+              {{ preset.name }}
+            </option>
+          </select>
+          <button @click="saveAsPreset" 
+                  class="small-button" 
+                  title="保存当前设置为新预设">
+            保存为预设
+          </button>
+        </div>
+        
+        <label>印章类型:
+          <textarea v-model="bottomText" 
+                    rows="3" 
+                    placeholder="可以输入多行文字，每行文字将分开显示"></textarea>
         </label>
         <label>字体: <input v-model="bottomTextFontFamily" /></label>
         <label
@@ -453,17 +472,17 @@ const textMarginMM = ref(1) // 默认值为1mm
 const codeMarginMM = ref(1) // 默认值为1mm
 // 编码分布因子，控制印章编码在椭圆下方的分布范围
 const codeDistributionFactor = ref(20) // 默认值可以根据需要调整
-// 印章底部文字
+// 印章印章类型
 const bottomText = ref('合同专用章')
-// 底部文字大小，默认 4mm
+// 印章类型大小，默认 4mm
 const bottomTextFontFamily = ref('SimSun')
 const bottomTextFontSizeMM = ref(4.6)
 const bottomTextFontWidthMM = ref(3)
-// 底部文字字符间距，默认 0
+// 印章类型字符间距，默认 0
 const bottomTextLetterSpacing = ref(0)
 // 五角星垂直位置调整，默认 0
 const starPositionY = ref(0)
-// 底部文字垂直位置调整，默认 0
+// 印章类型垂直位置调整，默认 0
 const bottomTextPositionY = ref(-5)
 const companyNameCompression = ref(1)
 const companyNameFontWeight = ref(400)
@@ -486,7 +505,7 @@ const shouldDrawStar = ref(false) // 默认绘制五角星
 
 const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
 const taxNumberLetterSpacing = ref(0.3) // 税号文字间距（单位：毫米）
-const taxNumberPositionY = ref(0) // 税号垂直位置调整，默认为0
+const taxNumberPositionY = ref(0) // 税号垂直位置调���，默认为0
 const drawInnerCircle = ref(false) // 是否绘制内圈圆
 const innerCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
 const innerCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
@@ -764,6 +783,109 @@ watch(
     updateDrawConfigs()
   }
 )
+
+// 添加新的类型定义
+interface StampTypePreset {
+  id: string;
+  name: string;
+  text: string;
+  fontSize: number;
+  letterSpacing: number;
+  lineSpacing: number;
+  positionY: number;
+  compression: number;
+}
+
+// 添加预设数据
+const stampTypePresets = ref<StampTypePreset[]>([
+  {
+    id: 'contract',
+    name: '合同专用章',
+    text: '合同专用章',
+    fontSize: 4.6,
+    letterSpacing: 0,
+    lineSpacing: 1.2,
+    positionY: -5,
+    compression: 1
+  },
+  {
+    id: 'invoice',
+    name: '发票专用章',
+    text: '发票专用章\n增值税专用',
+    fontSize: 4.2,
+    letterSpacing: 0,
+    lineSpacing: 1.5,
+    positionY: -4,
+    compression: 0.9
+  },
+  {
+    id: 'finance',
+    name: '财务专用章',
+    text: '财务专用章\n仅限报销使用',
+    fontSize: 4.0,
+    letterSpacing: 0,
+    lineSpacing: 1.8,
+    positionY: -3,
+    compression: 0.85
+  }
+])
+
+const selectedPreset = ref('')
+
+// 应用预设模板
+const applyPreset = () => {
+  const preset = stampTypePresets.value.find(p => p.id === selectedPreset.value)
+  if (preset) {
+    bottomText.value = preset.text
+    bottomTextFontSizeMM.value = preset.fontSize
+    bottomTextLetterSpacing.value = preset.letterSpacing
+    bottomTextLineSpacing.value = preset.lineSpacing
+    bottomTextPositionY.value = preset.positionY
+    bottomTextCompression.value = preset.compression
+  }
+}
+
+// 保存当前设置为新预设
+const saveAsPreset = () => {
+  const presetName = prompt('请输入预设名称：')
+  if (presetName) {
+    const newPreset: StampTypePreset = {
+      id: Date.now().toString(),
+      name: presetName,
+      text: bottomText.value,
+      fontSize: bottomTextFontSizeMM.value,
+      letterSpacing: bottomTextLetterSpacing.value,
+      lineSpacing: bottomTextLineSpacing.value,
+      positionY: bottomTextPositionY.value,
+      compression: bottomTextCompression.value
+    }
+    stampTypePresets.value.push(newPreset)
+    selectedPreset.value = newPreset.id
+  }
+}
+
+// 可以选择性地添加持久化存储功能
+const savePresetsToLocalStorage = () => {
+  localStorage.setItem('stampTypePresets', JSON.stringify(stampTypePresets.value))
+}
+
+const loadPresetsFromLocalStorage = () => {
+  const saved = localStorage.getItem('stampTypePresets')
+  if (saved) {
+    stampTypePresets.value = JSON.parse(saved)
+  }
+}
+
+// 在组件挂载时加载保存的预设
+onMounted(() => {
+  loadPresetsFromLocalStorage()
+  // ... 其他现有的 onMounted 代码 ...
+})
+
+// 在预设变化时保存
+watch(stampTypePresets, () => {
+  savePresetsToLocalStorage()
+}, { deep: true })
 </script>
 <style scoped>
 .container {
@@ -872,5 +994,23 @@ canvas {
   border-radius: 3px;
   box-sizing: border-box;
   resize: vertical;
+}
+
+.stamp-type-presets {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.stamp-type-presets select {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.small-button {
+  padding: 4px 8px;
+  font-size: 12px;
 }
 </style>
