@@ -144,6 +144,7 @@ export type IDrawStampConfig = {
   openManualAging: boolean // 是否开启手动做旧效果
   stampTypeList: IStampType[] // 印章类型列表
   companyList: ICompany[] // 新增：公司名称列表
+  innerCircleList: IInnerCircle[] // 新增：内圈圆列表
 }
 
 // 标尺宽度
@@ -297,7 +298,6 @@ export class DrawStampUtils {
       lineSpacing: 2 // 新增：行间距
     }
   ]
-
   // 添加公司列表属性
   private companyList: ICompany[] = [
     {
@@ -313,6 +313,10 @@ export class DrawStampUtils {
       adjustEllipseTextFactor: 0.5
     }
   ]
+  private innerCircleList: IInnerCircle[] = [
+    this.outThinCircle,
+    this.innerCircle
+  ];
 
   // 总的印章绘制参数
   private drawStampConfigs: IDrawStampConfig = {
@@ -336,7 +340,8 @@ export class DrawStampUtils {
     outThinCircle: this.outThinCircle,
     openManualAging: false,
     stampTypeList: this.stampTypeList,
-    companyList: this.companyList
+    companyList: this.companyList,
+    innerCircleList: this.innerCircleList
   }
 
   // 添加图片缓存
@@ -1917,6 +1922,32 @@ private addCircularNoise(
       this.drawCompanyName(ctx, company, centerX, centerY, radiusX, radiusY)
     })
   }
+
+  // 绘制内圈列表
+  private drawInnerCircleList(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, borderColor: string) {
+    const innerCircleList = this.drawStampConfigs.innerCircleList
+    console.log("draw innerCircleList", innerCircleList)
+    innerCircleList.forEach((innerCircle) => {
+      if (innerCircle.drawInnerCircle) {
+        this.drawInnerCircle(ctx, centerX, centerY, borderColor, innerCircle)
+      }
+    })
+  }
+
+  // 绘制内圈
+  private drawInnerCircle(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, borderColor: string, innerCircle: IInnerCircle){
+    const innerCircleWidth = (innerCircle.innerCircleLineRadiusX - innerCircle.innerCircleLineWidth) / 2
+    const innerCircleHeight = (innerCircle.innerCircleLineRadiusY - innerCircle.innerCircleLineWidth) / 2
+    this.drawEllipse(
+      ctx,
+      centerX,
+      centerY,
+      innerCircleWidth * this.mmToPixel,
+      innerCircleHeight * this.mmToPixel,
+      innerCircle.innerCircleLineWidth * this.mmToPixel,
+      "#ff00ff"
+    )
+  }
   
   /**
    * 绘制印章
@@ -1973,36 +2004,9 @@ private addCircularNoise(
     offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
     offscreenCtx.clip()
 
-    // 绘制内圈
-    if (this.drawStampConfigs.innerCircle.drawInnerCircle) {
-      const innerCircle = this.drawStampConfigs.innerCircle
-      const innerCircleWidth = (innerCircle.innerCircleLineRadiusX - innerCircle.innerCircleLineWidth) / 2
-      const innerCircleHeight = (innerCircle.innerCircleLineRadiusY - innerCircle.innerCircleLineWidth) / 2
-      this.drawEllipse(
-        offscreenCtx,
-        centerX,
-        centerY,
-        innerCircleWidth * this.mmToPixel,
-        innerCircleHeight * this.mmToPixel,
-        innerCircle.innerCircleLineWidth * this.mmToPixel,
-        borderColor
-      )
-    }
-
-    // 绘制外部细圈
-    if (this.drawStampConfigs.outThinCircle.drawInnerCircle) {
-      const outThinCircle = this.drawStampConfigs.outThinCircle
-      const outThinCircleWidth = (outThinCircle.innerCircleLineRadiusX - outThinCircle.innerCircleLineWidth) / 2
-      const outThinCircleHeight = (outThinCircle.innerCircleLineRadiusY - outThinCircle.innerCircleLineWidth) / 2
-      this.drawEllipse(
-        offscreenCtx,
-        centerX,
-        centerY,
-        outThinCircleWidth * this.mmToPixel,
-        outThinCircleHeight * this.mmToPixel,
-        outThinCircle.innerCircleLineWidth * this.mmToPixel,
-        borderColor
-      )
+    // 绘制内圈列表
+    if (this.drawStampConfigs.innerCircleList.length > 0) {
+      this.drawInnerCircleList(offscreenCtx, centerX, centerY, borderColor)
     }
 
     // 绘制防伪纹路
