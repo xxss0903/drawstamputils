@@ -508,10 +508,7 @@
 
     <!-- Canvas 容器 -->
     <div class="canvas-container">
-      <div style="display: flex; flex-direction: row; margin-top: 12px">
-        <div>
-          <img ref="stampImageRef" style="width: 100px; height: 100px;"/>
-        </div>
+      <div style="display: flex; flex-direction: row; margin-top: 12px; gap: 12px">
         <!-- 做旧效果设置 -->
         <div class="control-group">
           <h3>做旧效果</h3>
@@ -530,14 +527,11 @@
           <button @click="drawStamp(false, true)">刷新做旧</button>
         </div>
 
-        <!-- 标尺设置 -->
-        <!-- <div class="control-group" style="margin-left: 12px">
-          <h3>标尺设置</h3>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="showFullRuler" />
-            显示完整标尺
-          </label>
-        </div> -->
+        <!-- 修改提取印章功能部分 -->
+        <div class="control-group">
+          <h3>提取印章</h3>
+          <button @click="openExtractStampTool">提取印章工具</button>
+        </div>
       </div>
 
       <canvas ref="stampCanvas" width="600" height="600"></canvas>
@@ -1187,7 +1181,7 @@ const stampTypePresets = ref<StampTypePreset[]>([
   {
     id: 'invoice',
     name: '发票专用章',
-    text: '发票专用章\n增值税专用',
+    text: '发票专章\n增值税专用',
     fontSize: 4.2,
     letterSpacing: 0,
     lineSpacing: 1.5,
@@ -1263,6 +1257,10 @@ watch(stampTypePresets, () => {
   savePresetsToLocalStorage()
 }, { deep: true })
 
+// 打开提取印章工具网址
+const openExtractStampTool = () => {
+  window.open('https://xxss0903.github.io/extractstamp/', '_blank')
+}
 
 </script>
 <style scoped>
@@ -1491,5 +1489,14 @@ canvas {
   .canvas-container {
     height: 50vh;
   }
+}
+
+.control-group {
+  min-width: 200px;
+}
+
+.control-group button {
+  width: 100%;
+  margin-top: 8px;
 }
 </style>

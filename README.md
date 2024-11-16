@@ -91,6 +91,57 @@ const drawStampUtils = new DrawStampUtils(canvasRef, MM_PER_PIXEL)
 drawStampUtils.refreshStamp()
 ```
 
+
+## 模板功能
+
+DrawStampUtils 支持将当前印章的所有配置保存为模板文件，以及从模板文件中加载配置。
+
+### 保存模板
+
+可以通过以下方式将当前印章的所有配置保存为 JSON 格式的模板文件：
+
+```typescript
+// 获取当前配置
+const drawConfigs = drawStampUtils.getDrawConfigs()
+// 将配置转换为 JSON 字符串
+const jsonStr = JSON.stringify(drawConfigs, null, 2)
+```
+
+模板文件包含了印章的所有配置信息，包括：
+- 印章基本设置（尺寸、颜色等）
+- 公司名称列表
+- 印章类型列表
+- 内圈圆形列表
+- 五角星/图片设置
+- 防伪纹路设置
+- 毛边效果设置
+- 做旧效果设置
+等所有可配置项。
+
+### 加载模板
+
+可以通过以下方式从模板文件中加载配置：
+
+```typescript
+// 读取模板文件内容，自定义一个readTemplateFile方法读取json数据
+const jsonStr = await readTemplateFile() // 从文件中读取 JSON 字符串
+const configs = JSON.parse(jsonStr)
+
+// 设置新的配置
+drawStampUtils.setDrawConfigs(configs)
+```
+
+加载模板后，所有配置项会立即更新，印章会根据新的配置重新绘制。
+
+### 模板用途
+
+模板功能可用于：
+1. 保存常用的印章样式，方便重复使用
+2. 在不同项目间共享印章配置
+3. 备份当前的印章设置
+4. 快速切换不同的印章样式
+
+
 ## 配置选项<br>
 详细的配置请参考Demo文件[`DrawStampUtilsDemo.vue`](src/DrawStampUtilsDemo.vue)中的配置方法
 
@@ -185,6 +236,11 @@ DrawStampUtils 支持以下配置选项：
 | - fontWidth | 设置字体宽度 |
 | - fontWeight | 设置字体粗细 |
 | - lineSpacing | 设置行间距 |
+| innerCircleList | 内圈圆形列表，支持多个内圈圆形 |
+| - drawInnerCircle | 是否绘制该内圈圆形 |
+| - innerCircleLineWidth | 设置内圈圆形的线宽 |
+| - innerCircleLineRadiusX | 设置内圈圆形的水平半径 |
+| - innerCircleLineRadiusY | 设置内圈圆形的垂直半径 |
 
 
 以下是毛边效果的详细配置参数：
@@ -219,6 +275,12 @@ DrawStampUtilsDemo.vue中的方法作为参考
 
 
 ## 更新日志
+### v0.2.1 (2024-11-16)
+- 新增: 内圈圆形的列表，可以动态添加和删除内圈圆形
+- 新增：印章模板的保存和加载功能
+- 优化：毛边效果，使其能够在印章边缘外部显示
+- 优化：界面布局，使用 tab 样式组织功能模块
+
 ### v0.2.0 (2024-11-15)
 - 新增: 公司名称的数组，可单独控制每行公司名称的样式
 - 新增：印章类型的数组，可单独控制每行印章类型的样式
