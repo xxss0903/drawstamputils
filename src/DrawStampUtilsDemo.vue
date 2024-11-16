@@ -479,22 +479,27 @@
       <label v-if="shouldDrawRoughEdge">
         毛边宽度 (mm):
         <input type="range" v-model.number="roughEdgeWidth" min="0.05" max="0.5" step="0.05" />
+        <span>{{ roughEdgeWidth.toFixed(2) }}</span>
       </label>
       <label v-if="shouldDrawRoughEdge">
         毛边高度 (mm):
         <input type="range" v-model.number="roughEdgeHeight" min="0.1" max="5" step="0.1" />
+        <span>{{ roughEdgeHeight.toFixed(1) }}</span>
       </label>
       <label v-if="shouldDrawRoughEdge">
         毛边概率:
         <input type="range" v-model.number="roughEdgeProbability" min="0" max="1" step="0.01" />
+        <span>{{ roughEdgeProbability.toFixed(2) }}</span>
       </label>
       <label v-if="shouldDrawRoughEdge">
         毛边偏移 (mm):
-        <input type="range" v-model.number="roughEdgeShift" min="0" max="1" step="0.01" />
+        <input type="range" v-model.number="roughEdgeShift" min="-10" max="10" step="0.01" />
+        <span>{{ roughEdgeShift.toFixed(2) }}</span>
       </label>
       <label v-if="shouldDrawRoughEdge">
         毛边点数:
         <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
+        <span>{{ roughEdgePoints }}</span>
       </label>
       <button @click="drawStamp(false, true)">刷新毛边</button>
     </div>
@@ -642,7 +647,7 @@ const shouldDrawRoughEdge = ref(false) // 是否绘制毛边
 const roughEdgeWidth = ref(0.2) // 毛边宽度，单位为毫米
 const roughEdgeHeight = ref(5) // 毛边高度，单位为毫米
 const roughEdgeProbability = ref(0.5) // 毛边概率
-const roughEdgeShift = ref(0.5) // 毛边偏移
+const roughEdgeShift = ref(8) // 毛边偏移
 const roughEdgePoints = ref(360) // 毛边点数
 // 添加印章类型列表的响式数据
 const stampTypeList = ref<IStampType[]>([
@@ -939,17 +944,7 @@ const updateDrawConfigs = () => {
   drawStar.starDiameter = starDiameter.value
   drawStar.starPositionY = starPositionY.value
 
-  /*
-  * 毛边效果
-      drawRoughEdge: true,
-    roughEdgeWidth: 0.2,
-    roughEdgeHeight: 5,
-    roughEdgeColor: 'rgba(255, 0, 0, 0.5)',
-    roughEdgeParams: [],
-    roughEdgeProbability: 0.3,
-    roughEdgeShift: 0.5,
-    roughEdgePoints: 360
-  */
+  // 毛边
   const roughEdge: IRoughEdge = drawConfigs.roughEdge
   roughEdge.drawRoughEdge = shouldDrawRoughEdge.value
   roughEdge.roughEdgeWidth = roughEdgeWidth.value
@@ -957,14 +952,6 @@ const updateDrawConfigs = () => {
   roughEdge.roughEdgeProbability = roughEdgeProbability.value
   roughEdge.roughEdgeShift = roughEdgeShift.value
   roughEdge.roughEdgePoints = roughEdgePoints.value
-//   if(drawStar.drawStar) {
-//     drawStar.svgPath = `<svg width="40px" height="40px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
-//  <g transform="translate(0 -1028.4)">
-//   <path d="m12 1028.4 4 9 8 1-6 5 2 9-8-5-8 5 2-9-6-5 8-1z" fill="#f39c12"/>
-//   <path d="m12 1028.4-4 9-6.9688 0.8 4.9688 4.2-0.1875 0.8 0.1875 0.2-1.75 7.8 7.75-4.8 7.75 4.8-1.75-7.8 0.188-0.2-0.188-0.8 4.969-4.2-6.969-0.8-4-9z" fill="#f1c40f"/>
-//  </g>
-// </svg>`
-//   }
 
   // 内圈圆
   const innerCircle: IInnerCircle = drawConfigs.innerCircle

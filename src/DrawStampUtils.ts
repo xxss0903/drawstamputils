@@ -270,7 +270,7 @@ export class DrawStampUtils {
     roughEdgeHeight: 5,
     roughEdgeParams: [],
     roughEdgeProbability: 0.3,
-    roughEdgeShift: 0.5,
+    roughEdgeShift: 8,
     roughEdgePoints: 360
   }
   // 印章类型列表，用于多行的文字显示，且可以设置每行的高度和文字宽度，默认添加一个发票专用章类型
@@ -1524,7 +1524,7 @@ export class DrawStampUtils {
   ) {
     const roughness = borderWidth * this.drawStampConfigs.roughEdge.roughEdgeHeight * 0.01
     const points = this.drawStampConfigs.roughEdge.roughEdgePoints;
-    const outwardShift = borderWidth * this.drawStampConfigs.roughEdge.roughEdgeShift;
+    const outwardShift = this.drawStampConfigs.roughEdge.roughEdgeShift;
 
     ctx.save();
     ctx.fillStyle = 'white';
@@ -1996,7 +1996,6 @@ private addCircularNoise(
 
     // 绘制防伪纹路
     this.drawSecurityPattern(offscreenCtx, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
-
     // 如果没有图片，绘制五角星
     if (this.drawStampConfigs.drawStar.drawStar && !this.drawStampConfigs.drawStar.useImage) {
       this.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY)
@@ -2016,6 +2015,11 @@ private addCircularNoise(
     // 先绘制临时 canvas 上的图片（如果有的话）
     if (this.drawStampConfigs.drawStar.drawStar && this.drawStampConfigs.drawStar.useImage) {
       ctx.drawImage(tempCanvas, 0, 0)
+    }
+    
+    if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
+      // 添加毛边效果
+      this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshOld)
     }
 
     // 设置合成模式，确保印章内容只在椭圆区域内显示
