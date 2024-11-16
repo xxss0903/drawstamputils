@@ -1356,7 +1356,6 @@ export class DrawStampUtils {
         let angle = startAngle + anglePerChar * (index + 0.5)
         let newAngle = angle + additionalAngle * factor
         angle = newAngle
-        console.log('draw char angle', angle.toFixed(2), additionalAngle.toFixed(2), newAngle.toFixed(2), char)
 
         const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
         const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)

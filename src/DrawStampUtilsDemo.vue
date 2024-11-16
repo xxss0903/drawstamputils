@@ -7,6 +7,15 @@
         style="position: sticky; top: 0; z-index: 1000; background-color: white; padding: 10px"
       >
         <button @click="saveStampAsPNG">保存印章</button>
+        <button @click="saveAsTemplate">保存模板</button>
+        <input 
+          type="file" 
+          ref="templateFileInput"
+          style="display: none"
+          accept=".json"
+          @change="loadTemplate"
+        />
+        <button @click="triggerTemplateLoad">加载模板</button>
       </div>
 
       <!-- 印章基本设置 -->
@@ -685,6 +694,69 @@ const innerCircleList = ref<IInnerCircle[]>([
   }
 ])
 
+const templateFileInput = ref<HTMLInputElement | null>(null)
+
+// 保存模板
+const saveAsTemplate = () => {
+  const drawConfigs = drawStampUtils.getDrawConfigs()
+  const jsonStr = JSON.stringify(drawConfigs, null, 2)
+  
+  // 创建 Blob
+  const blob = new Blob([jsonStr], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  
+  // 创建下载链接
+  const link = document.createElement('a')
+  link.href = url
+  link.download = '印章模板.json'
+  document.body.appendChild(link)
+  link.click()
+  
+  // 清理
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+// 触发文件选择
+const triggerTemplateLoad = () => {
+  templateFileInput.value?.click()
+}
+
+// 加载模板
+const loadTemplate = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
+    const reader = new FileReader()
+    
+    reader.onload = (e) => {
+      try {
+        if (e.target?.result) {
+          const jsonStr = e.target.result as string
+          const configs = JSON.parse(jsonStr)
+          
+          // 设置新的配置
+          drawStampUtils.setDrawConfigs(configs)
+          
+          // 恢复界面显示
+          restoreDrawConfigs()
+          
+          // 刷新印章显示
+          drawStamp()
+        }
+      } catch (error) {
+        console.error('加载模板失败:', error)
+        alert('加载模板失败，请确保文件格式正确')
+      }
+    }
+    
+    reader.readAsText(file)
+  }
+  
+  // 清除文件选择，确保同一文件可以重复选择
+  target.value = ''
+}
+
 // 修改图片上传处理函数
 const handleStarImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -922,14 +994,38 @@ const updateDrawConfigs = () => {
 
 const restoreDrawConfigs = () => {
   const drawConfigs = drawStampUtils.getDrawConfigs()
-  const company: ICompany = drawConfigs.company
+  
+  // 做旧效果
+  applyAging.value = drawConfigs.agingEffect.applyAging
+  agingIntensity.value = drawConfigs.agingEffect.agingIntensity
+  manualAging.value = drawConfigs.openManualAging
+
+  // 防伪纹路
+  securityPatternEnabled.value = drawConfigs.securityPattern.openSecurityPattern
+  securityPatternCount.value = drawConfigs.securityPattern.securityPatternCount
+  securityPatternWidth.value = drawConfigs.securityPattern.securityPatternWidth
+  securityPatternLength.value = drawConfigs.securityPattern.securityPatternLength
+
+  // 毛边效果
+  shouldDrawRoughEdge.value = drawConfigs.roughEdge.drawRoughEdge
+  roughEdgeWidth.value = drawConfigs.roughEdge.roughEdgeWidth
+  roughEdgeHeight.value = drawConfigs.roughEdge.roughEdgeHeight
+  roughEdgeProbability.value = drawConfigs.roughEdge.roughEdgeProbability
+  roughEdgeShift.value = drawConfigs.roughEdge.roughEdgeShift
+  roughEdgePoints.value = drawConfigs.roughEdge.roughEdgePoints
+
+  // 印章基本设置
+  drawStampWidth.value = drawConfigs.width
+  drawStampHeight.value = drawConfigs.height
+  circleBorderWidth.value = drawConfigs.borderWidth
+  circleBorderColor.value = drawConfigs.primaryColor
 
   // 公司名称
-  companyName.value = company.companyName
-  companyFontSizeMM.value = company.fontHeight
-  companyNameCompression.value = company.compression
-  textDistributionFactor.value = company.textDistributionFactor
-  textMarginMM.value = company.borderOffset
+  companyName.value = drawConfigs.company.companyName
+  companyFontSizeMM.value = drawConfigs.company.fontHeight
+  companyNameCompression.value = drawConfigs.company.compression
+  textDistributionFactor.value = drawConfigs.company.textDistributionFactor
+  textMarginMM.value = drawConfigs.company.borderOffset
   companyList.value = drawConfigs.companyList
 
   // 印章编码
@@ -939,6 +1035,9 @@ const restoreDrawConfigs = () => {
   codeFontWidthMM.value = stampCodeConfig.fontWidth
   codeDistributionFactor.value = stampCodeConfig.textDistributionFactor
   codeMarginMM.value = stampCodeConfig.borderOffset
+  codeFontFamily.value = stampCodeConfig.fontFamily
+  codeFontWeight.value = stampCodeConfig.fontWeight
+  codeCompression.value = stampCodeConfig.compression
 
   // 税号
   const taxNumber: ITaxNumber = drawConfigs.taxNumber
@@ -946,6 +1045,8 @@ const restoreDrawConfigs = () => {
   taxNumberCompression.value = taxNumber.compression
   taxNumberLetterSpacing.value = taxNumber.letterSpacing
   taxNumberPositionY.value = taxNumber.positionY
+  taxNumberFontFamily.value = taxNumber.fontFamily
+  taxNumberFontWeight.value = taxNumber.fontWeight
 
   // 印章类型
   const stampTypeConfig: IStampType = drawConfigs.stampType
@@ -954,6 +1055,10 @@ const restoreDrawConfigs = () => {
   bottomTextFontWidthMM.value = stampTypeConfig.fontWidth
   bottomTextLetterSpacing.value = stampTypeConfig.letterSpacing
   bottomTextPositionY.value = stampTypeConfig.positionY
+  bottomTextFontFamily.value = stampTypeConfig.fontFamily
+  bottomTextFontWeight.value = stampTypeConfig.fontWeight
+  bottomTextCompression.value = stampTypeConfig.compression
+  bottomTextLineSpacing.value = stampTypeConfig.lineSpacing
   stampTypeList.value = drawConfigs.stampTypeList
 
   // 五角星/图片配置
@@ -965,12 +1070,18 @@ const restoreDrawConfigs = () => {
   starDiameter.value = drawConfigs.drawStar.starDiameter
   starPositionY.value = drawConfigs.drawStar.starPositionY
 
-  // 主题颜色
-  circleBorderColor.value = drawConfigs.primaryColor
-  manualAging.value = drawConfigs.openManualAging
-
-  // 更新内圈列表
+  // 内圈圆形
+  drawInnerCircle.value = drawConfigs.innerCircle.drawInnerCircle
+  innerCircleLineWidth.value = drawConfigs.innerCircle.innerCircleLineWidth
+  innerCircleWidth.value = drawConfigs.innerCircle.innerCircleLineRadiusX
+  innerCircleHeight.value = drawConfigs.innerCircle.innerCircleLineRadiusY
   innerCircleList.value = drawConfigs.innerCircleList
+
+  // 外部细圈
+  drawOutThinCircle.value = drawConfigs.outThinCircle.drawInnerCircle
+  outThinCircleLineWidth.value = drawConfigs.outThinCircle.innerCircleLineWidth
+  outThinCircleWidth.value = drawConfigs.outThinCircle.innerCircleLineRadiusX
+  outThinCircleHeight.value = drawConfigs.outThinCircle.innerCircleLineRadiusY
 }
 
 onMounted(() => {
@@ -1233,11 +1344,12 @@ watch(stampTypePresets, () => {
 
 .button-group {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 15px;
 }
 
-button {
+.button-group button {
+  flex: 1;
   padding: 8px 16px;
   background-color: #4caf50;
   color: white;
@@ -1247,7 +1359,7 @@ button {
   font-size: 14px;
 }
 
-button:hover {
+.button-group button:hover {
   background-color: #45a049;
 }
 
