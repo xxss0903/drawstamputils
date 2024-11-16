@@ -1912,7 +1912,6 @@ private addCircularNoise(
   // 绘制内圈列表
   private drawInnerCircleList(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, borderColor: string) {
     const innerCircleList = this.drawStampConfigs.innerCircleList
-    console.log("draw innerCircleList", innerCircleList)
     innerCircleList.forEach((innerCircle) => {
       if (innerCircle.drawInnerCircle) {
         this.drawInnerCircle(ctx, centerX, centerY, borderColor, innerCircle)

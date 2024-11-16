@@ -1281,251 +1281,228 @@ watch(stampTypePresets, () => {
 <style scoped>
 .container {
   display: flex;
-  height: 50%; /* 使用视口高度 */
+  height: 90vh;
   overflow: hidden;
 }
 
 .editor-controls {
-  width: 300px;
-  padding: 10px;
-  background-color: #f0f0f0;
-  overflow-y: auto; /* 允许垂直滚动 */
-  max-height: 70vh; /* 最大高度为视口高度 */
-  box-sizing: border-box; /* 确保padding不会增加总宽度 */
-}
-
-.control-group {
-  margin-bottom: 15px;
-  padding: 10px;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.control-group h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 16px;
-  color: #333;
-}
-
-.editor-controls label {
+  width: 400px; /* 增加控制面板宽度 */
+  padding: 15px;
+  background-color: #f5f5f5;
+  overflow-y: auto;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  margin-bottom: 8px;
-  font-size: 14px;
+  gap: 15px;
 }
 
-.editor-controls input[type='text'],
-.editor-controls input[type='number'],
-.editor-controls input[type='range'] {
-  width: 100%;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  box-sizing: border-box; /* 确保padding不会增加总宽度 */
-}
-
-.editor-controls input[type='color'] {
-  width: 100%;
-  height: 30px;
-  padding: 0;
-  border: none;
-}
-
-.checkbox-label {
-  flex-direction: row !important;
-  align-items: center;
-}
-
-.checkbox-label input {
-  margin-right: 5px;
-}
-
+/* 顶部按钮组样式优化 */
 .button-group {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 .button-group button {
-  flex: 1;
-  padding: 8px 16px;
+  padding: 8px 12px;
   background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.3s ease;
 }
 
 .button-group button:hover {
   background-color: #45a049;
+  transform: translateY(-1px);
 }
 
-.canvas-container {
-  flex-grow: 1;
-  flex-direction: column;
-  background-color: aliceblue;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: auto; /* 允许内容溢出时滚动 */
+/* 控制组样式优化 */
+.control-group {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-canvas {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+.control-group h3 {
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #4caf50;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.editor-controls textarea {
-  width: 100%;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  box-sizing: border-box;
-  resize: vertical;
-}
-
-.stamp-type-presets {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.stamp-type-presets select {
-  flex: 1;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-}
-
-.small-button {
-  padding: 4px 8px;
-  font-size: 12px;
-}
+/* 列表项样式优化 */
+.inner-circle-list,
+.company-list,
 .stamp-type-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
+.inner-circle-item,
+.company-item,
 .stamp-type-item {
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.3s ease;
 }
 
+.inner-circle-item:hover,
+.company-item:hover,
+.stamp-type-item:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* 表单控件样式优化 */
+.editor-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.editor-controls input[type='text'],
+.editor-controls input[type='number'],
+.editor-controls select {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.editor-controls input[type='text']:focus,
+.editor-controls input[type='number']:focus,
+.editor-controls select:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+/* 滑块样式优化 */
+.editor-controls input[type='range'] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
+  outline: none;
+}
+
+.editor-controls input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4caf50;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.editor-controls input[type='range']::-webkit-slider-thumb:hover {
+  background: #45a049;
+}
+
+/* 复选框样式优化 */
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox-label input[type='checkbox'] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+/* 添加/删除按钮样式优化 */
+.add-button,
+.delete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-button {
+  background-color: #4caf50;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.delete-button {
+  background-color: #dc3545;
+}
+
+.add-button:hover {
+  background-color: #45a049;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+/* 标题栏样式优化 */
+.inner-circle-header,
+.company-header,
 .stamp-type-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
 }
 
-.delete-button {
-  background-color: #ff4444;
-  padding: 4px 8px;
-}
-
-.delete-button:hover {
-  background-color: #cc0000;
-}
-
-.add-button {
-  margin-top: 10px;
-  background-color: #4CAF50;
-}
-
-.add-button:hover {
-  background-color: #45a049;
-}
-
-.stamp-type-item label {
-  margin-bottom: 5px;
-}
-
-.stamp-type-item input[type="text"],
-.stamp-type-item input[type="number"] {
-  width: 100%;
-}
-
-.stamp-type-item input[type="range"] {
-  width: calc(100% - 40px);
-  margin-right: 10px;
-}
-
-.stamp-type-item span {
-  min-width: 30px;
-  text-align: right;
-}
-
-.company-list {
+/* Canvas 容器样式优化 */
+.canvas-container {
+  flex-grow: 1;
+  background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
-
-.company-item {
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-}
-
-.company-header {
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 10px;
+  padding: 20px;
 }
 
-/* 添加文件上传按钮样式 */
-input[type="file"] {
-  width: 100%;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  margin-bottom: 10px;
+canvas {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  background-color: white;
 }
 
-.inner-circle-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.inner-circle-item {
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-}
-
-.inner-circle-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.delete-button {
-  background-color: #ff4444;
-  padding: 4px 8px;
-}
-
-.delete-button:hover {
-  background-color: #cc0000;
-}
-
-.add-button {
-  margin-top: 10px;
-  background-color: #4CAF50;
-}
-
-.add-button:hover {
-  background-color: #45a049;
+/* 响应式布局优化 */
+@media (max-width: 1200px) {
+  .container {
+    flex-direction: column;
+  }
+  
+  .editor-controls {
+    width: 100%;
+    max-height: 50vh;
+  }
+  
+  .canvas-container {
+    height: 50vh;
+  }
 }
 </style>
