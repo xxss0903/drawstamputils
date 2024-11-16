@@ -285,17 +285,6 @@ export class DrawStampUtils {
       positionY: -3,
       fontWeight: 'normal',
       lineSpacing: 2 // 新增：行间距
-    },
-    {
-      stampType: '合同专用章',
-      fontHeight: 4.6,
-      fontFamily: 'Arial',
-      fontWidth: 3,
-      compression: 0.75,
-      letterSpacing: 0,
-      positionY: -9,
-      fontWeight: 'normal',
-      lineSpacing: 2 // 新增：行间距
     }
   ]
   // 添加公司列表属性
@@ -304,18 +293,16 @@ export class DrawStampUtils {
       companyName: '绘制印章有限责任公司',
       compression: 1,
       borderOffset: 1,
-      textDistributionFactor: 10, // 将默认值从20改为10
+      textDistributionFactor: 3, // 将默认值从20改为10
       fontFamily: 'SimSun',
       fontHeight: 4.2,
       fontWeight: 'normal',
       shape: 'ellipse',
-      adjustEllipseText: false,
+      adjustEllipseText: true,
       adjustEllipseTextFactor: 0.5
     }
   ]
   private innerCircleList: IInnerCircle[] = [
-    this.outThinCircle,
-    this.innerCircle
   ];
 
   // 总的印章绘制参数
@@ -1945,7 +1932,7 @@ private addCircularNoise(
       innerCircleWidth * this.mmToPixel,
       innerCircleHeight * this.mmToPixel,
       innerCircle.innerCircleLineWidth * this.mmToPixel,
-      "#ff00ff"
+      borderColor
     )
   }
   

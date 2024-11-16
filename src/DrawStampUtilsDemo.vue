@@ -28,54 +28,50 @@
           >圆形边框宽度 (mm): <input type="number" step="0.1" v-model.number="circleBorderWidth"
         /></label>
         <label>圆形边框颜色: <input type="color" v-model="circleBorderColor" /></label>
-        <div class="control-group" id="inner-circle-settings">
-          <h3>内圈圆形设置</h3>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="drawInnerCircle" /> 绘制内圈圆形
-          </label>
-          <label>
-            内圈圆形线宽 (mm):
-            <input
-              type="number"
-              v-model.number="innerCircleLineWidth"
-              min="0.1"
-              max="2"
-              step="0.1"
-            />
-          </label>
-          <label>
-            内圈圆形宽度 (mm):
-            <input type="number" v-model.number="innerCircleWidth" min="1" max="50" step="0.5" />
-          </label>
-          <label>
-            内圈圆形高度 (mm):
-            <input type="number" v-model.number="innerCircleHeight" min="1" max="50" step="0.5" />
-          </label>
-        </div>
-      <div class="control-group" id="out-thin-circle-settings">
-        <h3>外部细圈设置</h3>
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="drawOutThinCircle" /> 绘制外部细圈
-        </label>
-        <label>
-          外部细圈线宽 (mm):
-          <input
-            type="number"
-            v-model.number="outThinCircleLineWidth"
-            min="0.1"
-            max="2"
-            step="0.1"
-          />
-        </label>
-        <label>
-          外部细圈宽度 (mm):
-          <input type="number" v-model.number="outThinCircleWidth" min="1" max="50" step="0.5" />
-        </label>
-        <label>
-          外部细圈高度 (mm):
-          <input type="number" v-model.number="outThinCircleHeight" min="1" max="50" step="0.5" />
-        </label>
+       
+      <h3>内圈圆形列表设置</h3>
+  <div class="inner-circle-list">
+    <div v-for="(circle, index) in innerCircleList" :key="index" class="inner-circle-item">
+      <div class="inner-circle-header">
+        <span>第 {{ index + 1 }} 个内圈</span>
+        <button class="small-button delete-button" @click="removeInnerCircle(index)">删除</button>
       </div>
+      <label class="checkbox-label">
+        <input type="checkbox" v-model="circle.drawInnerCircle" /> 绘制内圈圆形
+      </label>
+      <label>
+        内圈圆形线宽 (mm):
+        <input
+          type="number"
+          v-model.number="circle.innerCircleLineWidth"
+          min="0.1"
+          max="2"
+          step="0.1"
+        />
+      </label>
+      <label>
+        内圈圆形宽度 (mm):
+        <input 
+          type="number" 
+          v-model.number="circle.innerCircleLineRadiusX" 
+          min="1" 
+          max="50" 
+          step="0.5" 
+        />
+      </label>
+      <label>
+        内圈圆形高度 (mm):
+        <input 
+          type="number" 
+          v-model.number="circle.innerCircleLineRadiusY" 
+          min="1" 
+          max="50" 
+          step="0.5" 
+        />
+      </label>
+    </div>
+    <button class="add-button" @click="addNewInnerCircle">添加新内圈</button>
+  </div>
       </div>
       <!-- 公司名称设置 -->
       <div class="control-group" id="company-list-settings">
@@ -619,21 +615,19 @@ const securityPatternWidth = ref(0.2) // 纹路宽度，单位为毫米
 const securityPatternColor = ref('#FF0000')
 const securityPatternCount = ref(5) // 防伪纹路数量
 const securityPatternLength = ref(2) // 纹路长度，单位为毫米
-
 const showFullRuler = ref(false)
 const shouldDrawStar = ref(false) // 默认绘制五角星
-
 const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
 const taxNumberLetterSpacing = ref(0.3) // 税号文字间距（单位：毫米）
 const taxNumberPositionY = ref(0) // 税号垂直位置调，默认为0
-const drawInnerCircle = ref(false) // 是否绘制内圈圆
+const drawInnerCircle = ref(true) // 是否绘制内圈圆
 const innerCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
 const innerCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
 const innerCircleHeight = ref(12) // 内圈圆高度，单位为毫米
-const drawOutThinCircle = ref(false) // 是否绘制内圈圆
+const drawOutThinCircle = ref(true) // 是否绘制内圈圆
 const outThinCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
-const outThinCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
-const outThinCircleHeight = ref(12) // 内圈圆高度，单位为毫米
+const outThinCircleWidth = ref(25) // 内圈圆宽度，单位为毫米
+const outThinCircleHeight = ref(22) // 内圈圆高度，单位为毫米
 const stampImageRef = ref<HTMLImageElement | null>(null)
 const shouldDrawRoughEdge = ref(false) // 是否绘制毛边
 const roughEdgeWidth = ref(0.2) // 毛边宽度，单位为毫米
@@ -675,6 +669,21 @@ const useStarImage = ref(false)
 const starImageWidth = ref(10) // 图片宽度，单位mm
 const starImageHeight = ref(10) // 图片高度，单位mm
 const keepAspectRatio = ref(true) // 是否保持宽高比
+// 添加内圈列表的响应式数据
+const innerCircleList = ref<IInnerCircle[]>([
+  {
+    drawInnerCircle: true,
+    innerCircleLineWidth: 0.5,
+    innerCircleLineRadiusX: 36,
+    innerCircleLineRadiusY: 27
+  },
+  {
+    drawInnerCircle: true,
+    innerCircleLineWidth: 0.5,
+    innerCircleLineRadiusX: 16,
+    innerCircleLineRadiusY: 12
+  }
+])
 
 // 修改图片上传处理函数
 const handleStarImageUpload = (event: Event) => {
@@ -765,6 +774,22 @@ const initDrawStampUtils = () => {
 const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false) => {
   // 使用drawstamputils进行绘制
   drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld)
+}
+
+
+// 添加新内圈
+const addNewInnerCircle = () => {
+  innerCircleList.value.push({
+    drawInnerCircle: true,
+    innerCircleLineWidth: 0.5,
+    innerCircleLineRadiusX: 16,
+    innerCircleLineRadiusY: 12
+  })
+}
+
+// 删除内圈
+const removeInnerCircle = (index: number) => {
+  innerCircleList.value.splice(index, 1)
 }
 
 // 更新绘制配置
@@ -888,6 +913,9 @@ const updateDrawConfigs = () => {
 
   // 更新公司列表
   drawConfigs.companyList = companyList.value
+  // 更新内圈列表
+  drawConfigs.innerCircleList = innerCircleList.value
+
 
   drawStamp()
 }
@@ -902,6 +930,7 @@ const restoreDrawConfigs = () => {
   companyNameCompression.value = company.compression
   textDistributionFactor.value = company.textDistributionFactor
   textMarginMM.value = company.borderOffset
+  companyList.value = drawConfigs.companyList
 
   // 印章编码
   const stampCodeConfig: ICode = drawConfigs.stampCode
@@ -925,6 +954,7 @@ const restoreDrawConfigs = () => {
   bottomTextFontWidthMM.value = stampTypeConfig.fontWidth
   bottomTextLetterSpacing.value = stampTypeConfig.letterSpacing
   bottomTextPositionY.value = stampTypeConfig.positionY
+  stampTypeList.value = drawConfigs.stampTypeList
 
   // 五角星/图片配置
   shouldDrawStar.value = drawConfigs.drawStar.drawStar
@@ -938,6 +968,9 @@ const restoreDrawConfigs = () => {
   // 主题颜色
   circleBorderColor.value = drawConfigs.primaryColor
   manualAging.value = drawConfigs.openManualAging
+
+  // 更新内圈列表
+  innerCircleList.value = drawConfigs.innerCircleList
 }
 
 onMounted(() => {
@@ -1020,7 +1053,8 @@ watch(
     useStarImage,
     starImageWidth,
     starImageHeight,
-    keepAspectRatio
+    keepAspectRatio,
+    innerCircleList
   ],
   () => {
     updateDrawConfigs()
@@ -1343,5 +1377,43 @@ input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 3px;
   margin-bottom: 10px;
+}
+
+.inner-circle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.inner-circle-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.inner-circle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.delete-button {
+  background-color: #ff4444;
+  padding: 4px 8px;
+}
+
+.delete-button:hover {
+  background-color: #cc0000;
+}
+
+.add-button {
+  margin-top: 10px;
+  background-color: #4CAF50;
+}
+
+.add-button:hover {
+  background-color: #45a049;
 }
 </style>
