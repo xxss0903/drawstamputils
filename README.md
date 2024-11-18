@@ -1,6 +1,7 @@
 DrawStampUtils.js
 
 <font color="red">本项目仅供学习参考，勿做违法用途，后果自负</font>
+[![npm](https://img.shields.io/npm/v/drawstamputils.svg)](https://www.npmjs.com/package/drawstamputils) [![QQ群](https://img.shields.io/badge/QQ群-644574395-blue.svg)](https://qm.qq.com/cgi-bin/qm/qr?k=your_group_key&jump_from=webapi&authKey=your_auth_key)
 
 
 ## 简介
@@ -233,7 +234,7 @@ DrawStampUtils 支持以下配置选项：
 | - compression | 设置压缩比例 |
 | - letterSpacing | 设置字符间距 |
 | - positionY | 设置垂直位置 |
-| - fontWidth | 设置字体宽度 |
+| - fontWidth | ��置字体宽度 |
 | - fontWeight | 设置字体粗细 |
 | - lineSpacing | 设置行间距 |
 | innerCircleList | 内圈圆形列表，支持多个内圈圆形 |
