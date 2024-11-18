@@ -10,7 +10,7 @@
 4. 如果使用本项目请遵守相关法律法规。<br>
 </p>
 </div>
-[![npm](https://img.shields.io/npm/v/drawstamputils.svg)](https://www.npmjs.com/package/drawstamputils)
+![npm](https://img.shields.io/npm/v/drawstamputils.svg)](https://www.npmjs.com/package/drawstamputils)
 
 ## 简介
 
