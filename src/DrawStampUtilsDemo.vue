@@ -19,73 +19,38 @@
       </div>
 
       <!-- 印章基本设置 -->
-      <div class="control-group" id="stamp-settings">
-        <h3>印章基本设置</h3>
-        <label class="checkbox-label">
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('basic')">
+          <h3>印章基本设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.basic }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.basic">
+          <label class="checkbox-label">
             <input type="checkbox" v-model="isCircleDetect" />
             提取圆形印章
           </label>
-        <label
-          >印章宽度 (mm):
-          <input type="number" v-model.number="drawStampWidth" min="1" max="50" step="1"
-        /></label>
-        <label
-          >印章高度 (mm):
-          <input type="number" v-model.number="drawStampHeight" min="1" max="50" step="1"
-        /></label>
-        <label
-          >圆形边框宽度 (mm): <input type="number" step="0.1" v-model.number="circleBorderWidth"
-        /></label>
-        <label>圆形边框颜色: <input type="color" v-model="circleBorderColor" /></label>
-       
-      <h3>内圈圆形列表设置</h3>
-  <div class="inner-circle-list">
-    <div v-for="(circle, index) in innerCircleList" :key="index" class="inner-circle-item">
-      <div class="inner-circle-header">
-        <span>第 {{ index + 1 }} 个内圈</span>
-        <button class="small-button delete-button" @click="removeInnerCircle(index)">删除</button>
+          <label
+            >印章宽度 (mm):
+            <input type="number" v-model.number="drawStampWidth" min="1" max="50" step="1"
+          /></label>
+          <label
+            >印章高度 (mm):
+            <input type="number" v-model.number="drawStampHeight" min="1" max="50" step="1"
+          /></label>
+          <label
+            >圆形边框宽度 (mm): <input type="number" step="0.1" v-model.number="circleBorderWidth"
+          /></label>
+          <label>圆形边框颜色: <input type="color" v-model="circleBorderColor" /></label>
+        </div>
       </div>
-      <label class="checkbox-label">
-        <input type="checkbox" v-model="circle.drawInnerCircle" /> 绘制内圈圆形
-      </label>
-      <label>
-        内圈圆形线宽 (mm):
-        <input
-          type="number"
-          v-model.number="circle.innerCircleLineWidth"
-          min="0.1"
-          max="2"
-          step="0.1"
-        />
-      </label>
-      <label>
-        内圈圆形宽度 (mm):
-        <input 
-          type="number" 
-          v-model.number="circle.innerCircleLineRadiusX" 
-          min="1" 
-          max="50" 
-          step="0.5" 
-        />
-      </label>
-      <label>
-        内圈圆形高度 (mm):
-        <input 
-          type="number" 
-          v-model.number="circle.innerCircleLineRadiusY" 
-          min="1" 
-          max="50" 
-          step="0.5" 
-        />
-      </label>
-    </div>
-    <button class="add-button" @click="addNewInnerCircle">添加新内圈</button>
-  </div>
-      </div>
+
       <!-- 公司名称设置 -->
-      <div class="control-group" id="company-list-settings">
-        <h3>公司名称列表设置</h3>
-        <div class="company-list">
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('company')">
+          <h3>公司名称列表设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.company }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.company">
           <div v-for="(company, index) in companyList" :key="index" class="company-item">
             <div class="company-header">
               <span>第 {{ index + 1 }} 行</span>
@@ -187,398 +152,410 @@
       </div>
 
       <!-- 印章类型设置 -->
-      <div v-if="false" class="control-group" id="bottom-text-settings">
-        <h3>印章类型设置</h3>
-        <!-- 添加预设列表 -->
-        <div class="stamp-type-presets">
-          <select v-model="selectedPreset" @change="applyPreset">
-            <option value="">选择预设模板</option>
-            <option v-for="(preset, index) in stampTypePresets" 
-                    :key="index" 
-                    :value="preset.id">
-              {{ preset.name }}
-            </option>
-          </select>
-          <button @click="saveAsPreset" 
-                  class="small-button" 
-                  title="保存当前设置为新预设">
-            保存为预设
-          </button>
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('stampType')">
+          <h3>印章类型列表设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.stampType }">▼</span>
         </div>
-        
-        <label>印章类型:
-          <textarea v-model="bottomText" 
-                    rows="3" 
-                    placeholder="可以输入多行文字，每行文字将分开显示"></textarea>
-        </label>
-        <label>字体: <input v-model="bottomTextFontFamily" /></label>
-        <label
-          >字体大小 (mm):
-          <input type="number" v-model.number="bottomTextFontSizeMM" min="1" max="10" step="0.1"
-        /></label>
-        <label>
-          字体粗细:
-          <select v-model="bottomTextFontWeight">
-            <option value="normal">正常</option>
-            <option value="bold">粗体</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500">500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-          </select>
-        </label>
-        <label>
-          <span>压缩比例：{{ bottomTextCompression.toFixed(2) }}</span>
-          <input
-            type="range"
-            v-model.number="bottomTextCompression"
-            min="0.5"
-            max="1.5"
-            step="0.05"
-          />
-        </label>
-        <label>
-          <span>字符间距 (mm)：{{ bottomTextLetterSpacing.toFixed(2) }}</span>
-          <input
-            type="range"
-            v-model.number="bottomTextLetterSpacing"
-            min="-1"
-            max="10"
-            step="0.05"
-          />
-        </label>
-        <label>
-          垂直位置调整 (mm):
-          <input type="number" v-model.number="bottomTextPositionY" min="-10" max="10" step="0.1" />
-        </label>
-      </div>
-      <div class="control-group" id="stamp-type-list-settings">
-  <h3>印章类型列表设置</h3>
-  <div class="stamp-type-list">
-    <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
-      <div class="stamp-type-header">
-        <span>第 {{ index + 1 }} 行</span>
-        <button class="small-button delete-button" @click="removeStampType(index)">删除</button>
-      </div>
-      <label>
-        文字内容:
-        <input type="text" v-model="type.stampType" />
-      </label>
-      <label>
-        字体大小 (mm):
-        <input type="number" v-model.number="type.fontHeight" min="1" max="10" step="0.1" />
-      </label>
-      <label>
-        字体:
-        <div class="font-input-group">
-          <input 
-            type="text" 
-            v-model="type.fontFamily"
-            list="stampTypeFontList"
-            class="font-input"
-          />
-          <datalist id="stampTypeFontList">
-            <option v-for="font in systemFonts" 
-                    :key="font" 
-                    :value="font">
-              {{ font }}
-            </option>
-          </datalist>
-        </div>
-      </label>
-      <label>
-        字体粗细:
-        <select v-model="type.fontWeight">
-          <option value="normal">正常</option>
-          <option value="bold">粗体</option>
-          <option value="100">100</option>
-          <option value="200">200</option>
-          <option value="300">300</option>
-          <option value="400">400</option>
-          <option value="500">500</option>
-          <option value="600">600</option>
-          <option value="700">700</option>
-          <option value="800">800</option>
-          <option value="900">900</option>
-        </select>
-      </label>
-      <label>
-        压缩比例:
-        <input
-          type="range"
-          v-model.number="type.compression"
-          min="0.1"
-          max="1.5"
-          step="0.05"
-        />
-        <span>{{ type.compression.toFixed(2) }}</span>
-      </label>
-      <label>
-        字符间距 (mm):
-        <input
-          type="range"
-          v-model.number="type.letterSpacing"
-          min="-1"
-          max="10"
-          step="0.05"
-        />
-        <span>{{ type.letterSpacing.toFixed(2) }}</span>
-      </label>
-      <label>
-        垂直位置 (mm):
-        <input
-          type="number"
-          v-model.number="type.positionY"
-          min="-20"
-          max="20"
-          step="0.5"
-        />
-      </label>
-    </div>
-    <button class="add-button" @click="addNewStampType">添加新行</button>
-  </div>
-</div>
-      <!-- 印章编码设置 -->
-      <div class="control-group" id="code-settings">
-        <h3>印章编码设置</h3>
-        <label>印章编码: <input v-model="stampCode" /></label>
-        <label>
-          字体:
-          <div class="font-input-group">
-            <select 
-              v-model="codeFontFamily"
-              class="font-select"
-              @change="updateFontPreview"
-            >
-              <option 
-                v-for="font in systemFonts" 
-                :key="font" 
-                :value="font"
-                :style="{ fontFamily: font }"
-              >
-                {{ font }}
-              </option>
-            </select>
-            <input 
-              type="text" 
-              v-model="codeFontFamily"
-              class="font-input"
-              @input="updateFontPreview"
-              placeholder="输入字体名称"
-            />
+        <div class="group-content" v-show="expandedGroups.stampType">
+          <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
+            <div class="stamp-type-header">
+              <span>第 {{ index + 1 }} 行</span>
+              <button class="small-button delete-button" @click="removeStampType(index)">删除</button>
+            </div>
+            <label>
+              文字内容:
+              <input type="text" v-model="type.stampType" />
+            </label>
+            <label>
+              字体大小 (mm):
+              <input type="number" v-model.number="type.fontHeight" min="1" max="10" step="0.1" />
+            </label>
+            <label>
+              字体:
+              <div class="font-input-group">
+                <input 
+                  type="text" 
+                  v-model="type.fontFamily"
+                  list="stampTypeFontList"
+                  class="font-input"
+                />
+                <datalist id="stampTypeFontList">
+                  <option v-for="font in systemFonts" 
+                          :key="font" 
+                          :value="font">
+                    {{ font }}
+                  </option>
+                </datalist>
+              </div>
+            </label>
+            <label>
+              字体粗细:
+              <select v-model="type.fontWeight">
+                <option value="normal">正常</option>
+                <option value="bold">粗体</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="300">300</option>
+                <option value="400">400</option>
+                <option value="500">500</option>
+                <option value="600">600</option>
+                <option value="700">700</option>
+                <option value="800">800</option>
+                <option value="900">900</option>
+              </select>
+            </label>
+            <label>
+              压缩比例:
+              <input
+                type="range"
+                v-model.number="type.compression"
+                min="0.1"
+                max="1.5"
+                step="0.05"
+              />
+              <span>{{ type.compression.toFixed(2) }}</span>
+            </label>
+            <label>
+              字符间距 (mm):
+              <input
+                type="range"
+                v-model.number="type.letterSpacing"
+                min="-1"
+                max="10"
+                step="0.05"
+              />
+              <span>{{ type.letterSpacing.toFixed(2) }}</span>
+            </label>
+            <label>
+              垂直位置 (mm):
+              <input
+                type="number"
+                v-model.number="type.positionY"
+                min="-20"
+                max="20"
+                step="0.5"
+              />
+            </label>
           </div>
-        </label>
-        <label
-          >字体大小 (mm): <input type="number" v-model.number="codeFontSizeMM" step="0.1"
-        /></label>
-        <label>
-          字体粗细:
-          <select v-model="codeFontWeight">
-            <option value="normal">正常</option>
-            <option value="bold">粗体</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500">500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-          </select>
-        </label>
-        <label>
-          <span>压缩比例：{{ codeCompression.toFixed(2) }}</span>
-          <input type="range" v-model.number="codeCompression" min="0.0" max="3" step="0.01" />
-        </label>
-        <label>
-          <span>分布因子: {{ codeDistributionFactor.toFixed(1) }}</span>
-          <input
-            type="range"
-            v-model.number="codeDistributionFactor"
-            min="0"
-            max="100"
-            step="0.5"
-          />
-        </label>
-        <label>
-          边距 (mm):
-          <input type="number" v-model.number="codeMarginMM" min="-10" max="20" step="0.05" />
-        </label>
+          <button class="add-button" @click="addNewStampType">添加新行</button>
+        </div>
+      </div>
+
+      <!-- 印章编码设置 -->
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('code')">
+          <h3>印章编码设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.code }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.code">
+          <label>印章编码: <input v-model="stampCode" /></label>
+          <label>
+            字体:
+            <div class="font-input-group">
+              <select 
+                v-model="codeFontFamily"
+                class="font-select"
+                @change="updateFontPreview"
+              >
+                <option 
+                  v-for="font in systemFonts" 
+                  :key="font" 
+                  :value="font"
+                  :style="{ fontFamily: font }"
+                >
+                  {{ font }}
+                </option>
+              </select>
+              <input 
+                type="text" 
+                v-model="codeFontFamily"
+                class="font-input"
+                @input="updateFontPreview"
+                placeholder="输入字体名称"
+              />
+            </div>
+          </label>
+          <label
+            >字体大小 (mm): <input type="number" v-model.number="codeFontSizeMM" step="0.1"
+          /></label>
+          <label>
+            字体粗细:
+            <select v-model="codeFontWeight">
+              <option value="normal">正常</option>
+              <option value="bold">粗体</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="300">300</option>
+              <option value="400">400</option>
+              <option value="500">500</option>
+              <option value="600">600</option>
+              <option value="700">700</option>
+              <option value="800">800</option>
+              <option value="900">900</option>
+            </select>
+          </label>
+          <label>
+            <span>压缩比例：{{ codeCompression.toFixed(2) }}</span>
+            <input type="range" v-model.number="codeCompression" min="0.0" max="3" step="0.01" />
+          </label>
+          <label>
+            <span>分布因子: {{ codeDistributionFactor.toFixed(1) }}</span>
+            <input
+              type="range"
+              v-model.number="codeDistributionFactor"
+              min="0"
+              max="100"
+              step="0.5"
+            />
+          </label>
+          <label>
+            边距 (mm):
+            <input type="number" v-model.number="codeMarginMM" min="-10" max="20" step="0.05" />
+          </label>
+        </div>
       </div>
 
       <!-- 税号设置 -->
-      <div class="control-group" id="tax-number-settings">
-        <h3>税号设置</h3>
-        <label>税号: <input v-model="taxNumberValue" /></label>
-        <label>
-          字体:
-          <div class="font-input-group">
-            <select 
-              v-model="taxNumberFontFamily"
-              class="font-select"
-              @change="updateFontPreview"
-            >
-              <option 
-                v-for="font in systemFonts" 
-                :key="font" 
-                :value="font"
-                :style="{ fontFamily: font }"
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('taxNumber')">
+          <h3>税号设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.taxNumber">
+          <label>税号: <input v-model="taxNumberValue" /></label>
+          <label>
+            字体:
+            <div class="font-input-group">
+              <select 
+                v-model="taxNumberFontFamily"
+                class="font-select"
+                @change="updateFontPreview"
               >
-                {{ font }}
-              </option>
+                <option 
+                  v-for="font in systemFonts" 
+                  :key="font" 
+                  :value="font"
+                  :style="{ fontFamily: font }"
+                >
+                  {{ font }}
+                </option>
+              </select>
+              <input 
+                type="text" 
+                v-model="taxNumberFontFamily"
+                class="font-input"
+                @input="updateFontPreview"
+                placeholder="输入字体名称"
+              />
+            </div>
+          </label>
+          <label>
+            字体粗细:
+            <select v-model="taxNumberFontWeight">
+              <option value="normal">正常</option>
+              <option value="bold">粗体</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="300">300</option>
+              <option value="400">400</option>
+              <option value="500">500</option>
+              <option value="600">600</option>
+              <option value="700">700</option>
+              <option value="800">800</option>
+              <option value="900">900</option>
             </select>
-            <input 
-              type="text" 
-              v-model="taxNumberFontFamily"
-              class="font-input"
-              @input="updateFontPreview"
-              placeholder="输入字体名称"
+          </label>
+          <label>
+            <span>压缩比例：{{ taxNumberCompression.toFixed(2) }}</span>
+            <input type="range" v-model.number="taxNumberCompression" min="0.0" max="3" step="0.01" />
+          </label>
+          <label>
+            <span>字符间距 (mm)：{{ taxNumberLetterSpacing.toFixed(2) }}</span>
+            <input
+              type="range"
+              v-model.number="taxNumberLetterSpacing"
+              min="-1"
+              max="20"
+              step="0.05"
             />
-          </div>
-        </label>
-        <label>
-          字体粗细:
-          <select v-model="taxNumberFontWeight">
-            <option value="normal">正常</option>
-            <option value="bold">粗体</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500">500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-          </select>
-        </label>
-        <label>
-          <span>压缩比例：{{ taxNumberCompression.toFixed(2) }}</span>
-          <input type="range" v-model.number="taxNumberCompression" min="0.0" max="3" step="0.01" />
-        </label>
-        <label>
-          <span>字符间距 (mm)：{{ taxNumberLetterSpacing.toFixed(2) }}</span>
-          <input
-            type="range"
-            v-model.number="taxNumberLetterSpacing"
-            min="-1"
-            max="20"
-            step="0.05"
-          />
-        </label>
-        <label>
-          <span>垂直位置调整 (mm)：{{ taxNumberPositionY.toFixed(1) }}</span>
-          <input type="range" v-model.number="taxNumberPositionY" min="-10" max="10" step="0.1" />
-        </label>
+          </label>
+          <label>
+            <span>垂直位置调整 (mm)：{{ taxNumberPositionY.toFixed(1) }}</span>
+            <input type="range" v-model.number="taxNumberPositionY" min="-10" max="10" step="0.1" />
+          </label>
+        </div>
       </div>
 
       <!-- 五角星设置 -->
-      <div class="control-group" id="star-settings">
-        <h3>五角星/图片设置</h3>
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="shouldDrawStar" />
-          绘制五角星/图片
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="useStarImage" />
-          使用图片
-        </label>
-        <div v-if="shouldDrawStar">
-          <div v-if="useStarImage">
-            <label>
-              选择图片:
-              <input type="file" @change="handleStarImageUpload" accept="image/*" />
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('star')">
+          <h3>五角星/图片设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.star }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.star">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="shouldDrawStar" />
+            绘制五角星/图片
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="useStarImage" />
+            使用图片
+          </label>
+          <div v-if="shouldDrawStar">
+            <div v-if="useStarImage">
+              <label>
+                选择图片:
+                <input type="file" @change="handleStarImageUpload" accept="image/*" />
+              </label>
+              <label>
+                图片宽度 (mm):
+                <input type="number" v-model.number="starImageWidth" min="1" max="20" step="0.5" />
+              </label>
+              <label>
+                图片高度 (mm):
+                <input type="number" v-model.number="starImageHeight" min="1" max="20" step="0.5" />
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="keepAspectRatio" />
+                保持宽高比
+              </label>
+            </div>
+            <label v-else>
+              五角星直径 (mm):
+              <input type="number" v-model.number="starDiameter" step="0.1" />
             </label>
             <label>
-              图片宽度 (mm):
-              <input type="number" v-model.number="starImageWidth" min="1" max="20" step="0.5" />
-            </label>
-            <label>
-              图片高度 (mm):
-              <input type="number" v-model.number="starImageHeight" min="1" max="20" step="0.5" />
-            </label>
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="keepAspectRatio" />
-              保持宽高比
+              垂直位置 (mm):
+              <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
             </label>
           </div>
-          <label v-else>
-            五角星直径 (mm):
-            <input type="number" v-model.number="starDiameter" step="0.1" />
-          </label>
-          <label>
-            垂直位置 (mm):
-            <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
-          </label>
         </div>
       </div>
 
       <!-- 防伪纹路设置 -->
       <div class="control-group">
-        <h3>防伪纹路设置</h3>
-        <label>
-          启用防伪纹路:
-          <input type="checkbox" v-model="securityPatternEnabled" />
-        </label>
-        <button @click="drawStamp(true, false)">刷新纹路</button>
-        <label
-          >纹路数量:
-          <input type="range" v-model.number="securityPatternCount" min="1" max="20" step="1"
-        /></label>
-        <label
-          >纹路长度 (mm):
-          <input type="range" v-model.number="securityPatternLength" min="0.1" max="20" step="0.1"
-        /></label>
-        <label
-          >纹路宽度 (mm):
-          <input
-            type="range"
-            v-model.number="securityPatternWidth"
-            min="0.05"
-            max="0.5"
-            step="0.05"
-        /></label>
+        <div class="group-header" @click="toggleGroup('security')">
+          <h3>防伪纹路设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.security }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.security">
+          <label>
+            启用防伪纹路:
+            <input type="checkbox" v-model="securityPatternEnabled" />
+          </label>
+          <button @click="drawStamp(true, false)">刷新纹路</button>
+          <label
+            >纹路数量:
+            <input type="range" v-model.number="securityPatternCount" min="1" max="20" step="1"
+          /></label>
+          <label
+            >纹路长度 (mm):
+            <input type="range" v-model.number="securityPatternLength" min="0.1" max="20" step="0.1"
+          /></label>
+          <label
+            >纹路宽度 (mm):
+            <input
+              type="range"
+              v-model.number="securityPatternWidth"
+              min="0.05"
+              max="0.5"
+              step="0.05"
+          /></label>
+        </div>
       </div>
+
       <!-- 毛边效果设置 -->
-    <div class="control-group">
-      <h3>毛边效果设置</h3>
-      <label class="checkbox-label">
-        <input type="checkbox" v-model="shouldDrawRoughEdge" />
-        启用毛边效果
-      </label>
-      <label v-if="shouldDrawRoughEdge">
-        毛边宽度 (mm):
-        <input type="range" v-model.number="roughEdgeWidth" min="0.05" max="0.5" step="0.05" />
-        <span>{{ roughEdgeWidth.toFixed(2) }}</span>
-      </label>
-      <label v-if="shouldDrawRoughEdge">
-        毛边高度 (mm):
-        <input type="range" v-model.number="roughEdgeHeight" min="0.1" max="5" step="0.1" />
-        <span>{{ roughEdgeHeight.toFixed(1) }}</span>
-      </label>
-      <label v-if="shouldDrawRoughEdge">
-        毛边概率:
-        <input type="range" v-model.number="roughEdgeProbability" min="0" max="1" step="0.01" />
-        <span>{{ roughEdgeProbability.toFixed(2) }}</span>
-      </label>
-      <label v-if="shouldDrawRoughEdge">
-        毛边偏移 (mm):
-        <input type="range" v-model.number="roughEdgeShift" min="-10" max="10" step="0.01" />
-        <span>{{ roughEdgeShift.toFixed(2) }}</span>
-      </label>
-      <label v-if="shouldDrawRoughEdge">
-        毛边点数:
-        <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
-        <span>{{ roughEdgePoints }}</span>
-      </label>
-      <button @click="drawStamp(false, true)">刷新毛边</button>
-    </div>
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('roughEdge')">
+          <h3>毛边效果设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.roughEdge }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.roughEdge">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="shouldDrawRoughEdge" />
+            启用毛边效果
+          </label>
+          <label v-if="shouldDrawRoughEdge">
+            毛边宽度 (mm):
+            <input type="range" v-model.number="roughEdgeWidth" min="0.05" max="0.5" step="0.05" />
+            <span>{{ roughEdgeWidth.toFixed(2) }}</span>
+          </label>
+          <label v-if="shouldDrawRoughEdge">
+            毛边高度 (mm):
+            <input type="range" v-model.number="roughEdgeHeight" min="0.1" max="5" step="0.1" />
+            <span>{{ roughEdgeHeight.toFixed(1) }}</span>
+          </label>
+          <label v-if="shouldDrawRoughEdge">
+            毛边概率:
+            <input type="range" v-model.number="roughEdgeProbability" min="0" max="1" step="0.01" />
+            <span>{{ roughEdgeProbability.toFixed(2) }}</span>
+          </label>
+          <label v-if="shouldDrawRoughEdge">
+            毛边偏移 (mm):
+            <input type="range" v-model.number="roughEdgeShift" min="-10" max="10" step="0.01" />
+            <span>{{ roughEdgeShift.toFixed(2) }}</span>
+          </label>
+          <label v-if="shouldDrawRoughEdge">
+            毛边点数:
+            <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
+            <span>{{ roughEdgePoints }}</span>
+          </label>
+          <button @click="drawStamp(false, true)">刷新毛边</button>
+        </div>
+      </div>
+
+      <!-- 做旧效果设置 -->
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('aging')">
+          <h3>做旧效果</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.aging }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.aging">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="applyAging" />
+            启用做旧效果
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="manualAging" />
+            手动做旧
+          </label>
+          <label v-if="applyAging">
+            做旧强度:
+            <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
+          </label>
+          <button @click="drawStamp(false, true)">刷新做旧</button>
+        </div>
+      </div>
+
+      <!-- 内圈圆形设置 -->
+      <div class="control-group">
+        <div class="group-header" @click="toggleGroup('innerCircle')">
+          <h3>内圈圆形设置</h3>
+          <span class="expand-icon" :class="{ 'expanded': expandedGroups.innerCircle }">▼</span>
+        </div>
+        <div class="group-content" v-show="expandedGroups.innerCircle">
+          <button @click="addNewInnerCircle">添加新行</button>
+          <div v-for="(innerCircle, index) in innerCircleList" :key="index" class="inner-circle-item">
+            <div class="inner-circle-header">
+              <span>第 {{ index + 1 }} 行</span>
+              <button class="small-button delete-button" @click="removeInnerCircle(index)">删除</button>
+            </div>
+            <label>
+              内圈圆线宽 (mm):
+              <input type="number" v-model.number="innerCircle.innerCircleLineWidth" min="0.05" max="0.5" step="0.05" />
+            </label>
+            <label>
+              内圈圆半径X (mm):
+              <input type="number" v-model.number="innerCircle.innerCircleLineRadiusX" min="1" max="50" step="0.1" />
+            </label>
+            <label>
+              内圈圆半径Y (mm):
+              <input type="number" v-model.number="innerCircle.innerCircleLineRadiusY" min="1" max="50" step="0.1" />
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
 
 
@@ -660,7 +637,7 @@ const starDiameter = ref(14)
 const applyAging = ref(false)
 // 手动做旧
 const manualAging = ref(false)
-// ���加新的响应式数据
+// 添加新的响应式数据
 const agingIntensity = ref(50)
 // 文字分布因子，控制公司名称文字在椭圆上的分布范围
 const textDistributionFactor = ref(3)
@@ -682,7 +659,7 @@ const bottomTextFontSizeMM = ref(4.6)
 const bottomTextFontWidthMM = ref(3)
 // 印章类型字符间距，默认 0
 const bottomTextLetterSpacing = ref(0)
-// 五角星垂直位置调整，默认 0
+// 五角星垂直位置调整，认 0
 const starPositionY = ref(0)
 // 印章类型垂直位置调整，默认 0
 const bottomTextPositionY = ref(-5)
@@ -799,7 +776,7 @@ const triggerTemplateLoad = () => {
   templateFileInput.value?.click()
 }
 
-// 加载模板
+// 载模板
 const loadTemplate = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
@@ -872,7 +849,7 @@ const addNewStampType = () => {
   })
 }
 
-// 删除指定的印章���型行
+// 删除指定的印章型行
 const removeStampType = (index: number) => {
   stampTypeList.value.splice(index, 1)
 }
@@ -988,7 +965,7 @@ const updateDrawConfigs = () => {
   stampType.positionY = bottomTextPositionY.value
   stampType.compression = bottomTextCompression.value
   stampType.fontWeight = bottomTextFontWeight.value
-  stampType.lineSpacing = bottomTextLineSpacing.value // 新增：���置行间距
+  stampType.lineSpacing = bottomTextLineSpacing.value // 新增：置行间距
 
   // 印章编码
   const code: ICode = drawConfigs.stampCode
@@ -1384,6 +1361,25 @@ const updateFontPreview = (event: Event) => {
   }
 }
 
+// 添加展开/折叠状态控制
+const expandedGroups = ref({
+  basic: false,
+  company: false,
+  stampType: false,
+  code: false,
+  taxNumber: false,
+  star: false,
+  security: false,
+  roughEdge: false,
+  aging: false,
+  innerCircle: false
+})
+
+// 切换组的展开/折叠状态
+const toggleGroup = (groupName: string) => {
+  expandedGroups.value[groupName] = !expandedGroups.value[groupName]
+}
+
 </script>
 <style scoped>
 .container {
@@ -1689,5 +1685,50 @@ select option:hover {
 .font-select,
 .font-input {
   font-family: var(--current-font, inherit);
+}
+
+/* 添加组标题样式 */
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
+  user-select: none;
+}
+
+.group-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.expand-icon {
+  transition: transform 0.3s ease;
+  font-size: 12px;
+  color: #666;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+/* 添加内容区域过渡效果 */
+.group-content {
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* 优化控制组样式 */
+.control-group {
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.control-group:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 </style>
