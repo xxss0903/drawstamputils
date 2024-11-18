@@ -97,12 +97,29 @@
             </label>
             <label>
               字体:
-              <select v-model="company.fontFamily">
-                <option value="SimSun">宋体</option>
-                <option value="SimHei">黑体</option>
-                <option value="KaiTi">楷体</option>
-                <option value="Microsoft YaHei">微软雅黑</option>
-              </select>
+              <div class="font-input-group">
+                <select 
+                  v-model="company.fontFamily"
+                  class="font-select"
+                  @change="updateFontPreview"
+                >
+                  <option 
+                    v-for="font in systemFonts" 
+                    :key="font" 
+                    :value="font"
+                    :style="{ fontFamily: font }"
+                  >
+                    {{ font }}
+                  </option>
+                </select>
+                <input 
+                  type="text" 
+                  v-model="company.fontFamily"
+                  class="font-input"
+                  @input="updateFontPreview"
+                  placeholder="输入字体名称"
+                />
+              </div>
             </label>
             <label>
               字体大小 (mm):
@@ -258,12 +275,21 @@
       </label>
       <label>
         字体:
-        <select v-model="type.fontFamily">
-          <option value="SimSun">宋体</option>
-          <option value="SimHei">黑体</option>
-          <option value="KaiTi">楷体</option>
-          <option value="Microsoft YaHei">微软雅黑</option>
-        </select>
+        <div class="font-input-group">
+          <input 
+            type="text" 
+            v-model="type.fontFamily"
+            list="stampTypeFontList"
+            class="font-input"
+          />
+          <datalist id="stampTypeFontList">
+            <option v-for="font in systemFonts" 
+                    :key="font" 
+                    :value="font">
+              {{ font }}
+            </option>
+          </datalist>
+        </div>
       </label>
       <label>
         字体粗细:
@@ -551,6 +577,8 @@ import {
   type IStampType,
   type ITaxNumber
 } from './DrawStampUtils'
+import { getSystemFonts } from './utils/fontUtils'
+
 const editorControls = ref<HTMLDivElement | null>(null)
 const stampCanvas = ref<HTMLCanvasElement | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
@@ -1065,11 +1093,27 @@ const restoreDrawConfigs = () => {
   outThinCircleHeight.value = drawConfigs.outThinCircle.innerCircleLineRadiusY
 }
 
-onMounted(() => {
+// 添加系统字体列表
+const systemFonts = ref<string[]>([])
+
+// 加载系统字体
+const loadSystemFonts = async () => {
+  systemFonts.value = await getSystemFonts()
+}
+
+// 在组件挂载时加载字体
+onMounted(async () => {
+  await loadSystemFonts()
   initDrawStampUtils()
-  // 将绘制参数反射到当前界面
   restoreDrawConfigs()
   drawStamp()
+
+  // 初始化所有字体选择器的预览
+  document.querySelectorAll('.font-select, .font-input').forEach((element) => {
+    if (element instanceof HTMLElement) {
+      updateFontPreview({ target: element } as unknown as Event);
+    }
+  });
 })
 
 // 监听所有响应式数据的变化
@@ -1260,6 +1304,34 @@ watch(stampTypePresets, () => {
 // 打开提取印章工具网址
 const openExtractStampTool = () => {
   window.open('https://xxss0903.github.io/extractstamp/', '_blank')
+}
+
+// 修改字体预览更新函数
+const updateFontPreview = (event: Event) => {
+  const element = event.target as HTMLElement;
+  const fontFamily = element.tagName === 'SELECT' 
+    ? (element as HTMLSelectElement).value 
+    : (element as HTMLInputElement).value;
+    
+  element.style.setProperty('--current-font', fontFamily);
+  
+  // 如果是select变化，同步更新input
+  if (element.tagName === 'SELECT') {
+    const input = element.parentElement?.querySelector('.font-input') as HTMLInputElement;
+    if (input) {
+      input.value = fontFamily;
+      input.style.setProperty('--current-font', fontFamily);
+    }
+  }
+  
+  // 如果是input变化，同步更新select
+  if (element.tagName === 'INPUT') {
+    const select = element.parentElement?.querySelector('.font-select') as HTMLSelectElement;
+    if (select) {
+      select.value = fontFamily;
+      select.style.setProperty('--current-font', fontFamily);
+    }
+  }
 }
 
 </script>
@@ -1498,5 +1570,74 @@ canvas {
 .control-group button {
   width: 100%;
   margin-top: 8px;
+}
+
+/* 添加字体选择下拉框的样式 */
+select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+select option {
+  padding: 8px;
+}
+
+/* 让字体预览更明显 */
+select option:hover {
+  background-color: #f5f5f5;
+}
+
+/* 添加新的样式 */
+.font-input-group {
+  position: relative;
+  width: 100%;
+  display: flex;
+  gap: 8px;
+}
+
+.font-select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+}
+
+.font-input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.font-select:hover,
+.font-input:hover {
+  border-color: #4caf50;
+}
+
+.font-select:focus,
+.font-input:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+/* 让选项使用实际字体显示 */
+.font-select option {
+  padding: 8px;
+  font-size: 14px;
+}
+
+/* 动态设置字体预览 */
+.font-select,
+.font-input {
+  font-family: var(--current-font, inherit);
 }
 </style>
