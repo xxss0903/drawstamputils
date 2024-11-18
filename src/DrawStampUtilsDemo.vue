@@ -347,7 +347,32 @@
       <div class="control-group" id="code-settings">
         <h3>印章编码设置</h3>
         <label>印章编码: <input v-model="stampCode" /></label>
-        <label>字体: <input v-model="codeFontFamily" /></label>
+        <label>
+          字体:
+          <div class="font-input-group">
+            <select 
+              v-model="codeFontFamily"
+              class="font-select"
+              @change="updateFontPreview"
+            >
+              <option 
+                v-for="font in systemFonts" 
+                :key="font" 
+                :value="font"
+                :style="{ fontFamily: font }"
+              >
+                {{ font }}
+              </option>
+            </select>
+            <input 
+              type="text" 
+              v-model="codeFontFamily"
+              class="font-input"
+              @input="updateFontPreview"
+              placeholder="输入字体名称"
+            />
+          </div>
+        </label>
         <label
           >字体大小 (mm): <input type="number" v-model.number="codeFontSizeMM" step="0.1"
         /></label>
@@ -391,7 +416,32 @@
       <div class="control-group" id="tax-number-settings">
         <h3>税号设置</h3>
         <label>税号: <input v-model="taxNumberValue" /></label>
-        <label>字体: <input v-model="taxNumberFontFamily" /></label>
+        <label>
+          字体:
+          <div class="font-input-group">
+            <select 
+              v-model="taxNumberFontFamily"
+              class="font-select"
+              @change="updateFontPreview"
+            >
+              <option 
+                v-for="font in systemFonts" 
+                :key="font" 
+                :value="font"
+                :style="{ fontFamily: font }"
+              >
+                {{ font }}
+              </option>
+            </select>
+            <input 
+              type="text" 
+              v-model="taxNumberFontFamily"
+              class="font-input"
+              @input="updateFontPreview"
+              placeholder="输入字体名称"
+            />
+          </div>
+        </label>
         <label>
           字体粗细:
           <select v-model="taxNumberFontWeight">
@@ -610,7 +660,7 @@ const starDiameter = ref(14)
 const applyAging = ref(false)
 // 手动做旧
 const manualAging = ref(false)
-// 添加新的响应式数据
+// ���加新的响应式数据
 const agingIntensity = ref(50)
 // 文字分布因子，控制公司名称文字在椭圆上的分布范围
 const textDistributionFactor = ref(3)
@@ -822,7 +872,7 @@ const addNewStampType = () => {
   })
 }
 
-// 删除指定的印章类型行
+// 删除指定的印章���型行
 const removeStampType = (index: number) => {
   stampTypeList.value.splice(index, 1)
 }
@@ -938,7 +988,7 @@ const updateDrawConfigs = () => {
   stampType.positionY = bottomTextPositionY.value
   stampType.compression = bottomTextCompression.value
   stampType.fontWeight = bottomTextFontWeight.value
-  stampType.lineSpacing = bottomTextLineSpacing.value // 新增：设置行间距
+  stampType.lineSpacing = bottomTextLineSpacing.value // 新增：���置行间距
 
   // 印章编码
   const code: ICode = drawConfigs.stampCode
