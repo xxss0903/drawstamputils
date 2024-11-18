@@ -244,21 +244,6 @@ DrawStampUtils 支持以下配置选项：
 | - innerCircleLineRadiusY | 设置内圈圆形的垂直半径 |
 
 
-以下是毛边效果的详细配置参数：
-
-
-
-## 支持作者
-
-如果您觉得这个项目对您有帮助，欢迎给作者买杯咖啡！您的支持将激励我们继续改进和维护这个项目。
-
-<div style="display: flex; justify-content: center;">
-  <img src="public/alipay.png" alt="支付宝支付" style="width: 30%; margin-right: 10px;">
-  <img src="public/wechatpay.png" alt="微信支付" style="width: 30%;">
-</div>
-
-感谢您的支持！
-
 完整示例
 DrawStampUtilsDemo.vue中的方法作为参考
 
