@@ -1386,20 +1386,53 @@ const toggleGroup = (groupName: string) => {
   display: flex;
   height: 90vh;
   overflow: hidden;
+  gap: 0;
 }
 
 .editor-controls {
-  width: 400px; /* 增加控制面板宽度 */
-  padding: 15px;
+  width: 400px;
+  padding: 25px;
   background-color: #f5f5f5;
-  overflow-y: auto;
+  overflow-y: scroll;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f5f5f5;
 }
 
-/* 顶部按钮组样式优化 */
+.editor-controls::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editor-controls::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.editor-controls::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.editor-controls::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+.control-group {
+  width: calc(100% - 8px);
+  min-width: 200px;
+  margin-right: 8px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.control-group:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
 .button-group {
   position: sticky;
   top: 0;
@@ -1429,14 +1462,6 @@ const toggleGroup = (groupName: string) => {
   transform: translateY(-1px);
 }
 
-/* 控制组样式优化 */
-.control-group {
-  background-color: white;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
 .control-group h3 {
   margin: 0 0 15px 0;
   padding-bottom: 8px;
@@ -1446,7 +1471,6 @@ const toggleGroup = (groupName: string) => {
   font-weight: 600;
 }
 
-/* 列表项样式优化 */
 .inner-circle-list,
 .company-list,
 .stamp-type-list {
@@ -1471,7 +1495,6 @@ const toggleGroup = (groupName: string) => {
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* 表单控件样式优化 */
 .editor-controls label {
   display: flex;
   flex-direction: column;
@@ -1498,7 +1521,6 @@ const toggleGroup = (groupName: string) => {
   outline: none;
 }
 
-/* 滑块样式优化 */
 .editor-controls input[type='range'] {
   -webkit-appearance: none;
   width: 100%;
@@ -1522,7 +1544,6 @@ const toggleGroup = (groupName: string) => {
   background: #45a049;
 }
 
-/* 复选框样式优化 */
 .checkbox-label {
   flex-direction: row !important;
   align-items: center;
@@ -1534,7 +1555,6 @@ const toggleGroup = (groupName: string) => {
   cursor: pointer;
 }
 
-/* 添加/删除按钮样式优化 */
 .add-button,
 .delete-button {
   padding: 6px 12px;
@@ -1564,7 +1584,6 @@ const toggleGroup = (groupName: string) => {
   background-color: #c82333;
 }
 
-/* 标题栏样式优化 */
 .inner-circle-header,
 .company-header,
 .stamp-type-header {
@@ -1576,15 +1595,15 @@ const toggleGroup = (groupName: string) => {
   border-bottom: 1px solid #eee;
 }
 
-/* Canvas 容器样式优化 */
 .canvas-container {
-  flex-grow: 1;
+  flex: 1;
   background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  overflow: hidden;
 }
 
 canvas {
@@ -1593,7 +1612,6 @@ canvas {
   background-color: white;
 }
 
-/* 响应式布局优化 */
 @media (max-width: 1200px) {
   .container {
     flex-direction: column;
@@ -1609,16 +1627,11 @@ canvas {
   }
 }
 
-.control-group {
-  min-width: 200px;
-}
-
 .control-group button {
   width: 100%;
   margin-top: 8px;
 }
 
-/* 添加字体选择下拉框的样式 */
 select {
   width: 100%;
   padding: 6px 8px;
@@ -1632,12 +1645,10 @@ select option {
   padding: 8px;
 }
 
-/* 让字体预览更明显 */
 select option:hover {
   background-color: #f5f5f5;
 }
 
-/* 添加新的样式 */
 .font-input-group {
   position: relative;
   width: 100%;
@@ -1675,19 +1686,16 @@ select option:hover {
   outline: none;
 }
 
-/* 让选项使用实际字体显示 */
 .font-select option {
   padding: 8px;
   font-size: 14px;
 }
 
-/* 动态设置字体预览 */
 .font-select,
 .font-input {
   font-family: var(--current-font, inherit);
 }
 
-/* 添加组标题样式 */
 .group-header {
   display: flex;
   justify-content: space-between;
@@ -1713,22 +1721,8 @@ select option:hover {
   transform: rotate(180deg);
 }
 
-/* 添加内容区域过渡效果 */
 .group-content {
   transition: all 0.3s ease-in-out;
   overflow: hidden;
-}
-
-/* 优化控制组样式 */
-.control-group {
-  background-color: white;
-  border-radius: 8px;
-  padding: 12px 15px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.control-group:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 </style>
