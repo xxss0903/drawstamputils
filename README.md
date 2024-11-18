@@ -1,8 +1,16 @@
-DrawStampUtils.js
-
-<font color="red">本项目仅供学习参考，勿做违法用途，后果自负</font>
-[![npm](https://img.shields.io/npm/v/drawstamputils.svg)](https://www.npmjs.com/package/drawstamputils) [![QQ群](https://img.shields.io/badge/QQ群-644574395-blue.svg)](https://qm.qq.com/cgi-bin/qm/qr?k=your_group_key&jump_from=webapi&authKey=your_auth_key)
-
+<div style="background-color: #fff1f0; padding: 15px; border-left: 4px solid #ff4d4f; margin-bottom: 20px;">
+<h2 style="color: #ff4d4f; margin-top: 0;">⚠️ 安全警告</h2>
+<p style="color: #cf1322; font-weight: bold;">
+本项目仅供学习和参考！严禁用于任何非法用途！
+</p>
+<p style="color: #cf1322;">
+1. 本项目开源代码仅用于技术学习和交流。<br>
+2. 使用本项目生成的任何图片请勿用于任何非法用途。<br>
+3. 因违法使用本项目造成的任何法律责任和损失，需自行承担，与本项目无关。<br>
+4. 如果使用本项目请遵守相关法律法规。<br>
+</p>
+</div>
+[![npm](https://img.shields.io/npm/v/drawstamputils.svg)](https://www.npmjs.com/package/drawstamputils)
 
 ## 简介
 
