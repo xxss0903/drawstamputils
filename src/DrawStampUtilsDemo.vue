@@ -1,5 +1,42 @@
 <template>
+  <!-- 添加法律提示弹窗 -->
+  <div v-if="showLegalDialog" class="legal-dialog-overlay">
+    <div class="legal-dialog">
+      <h3>⚠️ 法律提示</h3>
+      <div class="legal-content">
+        <p><strong>请确认您已知悉并同意以下内容：</strong></p>
+        <ol>
+          <li>本工具仅供学习和技术研究使用</li>
+          <li>使用本工具生成的任何图片请勿用于任何非法用途</li>
+          <li>因违法使用本工具造成的任何法律责任和损失，需自行承担</li>
+          <li>如果使用本工具请遵守相关法律法规</li>
+        </ol>
+      </div>
+      <div class="dialog-buttons">
+        <button @click="cancelSave" class="cancel-button">取消</button>
+        <button @click="confirmSave" class="confirm-button">我已知悉并同意</button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
+    <!-- 修改法律免责说明 -->
+    <div class="legal-disclaimer">
+      <div class="disclaimer-content">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-text">
+          <h3>安全警告</h3>
+          <p><strong>本项目仅供学习和参考！严禁用于任何非法用途！</strong></p>
+          <p>
+            1. 本项目开源代码仅用于技术学习和交流。<br>
+            2. 使用本项目生成的任何图片请勿用于任何非法用途。<br>
+            3. 因违法使用本项目造成的任何法律责任和损失，需自行承担，与本项目无关。<br>
+            4. 如果使用本项目请遵守相关法律法规。
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div class="editor-controls" ref="editorControls">
       <!-- 顶部固定按钮 -->
       <div
@@ -8,8 +45,8 @@
       >
         <button @click="saveStampAsPNG">保存印章</button>
         <button @click="saveAsTemplate">保存模板</button>
-        <input 
-          type="file" 
+        <input
+          type="file"
           ref="templateFileInput"
           style="display: none"
           accept=".json"
@@ -63,22 +100,22 @@
             <label>
               字体:
               <div class="font-input-group">
-                <select 
+                <select
                   v-model="company.fontFamily"
                   class="font-select"
                   @change="updateFontPreview"
                 >
-                  <option 
-                    v-for="font in systemFonts" 
-                    :key="font" 
+                  <option
+                    v-for="font in systemFonts"
+                    :key="font"
                     :value="font"
                     :style="{ fontFamily: font }"
                   >
                     {{ font }}
                   </option>
                 </select>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   v-model="company.fontFamily"
                   class="font-input"
                   @input="updateFontPreview"
@@ -174,15 +211,15 @@
             <label>
               字体:
               <div class="font-input-group">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   v-model="type.fontFamily"
                   list="stampTypeFontList"
                   class="font-input"
                 />
                 <datalist id="stampTypeFontList">
-                  <option v-for="font in systemFonts" 
-                          :key="font" 
+                  <option v-for="font in systemFonts"
+                          :key="font"
                           :value="font">
                     {{ font }}
                   </option>
@@ -253,22 +290,22 @@
           <label>
             字体:
             <div class="font-input-group">
-              <select 
+              <select
                 v-model="codeFontFamily"
                 class="font-select"
                 @change="updateFontPreview"
               >
-                <option 
-                  v-for="font in systemFonts" 
-                  :key="font" 
+                <option
+                  v-for="font in systemFonts"
+                  :key="font"
                   :value="font"
                   :style="{ fontFamily: font }"
                 >
                   {{ font }}
                 </option>
               </select>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 v-model="codeFontFamily"
                 class="font-input"
                 @input="updateFontPreview"
@@ -327,22 +364,22 @@
           <label>
             字体:
             <div class="font-input-group">
-              <select 
+              <select
                 v-model="taxNumberFontFamily"
                 class="font-select"
                 @change="updateFontPreview"
               >
-                <option 
-                  v-for="font in systemFonts" 
-                  :key="font" 
+                <option
+                  v-for="font in systemFonts"
+                  :key="font"
                   :value="font"
                   :style="{ fontFamily: font }"
                 >
                   {{ font }}
                 </option>
               </select>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 v-model="taxNumberFontFamily"
                 class="font-input"
                 @input="updateFontPreview"
@@ -647,7 +684,7 @@ const adjustEllipseText = ref(false)
 const adjustEllipseTextFactor = ref(0.5)
 // 文字边距，控制公司名称文字距离椭圆边缘的距离（单位：毫米）
 const textMarginMM = ref(1) // 默认值为1mm
-// 编码边距，控制印章编码距离椭圆边缘的距离（单位：毫米）
+// 编码边距，控制印章编码距离椭圆边缘的距离（单位��毫米）
 const codeMarginMM = ref(1) // 默认值为1mm
 // 编码分布因子，控制印章编码在椭圆下方的分布范围
 const codeDistributionFactor = ref(20) // 默认值可以根据需要调整
@@ -677,7 +714,7 @@ const securityPatternDensity = ref(0.5)
 const securityPatternWidth = ref(0.2) // 纹路宽度，单位为毫米
 const securityPatternColor = ref('#FF0000')
 const securityPatternCount = ref(5) // 防伪纹路数量
-const securityPatternLength = ref(2) // 纹路长度，单位为毫米
+const securityPatternLength = ref(2) // 纹路长度，单���为毫米
 const showFullRuler = ref(false)
 const shouldDrawStar = ref(false) // 默认绘制五角星
 const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
@@ -698,6 +735,7 @@ const roughEdgeHeight = ref(5) // 毛边高度，单位为毫米
 const roughEdgeProbability = ref(0.5) // 毛边概率
 const roughEdgeShift = ref(8) // 毛边偏移
 const roughEdgePoints = ref(360) // 毛边点数
+const showLegalDialog = ref(false) // 是否显示法律提示弹窗
 // 添加印章类型列表的响式数据
 const stampTypeList = ref<IStampType[]>([
   {
@@ -754,18 +792,18 @@ const templateFileInput = ref<HTMLInputElement | null>(null)
 const saveAsTemplate = () => {
   const drawConfigs = drawStampUtils.getDrawConfigs()
   const jsonStr = JSON.stringify(drawConfigs, null, 2)
-  
+
   // 创建 Blob
   const blob = new Blob([jsonStr], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
-  
+
   // 创建下载链接
   const link = document.createElement('a')
   link.href = url
   link.download = '印章模板.json'
   document.body.appendChild(link)
   link.click()
-  
+
   // 清理
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
@@ -782,19 +820,19 @@ const loadTemplate = (event: Event) => {
   if (target.files && target.files[0]) {
     const file = target.files[0]
     const reader = new FileReader()
-    
+
     reader.onload = (e) => {
       try {
         if (e.target?.result) {
           const jsonStr = e.target.result as string
           const configs = JSON.parse(jsonStr)
-          
+
           // 设置新的配置
           drawStampUtils.setDrawConfigs(configs)
-          
+
           // 恢复界面显示
           restoreDrawConfigs()
-          
+
           // 刷新印章显示
           drawStamp()
         }
@@ -803,10 +841,10 @@ const loadTemplate = (event: Event) => {
         alert('加载模板失败，请确保文件格式正确')
       }
     }
-    
+
     reader.readAsText(file)
   }
-  
+
   // 清除文件选择，确保同一文件可以重复选择
   target.value = ''
 }
@@ -834,7 +872,7 @@ const addNewStampType = () => {
   let newPositionY = -3
   if(stampTypeList.value.length > 0){
     const lastStampType = stampTypeList.value[stampTypeList.value.length - 1]
-    newPositionY = lastStampType.positionY + lastStampType.fontHeight 
+    newPositionY = lastStampType.positionY + lastStampType.fontHeight
   }
   stampTypeList.value.push({
     stampType: '新印章类型',
@@ -881,7 +919,7 @@ const removeCompany = (index: number) => {
 }
 
 const saveStampAsPNG = () => {
-  drawStampUtils.saveStampAsPNG(512)
+  showLegalDialog.value = true
 }
 
 const drawStampWidth = ref(40)
@@ -1028,9 +1066,20 @@ const updateDrawConfigs = () => {
   drawStamp()
 }
 
+// 取消保存
+const cancelSave = () => {
+  showLegalDialog.value = false
+}
+
+// 确认保存
+const confirmSave = () => {
+  showLegalDialog.value = false
+  drawStampUtils.saveStampAsPNG(512)
+}
+
 const restoreDrawConfigs = () => {
   const drawConfigs = drawStampUtils.getDrawConfigs()
-  
+
   // 做旧效果
   applyAging.value = drawConfigs.agingEffect.applyAging
   agingIntensity.value = drawConfigs.agingEffect.agingIntensity
@@ -1336,12 +1385,12 @@ const openExtractStampTool = () => {
 // 修改字体预览更新函数
 const updateFontPreview = (event: Event) => {
   const element = event.target as HTMLElement;
-  const fontFamily = element.tagName === 'SELECT' 
-    ? (element as HTMLSelectElement).value 
+  const fontFamily = element.tagName === 'SELECT'
+    ? (element as HTMLSelectElement).value
     : (element as HTMLInputElement).value;
-    
+
   element.style.setProperty('--current-font', fontFamily);
-  
+
   // 如果是select变化，同步更新input
   if (element.tagName === 'SELECT') {
     const input = element.parentElement?.querySelector('.font-input') as HTMLInputElement;
@@ -1350,7 +1399,7 @@ const updateFontPreview = (event: Event) => {
       input.style.setProperty('--current-font', fontFamily);
     }
   }
-  
+
   // 如果是input变化，同步更新select
   if (element.tagName === 'INPUT') {
     const select = element.parentElement?.querySelector('.font-select') as HTMLSelectElement;
@@ -1379,7 +1428,6 @@ const expandedGroups = ref({
 const toggleGroup = (groupName: string) => {
   expandedGroups.value[groupName] = !expandedGroups.value[groupName]
 }
-
 </script>
 <style scoped>
 .container {
@@ -1387,6 +1435,7 @@ const toggleGroup = (groupName: string) => {
   height: 90vh;
   overflow: hidden;
   gap: 0;
+  padding-top: 140px; /* 根据免责声明的实际高度调整 */
 }
 
 .editor-controls {
@@ -1604,6 +1653,7 @@ const toggleGroup = (groupName: string) => {
   align-items: center;
   padding: 20px;
   overflow: hidden;
+  padding-top: 40px; /* 根据免责声明的高度调整 */
 }
 
 canvas {
@@ -1616,12 +1666,12 @@ canvas {
   .container {
     flex-direction: column;
   }
-  
+
   .editor-controls {
     width: 100%;
     max-height: 50vh;
   }
-  
+
   .canvas-container {
     height: 50vh;
   }
@@ -1724,5 +1774,141 @@ select option:hover {
 .group-content {
   transition: all 0.3s ease-in-out;
   overflow: hidden;
+}
+
+/* 修改法律免责说明样式 */
+.legal-disclaimer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2000;
+  background-color: rgba(255, 241, 240, 0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+}
+
+.disclaimer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.warning-icon {
+  font-size: 24px;
+  color: #ff4d4f;
+  flex-shrink: 0;
+}
+
+.warning-text {
+  flex: 1;
+}
+
+.warning-text h3 {
+  color: #ff4d4f;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.warning-text p {
+  color: #cf1322;
+  margin: 4px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.warning-text strong {
+  font-size: 16px;
+}
+
+/* 添加法律提示弹窗样式 */
+.legal-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2100;
+}
+
+.legal-dialog {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.legal-dialog h3 {
+  color: #ff4d4f;
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legal-content {
+  margin-bottom: 20px;
+}
+
+.legal-content p {
+  color: #cf1322;
+  margin-bottom: 12px;
+}
+
+.legal-content ol {
+  color: #666;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.legal-content li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancel-button,
+.confirm-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.cancel-button {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.confirm-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #e8e8e8;
+}
+
+.confirm-button:hover {
+  background-color: #45a049;
 }
 </style>
