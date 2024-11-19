@@ -74,9 +74,7 @@ npm run preview
 ![Stamp Example](public/stamp_withimage.png)
 ![Stamp Example](public/stamp_multiline.png)
 ![Stamp Example](public/seal.png)
-![Stamp Designer](public/roughedge.png)
 ![Stamp Designer](public/designer.png)
-![Stamp Designer](public/stamp_break.png)
 DrawStampUtils.ts 使用说明
 
 DrawStampUtils.ts 是该项目的核心文件之一，用于生成电子印章。以下是如何使用 DrawStampUtils.ts 的示例：
@@ -159,98 +157,98 @@ DrawStampUtils 支持以下配置选项：
 
 以下是 DrawStampUtils 支持的主要配置选项及其功能：
 
-| 配置选项 | 功能描述 |
-|---------|--------|
-| ISecurityPattern | 控制防伪纹路的相关参数 |
-| - openSecurityPattern | 是否启用防伪纹路 |
-| - securityPatternWidth | 设置防伪纹路的宽度 |
-| - securityPatternLength | 设置防伪纹路的长度 |
-| - securityPatternCount | 设置防伪纹路的数量 |
-| - securityPatternAngleRange | 设置防伪纹路的角度范围 |
-| ICompany | 控制印章公司相关的参数 |
-| - companyName | 设置公司名称 |
-| - compression | 控制公司名称的压缩比例 |
-| - borderOffset | 设置边框偏移量 |
-| - textDistributionFactor | 控制文字分布因子 |
-| - fontFamily | 设置字体 |
-| - fontHeight | 设置字体高度 |
-| - adjustEllipseText | 是否调整椭圆文字间距 |
-| - adjustEllipseTextFactor | 椭圆文字间距调整因子 |
-| ICode | 控制印章编码相关的参数 |
-| - code | 设置编码内容 |
-| - compression | 控制编码的压缩比例 |
-| - fontHeight | 设置编码字体大小 |
-| - fontFamily | 设置编码字体 |
-| - borderOffset | 设置编码边框偏移量 |
-| - fontWidth | 设置编码字体宽度 |
-| - textDistributionFactor | 控制编码文字分布因子 |
-| ITaxNumber | 控制税号相关的参数 |
-| - code | 设置税号内容 |
-| - compression | 控制税号的压缩比例 |
-| - fontHeight | 设置税号字体大小 |
-| - fontFamily | 设置税号字体 |
-| - fontWidth | 设置税号字体宽度 |
-| - letterSpacing | 控制税号字符间距 |
-| - positionY | 设置税号文字垂直位置 |
-| - totalWidth | 设置税号文字总宽度 |
-| IAgingEffectParams | 控制做旧效果的相关参数 |
-| - x | 设置做旧效果的 x 轴位置 |
-| - y | 设置做旧效果的 y 轴位置 |
-| - noiseSize | 控制噪声大小 |
-| - noise | 控制噪声强度 |
-| - strongNoiseSize | 控制强噪声大小 |
-| - strongNoise | 控制强噪声强度 |
-| - fade | 控制淡化强度 |
-| - seed | 设置随机种子 |
+| 配置选项 | 功能描述           |
+|---------|----------------|
+| ISecurityPattern | 控制防伪纹路的相关参数    |
+| - openSecurityPattern | 是否启用防伪纹路       |
+| - securityPatternWidth | 设置防伪纹路的宽度      |
+| - securityPatternLength | 设置防伪纹路的长度      |
+| - securityPatternCount | 设置防伪纹路的数量      |
+| - securityPatternAngleRange | 设置防伪纹路的角度范围    |
+| ICompany | 控制印章公司相关的参数    |
+| - companyName | 设置公司名称         |
+| - compression | 控制公司名称的压缩比例    |
+| - borderOffset | 设置边框偏移量        |
+| - textDistributionFactor | 控制文字分布因子       |
+| - fontFamily | 设置字体           |
+| - fontHeight | 设置字体高度         |
+| - adjustEllipseText | 是否调整椭圆文字间距     |
+| - adjustEllipseTextFactor | 椭圆文字间距调整因子     |
+| ICode | 控制印章编码相关的参数    |
+| - code | 设置编码内容         |
+| - compression | 控制编码的压缩比例      |
+| - fontHeight | 设置编码字体大小       |
+| - fontFamily | 设置编码字体         |
+| - borderOffset | 设置编码边框偏移量      |
+| - fontWidth | 设置编码字体宽度       |
+| - textDistributionFactor | 控制编码文字分布因子     |
+| ITaxNumber | 控制税号相关的参数      |
+| - code | 设置税号内容         |
+| - compression | 控制税号的压缩比例      |
+| - fontHeight | 设置税号字体大小       |
+| - fontFamily | 设置税号字体         |
+| - fontWidth | 设置税号字体宽度       |
+| - letterSpacing | 控制税号字符间距       |
+| - positionY | 设置税号文字垂直位置     |
+| - totalWidth | 设置税号文字总宽度      |
+| IAgingEffectParams | 控制做旧效果的相关参数    |
+| - x | 设置做旧效果的 x 轴位置  |
+| - y | 设置做旧效果的 y 轴位置  |
+| - noiseSize | 控制噪声大小         |
+| - noise | 控制噪声强度         |
+| - strongNoiseSize | 控制强噪声大小        |
+| - strongNoise | 控制强噪声强度        |
+| - fade | 控制淡化强度         |
+| - seed | 设置随机种子         |
 | IRoughEdge | 控制印章边缘毛边效果的相关参数 |
-| - shouldDrawRoughEdge | 是否绘制毛边效果 |
-| - roughEdgeWidth | 设置毛边宽度 |
-| - roughEdgeHeight | 设置毛边高度 |
-| - roughEdgeProbability | 控制毛边出现的概率 |
-| - roughEdgeShift | 设置毛边偏移量 |
-| - roughEdgePoints | 设置毛边点的数量 |
-| IStampType | 控制印章类型文字的相关参数 |
-| - stampType | 设置印章类型文字 |
-| - fontHeight | 设置印章类型文字高度 |
-| - compression | 设置印章类型文字压缩比例 |
-| - letterSpacing | 设置印章类型文字字符间距 |
-| - positionY | 设置印章类型文字位置 |
-| - fontWidth | 设置印章类型文字宽度 |
-| - lineSpacing | 设置印章类型文字行间距 |
-| IDrawStar | 控制五角星/图片相关的参数 |
-| - drawStar | 是否绘制五角星/图片 |
-| - useImage | 是否使用图片代替五角星 |
-| - imageUrl | 图片的URL |
-| - imageWidth | 图片宽度(mm) |
-| - imageHeight | 图片高度(mm) |
-| - keepAspectRatio | 是否保持图片原始宽高比 |
+| - shouldDrawRoughEdge | 是否绘制毛边效果       |
+| - roughEdgeWidth | 设置毛边宽度         |
+| - roughEdgeHeight | 设置毛边高度         |
+| - roughEdgeProbability | 控制毛边出现的概率      |
+| - roughEdgeShift | 设置毛边偏移量        |
+| - roughEdgePoints | 设置毛边点的数量       |
+| IStampType | 控制印章类型文字的相关参数  |
+| - stampType | 设置印章类型文字       |
+| - fontHeight | 设置印章类型文字高度     |
+| - compression | 设置印章类型文字压缩比例   |
+| - letterSpacing | 设置印章类型文字字符间距   |
+| - positionY | 设置印章类型文字位置     |
+| - fontWidth | 设置印章类型文字宽度     |
+| - lineSpacing | 设置印章类型文字行间距    |
+| IDrawStar | 控制五角星/图片相关的参数  |
+| - drawStar | 是否绘制五角星/图片     |
+| - useImage | 是否使用图片代替五角星    |
+| - imageUrl | 图片的URL         |
+| - imageWidth | 图片宽度(mm)       |
+| - imageHeight | 图片高度(mm)       |
+| - keepAspectRatio | 是否保持图片原始宽高比    |
 | - starDiameter | 五角星直径（使用五角星时有效） |
-| - starPositionY | 五角星/图片的垂直位置 |
+| - starPositionY | 五角星/图片的垂直位置    |
 | companyList | 公司名称列表，支持多行公司名称 |
-| - companyName | 设置公司名称 |
-| - compression | 控制公司名称的压缩比例 |
-| - borderOffset | 设置边框偏移量 |
-| - textDistributionFactor | 控制文字分布因子 |
-| - fontFamily | 设置字体 |
-| - fontHeight | 设置字体高度 |
-| - fontWeight | 设置字体粗细 |
-| - adjustEllipseText | 是否调整椭圆文字间距 |
-| - adjustEllipseTextFactor | 椭圆文字间距调整因子 |
+| - companyName | 设置公司名称         |
+| - compression | 控制公司名称的压缩比例    |
+| - borderOffset | 设置边框偏移量        |
+| - textDistributionFactor | 控制文字分布因子       |
+| - fontFamily | 设置字体           |
+| - fontHeight | 设置字体高度         |
+| - fontWeight | 设置字体粗细         |
+| - adjustEllipseText | 是否调整椭圆文字间距     |
+| - adjustEllipseTextFactor | 椭圆文字间距调整因子     |
 | stampTypeList | 印章类型列表，支持多行印章类型 |
-| - stampType | 设置印章类型文字 |
-| - fontHeight | 设置字体高度 |
-| - fontFamily | 设置字体 |
-| - compression | 设置压缩比例 |
-| - letterSpacing | 设置字符间距 |
-| - positionY | 设置垂直位置 |
-| - fontWidth | ��置字体宽度 |
-| - fontWeight | 设置字体粗细 |
-| - lineSpacing | 设置行间距 |
+| - stampType | 设置印章类型文字       |
+| - fontHeight | 设置字体高度         |
+| - fontFamily | 设置字体           |
+| - compression | 设置压缩比例         |
+| - letterSpacing | 设置字符间距         |
+| - positionY | 设置垂直位置         |
+| - fontWidth | 设置字体宽度         |
+| - fontWeight | 设置字体粗细         |
+| - lineSpacing | 设置行间距          |
 | innerCircleList | 内圈圆形列表，支持多个内圈圆形 |
-| - drawInnerCircle | 是否绘制该内圈圆形 |
-| - innerCircleLineWidth | 设置内圈圆形的线宽 |
-| - innerCircleLineRadiusX | 设置内圈圆形的水平半径 |
-| - innerCircleLineRadiusY | 设置内圈圆形的垂直半径 |
+| - drawInnerCircle | 是否绘制该内圈圆形      |
+| - innerCircleLineWidth | 设置内圈圆形的线宽      |
+| - innerCircleLineRadiusX | 设置内圈圆形的水平半径    |
+| - innerCircleLineRadiusY | 设置内圈圆形的垂直半径    |
 
 
 完整示例
