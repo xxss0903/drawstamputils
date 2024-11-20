@@ -16,7 +16,6 @@
 ## 简介
 
 DrawStampUtils.js 是一个使用 TypeScript 制作电子印章的工具。该项目Demo使用 Vue 3，源码使用TypeScript，并通过 Vite 进行开发和构建。<br>
-[预览地址](https://xxss0903.github.io/drawstamputils/) <br>
 为了减少大小，提取印章添加到了新的库 [extractstamp](https://github.com/xxss0903/extractstamp)
 
 ## 目录
