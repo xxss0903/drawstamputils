@@ -77,7 +77,7 @@
           <label
             >圆形边框宽度 (mm): <input type="number" step="0.1" v-model.number="circleBorderWidth"
           /></label>
-          <label>圆形边框颜色: <input type="color" v-model="circleBorderColor" /></label>
+          <label>圆形边框颜色: <input type="color" v-model="primaryColor" /></label>
         </div>
       </div>
 
@@ -666,8 +666,8 @@ const codeFontWidthMM = ref(1.2)
 const circleRadius = ref(20)
 // 圆形边框宽度（毫米）
 const circleBorderWidth = ref(1)
-// 圆形边框颜色
-const circleBorderColor = ref('#ff0000')
+// 主题颜色
+const primaryColor = ref('#ff0000')
 // 五角星直径（毫米）
 const starDiameter = ref(14)
 // 做旧效果
@@ -1016,7 +1016,7 @@ const updateDrawConfigs = () => {
   code.textDistributionFactor = codeDistributionFactor.value
   code.fontWeight = codeFontWeight.value
   // 印章配置
-  drawConfigs.primaryColor = circleBorderColor.value
+  drawConfigs.primaryColor = primaryColor.value
   drawConfigs.borderWidth = circleBorderWidth.value
   drawConfigs.width = drawStampWidth.value
   drawConfigs.height = drawStampHeight.value
@@ -1103,7 +1103,7 @@ const restoreDrawConfigs = () => {
   drawStampWidth.value = drawConfigs.width
   drawStampHeight.value = drawConfigs.height
   circleBorderWidth.value = drawConfigs.borderWidth
-  circleBorderColor.value = drawConfigs.primaryColor
+  primaryColor.value = drawConfigs.primaryColor
 
   // 公司名称
   companyName.value = drawConfigs.company.companyName
@@ -1202,7 +1202,7 @@ watch(
     codeFontSizeMM,
     circleRadius,
     circleBorderWidth,
-    circleBorderColor,
+    primaryColor,
     starDiameter,
     codeDistributionFactor,
     textDistributionFactor,
@@ -1320,40 +1320,6 @@ const stampTypePresets = ref<StampTypePreset[]>([
   }
 ])
 
-const selectedPreset = ref('')
-
-// 应用预设模板
-const applyPreset = () => {
-  const preset = stampTypePresets.value.find(p => p.id === selectedPreset.value)
-  if (preset) {
-    bottomText.value = preset.text
-    bottomTextFontSizeMM.value = preset.fontSize
-    bottomTextLetterSpacing.value = preset.letterSpacing
-    bottomTextLineSpacing.value = preset.lineSpacing
-    bottomTextPositionY.value = preset.positionY
-    bottomTextCompression.value = preset.compression
-  }
-}
-
-// 保存当前设置为新预设
-const saveAsPreset = () => {
-  const presetName = prompt('请输入预设名称：')
-  if (presetName) {
-    const newPreset: StampTypePreset = {
-      id: Date.now().toString(),
-      name: presetName,
-      text: bottomText.value,
-      fontSize: bottomTextFontSizeMM.value,
-      letterSpacing: bottomTextLetterSpacing.value,
-      lineSpacing: bottomTextLineSpacing.value,
-      positionY: bottomTextPositionY.value,
-      compression: bottomTextCompression.value
-    }
-    stampTypePresets.value.push(newPreset)
-    selectedPreset.value = newPreset.id
-  }
-}
-
 // 可以选择性地添加持久化存储功能
 const savePresetsToLocalStorage = () => {
   localStorage.setItem('stampTypePresets', JSON.stringify(stampTypePresets.value))
@@ -1369,7 +1335,6 @@ const loadPresetsFromLocalStorage = () => {
 // 在组件挂载时加载保存的预设
 onMounted(() => {
   loadPresetsFromLocalStorage()
-  // ... 其他现有的 onMounted 代码 ...
 })
 
 // 在预设变化时保存

@@ -160,7 +160,7 @@ export class DrawStampUtils {
   private scale: number = 1;
   private offsetX: number = 0;
   private offsetY: number = 0;
-  // 主色
+  // 默认主色
   private primaryColor: string = '#ff0000'
   // 毫米到像素的
   private mmToPixel: number
@@ -817,7 +817,7 @@ export class DrawStampUtils {
     const path = new Path2D(svgPath);
 
     // 填充路径
-    ctx.fillStyle = this.primaryColor;
+    ctx.fillStyle = this.drawStampConfigs.primaryColor;
     ctx.fill(path);
 
     // 如果需要描边，可以添加以下代码
@@ -983,7 +983,7 @@ export class DrawStampUtils {
       }
     });
 
-    ctx.fillStyle = this.primaryColor;
+    ctx.fillStyle = this.drawStampConfigs.primaryColor;
     ctx.fill();
 
     ctx.restore();
@@ -1012,10 +1012,10 @@ export class DrawStampUtils {
     // 将绘制原点移到中心
     ctx.translate(-svgViewBox[2] / 2, -svgViewBox[3] / 2);
 
-    ctx.fillStyle = this.primaryColor;
+    ctx.fillStyle = this.drawStampConfigs.primaryColor;
     ctx.fill(path);
 
-    ctx.strokeStyle = this.primaryColor;
+    ctx.strokeStyle = this.drawStampConfigs.primaryColor;
     ctx.lineWidth = 1.5 / scale; // 保持线宽一致
     ctx.stroke(path);
 
@@ -1177,7 +1177,7 @@ export class DrawStampUtils {
 
     ctx.save()
     ctx.font = `${fontWeight} ${fontSize}px ${stampType.fontFamily}`
-    ctx.fillStyle = this.primaryColor
+    ctx.fillStyle = this.drawStampConfigs.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
@@ -1331,7 +1331,8 @@ export class DrawStampUtils {
     const fontWeight = company.fontWeight || 'normal'; // 新增字体粗细参数
     ctx.save()
     ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`;
-    ctx.fillStyle = this.primaryColor
+    console.log('company primaryColor', this.drawStampConfigs.primaryColor)
+    ctx.fillStyle = this.drawStampConfigs.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'bottom'
 
@@ -1409,7 +1410,7 @@ export class DrawStampUtils {
 
     ctx.save()
     ctx.font = `${fontWeight} ${fontSize}px ${code.fontFamily}`;
-    ctx.fillStyle = this.primaryColor
+    ctx.fillStyle = this.drawStampConfigs.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
@@ -1460,7 +1461,7 @@ export class DrawStampUtils {
     ctx.save()
 
     ctx.font = `${fontWeight} ${fontSize}px ${taxNumber.fontFamily}`;
-    ctx.fillStyle = this.primaryColor
+    ctx.fillStyle = this.drawStampConfigs.primaryColor
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
@@ -1490,18 +1491,6 @@ export class DrawStampUtils {
       ctx.restore()
     })
     ctx.restore()
-
-    // // 绘制包含税号的矩形
-    // const rectWidth = 26 * this.mmToPixel // 26mm 转换为像素
-    // const rectHeight = fontSize * 1.2 // 矩形高度略大于字体大小
-    // const rectX = centerX - rectWidth / 2
-    // const rectY = adjustedCenterY - rectHeight / 2
-
-    // ctx.save()
-    // ctx.strokeStyle = this.primaryColor
-    // ctx.lineWidth = 1
-    // ctx.strokeRect(rectX, rectY, rectWidth, rectHeight)
-    // ctx.restore()
   }
 
   /**
@@ -1979,7 +1968,7 @@ private addCircularNoise(
     // 在离屏 canvas 上绘制印章基本形状
     offscreenCtx.beginPath()
     offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
-    offscreenCtx.strokeStyle = borderColor
+    offscreenCtx.strokeStyle = this.drawStampConfigs.primaryColor
     offscreenCtx.lineWidth = borderWidth
     offscreenCtx.stroke()
 
