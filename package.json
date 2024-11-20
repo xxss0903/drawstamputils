@@ -1,7 +1,7 @@
 {
   "name": "drawstamputils",
   "private": false,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "drawstamputils, stamp maker, manual aging stamp",
   "keywords": ["stamp.js", "drawStampUtils.js", "stamp", "drawstamp", "印章制作", "电子印章", "stamp maker", "digital seal", "印章生成", "电子印章生成", "印章生成器", "电子印章生成器"],
   "type": "module",
