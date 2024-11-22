@@ -1398,8 +1398,6 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.innerCircleList.length > 0) {
             this.drawInnerCircleList(offscreenCtx, centerX, centerY, borderColor)
         }
-        // 绘制防伪纹路
-        this.drawSecurityPattern(offscreenCtx, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
         // 如果没有图片，绘制五角星
         if (this.drawStampConfigs.drawStar.drawStar && !this.drawStampConfigs.drawStar.useImage) {
             this.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY)
@@ -1420,6 +1418,8 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
             this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshOld)
         }
+        // 绘制防伪纹路
+        this.drawSecurityPattern(offscreenCtx, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
         // 设置合成模式，确保印章内容只在椭圆区域内显示
         ctx.globalCompositeOperation = 'source-over'
         ctx.drawImage(offscreenCanvas, 0, 0)

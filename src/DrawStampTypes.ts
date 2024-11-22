@@ -35,6 +35,7 @@ export type ICompany = {
     shape: 'ellipse' | 'rectangle' // 新增：印章形状
     adjustEllipseText: boolean // 是否调整椭圆
     adjustEllipseTextFactor: number // 调整椭圆的因子
+    color: string // 颜色
 }
 
 // 印章编码
@@ -47,6 +48,7 @@ export type ICode = {
     fontWidth: number // 编码字体宽度
     textDistributionFactor: number // 文字分布因子
     fontWeight: string | number // 编码字体粗细
+    color: string // 颜色
 }
 
 export type ITaxNumber = {
@@ -59,6 +61,7 @@ export type ITaxNumber = {
     positionY: number // 编码文字位置
     totalWidth: number // 编码文字总宽度
     fontWeight: string | number // 税号字体粗细
+    color: string // 颜色
 }
 
 // 做旧效果参数
@@ -92,6 +95,7 @@ export type IDrawStar = {
     imageWidth: number // 图片宽度(mm)
     imageHeight: number // 图片高度(mm)
     keepAspectRatio: boolean // 是否保持宽高比
+    color: string // 颜色
 }
 
 // 印章类型
@@ -105,6 +109,7 @@ export type IStampType = {
     fontWidth: number // 字体宽度
     fontWeight: string | number // 字体粗细
     lineSpacing: number // 新增：行间距
+    color: string // 颜色
 }
 
 // 内圈圆
@@ -113,6 +118,7 @@ export type IInnerCircle = {
     innerCircleLineWidth: number // 内圈圆线宽
     innerCircleLineRadiusX: number // x轴半径
     innerCircleLineRadiusY: number // y轴半径
+    color: string // 颜色
 }
 
 // 是否绘制标尺
