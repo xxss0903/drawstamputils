@@ -1450,7 +1450,7 @@
     "roughEdgePoints": 360
   },
   "ruler": {
-    "showRuler": true,
+    "showRuler": false,
     "showFullRuler": true
   },
   "drawStar": {

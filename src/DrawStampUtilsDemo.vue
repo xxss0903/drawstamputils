@@ -637,18 +637,19 @@
       </div>
       
       <div class="template-list">
-        <div v-for="(template, index) in templateList" 
-             :key="index" 
-             class="template-item"
-             :class="{ 'active': currentTemplateIndex === index }"
-             @click="loadTemplate(template)">
-          <div class="template-preview">
-            <img :src="template.preview" alt="模板预览" />
-          </div>
-          <div class="template-info">
-            <span class="template-name">{{ template.name }}</span>
-            <div class="template-actions">
-              <button class="delete-template" @click.stop="deleteTemplate(index)">删除</button>
+        <!-- 默认模板 -->
+        <div class="template-category">
+          <h4>默认模板</h4>
+          <div v-for="(template, index) in defaultTemplates" 
+               :key="'default-' + index" 
+               class="template-item"
+               :class="{ 'active': currentTemplateIndex === (-1 - index) }"
+               @click="loadDefaultTemplate(template)">
+            <div class="template-preview">
+              <img :src="template.preview" alt="模板预览" />
+            </div>
+            <div class="template-info">
+              <span class="template-name">{{ template.name }}</span>
             </div>
           </div>
         </div>
@@ -660,6 +661,7 @@
 import { ref, onMounted, watch } from 'vue'
 import {
   DrawStampUtils,
+  IDrawStampConfig,
   IRoughEdge,
   type ICode,
   type ICompany,
@@ -670,6 +672,8 @@ import {
   type ITaxNumber
 } from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
+import contractStamp1 from './assets/templates/contractStamp1.json'
+
 
 const editorControls = ref<HTMLDivElement | null>(null)
 const stampCanvas = ref<HTMLCanvasElement | null>(null)
@@ -1426,31 +1430,16 @@ const toggleGroup = (groupName: string) => {
 interface Template {
   name: string;
   preview: string;
-  config: any;
+  config: IDrawStampConfig;
 }
 
 // 添加模板相关的响应式数据
-const templateList = ref<Template[]>([])
 const currentTemplateIndex = ref(-1)
 
 // 保存当前设置为模板
 const saveCurrentAsTemplate = async () => {
   const name = prompt('请输入模板名称')
   if (!name) return
-
-  // 获取当前配置
-  const config = drawStampUtils.getDrawConfigs()
-  
-  // 生成预览图
-  const preview = stampCanvas.value?.toDataURL('image/png')
-  
-  // 添加到模板列表
-  templateList.value.push({
-    name,
-    preview: preview || '',
-    config: JSON.parse(JSON.stringify(config))
-  })
-  
   // 保存到本地存储
   saveTemplatesToStorage()
 }
@@ -1458,24 +1447,20 @@ const saveCurrentAsTemplate = async () => {
 // 加载模板
 const loadDefaultTemplate = (template: Template) => {
   try {
+    // 设置新的配置
     drawStampUtils.setDrawConfigs(template.config)
+    
+    // 恢复界面显示
     restoreDrawConfigs()
+    
+    // 刷新印章显示
     drawStamp()
-    currentTemplateIndex.value = templateList.value.findIndex(t => t === template)
+    
+    // 更新当前选中的模板索引（使用负数表示默认模板）
+    currentTemplateIndex.value = -1 - defaultTemplates.findIndex(t => t === template)
   } catch (error) {
-    console.error('加载模板失败:', error)
-    alert('加载模板失败')
-  }
-}
-
-// 删除模板
-const deleteTemplate = (index: number) => {
-  if (confirm('确定要删除这个模板吗？')) {
-    templateList.value.splice(index, 1)
-    if (currentTemplateIndex.value === index) {
-      currentTemplateIndex.value = -1
-    }
-    saveTemplatesToStorage()
+    console.error('加载默认模板失败:', error)
+    alert('加载默认模板失败')
   }
 }
 
@@ -1486,15 +1471,21 @@ const saveTemplatesToStorage = () => {
 
 // 从本地存储加载模板列表
 const loadTemplatesFromStorage = () => {
-  const saved = localStorage.getItem('stampTemplates')
-  if (saved) {
-    templateList.value = JSON.parse(saved)
-  } else {
-    // 如果本地存储中没有模板，加载默认模板
-    templateList.value = defaultTemplates
-    // 保存默认模板到本地存储
-    saveTemplatesToStorage()
-  }
+  // 生成默认模板的预览图
+  defaultTemplates.forEach(async (template) => {
+    // 临时创建一个 canvas 生成预览图
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = 300
+    tempCanvas.height = 300
+    const tempDrawStampUtils = new DrawStampUtils(tempCanvas, MM_PER_PIXEL)
+    template.config.ruler.showRuler = false;
+    // 设置模板配置
+    tempDrawStampUtils.setDrawConfigs(template.config)
+    tempDrawStampUtils.refreshStamp()
+    
+    // 生成预览图
+    template.preview = tempCanvas.toDataURL('image/png')
+  })
 }
 
 // 在组件挂载时加载保存的模板
@@ -1505,151 +1496,9 @@ onMounted(() => {
 // 添加默认模板的类型定义和数据
 const defaultTemplates: Template[] = [
   {
-    name: '公司合同专用章',
-    preview: '', // 预览图会在加载时生成
-    config: {
-      width: 40,
-      height: 40,
-      borderWidth: 1,
-      primaryColor: '#ff0000',
-      companyList: [{
-        companyName: '某某科技有限公司',
-        compression: 1,
-        borderOffset: 1,
-        textDistributionFactor: 3,
-        fontFamily: 'SimSun',
-        fontHeight: 4.2,
-        fontWeight: 'normal',
-        shape: 'ellipse',
-        adjustEllipseText: false,
-        adjustEllipseTextFactor: 0.5
-      }],
-      stampTypeList: [{
-        stampType: '合同专用章',
-        fontHeight: 4.6,
-        fontFamily: 'SimSun',
-        compression: 0.75,
-        letterSpacing: 0,
-        positionY: -3,
-        fontWeight: 'normal',
-        lineSpacing: 2,
-        fontWidth: 3
-      }],
-      innerCircleList: [
-        {
-          drawInnerCircle: true,
-          innerCircleLineWidth: 0.5,
-          innerCircleLineRadiusX: 36,
-          innerCircleLineRadiusY: 36
-        },
-        {
-          drawInnerCircle: true,
-          innerCircleLineWidth: 0.5,
-          innerCircleLineRadiusX: 16,
-          innerCircleLineRadiusY: 16
-        }
-      ],
-      drawStar: {
-        drawStar: true,
-        useImage: false,
-        starDiameter: 14,
-        starPositionY: 0
-      }
-    }
-  },
-  {
-    name: '发票专用章',
+    name: '合同印章',
     preview: '',
-    config: {
-      width: 40,
-      height: 40,
-      borderWidth: 1,
-      primaryColor: '#ff0000',
-      companyList: [{
-        companyName: '某某贸易有限公司',
-        compression: 1,
-        borderOffset: 1,
-        textDistributionFactor: 3,
-        fontFamily: 'SimSun',
-        fontHeight: 4.2,
-        fontWeight: 'normal',
-        shape: 'ellipse',
-        adjustEllipseText: false,
-        adjustEllipseTextFactor: 0.5
-      }],
-      stampTypeList: [{
-        stampType: '发票专用章',
-        fontHeight: 4.2,
-        fontFamily: 'SimSun',
-        compression: 0.75,
-        letterSpacing: 0,
-        positionY: -4,
-        fontWeight: 'normal',
-        lineSpacing: 1.5,
-        fontWidth: 3
-      }],
-      innerCircleList: [
-        {
-          drawInnerCircle: true,
-          innerCircleLineWidth: 0.5,
-          innerCircleLineRadiusX: 36,
-          innerCircleLineRadiusY: 36
-        }
-      ],
-      drawStar: {
-        drawStar: true,
-        useImage: false,
-        starDiameter: 14,
-        starPositionY: 0
-      }
-    }
-  },
-  {
-    name: '财务专用章',
-    preview: '',
-    config: {
-      width: 40,
-      height: 40,
-      borderWidth: 1,
-      primaryColor: '#ff0000',
-      companyList: [{
-        companyName: '某某企业集团',
-        compression: 1,
-        borderOffset: 1,
-        textDistributionFactor: 3,
-        fontFamily: 'SimSun',
-        fontHeight: 4.2,
-        fontWeight: 'normal',
-        shape: 'ellipse',
-        adjustEllipseText: false,
-        adjustEllipseTextFactor: 0.5
-      }],
-      stampTypeList: [{
-        stampType: '财务专用章\n仅限报销使用',
-        fontHeight: 4.0,
-        fontFamily: 'SimSun',
-        compression: 0.85,
-        letterSpacing: 0,
-        positionY: -3,
-        fontWeight: 'normal',
-        lineSpacing: 1.8,
-        fontWidth: 3
-      }],
-      innerCircleList: [
-        {
-          drawInnerCircle: true,
-          innerCircleLineWidth: 0.5,
-          innerCircleLineRadiusX: 36,
-          innerCircleLineRadiusY: 36
-        }
-      ],
-      drawStar: {
-        drawStar: true,
-        useImage: false,
-        starDiameter: 14,
-        starPositionY: 0
-      }
-    }
+    config: contractStamp1 as IDrawStampConfig
   }
 ]
 </script>
