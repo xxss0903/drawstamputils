@@ -159,9 +159,9 @@
               <input
                 type="range"
                 v-model.number="company.textDistributionFactor"
-                min="1"
+                min="0"
                 max="50"
-                step="0.5"
+                step="0.1"
               />
               <span>{{ company.textDistributionFactor.toFixed(1) }}</span>
             </label>
@@ -659,20 +659,12 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import {
-  DrawStampUtils,
-  IDrawStampConfig,
-  IRoughEdge,
-  type ICode,
-  type ICompany,
-  type IDrawStar,
-  type IInnerCircle,
-  type ISecurityPattern,
-  type IStampType,
-  type ITaxNumber
-} from './DrawStampUtils'
+import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
 import contractStamp1 from './assets/templates/contractStamp1.json'
+import companyStamp1 from './assets/templates/companyStamp1.json'
+import companyStamp2 from './assets/templates/companyStamp2.json'
+import { ICode, ICompany, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
 
 
 const editorControls = ref<HTMLDivElement | null>(null)
@@ -771,7 +763,7 @@ const showLegalDialog = ref(false) // 是否显示法律提示弹窗
 // 添加印章类型列表的响式数据
 const stampTypeList = ref<IStampType[]>([
   {
-    stampType: '发票专用章',
+    stampType: '印章类型',
     fontHeight: 4.6,
     fontFamily: 'SimSun',
     compression: 0.75,
@@ -1332,7 +1324,7 @@ const stampTypePresets = ref<StampTypePreset[]>([
   },
   {
     id: 'invoice',
-    name: '发票专用章',
+    name: '印章类型',
     text: '发票专章\n增值税专用',
     fontSize: 4.2,
     letterSpacing: 0,
@@ -1447,15 +1439,21 @@ const saveCurrentAsTemplate = async () => {
 // 加载模板
 const loadDefaultTemplate = (template: Template) => {
   try {
+    const newConfig = JSON.parse(JSON.stringify(template.config)) as IDrawStampConfig
+    newConfig.ruler.showRuler = true
+    newConfig.ruler.showFullRuler = true
+    newConfig.ruler.showSideRuler = true
+    newConfig.ruler.showCrossLine = true
+    newConfig.ruler.showCurrentPositionText = true
+    newConfig.ruler.showDashLine = true
+
+    console.log("load template", template, newConfig)
     // 设置新的配置
-    drawStampUtils.setDrawConfigs(template.config)
-    
+    drawStampUtils.setDrawConfigs(newConfig)
     // 恢复界面显示
     restoreDrawConfigs()
-    
     // 刷新印章显示
     drawStamp()
-    
     // 更新当前选中的模板索引（使用负数表示默认模板）
     currentTemplateIndex.value = -1 - defaultTemplates.findIndex(t => t === template)
   } catch (error) {
@@ -1475,8 +1473,8 @@ const loadTemplatesFromStorage = () => {
   defaultTemplates.forEach(async (template) => {
     // 临时创建一个 canvas 生成预览图
     const tempCanvas = document.createElement('canvas')
-    tempCanvas.width = 300
-    tempCanvas.height = 300
+    tempCanvas.width = 400
+    tempCanvas.height = 400
     const tempDrawStampUtils = new DrawStampUtils(tempCanvas, MM_PER_PIXEL)
     template.config.ruler.showRuler = false;
     // 设置模板配置
@@ -1499,6 +1497,15 @@ const defaultTemplates: Template[] = [
     name: '合同印章',
     preview: '',
     config: contractStamp1 as IDrawStampConfig
+  },
+  {
+    name: '公司印章1',
+    preview: '',
+    config: companyStamp1 as IDrawStampConfig
+  }, {
+    name: '公司印章2',
+    preview: '',
+    config: companyStamp2 as IDrawStampConfig
   }
 ]
 </script>

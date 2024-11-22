@@ -97,7 +97,7 @@ export class DrawStampUtils {
         fontWeight: 'normal',
     }
     private stampType: IStampType = {
-        stampType: '发票专用章',
+        stampType: '印章类型',
         fontHeight: 4.6,
         fontFamily: 'Arial',
         fontWidth: 3,
@@ -141,7 +141,7 @@ export class DrawStampUtils {
     // 印章类型列表，用于多行的文字显示，且可以设置每行的高度和文字宽度，默认添加一个发票专用章类型
     private stampTypeList: IStampType[] = [
         {
-            stampType: '发票专用章',
+            stampType: '印章类型',
             fontHeight: 4.6,
             fontFamily: 'Arial',
             fontWidth: 3,
@@ -1418,8 +1418,11 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
             this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshOld)
         }
-        // 绘制防伪纹路
-        this.drawSecurityPattern(offscreenCtx, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
+        if(this.drawStampConfigs.securityPattern.openSecurityPattern) {
+            // 绘制防伪纹路
+            this.drawSecurityPattern(offscreenCtx, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
+        }
+
         // 设置合成模式，确保印章内容只在椭圆区域内显示
         ctx.globalCompositeOperation = 'source-over'
         ctx.drawImage(offscreenCanvas, 0, 0)

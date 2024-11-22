@@ -81,7 +81,7 @@ button:focus-visible {
 /* 容器样式 */
 .container {
   display: flex;
-  height: 90vh;
+  height: 80vh;
   overflow: hidden;
   gap: 0;
   padding-top: 140px; /* 根据免责声明的实际高度调整 */
