@@ -21,7 +21,7 @@
 
   <div class="container">
     <!-- 修改法律免责说明 -->
-    <div class="legal-disclaimer">
+    <div class="legal-disclaimer" v-if="false">
       <div class="disclaimer-content">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
@@ -626,6 +626,34 @@
 
       <canvas ref="stampCanvas" width="600" height="600"></canvas>
     </div>
+
+    <!-- 添加模板列表面板 -->
+    <div class="template-panel">
+      <div class="template-header">
+        <h3>常用模板</h3>
+        <button class="add-template" @click="saveCurrentAsTemplate">
+          <span>+</span> 保存当前为模板
+        </button>
+      </div>
+      
+      <div class="template-list">
+        <div v-for="(template, index) in templateList" 
+             :key="index" 
+             class="template-item"
+             :class="{ 'active': currentTemplateIndex === index }"
+             @click="loadTemplate(template)">
+          <div class="template-preview">
+            <img :src="template.preview" alt="模板预览" />
+          </div>
+          <div class="template-info">
+            <span class="template-name">{{ template.name }}</span>
+            <div class="template-actions">
+              <button class="delete-template" @click.stop="deleteTemplate(index)">删除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -684,7 +712,7 @@ const adjustEllipseText = ref(false)
 const adjustEllipseTextFactor = ref(0.5)
 // 文字边距，控制公司名称文字距离椭圆边缘的距离（单位：毫米）
 const textMarginMM = ref(1) // 默认值为1mm
-// 编码边距，控制印章编码距离椭圆边缘的距离（单位��毫米）
+// 编码边距，控制印章编码距离椭圆边缘的距离（单位毫米）
 const codeMarginMM = ref(1) // 默认值为1mm
 // 编码分布因子，控制印章编码在椭圆下方的分布范围
 const codeDistributionFactor = ref(20) // 默认值可以根据需要调整
@@ -714,7 +742,7 @@ const securityPatternDensity = ref(0.5)
 const securityPatternWidth = ref(0.2) // 纹路宽度，单位为毫米
 const securityPatternColor = ref('#FF0000')
 const securityPatternCount = ref(5) // 防伪纹路数量
-const securityPatternLength = ref(2) // 纹路长度，单���为毫米
+const securityPatternLength = ref(2) // 纹路长度，单为毫米
 const showFullRuler = ref(false)
 const shouldDrawStar = ref(false) // 默认绘制五角星
 const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
@@ -1393,6 +1421,237 @@ const expandedGroups = ref({
 const toggleGroup = (groupName: string) => {
   expandedGroups.value[groupName] = !expandedGroups.value[groupName]
 }
+
+// 添加模板相关的类型定义
+interface Template {
+  name: string;
+  preview: string;
+  config: any;
+}
+
+// 添加模板相关的响应式数据
+const templateList = ref<Template[]>([])
+const currentTemplateIndex = ref(-1)
+
+// 保存当前设置为模板
+const saveCurrentAsTemplate = async () => {
+  const name = prompt('请输入模板名称')
+  if (!name) return
+
+  // 获取当前配置
+  const config = drawStampUtils.getDrawConfigs()
+  
+  // 生成预览图
+  const preview = stampCanvas.value?.toDataURL('image/png')
+  
+  // 添加到模板列表
+  templateList.value.push({
+    name,
+    preview: preview || '',
+    config: JSON.parse(JSON.stringify(config))
+  })
+  
+  // 保存到本地存储
+  saveTemplatesToStorage()
+}
+
+// 加载模板
+const loadDefaultTemplate = (template: Template) => {
+  try {
+    drawStampUtils.setDrawConfigs(template.config)
+    restoreDrawConfigs()
+    drawStamp()
+    currentTemplateIndex.value = templateList.value.findIndex(t => t === template)
+  } catch (error) {
+    console.error('加载模板失败:', error)
+    alert('加载模板失败')
+  }
+}
+
+// 删除模板
+const deleteTemplate = (index: number) => {
+  if (confirm('确定要删除这个模板吗？')) {
+    templateList.value.splice(index, 1)
+    if (currentTemplateIndex.value === index) {
+      currentTemplateIndex.value = -1
+    }
+    saveTemplatesToStorage()
+  }
+}
+
+// 保存模板列表到本地存储
+const saveTemplatesToStorage = () => {
+  localStorage.setItem('stampTemplates', JSON.stringify(templateList.value))
+}
+
+// 从本地存储加载模板列表
+const loadTemplatesFromStorage = () => {
+  const saved = localStorage.getItem('stampTemplates')
+  if (saved) {
+    templateList.value = JSON.parse(saved)
+  } else {
+    // 如果本地存储中没有模板，加载默认模板
+    templateList.value = defaultTemplates
+    // 保存默认模板到本地存储
+    saveTemplatesToStorage()
+  }
+}
+
+// 在组件挂载时加载保存的模板
+onMounted(() => {
+  loadTemplatesFromStorage()
+})
+
+// 添加默认模板的类型定义和数据
+const defaultTemplates: Template[] = [
+  {
+    name: '公司合同专用章',
+    preview: '', // 预览图会在加载时生成
+    config: {
+      width: 40,
+      height: 40,
+      borderWidth: 1,
+      primaryColor: '#ff0000',
+      companyList: [{
+        companyName: '某某科技有限公司',
+        compression: 1,
+        borderOffset: 1,
+        textDistributionFactor: 3,
+        fontFamily: 'SimSun',
+        fontHeight: 4.2,
+        fontWeight: 'normal',
+        shape: 'ellipse',
+        adjustEllipseText: false,
+        adjustEllipseTextFactor: 0.5
+      }],
+      stampTypeList: [{
+        stampType: '合同专用章',
+        fontHeight: 4.6,
+        fontFamily: 'SimSun',
+        compression: 0.75,
+        letterSpacing: 0,
+        positionY: -3,
+        fontWeight: 'normal',
+        lineSpacing: 2,
+        fontWidth: 3
+      }],
+      innerCircleList: [
+        {
+          drawInnerCircle: true,
+          innerCircleLineWidth: 0.5,
+          innerCircleLineRadiusX: 36,
+          innerCircleLineRadiusY: 36
+        },
+        {
+          drawInnerCircle: true,
+          innerCircleLineWidth: 0.5,
+          innerCircleLineRadiusX: 16,
+          innerCircleLineRadiusY: 16
+        }
+      ],
+      drawStar: {
+        drawStar: true,
+        useImage: false,
+        starDiameter: 14,
+        starPositionY: 0
+      }
+    }
+  },
+  {
+    name: '发票专用章',
+    preview: '',
+    config: {
+      width: 40,
+      height: 40,
+      borderWidth: 1,
+      primaryColor: '#ff0000',
+      companyList: [{
+        companyName: '某某贸易有限公司',
+        compression: 1,
+        borderOffset: 1,
+        textDistributionFactor: 3,
+        fontFamily: 'SimSun',
+        fontHeight: 4.2,
+        fontWeight: 'normal',
+        shape: 'ellipse',
+        adjustEllipseText: false,
+        adjustEllipseTextFactor: 0.5
+      }],
+      stampTypeList: [{
+        stampType: '发票专用章',
+        fontHeight: 4.2,
+        fontFamily: 'SimSun',
+        compression: 0.75,
+        letterSpacing: 0,
+        positionY: -4,
+        fontWeight: 'normal',
+        lineSpacing: 1.5,
+        fontWidth: 3
+      }],
+      innerCircleList: [
+        {
+          drawInnerCircle: true,
+          innerCircleLineWidth: 0.5,
+          innerCircleLineRadiusX: 36,
+          innerCircleLineRadiusY: 36
+        }
+      ],
+      drawStar: {
+        drawStar: true,
+        useImage: false,
+        starDiameter: 14,
+        starPositionY: 0
+      }
+    }
+  },
+  {
+    name: '财务专用章',
+    preview: '',
+    config: {
+      width: 40,
+      height: 40,
+      borderWidth: 1,
+      primaryColor: '#ff0000',
+      companyList: [{
+        companyName: '某某企业集团',
+        compression: 1,
+        borderOffset: 1,
+        textDistributionFactor: 3,
+        fontFamily: 'SimSun',
+        fontHeight: 4.2,
+        fontWeight: 'normal',
+        shape: 'ellipse',
+        adjustEllipseText: false,
+        adjustEllipseTextFactor: 0.5
+      }],
+      stampTypeList: [{
+        stampType: '财务专用章\n仅限报销使用',
+        fontHeight: 4.0,
+        fontFamily: 'SimSun',
+        compression: 0.85,
+        letterSpacing: 0,
+        positionY: -3,
+        fontWeight: 'normal',
+        lineSpacing: 1.8,
+        fontWidth: 3
+      }],
+      innerCircleList: [
+        {
+          drawInnerCircle: true,
+          innerCircleLineWidth: 0.5,
+          innerCircleLineRadiusX: 36,
+          innerCircleLineRadiusY: 36
+        }
+      ],
+      drawStar: {
+        drawStar: true,
+        useImage: false,
+        starDiameter: 14,
+        starPositionY: 0
+      }
+    }
+  }
+]
 </script>
 <style scoped>
 .container {
@@ -1875,5 +2134,119 @@ select option:hover {
 
 .confirm-button:hover {
   background-color: #45a049;
+}
+
+.template-panel {
+  width: 250px;
+  background: #fff;
+  border-left: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.template-header {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.add-template {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.template-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.template-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.template-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.template-item.active {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76,175,80,0.2);
+}
+
+.template-preview {
+  height: 150px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background: #f5f5f5;
+}
+
+.template-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.template-info {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-name {
+  font-size: 14px;
+  color: #333;
+}
+
+.template-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.delete-template {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.delete-template:hover {
+  background: #ff7875;
+}
+
+/* 添加分类样式 */
+.template-category {
+  margin-bottom: 20px;
+}
+
+.template-category h4 {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
 }
 </style>
