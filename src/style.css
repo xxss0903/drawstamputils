@@ -492,3 +492,141 @@ canvas {
   padding-bottom: 8px;
   border-bottom: 1px solid #eee;
 }
+
+
+
+/* 修改法律免责说明样式 */
+.legal-disclaimer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2000;
+  background-color: rgba(255, 241, 240, 0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+}
+
+.disclaimer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.warning-icon {
+  font-size: 24px;
+  color: #ff4d4f;
+  flex-shrink: 0;
+}
+
+.warning-text {
+  flex: 1;
+}
+
+.warning-text h3 {
+  color: #ff4d4f;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.warning-text p {
+  color: #cf1322;
+  margin: 4px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.warning-text strong {
+  font-size: 16px;
+}
+
+/* 添加法律提示弹窗样式 */
+.legal-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2100;
+}
+
+.legal-dialog {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.legal-dialog h3 {
+  color: #ff4d4f;
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legal-content {
+  margin-bottom: 20px;
+}
+
+.legal-content p {
+  color: #cf1322;
+  margin-bottom: 12px;
+}
+
+.legal-content ol {
+  color: #666;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.legal-content li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancel-button,
+.confirm-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.cancel-button {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.confirm-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #e8e8e8;
+}
+
+.confirm-button:hover {
+  background-color: #45a049;
+}
