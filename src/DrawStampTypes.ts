@@ -117,8 +117,12 @@ export type IInnerCircle = {
 
 // 是否绘制标尺
 export type IShowRuler = {
-    showRuler: boolean // 是否绘制标尺
+    showSideRuler: boolean // 边缘的标尺
     showFullRuler: boolean // 是否绘全标尺
+    showDashLine: boolean // 是否绘制内部的虚线
+    showRuler: boolean // 是否绘制标尺
+    showCurrentPositionText: boolean // 标尺的尺寸的数字文本
+    showCrossLine: boolean // 标尺的红色横线
 }
 
 // 绘制印章的参数

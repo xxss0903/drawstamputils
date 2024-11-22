@@ -36,7 +36,11 @@ export class DrawStampUtils {
     private agingIntensity: number = 50
     private ruler: IShowRuler = {
         showRuler: true,
-        showFullRuler: true
+        showFullRuler: true,
+        showCrossLine: true,
+        showDashLine: true,
+        showSideRuler: true,
+        showCurrentPositionText: true
     }
     private drawStar: IDrawStar = {
         svgPath: 'M 0 -1 L 0.588 0.809 L -0.951 -0.309 L 0.951 -0.309 L -0.588 0.809 Z',
@@ -357,6 +361,7 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.openManualAging) {
             return
         }
+        
         if (this.isDragging) {
             const newOffsetX = (event.clientX - this.dragStartX) / this.mmToPixel
             const newOffsetY = (event.clientY - this.dragStartY) / this.mmToPixel
@@ -372,22 +377,16 @@ export class DrawStampUtils {
             const mmY = Math.round(((y - RULER_HEIGHT) / this.mmToPixel) * 10) / 10
 
             this.refreshStamp()
-            this.highlightRulerPosition(this.canvasCtx, mmX, mmY)
-            this.drawCrossLines(x, y)
+            if (this.drawStampConfigs.ruler.showCurrentPositionText) {
+                this.drawCurrentPositionText(this.canvasCtx, mmX, mmY)
+            }
+            if (this.drawStampConfigs.ruler.showCrossLine) {
+                this.drawCrossLines(x, y)
+            }
         }
     }
 
-    private highlightRulerPosition = (ctx: CanvasRenderingContext2D, mmX: number, mmY: number) => {
-        const x = mmX * this.mmToPixel + RULER_WIDTH
-        const y = mmY * this.mmToPixel + RULER_HEIGHT
-
-        // 高亮水平标尺
-        ctx.fillStyle = this.drawStampConfigs.primaryColor
-        ctx.fillRect(RULER_WIDTH, y - 1, this.canvas.width - RULER_WIDTH, 2)
-
-        // 高亮垂直标尺
-        ctx.fillRect(x - 1, RULER_HEIGHT, 2, this.canvas.height - RULER_HEIGHT)
-
+    private drawCurrentPositionText = (ctx: CanvasRenderingContext2D, mmX: number, mmY: number) => {
         // 显示坐标
         ctx.fillStyle = 'black';
         ctx.font = 'bold 12px Arial';
@@ -1286,10 +1285,14 @@ export class DrawStampUtils {
         // 恢复状态
         this.canvasCtx.restore();
         // 绘制标尺（如果需要）
-        if (this.drawStampConfigs.shouldDrawRuler) {
-            this.drawRuler(this.canvasCtx, this.canvas.width, RULER_HEIGHT, true);
-            this.drawRuler(this.canvasCtx, this.canvas.height, RULER_HEIGHT, false);
-            this.drawFullRuler(this.canvasCtx, this.canvas.width, this.canvas.height);
+        if (this.drawStampConfigs.ruler.showRuler) {
+            if(this.drawStampConfigs.ruler.showSideRuler){
+                this.drawRuler(this.canvasCtx, this.canvas.width, RULER_HEIGHT, true);
+                this.drawRuler(this.canvasCtx, this.canvas.height, RULER_HEIGHT, false);
+            }
+            if(this.drawStampConfigs.ruler.showDashLine) {
+                this.drawFullRuler(this.canvasCtx, this.canvas.width, this.canvas.height);
+            }
         }
     }
 
@@ -1424,12 +1427,6 @@ export class DrawStampUtils {
         // 添加做旧效果
         if (this.drawStampConfigs.agingEffect.applyAging) {
             this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
-        }
-        // 如果需要显示标尺
-        if (this.drawStampConfigs.shouldDrawRuler) {
-            this.drawRuler(ctx, this.canvas.width, RULER_HEIGHT, true)
-            this.drawRuler(ctx, this.canvas.height, RULER_HEIGHT, false)
-            this.drawFullRuler(ctx, this.canvas.width, this.canvas.height)
         }
     }
 
