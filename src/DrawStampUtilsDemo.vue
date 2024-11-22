@@ -21,7 +21,7 @@
 
   <div class="container">
     <!-- 修改法律免责说明 -->
-    <div class="legal-disclaimer" v-if="false">
+    <div class="legal-disclaimer">
       <div class="disclaimer-content">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
