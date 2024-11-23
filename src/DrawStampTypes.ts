@@ -104,8 +104,6 @@ export type IDrawStar = {
     starDiameter: number // 五角星直径
     starPositionY: number // 五角星位置
     scaleToSmallStar: boolean // 是否缩放为小五角星
-    useImage: boolean // 是否使用图片
-    imageList: IDrawImage[] // 改为图片列表
     color?: string // 颜色
 }
 
@@ -166,4 +164,5 @@ export type IDrawStampConfig = {
     stampTypeList: IStampType[] // 印章类型列表
     companyList: ICompany[] // 新增：公司名称列表
     innerCircleList: IInnerCircle[] // 新增：内圈圆列表
+    imageList: IDrawImage[] // 新增：图片列表配置
 }

@@ -25,7 +25,7 @@
       <div class="disclaimer-content">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
-          <h3>安全警告</h3>
+          <h3>安���警告</h3>
           <p><strong>本项目仅供学习和参考！严禁用于任何非法用途！</strong></p>
           <p>
             1. 本项目开源代码仅用于技术学习和交流。<br>
@@ -441,65 +441,63 @@
           </label>
         </div>
       </div>
-
+      <div class="control-group">
+    <div class="group-header" @click="toggleGroup('images')">
+      <h3>图片列表设置</h3>
+      <span class="expand-icon" :class="{ 'expanded': expandedGroups.images }">▼</span>
+    </div>
+    <div class="group-content" v-show="expandedGroups.images">
+      <div class="image-list">
+        <div v-for="(image, index) in imageList" :key="index" class="image-item">
+          <div class="image-header">
+            <span>图片 {{ index + 1 }}</span>
+            <button class="small-button delete-button" @click="removeImage(index)">删除</button>
+          </div>
+          <div class="image-preview" v-if="image.imageUrl">
+            <img :src="image.imageUrl" alt="预览" />
+          </div>
+          <label>
+            选择图片:
+            <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
+          </label>
+          <label>
+            图片宽度 (mm):
+            <input type="number" v-model.number="image.imageWidth" min="1" max="100" step="0.5" />
+          </label>
+          <label>
+            图片高度 (mm):
+            <input type="number" v-model.number="image.imageHeight" min="1" max="100" step="0.5" />
+          </label>
+          <label>
+            水平位置 (mm):
+            <input type="number" v-model.number="image.positionX" min="-20" max="20" step="0.5" />
+          </label>
+          <label>
+            垂直位置 (mm):
+            <input type="number" v-model.number="image.positionY" min="-20" max="20" step="0.5" />
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="image.keepAspectRatio" />
+            保持宽高比
+          </label>
+        </div>
+      </div>
+      <button class="add-button" @click="addNewImage">添加新图片</button>
+    </div>
+  </div>
       <!-- 五角星设置 -->
       <div class="control-group">
         <div class="group-header" @click="toggleGroup('star')">
-          <h3>五角星/图片设置</h3>
+          <h3>五角星设置</h3>
           <span class="expand-icon" :class="{ 'expanded': expandedGroups.star }">▼</span>
         </div>
         <div class="group-content" v-show="expandedGroups.star">
           <label class="checkbox-label">
             <input type="checkbox" v-model="shouldDrawStar" />
-            绘制五角星/图片
+            绘制五角星
           </label>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="useStarImage" />
-            使用图片
-          </label>
-          <div v-if="shouldDrawStar">
-            <div v-if="useStarImage">
-              <div class="image-list">
-                <div v-for="(image, index) in imageList" :key="index" class="image-item">
-                  <div class="image-header">
-                    <span>图片 {{ index + 1 }}</span>
-                    <button class="small-button delete-button" @click="removeImage(index)">删除</button>
-                  </div>
-                  <div class="image-preview" v-if="image.imageUrl">
-                    <img :src="image.imageUrl" alt="预览" />
-                  </div>
-                  <label>
-                    选择图片:
-                    <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
-                  </label>
-                  <label>
-                    图片宽度 (mm):
-                    <input type="number" v-model.number="image.imageWidth" min="1" max="20" step="0.5" />
-                  </label>
-                  <label>
-                    图片高度 (mm):
-                    <input type="number" v-model.number="image.imageHeight" min="1" max="20" step="0.5" />
-                  </label>
-                  <label>
-                    水平位置 (mm):
-                    <input type="number" v-model.number="image.positionX" min="-20" max="20" step="0.5" />
-                  </label>
-                  <label>
-                    垂直位置 (mm):
-                    <input type="number" v-model.number="image.positionY" min="-20" max="20" step="0.5" />
-                  </label>
-                  <label class="checkbox-label">
-                    <input type="checkbox" v-model="image.keepAspectRatio" />
-                    保持宽高比
-                  </label>
-                </div>
-              </div>
-              <button class="add-button" @click="addNewImage">添加新图片</button>
-            </div>
-          </div>
         </div>
       </div>
-
       <!-- 防伪纹路设置 -->
       <div class="control-group">
         <div class="group-header" @click="toggleGroup('security')">
@@ -514,11 +512,11 @@
           <button @click="drawStamp(true, false)">刷新纹路</button>
           <label
             >纹路数量:
-            <input type="range" v-model.number="securityPatternCount" min="1" max="20" step="1"
+            <input type="range" v-model.number="securityPatternCount" min="1" max="100" step="1"
           /></label>
           <label
             >纹路长度 (mm):
-            <input type="range" v-model.number="securityPatternLength" min="0.1" max="20" step="0.1"
+            <input type="range" v-model.number="securityPatternLength" min="0.1" max="100" step="0.1"
           /></label>
           <label
             >纹路宽度 (mm):
@@ -1148,7 +1146,8 @@ const updateDrawConfigs = () => {
   drawConfigs.companyList = companyList.value
   // 更新内圈列表
   drawConfigs.innerCircleList = innerCircleList.value
-
+  // 更新图片列表
+  drawConfigs.imageList = imageList.value
 
   drawStamp()
 }
@@ -1256,7 +1255,7 @@ const restoreDrawConfigs = () => {
   outThinCircleHeight.value = drawConfigs.outThinCircle.innerCircleLineRadiusY
 
   // 图片列表
-  imageList.value = drawConfigs.drawStar.imageList
+  imageList.value = drawConfigs.imageList || []
 }
 
 // 添加系统字体列表
@@ -1477,7 +1476,8 @@ const expandedGroups = ref({
   security: false,
   roughEdge: false,
   aging: false,
-  innerCircle: false
+  innerCircle: false,
+  images: false // 新增图片列表设置
 })
 
 // 切换组的展开/折叠状态
