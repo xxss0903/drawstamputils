@@ -780,22 +780,49 @@ export class DrawStampUtils {
           Math.PI - totalAngle / 2 : 
           Math.PI + (Math.PI - totalAngle) / 2)
       
-        characters.forEach((char, index) => {
-          // 计算当前字符的角度
-          const angle = startAngle + direction * anglePerChar * (index + 0.5)
-          
-          // 计算字符位置
-          const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-          const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+        // 计算字符位置时考虑椭圆文字调整
+        if (company.adjustEllipseText) {
+          const halfCharCount = (characterCount + 1) / 2
       
-          ctx.save()
-          ctx.translate(x, y)
-          // 根据旋转方向调整文字旋转角度
-          ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
-          ctx.scale(company.compression, 1)
-          ctx.fillText(char, 0, 0)
-          ctx.restore()
-        })
+          characters.forEach((char, index) => {
+            // 计算当前字符的角度，包含椭圆调整
+            const halfIndex = halfCharCount - index - 1
+            const adjustmentFactor = Math.pow(halfIndex / halfCharCount, 2)
+            const additionalAngle = adjustmentFactor * anglePerChar * company.adjustEllipseTextFactor
+            const indexValue = index - halfCharCount
+            const factor = indexValue / Math.abs(indexValue)
+      
+            let angle = startAngle + direction * anglePerChar * (index + 0.5)
+            angle += additionalAngle * factor
+      
+            // 计算字符位置
+            const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+            const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+      
+            ctx.save()
+            ctx.translate(x, y)
+            // 根据旋转方向调整文字旋转角度
+            ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
+            ctx.scale(company.compression, 1)
+            ctx.fillText(char, 0, 0)
+            ctx.restore()
+          })
+        } else {
+          // 不调整椭圆文字时的正常绘制
+          characters.forEach((char, index) => {
+            const angle = startAngle + direction * anglePerChar * (index + 0.5)
+            
+            const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+            const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+      
+            ctx.save()
+            ctx.translate(x, y)
+            ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
+            ctx.scale(company.compression, 1)
+            ctx.fillText(char, 0, 0)
+            ctx.restore()
+          })
+        }
       
         ctx.restore()
       }
