@@ -36,6 +36,8 @@ export type ICompany = {
     adjustEllipseText: boolean // 是否调整椭圆
     adjustEllipseTextFactor: number // 调整椭圆的因子
     color?: string | undefined // 颜色
+    startAngle: number // 文字开始角度（弧度）
+    rotateDirection: 'clockwise' | 'counterclockwise' // 旋转方向
 }
 
 // 印章编码

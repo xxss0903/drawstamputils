@@ -163,7 +163,7 @@
                 max="50"
                 step="0.1"
               />
-              <span>{{ company.textDistributionFactor.toFixed(1) }}</span>
+              <span>{{ company.textDistributionFactor.toFixed(2) }}</span>
             </label>
             <label>
               边距 (mm):
@@ -182,6 +182,24 @@
                 step="0.01"
               />
               <span>{{ company.adjustEllipseTextFactor.toFixed(2) }}</span>
+            </label>
+            <label>
+              开始角度:
+              <input
+                type="range"
+                v-model.number="company.startAngle"
+                min="-6.5"
+                max="6.5"
+                step="0.01"
+              />
+              <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
+            </label>
+            <label>
+              旋转方向:
+              <select v-model="company.rotateDirection">
+                <option value="clockwise">顺时针</option>
+                <option value="counterclockwise">逆时针</option>
+              </select>
             </label>
           </div>
           <button class="add-button" @click="addNewCompany">添加新行</button>
@@ -786,7 +804,9 @@ const companyList = ref<ICompany[]>([
     fontWeight: 'normal',
     shape: 'ellipse',
     adjustEllipseText: false,
-    adjustEllipseTextFactor: 0.5
+    adjustEllipseTextFactor: 0.5,
+    startAngle: 0,
+    rotateDirection: "clockwise"
   }
 ])
 // 添加新的响应式变量
@@ -933,7 +953,9 @@ const addNewCompany = () => {
     fontWeight: 'normal',
     shape: 'ellipse',
     adjustEllipseText: false,
-    adjustEllipseTextFactor: 0.5
+    adjustEllipseTextFactor: 0.5,
+    startAngle: 0,
+    rotateDirection: "clockwise"
   })
 }
 
@@ -1446,6 +1468,8 @@ const loadDefaultTemplate = (template: Template) => {
     newConfig.ruler.showCrossLine = true
     newConfig.ruler.showCurrentPositionText = true
     newConfig.ruler.showDashLine = true
+    newConfig.company.startAngle = template.config.company.startAngle
+    newConfig.company.rotateDirection = template.config.company.rotateDirection
 
     console.log("load template", template, newConfig)
     // 设置新的配置

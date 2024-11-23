@@ -73,7 +73,9 @@ export class DrawStampUtils {
         fontWeight: 'normal',
         shape: 'ellipse',
         adjustEllipseText: false,
-        adjustEllipseTextFactor: 0.5
+        adjustEllipseTextFactor: 0.5,
+        startAngle: 0,
+        rotateDirection: "clockwise"
     }
     private taxNumber: ITaxNumber = {
         code: '000000000000000000',
@@ -753,66 +755,48 @@ export class DrawStampUtils {
         centerY: number,
         radiusX: number,
         radiusY: number
-    ) {
+      ) {
         const fontSize = company.fontHeight * this.mmToPixel
-        const fontWeight = company.fontWeight || 'normal'; // 新增字体粗细参数
+        const fontWeight = company.fontWeight || 'normal'
         ctx.save()
-        ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`;
-        console.log('company primaryColor', this.drawStampConfigs.primaryColor)
+        ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`
         ctx.fillStyle = this.drawStampConfigs.primaryColor
         ctx.textAlign = 'center'
         ctx.textBaseline = 'bottom'
-
+      
         const characters = company.companyName.split('')
         const characterCount = characters.length
         const borderOffset = company.borderOffset * this.mmToPixel
-
-        // 修改总角度的计算方式，使用更小的分布因子
+      
+        // 计算总角度和每个字符的角度
         const totalAngle = Math.PI * (0.5 + characterCount / (company.textDistributionFactor * 4))
-        const startAngle = Math.PI + (Math.PI - totalAngle) / 2
         const anglePerChar = totalAngle / characterCount
-        const halfCharCount = (characterCount + 1) / 2
-
-        if (company.adjustEllipseText) {
-            characters.forEach((char, index) => {
-                const halfIndex = halfCharCount - index - 1
-                const adjustmentFactor = Math.pow(halfIndex / halfCharCount, 2) // 二次函数曲线
-                const additionalAngle = adjustmentFactor * anglePerChar * company.adjustEllipseTextFactor // 最大额外角度为半个字符间隔
-                let indexValue = index - halfCharCount
-                let factor = indexValue / Math.abs(indexValue)
-
-                let angle = startAngle + anglePerChar * (index + 0.5)
-                let newAngle = angle + additionalAngle * factor
-                angle = newAngle
-
-                const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-                const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
-
-                ctx.save()
-                ctx.translate(x, y)
-                ctx.rotate(angle + Math.PI / 2)
-                ctx.scale(company.compression, 1) // 应用压缩
-                ctx.fillText(char, 0, 0)
-                ctx.restore()
-            })
-        } else {
-            characters.forEach((char, index) => {
-                const angle = startAngle + anglePerChar * (index + 0.5)
-                const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-                const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
-
-                ctx.save()
-                ctx.translate(x, y)
-                ctx.rotate(angle + Math.PI / 2)
-                ctx.scale(company.compression, 1) // 应用压缩
-                ctx.fillText(char, 0, 0)
-                ctx.restore()
-            })
-        }
-
-
+      
+        // 根据旋转方向设置起始角度和角度增量
+        const direction = company.rotateDirection === 'clockwise' ? -1 : 1
+        const startAngle = (company.startAngle ? company.startAngle : 0) + (company.rotateDirection === 'clockwise' ? 
+          Math.PI - totalAngle / 2 : 
+          Math.PI + (Math.PI - totalAngle) / 2)
+      
+        characters.forEach((char, index) => {
+          // 计算当前字符的角度
+          const angle = startAngle + direction * anglePerChar * (index + 0.5)
+          
+          // 计算字符位置
+          const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+          const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+      
+          ctx.save()
+          ctx.translate(x, y)
+          // 根据旋转方向调整文字旋转角度
+          ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
+          ctx.scale(company.compression, 1)
+          ctx.fillText(char, 0, 0)
+          ctx.restore()
+        })
+      
         ctx.restore()
-    }
+      }
 
     /**
      * 绘制印章编码

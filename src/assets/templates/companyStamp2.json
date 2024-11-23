@@ -1508,7 +1508,9 @@
     "fontWeight": 400,
     "shape": "ellipse",
     "adjustEllipseText": false,
-    "adjustEllipseTextFactor": 0.5
+    "adjustEllipseTextFactor": 0.5,
+    "startAngle": 0,
+    "rotateDirection": "clockwise"
   },
   "stampCode": {
     "code": "",
