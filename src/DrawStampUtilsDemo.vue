@@ -806,7 +806,7 @@ const companyList = ref<ICompany[]>([
     adjustEllipseText: false,
     adjustEllipseTextFactor: 0.5,
     startAngle: 0,
-    rotateDirection: "clockwise"
+    rotateDirection: "counterclockwise"
   }
 ])
 // 添加新的响应式变量
@@ -955,7 +955,7 @@ const addNewCompany = () => {
     adjustEllipseText: false,
     adjustEllipseTextFactor: 0.5,
     startAngle: 0,
-    rotateDirection: "clockwise"
+    rotateDirection: "counterclockwise"
   })
 }
 
