@@ -107,6 +107,7 @@ drawStampUtils.refreshStamp()
 ## 模板功能
 
 DrawStampUtils 支持将当前印章的所有配置保存为模板文件，以及从模板文件中加载配置。
+![Stamp Template](public/stamp_template.png)
 
 ### 保存模板
 
