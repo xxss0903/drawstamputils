@@ -75,7 +75,7 @@ export class DrawStampUtils {
         adjustEllipseText: false,
         adjustEllipseTextFactor: 0.5,
         startAngle: 0,
-        rotateDirection: "clockwise"
+        rotateDirection: "counterclockwise"
     }
     private taxNumber: ITaxNumber = {
         code: '000000000000000000',
@@ -168,7 +168,7 @@ export class DrawStampUtils {
             adjustEllipseText: true,
             adjustEllipseTextFactor: 0.5,
             startAngle: 0,
-            rotateDirection: "clockwise"
+            rotateDirection: "counterclockwise"
         }
     ]
     private innerCircleList: IInnerCircle[] = [];
@@ -975,7 +975,7 @@ export class DrawStampUtils {
                 const angle = (i / points) * Math.PI * 2;
                 const shouldDraw = Math.random() > this.drawStampConfigs.roughEdge.roughEdgeProbability; // 增加概率以获得更稀疏的效果
                 const size = shouldDraw ? Math.random() * roughness * Math.random() + this.drawStampConfigs.roughEdge.roughEdgeWidth : 0; // 减小圆形大小
-                this.drawStampConfigs.roughEdge.roughEdgeParams.push({angle, size});
+                this.drawStampConfigs.roughEdge.roughEdgeParams.push({angle, size, offset: outwardShift, opacity: 1});
             }
         }
 
@@ -1271,8 +1271,13 @@ export class DrawStampUtils {
         }, 50)
     }
 
-    // 刷新印章绘制
-    refreshStamp(refreshSecurityPattern: boolean = false, refreshOld: boolean = false) {
+    /**
+     * 刷新印章绘制
+     * @param refreshSecurityPattern 是否刷新防伪纹路
+     * @param refreshOld 是否刷新做旧效果
+     * @param refreshRoughEdge 是否刷新毛边效果
+     */
+    refreshStamp(refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) {
         // 清除整个画布
         this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1302,7 +1307,8 @@ export class DrawStampUtils {
             this.drawStampConfigs.borderWidth * mmToPixel,
             this.drawStampConfigs.primaryColor,
             refreshSecurityPattern,
-            refreshOld
+            refreshOld,
+            refreshRoughEdge
         )
         // 恢复状态
         this.canvasCtx.restore();
@@ -1375,6 +1381,9 @@ export class DrawStampUtils {
      * @param radiusY 半径y
      * @param borderWidth 边框宽度
      * @param borderColor 边框颜色
+     * @param refreshSecurityPattern 是否刷新防伪纹路
+     * @param refreshOld 是否刷新做旧效果
+     * @param refreshRoughEdge 是否刷新毛边效果
      */
     drawStamp(
         ctx: CanvasRenderingContext2D,
@@ -1385,7 +1394,8 @@ export class DrawStampUtils {
         borderWidth: number,
         borderColor: string,
         refreshSecurityPattern: boolean = false,
-        refreshOld: boolean = false
+        refreshOld: boolean = false,
+        refreshRoughEdge: boolean = false
     ) {
         // 清除整个画布
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -1438,7 +1448,7 @@ export class DrawStampUtils {
         }
         // 添加毛边效果
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
-            this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshOld)
+            this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshRoughEdge)
         }
         if(this.drawStampConfigs.securityPattern.openSecurityPattern) {
             // 绘制防伪纹路

@@ -556,7 +556,7 @@
             <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
             <span>{{ roughEdgePoints }}</span>
           </label>
-          <button @click="drawStamp(false, true)">刷新毛边</button>
+          <button @click="drawStamp(false, false, true)">刷新毛边</button>
         </div>
       </div>
 
@@ -981,9 +981,9 @@ const initDrawStampUtils = () => {
   drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
 }
 
-const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false) => {
+const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
   // 使用drawstamputils进行绘制
-  drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld)
+  drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
 }
 
 

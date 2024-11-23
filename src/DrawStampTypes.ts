@@ -7,10 +7,12 @@ export type ISecurityPattern = {
     securityPatternAngleRange: number // 防伪纹路角度范围
     securityPatternParams: Array<{ angle: number; lineAngle: number }> // 保存防伪纹路的参数数组
 }
-
+// 毛边参数
 export type IRoughEdgeParams = {
-    angle: number
-    size: number
+    angle: number // 
+    size: number // 
+    offset: number // 偏移量
+    opacity: number // 透明度
 }
 // 毛边效果
 export type IRoughEdge = {
