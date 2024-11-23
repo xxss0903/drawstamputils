@@ -33,5 +33,4 @@ jspm_packages/
 *.ntvs*
 *.njsproj
 *.sln
-package-lock.json
 .DS_Store
