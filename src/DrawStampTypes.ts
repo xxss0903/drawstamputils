@@ -87,6 +87,16 @@ export type IAgingEffect = {
     agingEffectParams: IAgingEffectParams[] // 保存做旧效果的参数数组
 }
 
+// 图片配置
+export type IDrawImage = {
+  imageUrl: string
+  imageWidth: number
+  imageHeight: number
+  positionX: number
+  positionY: number
+  keepAspectRatio: boolean
+}
+
 // 绘制五角星
 export type IDrawStar = {
     svgPath: string // svg路径
@@ -95,10 +105,7 @@ export type IDrawStar = {
     starPositionY: number // 五角星位置
     scaleToSmallStar: boolean // 是否缩放为小五角星
     useImage: boolean // 是否使用图片
-    imageUrl: string // 图片URL
-    imageWidth: number // 图片宽度(mm)
-    imageHeight: number // 图片高度(mm)
-    keepAspectRatio: boolean // 是否保持宽高比
+    imageList: IDrawImage[] // 改为图片列表
     color?: string // 颜色
 }
 

@@ -630,3 +630,39 @@ canvas {
 .confirm-button:hover {
   background-color: #45a049;
 }
+
+
+.image-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.image-item {
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
+
+.image-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.image-preview {
+  width: 100px;
+  height: 100px;
+  margin: 10px auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

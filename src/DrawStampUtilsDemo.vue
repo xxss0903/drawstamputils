@@ -459,31 +459,43 @@
           </label>
           <div v-if="shouldDrawStar">
             <div v-if="useStarImage">
-              <label>
-                选择图片:
-                <input type="file" @change="handleStarImageUpload" accept="image/*" />
-              </label>
-              <label>
-                图片宽度 (mm):
-                <input type="number" v-model.number="starImageWidth" min="1" max="20" step="0.5" />
-              </label>
-              <label>
-                图片高度 (mm):
-                <input type="number" v-model.number="starImageHeight" min="1" max="20" step="0.5" />
-              </label>
-              <label class="checkbox-label">
-                <input type="checkbox" v-model="keepAspectRatio" />
-                保持宽高比
-              </label>
+              <div class="image-list">
+                <div v-for="(image, index) in imageList" :key="index" class="image-item">
+                  <div class="image-header">
+                    <span>图片 {{ index + 1 }}</span>
+                    <button class="small-button delete-button" @click="removeImage(index)">删除</button>
+                  </div>
+                  <div class="image-preview" v-if="image.imageUrl">
+                    <img :src="image.imageUrl" alt="预览" />
+                  </div>
+                  <label>
+                    选择图片:
+                    <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
+                  </label>
+                  <label>
+                    图片宽度 (mm):
+                    <input type="number" v-model.number="image.imageWidth" min="1" max="20" step="0.5" />
+                  </label>
+                  <label>
+                    图片高度 (mm):
+                    <input type="number" v-model.number="image.imageHeight" min="1" max="20" step="0.5" />
+                  </label>
+                  <label>
+                    水平位置 (mm):
+                    <input type="number" v-model.number="image.positionX" min="-20" max="20" step="0.5" />
+                  </label>
+                  <label>
+                    垂直位置 (mm):
+                    <input type="number" v-model.number="image.positionY" min="-20" max="20" step="0.5" />
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" v-model="image.keepAspectRatio" />
+                    保持宽高比
+                  </label>
+                </div>
+              </div>
+              <button class="add-button" @click="addNewImage">添加新图片</button>
             </div>
-            <label v-else>
-              五角星直径 (mm):
-              <input type="number" v-model.number="starDiameter" step="0.1" />
-            </label>
-            <label>
-              垂直位置 (mm):
-              <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
-            </label>
           </div>
         </div>
       </div>
@@ -682,7 +694,7 @@ import { getSystemFonts } from './utils/fontUtils'
 import contractStamp1 from './assets/templates/contractStamp1.json'
 import companyStamp1 from './assets/templates/companyStamp1.json'
 import companyStamp2 from './assets/templates/companyStamp2.json'
-import { ICode, ICompany, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
+import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
 
 
 const editorControls = ref<HTMLDivElement | null>(null)
@@ -829,8 +841,39 @@ const innerCircleList = ref<IInnerCircle[]>([
     innerCircleLineRadiusY: 12
   }
 ])
-
 const templateFileInput = ref<HTMLInputElement | null>(null)
+// 添加图片列表的响应式数据
+const imageList = ref<IDrawImage[]>([{
+  imageUrl: '',
+  imageWidth: 10,
+  imageHeight: 10,
+  positionX: 0,
+  positionY: 0,
+  keepAspectRatio: true
+}])
+
+// 添加新图片
+const addNewImage = () => {
+  console.log("add new image", imageList.value)
+  if(imageList.value === undefined || imageList.value === null) {
+    imageList.value = []
+  }
+  if(imageList.value.length < 10) {
+    imageList.value.push({
+      imageUrl: '',
+      imageWidth: 10,
+      imageHeight: 10,
+      positionX: 0,
+      positionY: 0,
+      keepAspectRatio: true
+    })
+  }
+}
+
+// 删除图片
+const removeImage = (index: number) => {
+  imageList.value.splice(index, 1)
+}
 
 // 保存模板
 const saveAsTemplate = () => {
@@ -894,20 +937,18 @@ const loadTemplate = (event: Event) => {
 }
 
 // 修改图片上传处理函数
-const handleStarImageUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
+const handleImageUpload = (event: Event, index: number) => {
+  const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
-    const file = target.files[0];
-    const reader = new FileReader();
+    const file = target.files[0]
+    const reader = new FileReader()
     reader.onload = (e) => {
       if (e.target?.result) {
-        const imageUrl = e.target.result as string;
-        // 使用新方法更新图片
-        drawStampUtils.updateStarImage(imageUrl);
-        drawStamp();
+        imageList.value[index].imageUrl = e.target.result as string
+        drawStamp()
       }
-    };
-    reader.readAsDataURL(file);
+    }
+    reader.readAsDataURL(file)
   }
 }
 
@@ -1213,6 +1254,9 @@ const restoreDrawConfigs = () => {
   outThinCircleLineWidth.value = drawConfigs.outThinCircle.innerCircleLineWidth
   outThinCircleWidth.value = drawConfigs.outThinCircle.innerCircleLineRadiusX
   outThinCircleHeight.value = drawConfigs.outThinCircle.innerCircleLineRadiusY
+
+  // 图片列表
+  imageList.value = drawConfigs.drawStar.imageList
 }
 
 // 添加系统字体列表
@@ -1312,7 +1356,8 @@ watch(
     starImageWidth,
     starImageHeight,
     keepAspectRatio,
-    innerCircleList
+    innerCircleList,
+    imageList
   ],
   () => {
     updateDrawConfigs()
@@ -1532,7 +1577,7 @@ const defaultTemplates: Template[] = [
     config: companyStamp2 as IDrawStampConfig
   }
 ]
+
 </script>
 <style scoped>
-
 </style>
