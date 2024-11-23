@@ -77,7 +77,7 @@
           <label
             >圆形边框宽度 (mm): <input type="number" step="0.1" v-model.number="circleBorderWidth"
           /></label>
-          <label>圆形边框颜色: <input type="color" v-model="primaryColor" /></label>
+          <label>印章颜色: <input type="color" v-model="primaryColor" /></label>
         </div>
       </div>
 
@@ -192,7 +192,7 @@
                 max="6.5"
                 step="0.01"
               />
-              <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
+              <span>{{ company.startAngle ? (company.startAngle * 180 / Math.PI).toFixed(0) : 0 }}°</span>
             </label>
             <label>
               旋转方向:

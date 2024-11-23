@@ -166,7 +166,9 @@ export class DrawStampUtils {
             fontWeight: 'normal',
             shape: 'ellipse',
             adjustEllipseText: true,
-            adjustEllipseTextFactor: 0.5
+            adjustEllipseTextFactor: 0.5,
+            startAngle: 0,
+            rotateDirection: "clockwise"
         }
     ]
     private innerCircleList: IInnerCircle[] = [];
@@ -827,27 +829,36 @@ export class DrawStampUtils {
 
         const characters = text.split('')
         const characterCount = characters.length
-
-        // 动态调整总角度
-        // const totalAngle = Math.PI * (characterCount / 20) * 0.5
-        const totalAngle = Math.PI * ((1 + characterCount) / code.textDistributionFactor)
-        const startAngle = Math.PI / 2 + totalAngle / 2
-        const anglePerChar = totalAngle / (characterCount - 1)
-
-        characters.forEach((char, index) => {
-            const angle = startAngle - anglePerChar * index
-            const x =
-                centerX + Math.cos(angle) * (radiusX - fontSize / 2 - code.borderOffset * this.mmToPixel)
-            const y =
-                centerY + Math.sin(angle) * (radiusY - fontSize / 2 - code.borderOffset * this.mmToPixel)
+        // 处理单个字符的情况
+        if (characterCount === 1) {
+            // 单个字符直接绘制在底部中心位置
+            const x = centerX
+            const y = centerY + radiusY - fontSize - code.borderOffset * this.mmToPixel
 
             ctx.save()
             ctx.translate(x, y)
-            ctx.rotate(angle - Math.PI / 2) // 逆时针旋转文字
-            ctx.scale(code.compression, 1) // 应用压缩
-            ctx.fillText(char, 0, 0)
+            ctx.scale(code.compression, 1)
+            ctx.fillText(text, 0, 0)
             ctx.restore()
-        })
+        } else {
+            // 多个字符时的弧形排列
+            const totalAngle = Math.PI * ((1 + characterCount) / code.textDistributionFactor)
+            const startAngle = Math.PI / 2 + totalAngle / 2
+            const anglePerChar = totalAngle / (characterCount - 1)
+
+            characters.forEach((char, index) => {
+                const angle = startAngle - anglePerChar * index
+                const x = centerX + Math.cos(angle) * (radiusX - fontSize / 2 - code.borderOffset * this.mmToPixel)
+                const y = centerY + Math.sin(angle) * (radiusY - fontSize / 2 - code.borderOffset * this.mmToPixel)
+
+                ctx.save()
+                ctx.translate(x, y)
+                ctx.rotate(angle - Math.PI / 2)
+                ctx.scale(code.compression, 1)
+                ctx.fillText(char, 0, 0)
+                ctx.restore()
+            })
+        }
 
         ctx.restore()
     }
