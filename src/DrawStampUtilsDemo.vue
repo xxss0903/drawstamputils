@@ -496,6 +496,16 @@
             <input type="checkbox" v-model="shouldDrawStar" />
             绘制五角星
           </label>
+          <div v-if="shouldDrawStar">
+            <label>
+            五角星直径 (mm):
+            <input type="number" v-model.number="starDiameter" step="0.1" />
+          </label>
+          <label>
+            垂直位置 (mm):
+            <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
+            </label>
+          </div>
         </div>
       </div>
       <!-- 防伪纹路设置 -->
