@@ -1555,7 +1555,6 @@
     "agingIntensity": 50,
     "agingEffectParams": []
   },
-  "shouldDrawRuler": true,
   "innerCircle": {
     "drawInnerCircle": true,
     "innerCircleLineWidth": 0.5,

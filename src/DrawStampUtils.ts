@@ -187,7 +187,6 @@ export class DrawStampUtils {
         refreshOld: false,
         taxNumber: this.taxNumber,
         agingEffect: this.agingEffect,
-        shouldDrawRuler: true,
         innerCircle: this.innerCircle,
         outThinCircle: this.outThinCircle,
         openManualAging: false,
@@ -1224,7 +1223,12 @@ export class DrawStampUtils {
      */
     saveStampAsPNG(outputSize: number = 512) {
         // 首先隐藏虚线
-        this.drawStampConfigs.shouldDrawRuler = false
+        this.drawStampConfigs.ruler.showCrossLine = false
+        this.drawStampConfigs.ruler.showRuler = false
+        this.drawStampConfigs.ruler.showDashLine = false
+        this.drawStampConfigs.ruler.showSideRuler = false
+        this.drawStampConfigs.ruler.showFullRuler = false
+        this.drawStampConfigs.ruler.showCurrentPositionText = false
         this.refreshStamp()
         setTimeout(() => {
             // 创建一个新的 canvas 元素，大小为 outputSize x outputSize
@@ -1237,7 +1241,7 @@ export class DrawStampUtils {
             // 清除画布，使背景透明
             saveCtx.clearRect(0, 0, outputSize, outputSize)
 
-            // 计算原始 canvas 中��章的位置和大小
+            // 计算原始 canvas 中印章的位置和大小
             const originalStampSize =
                 (Math.max(this.drawStampConfigs.width, this.drawStampConfigs.height) + 2) * this.mmToPixel
             const sourceX =
@@ -1278,8 +1282,13 @@ export class DrawStampUtils {
             link.click()
             document.body.removeChild(link)
 
-            // 首先隐藏虚线
-            this.drawStampConfigs.shouldDrawRuler = true
+            // 恢复标尺
+            this.drawStampConfigs.ruler.showCrossLine = true
+            this.drawStampConfigs.ruler.showRuler = true
+            this.drawStampConfigs.ruler.showDashLine = true
+            this.drawStampConfigs.ruler.showSideRuler = true
+            this.drawStampConfigs.ruler.showFullRuler = true
+            this.drawStampConfigs.ruler.showCurrentPositionText = true
             this.refreshStamp()
         }, 50)
     }

@@ -157,7 +157,6 @@ export type IDrawStampConfig = {
     primaryColor: string // 印章主色
     refreshSecurityPattern: boolean // 是否刷新防伪纹路
     refreshOld: boolean // 是否刷新做旧效果
-    shouldDrawRuler: boolean // 是否绘制标尺
     innerCircle: IInnerCircle // 内圈圆
     outThinCircle: IInnerCircle // 比外圈细的稍微内圈
     openManualAging: boolean // 是否开启手动做旧效果

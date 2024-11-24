@@ -25,7 +25,7 @@
       <div class="disclaimer-content">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
-          <h3>安���警告</h3>
+          <h3>安全警告</h3>
           <p><strong>本项目仅供学习和参考！严禁用于任何非法用途！</strong></p>
           <p>
             1. 本项目开源代码仅用于技术学习和交流。<br>
