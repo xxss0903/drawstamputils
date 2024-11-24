@@ -3,9 +3,11 @@ import {
   ICode,
   IDrawImage,
   IDrawStampConfig,
+  IDrawStar,
   IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
+import { circleSvg } from "./svg/CircleSvg.ts";
 import { drawBasicBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
 import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
@@ -13,6 +15,7 @@ import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
 import { DrawSecurityPatternUtils } from "./utils/DrawSecurityPatternUtils.ts";
 import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 import { InitDrawStampConfigsUtils } from "./utils/InitDrawStampConfigsUtils.ts";
+import { DrawImageCanvas } from "./utils/DrawImageCanvas.ts";
 // 标尺宽度
 const RULER_WIDTH = 80
 // 标尺高度
@@ -53,6 +56,7 @@ export class DrawStampUtils {
     private drawSecurityPatternUtils: DrawSecurityPatternUtils
     // 初始化绘制印章配置的工具类
     private initDrawStampConfigsUtils: InitDrawStampConfigsUtils
+    private imageCanvas: DrawImageCanvas;
 
     /**
      * 构造函数
@@ -81,6 +85,8 @@ export class DrawStampUtils {
         }
         this.addCanvasListener()
         this.initDrawUtils()
+        this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
+        this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
     }
 
     // 初始化绘制圆的工具类
@@ -251,6 +257,29 @@ export class DrawStampUtils {
             if (this.drawStampConfigs.ruler.showCrossLine) {
                 this.drawRulerUtils.drawPositionCrossLines(this.offscreenCanvas, this.canvas, RULER_WIDTH, RULER_HEIGHT, x, y, this.drawStampConfigs.primaryColor)
             }
+        }
+    }
+
+    private async drawSvgImage(ctx: CanvasRenderingContext2D, image: IDrawStar, centerX: number, centerY: number) {
+        try {
+            // 计算绘制尺寸
+            const width = 200;
+            const height = 200;
+            
+            // 使用图像 canvas 绘制
+            const imageCanvas = await this.imageCanvas.drawImage(
+                image.svgPath,
+                centerX - width/2,
+                centerY - height/2,
+                width,
+                height
+            );
+
+            // 将图像 canvas 的内容绘制到主 canvas
+            ctx.drawImage(imageCanvas, 0, 0);
+
+        } catch (error) {
+            console.error("Error drawing SVG:", error);
         }
     }
 
@@ -898,9 +927,21 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.innerCircleList.length > 0) {
             this.drawCircleUtils.drawCircleList(offscreenCtx, this.drawStampConfigs.innerCircleList, centerX, centerY, borderColor)
         }
-        // 如果没有图片，绘制五角星
+        // 如果没有图片，绘制五角星或SVG
         if (this.drawStampConfigs.drawStar.drawStar) {
-            this.drawSvgUtils.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY, this.drawStampConfigs.primaryColor)
+            this.drawStampConfigs.drawStar.svgPath = `<svg width="100px" height="100px" viewBox="0 0 12.5 12.5" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <path style="fill:#D0CEA9;stroke:#222222;stroke-width:2" d="M0.25 11V3.125s-0.075 -0.625 0.55 -0.625H1.5v-0.75s0 -0.375 0.375 -0.375h2.125s0.375 0 0.375 0.375v0.75h5.375s0.5 0 0.5 0.5v8z"/>
+  <path style="fill:#E8DC88;stroke:#222222;stroke-width:2;fill-opacity:0.8" d="m0.25 11 1.875 -4.25s0.125 -0.625 1.125 -0.625h8.125s1.125 0 0.875 0.625 -1.75 4.25 -1.75 4.25z"/>
+</svg>
+`
+            this.drawSvgImage(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY)
+            // this.drawSvgUtils.drawStarShape(
+            //     offscreenCtx,
+            //     this.drawStampConfigs.drawStar,
+            //     centerX,
+            //     centerY,
+            //     this.drawStampConfigs.primaryColor
+            // );
         }
         // 绘制图片列表
         if (this.drawStampConfigs.imageList && this.drawStampConfigs.imageList.length > 0) {
