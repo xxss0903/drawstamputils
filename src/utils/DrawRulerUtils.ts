@@ -148,4 +148,15 @@ export class DrawRulerUtils {
             }
         }
     }
+
+    drawCurrentPositionText = (ctx: CanvasRenderingContext2D, mmX: number, mmY: number, scale: number, rulerWidth: number, rulerHeight: number) => {
+        // 显示坐标
+        ctx.fillStyle = 'black';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        const showPositionX = mmX / scale
+        const showPositionY = mmY / scale
+        ctx.fillText(`${showPositionX.toFixed(1)}mm, ${showPositionY.toFixed(1)}mm, scale: ${scale.toFixed(2)}`, rulerWidth + 5, rulerHeight + 5);
+    }
 }

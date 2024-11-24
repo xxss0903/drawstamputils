@@ -401,23 +401,12 @@ export class DrawStampUtils {
 
             this.refreshStamp()
             if (this.drawStampConfigs.ruler.showCurrentPositionText) {
-                this.drawCurrentPositionText(this.canvasCtx, mmX, mmY)
+                this.drawRulerUtils.drawCurrentPositionText(this.canvasCtx, mmX, mmY, this.scale, RULER_WIDTH, RULER_HEIGHT)
             }
             if (this.drawStampConfigs.ruler.showCrossLine) {
                 this.drawRulerUtils.drawPositionCrossLines(this.offscreenCanvas, this.canvas, RULER_WIDTH, RULER_HEIGHT, x, y, this.drawStampConfigs.primaryColor)
             }
         }
-    }
-
-    private drawCurrentPositionText = (ctx: CanvasRenderingContext2D, mmX: number, mmY: number) => {
-        // 显示坐标
-        ctx.fillStyle = 'black';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        const showPositionX = mmX / this.scale
-        const showPositionY = mmY / this.scale
-        ctx.fillText(`${showPositionX.toFixed(1)}mm, ${showPositionY.toFixed(1)}mm, scale: ${this.scale.toFixed(2)}`, RULER_WIDTH + 5, RULER_HEIGHT + 5);
     }
 
     // 添加绘制图片列表的方法
