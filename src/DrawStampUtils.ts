@@ -404,7 +404,7 @@ export class DrawStampUtils {
                 this.drawCurrentPositionText(this.canvasCtx, mmX, mmY)
             }
             if (this.drawStampConfigs.ruler.showCrossLine) {
-                this.drawCrossLines(x, y)
+                this.drawRulerUtils.drawPositionCrossLines(this.offscreenCanvas, this.canvas, RULER_WIDTH, RULER_HEIGHT, x, y, this.drawStampConfigs.primaryColor)
             }
         }
     }
@@ -418,39 +418,6 @@ export class DrawStampUtils {
         const showPositionX = mmX / this.scale
         const showPositionY = mmY / this.scale
         ctx.fillText(`${showPositionX.toFixed(1)}mm, ${showPositionY.toFixed(1)}mm, scale: ${this.scale.toFixed(2)}`, RULER_WIDTH + 5, RULER_HEIGHT + 5);
-    }
-
-    private drawCrossLines = (x: number, y: number) => {
-        const canvas = this.offscreenCanvas
-        if (!canvas) return
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return
-
-        // 清除之前绘制的内容
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-        ctx.beginPath()
-        ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'
-        ctx.lineWidth = 1
-
-        // 绘制水平线
-        ctx.moveTo(RULER_WIDTH, y)
-        ctx.lineTo(canvas.width, y)
-
-        // 绘制垂直线
-        ctx.moveTo(x, RULER_HEIGHT)
-        ctx.lineTo(x, canvas.height)
-
-        ctx.stroke()
-
-        // 将离屏canvas的内容绘制到主canvas上
-        const mainCanvas = this.canvas
-        if (mainCanvas) {
-            const mainCtx = mainCanvas.getContext('2d')
-            if (mainCtx) {
-                mainCtx.drawImage(canvas, 0, 0)
-            }
-        }
     }
 
     // 添加绘制图片列表的方法

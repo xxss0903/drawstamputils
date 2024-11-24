@@ -113,4 +113,39 @@ export class DrawRulerUtils {
 
         ctx.restore();
     }
+
+    /**
+     * 绘制当前位置的十字线
+     */
+    drawPositionCrossLines = (offscreenCanvas: HTMLCanvasElement, mainCanvas: HTMLCanvasElement, rulerWidth: number, rulerHeight: number, x: number, y: number, color: string) => {
+        const canvas = offscreenCanvas
+        if (!canvas) return
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+
+        // 清除之前绘制的内容
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        ctx.beginPath()
+        ctx.strokeStyle = color
+        ctx.lineWidth = 1
+
+        // 绘制水平线
+        ctx.moveTo(rulerWidth, y)
+        ctx.lineTo(canvas.width, y)
+
+        // 绘制垂直线
+        ctx.moveTo(x, rulerHeight)
+        ctx.lineTo(x, canvas.height)
+
+        ctx.stroke()
+
+        // 将离屏canvas的内容绘制到主canvas上
+        if (mainCanvas) {
+            const mainCtx = mainCanvas.getContext('2d')
+            if (mainCtx) {
+                mainCtx.drawImage(canvas, 0, 0)
+            }
+        }
+    }
 }
