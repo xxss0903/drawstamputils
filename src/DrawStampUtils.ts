@@ -11,6 +11,7 @@ import {
 import { drawBasicBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
 import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
+import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
 import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 // 标尺宽度
 const RULER_WIDTH = 80
@@ -208,6 +209,9 @@ export class DrawStampUtils {
     private drawSvgUtils: DrawSvgUtils
     // 绘制公司的工具类
     private drawCompanyUtils: DrawCompanyUtils
+    // 绘制标尺的工具类
+    private drawRulerUtils: DrawRulerUtils
+
     /**
      * 构造函数
      * @param canvas 画布
@@ -240,6 +244,7 @@ export class DrawStampUtils {
         this.drawCircleUtils = new DrawCircleUtils(this.mmToPixel)
         this.drawSvgUtils = new DrawSvgUtils(this.mmToPixel)
         this.drawCompanyUtils = new DrawCompanyUtils(this.mmToPixel)
+        this.drawRulerUtils = new DrawRulerUtils(this.mmToPixel)
     }
 
 
@@ -962,113 +967,6 @@ export class DrawStampUtils {
     }
 
     /**
-     * 绘制全尺寸标尺
-     * @param width 画布宽度
-     * @param height 画布高度
-     */
-    private drawFullRuler(ctx: CanvasRenderingContext2D, width: number, height: number) {
-        if (!this.ruler.showFullRuler) return;
-
-        ctx.save();
-        ctx.strokeStyle = '#bbbbbb'; // 浅灰色
-        ctx.lineWidth = 1; // 保持线宽不变
-        ctx.setLineDash([5, 5]); // 保持虚线样式不变
-
-        const step = this.mmToPixel * 5; // 5mm的像素长度
-
-        // 绘制垂直线
-        for (let x = RULER_WIDTH; x < width; x += step * this.scale) {
-            ctx.beginPath();
-            ctx.moveTo(x, RULER_HEIGHT);
-            ctx.lineTo(x, height);
-            ctx.stroke();
-        }
-
-        // 绘制水平线
-        for (let y = RULER_HEIGHT; y < height; y += step * this.scale) {
-            ctx.beginPath();
-            ctx.moveTo(RULER_WIDTH, y);
-            ctx.lineTo(width, y);
-            ctx.stroke();
-        }
-
-        ctx.restore();
-    }
-
-    /**
-     * 绘制标尺
-     * @param rulerLength 标尺长度
-     * @param rulerSize 标尺宽度
-     * @param isHorizontal 是否为水平标尺
-     */
-    private drawRuler(
-        ctx: CanvasRenderingContext2D,
-        rulerLength: number,
-        rulerSize: number,
-        isHorizontal: boolean
-    ) {
-        if (!this.ruler.showRuler) return;
-
-        const mmPerPixel = 1 / this.mmToPixel;
-
-        ctx.save();
-        ctx.fillStyle = 'lightgray';
-        if (isHorizontal) {
-            ctx.fillRect(0, 0, rulerLength, rulerSize);
-        } else {
-            ctx.fillRect(0, 0, rulerSize, rulerLength);
-        }
-
-        ctx.fillStyle = 'black';
-        ctx.font = '10px Arial'; // 保持字体大小不变
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-
-        const step = this.mmToPixel; // 1mm的像素长度
-        const maxMM = Math.ceil((rulerLength - rulerSize) * mmPerPixel / this.scale);
-
-        for (let mm = 0; mm <= maxMM; mm++) {
-            const pos = mm * step * this.scale + rulerSize;
-
-            if (mm % 5 === 0) {
-                ctx.beginPath();
-                if (isHorizontal) {
-                    ctx.moveTo(pos, 0);
-                    ctx.lineTo(pos, rulerSize * 0.8);
-                } else {
-                    ctx.moveTo(0, pos);
-                    ctx.lineTo(rulerSize * 0.8, pos);
-                }
-                ctx.lineWidth = 1; // 保持线宽不变
-                ctx.stroke();
-
-                ctx.save();
-                if (isHorizontal) {
-                    ctx.fillText(mm.toString(), pos, rulerSize * 0.8);
-                } else {
-                    ctx.translate(rulerSize * 0.8, pos);
-                    ctx.rotate(-Math.PI / 2);
-                    ctx.fillText(mm.toString(), 0, 0);
-                }
-                ctx.restore();
-            } else {
-                ctx.beginPath();
-                if (isHorizontal) {
-                    ctx.moveTo(pos, 0);
-                    ctx.lineTo(pos, rulerSize * 0.6);
-                } else {
-                    ctx.moveTo(0, pos);
-                    ctx.lineTo(rulerSize * 0.6, pos);
-                }
-                ctx.lineWidth = 0.5; // 保持线宽不变
-                ctx.stroke();
-            }
-        }
-
-        ctx.restore();
-    }
-
-    /**
      * 将印章保存为PNG图片
      * @param outputSize 输出图片的尺寸
      */
@@ -1188,11 +1086,11 @@ export class DrawStampUtils {
         // 绘制标尺（如果需要）
         if (this.drawStampConfigs.ruler.showRuler) {
             if(this.drawStampConfigs.ruler.showSideRuler){
-                this.drawRuler(this.canvasCtx, this.canvas.width, RULER_HEIGHT, true);
-                this.drawRuler(this.canvasCtx, this.canvas.height, RULER_HEIGHT, false);
+                this.drawRulerUtils.drawRuler(this.canvasCtx, this.drawStampConfigs.ruler, this.scale, this.canvas.width, RULER_HEIGHT, true);
+                this.drawRulerUtils.drawRuler(this.canvasCtx, this.drawStampConfigs.ruler, this.scale, this.canvas.height, RULER_HEIGHT, false);
             }
             if(this.drawStampConfigs.ruler.showDashLine) {
-                this.drawFullRuler(this.canvasCtx, this.canvas.width, this.canvas.height);
+                this.drawRulerUtils.showCrossDashLine(this.canvasCtx, this.drawStampConfigs.ruler, this.scale, RULER_HEIGHT, RULER_HEIGHT, this.canvas.width, this.canvas.height);
             }
         }
     }
