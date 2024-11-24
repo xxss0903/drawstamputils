@@ -12,6 +12,7 @@ import { drawBasicBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
 import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
 import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
+import { DrawSecurityPatternUtils } from "./utils/DrawSecurityPatternUtils.ts";
 import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 // 标尺宽度
 const RULER_WIDTH = 80
@@ -211,6 +212,8 @@ export class DrawStampUtils {
     private drawCompanyUtils: DrawCompanyUtils
     // 绘制标尺的工具类
     private drawRulerUtils: DrawRulerUtils
+    // 绘制防伪纹路的工具类
+    private drawSecurityPatternUtils: DrawSecurityPatternUtils
 
     /**
      * 构造函数
@@ -245,6 +248,7 @@ export class DrawStampUtils {
         this.drawSvgUtils = new DrawSvgUtils(this.mmToPixel)
         this.drawCompanyUtils = new DrawCompanyUtils(this.mmToPixel)
         this.drawRulerUtils = new DrawRulerUtils(this.mmToPixel)
+        this.drawSecurityPatternUtils = new DrawSecurityPatternUtils(this.mmToPixel)
     }
 
 
@@ -566,63 +570,6 @@ export class DrawStampUtils {
         stampTypeList.forEach((stampType) => {
             this.drawStampType(ctx, stampType, centerX, centerY, radiusX)
         })
-        ctx.restore()
-    }
-
-    /**
-     * 绘制防伪纹路
-     * @param centerX 圆心x坐标
-     * @param centerY 圆心y坐标
-     * @param radiusX 半径x
-     * @param radiusY 半径y
-     * @param securityPatternWidth 纹路宽度
-     * @param securityPatternLength 纹路长度
-     */
-    private drawSecurityPattern(
-        ctx: CanvasRenderingContext2D,
-        centerX: number,
-        centerY: number,
-        radiusX: number,
-        radiusY: number,
-        forceRefresh: boolean
-    ) {
-        if (!this.securityPattern.openSecurityPattern) return
-
-        ctx.save()
-        ctx.strokeStyle = '#FFFFFF'
-        ctx.lineWidth = this.securityPattern.securityPatternWidth * this.mmToPixel
-        ctx.globalCompositeOperation = 'destination-out'
-
-        const angleRangeRad = (this.securityPattern.securityPatternAngleRange * Math.PI) / 180
-
-        // 如果需要刷新或者参数数组为空,则重新生成参数
-        if (forceRefresh || this.drawStampConfigs.securityPattern.securityPatternParams.length === 0) {
-            this.drawStampConfigs.securityPattern.securityPatternParams = []
-            for (let i = 0; i < this.securityPattern.securityPatternCount; i++) {
-                const angle = Math.random() * Math.PI * 2
-                const normalAngle = Math.atan2(radiusY * Math.cos(angle), radiusX * Math.sin(angle))
-                const lineAngle = normalAngle + (Math.random() - 0.5) * angleRangeRad
-                this.drawStampConfigs.securityPattern.securityPatternParams.push({angle, lineAngle})
-            }
-        }
-
-        // 使用保存的参数制纹路
-        this.drawStampConfigs.securityPattern.securityPatternParams.forEach(({angle, lineAngle}) => {
-            const x = centerX + radiusX * Math.cos(angle)
-            const y = centerY + radiusY * Math.sin(angle)
-
-            const length = this.securityPattern.securityPatternLength * this.mmToPixel
-            const startX = x - (length / 2) * Math.cos(lineAngle)
-            const startY = y - (length / 2) * Math.sin(lineAngle)
-            const endX = x + (length / 2) * Math.cos(lineAngle)
-            const endY = y + (length / 2) * Math.sin(lineAngle)
-
-            ctx.beginPath()
-            ctx.moveTo(startX, startY)
-            ctx.lineTo(endX, endY)
-            ctx.stroke()
-        })
-
         ctx.restore()
     }
 
@@ -1139,7 +1086,7 @@ export class DrawStampUtils {
         }
         if(this.drawStampConfigs.securityPattern.openSecurityPattern) {
             // 绘制防伪纹路
-            this.drawSecurityPattern(offscreenCtx, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
+            this.drawSecurityPatternUtils.drawSecurityPattern(offscreenCtx, this.drawStampConfigs.securityPattern, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
         }
 
         // 设置合成模式，确保印章内容只在椭圆区域内显示
