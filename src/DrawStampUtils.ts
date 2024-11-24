@@ -10,6 +10,7 @@ import {
 } from "./DrawStampTypes.ts";
 import { drawBasicBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
+import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
 import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 // 标尺宽度
 const RULER_WIDTH = 80
@@ -205,6 +206,8 @@ export class DrawStampUtils {
     private drawCircleUtils: DrawCircleUtils
     // 绘制svg的工具类
     private drawSvgUtils: DrawSvgUtils
+    // 绘制公司的工具类
+    private drawCompanyUtils: DrawCompanyUtils
     /**
      * 构造函数
      * @param canvas 画布
@@ -236,6 +239,7 @@ export class DrawStampUtils {
     private initDrawUtils() {
         this.drawCircleUtils = new DrawCircleUtils(this.mmToPixel)
         this.drawSvgUtils = new DrawSvgUtils(this.mmToPixel)
+        this.drawCompanyUtils = new DrawCompanyUtils(this.mmToPixel)
     }
 
 
@@ -685,92 +689,6 @@ export class DrawStampUtils {
         ctx.lineWidth = borderWidth
         ctx.stroke()
     }
-
-    /**
-     * 绘制公司名称
-     * @param centerX 圆心x坐标
-     * @param centerY 圆心y坐标
-     * @param radiusX 椭圆长轴半径
-     * @param radiusY 椭圆短轴半径
-     * @param text 公司名称文本
-     * @param fontSize 字体大小
-     */
-    private drawCompanyName(
-        ctx: CanvasRenderingContext2D,
-        company: ICompany,
-        centerX: number,
-        centerY: number,
-        radiusX: number,
-        radiusY: number
-      ) {
-        const fontSize = company.fontHeight * this.mmToPixel
-        const fontWeight = company.fontWeight || 'normal'
-        ctx.save()
-        ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`
-        ctx.fillStyle = this.drawStampConfigs.primaryColor
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'bottom'
-      
-        const characters = company.companyName.split('')
-        const characterCount = characters.length
-        const borderOffset = company.borderOffset * this.mmToPixel
-      
-        // 计算总角度和每个字符的角度
-        const totalAngle = Math.PI * (0.5 + characterCount / (company.textDistributionFactor * 4))
-        const anglePerChar = totalAngle / characterCount
-      
-        // 根据旋转方向设置起始角度和角度增量
-        const direction = company.rotateDirection === 'clockwise' ? -1 : 1
-        const startAngle = (company.startAngle ? company.startAngle : 0) + (company.rotateDirection === 'clockwise' ? 
-          Math.PI - totalAngle / 2 : 
-          Math.PI + (Math.PI - totalAngle) / 2)
-      
-        // 计算字符位置时考虑椭圆文字调整
-        if (company.adjustEllipseText) {
-          const halfCharCount = (characterCount + 1) / 2
-      
-          characters.forEach((char, index) => {
-            // 计算当前字符的角度，包含椭圆调整
-            const halfIndex = halfCharCount - index - 1
-            const adjustmentFactor = Math.pow(halfIndex / halfCharCount, 2)
-            const additionalAngle = adjustmentFactor * anglePerChar * company.adjustEllipseTextFactor
-            const indexValue = index - halfCharCount
-            const factor = indexValue / Math.abs(indexValue)
-      
-            let angle = startAngle + direction * anglePerChar * (index + 0.5)
-            angle += additionalAngle * factor
-      
-            // 计算字符位置
-            const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-            const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
-      
-            ctx.save()
-            ctx.translate(x, y)
-            // 根据旋转方向调整文字旋转角度
-            ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
-            ctx.scale(company.compression, 1)
-            ctx.fillText(char, 0, 0)
-            ctx.restore()
-          })
-        } else {
-          // 不调整椭圆文字时的正常绘制
-          characters.forEach((char, index) => {
-            const angle = startAngle + direction * anglePerChar * (index + 0.5)
-            
-            const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-            const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
-      
-            ctx.save()
-            ctx.translate(x, y)
-            ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
-            ctx.scale(company.compression, 1)
-            ctx.fillText(char, 0, 0)
-            ctx.restore()
-          })
-        }
-      
-        ctx.restore()
-      }
 
     /**
      * 绘制印章编码
@@ -1289,20 +1207,6 @@ export class DrawStampUtils {
         this.refreshStamp();
     }
 
-    // 添加绘制公司列表的方法
-    private drawCompanyList(
-        ctx: CanvasRenderingContext2D,
-        companyList: ICompany[],
-        centerX: number,
-        centerY: number,
-        radiusX: number,
-        radiusY: number
-    ) {
-        companyList.forEach((company) => {
-            this.drawCompanyName(ctx, company, centerX, centerY, radiusX, radiusY)
-        })
-    }
-
     /**
      * 绘制印章
      * @param x 圆心x坐标
@@ -1360,10 +1264,13 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.imageList && this.drawStampConfigs.imageList.length > 0) {
             this.drawImageList(offscreenCtx, this.drawStampConfigs.imageList, centerX, centerY)
         }
-        // 绘制文字内容
-        this.drawCompanyList(offscreenCtx, this.drawStampConfigs.companyList, centerX, centerY, radiusX, radiusY)
+        // 绘制公司文字内容，边框的圆形文字
+        this.drawCompanyUtils.drawCompanyList(offscreenCtx, this.drawStampConfigs.companyList, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
+        // 绘制印章类型文字内容，边框的矩形文字
         this.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX)
+        // 绘制编码文字内容，边框的圆形文字
         this.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY)
+        // 绘制税号文字内容，边框的圆形文字
         this.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY)
         offscreenCtx.restore()
         // 将离屏 canvas 的内容绘制到主 canvas
