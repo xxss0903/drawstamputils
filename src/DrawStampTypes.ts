@@ -164,4 +164,8 @@ export type IDrawStampConfig = {
     companyList: ICompany[] // 新增：公司名称列表
     innerCircleList: IInnerCircle[] // 新增：内圈圆列表
     imageList: IDrawImage[] // 新增：图片列表配置
+    scale: number // 缩放比例
+    offsetX: number // x轴偏移量
+    offsetY: number // y轴偏移量
+    mmToPixel: number // 毫米到像素的转换比例
 }

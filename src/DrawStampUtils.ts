@@ -1,11 +1,9 @@
 // 标尺宽度
 import {
-  IAgingEffect,
-  ICode, ICompany, IDrawImage, IDrawStampConfig,
-  IDrawStar,
-  IInnerCircle, IRoughEdge,
-  ISecurityPattern,
-  IShowRuler, IStampType,
+  ICode,
+  IDrawImage,
+  IDrawStampConfig,
+  IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
 import { drawBasicBorder } from "./utils/DrawBorderUtils.ts";
@@ -14,6 +12,7 @@ import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
 import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
 import { DrawSecurityPatternUtils } from "./utils/DrawSecurityPatternUtils.ts";
 import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
+import { InitDrawStampConfigsUtils } from "./utils/InitDrawStampConfigsUtils.ts";
 // 标尺宽度
 const RULER_WIDTH = 80
 // 标尺高度
@@ -27,8 +26,7 @@ export class DrawStampUtils {
     private scale: number = 1;
     private offsetX: number = 0;
     private offsetY: number = 0;
-    // 默认主色
-    private primaryColor: string = '#ff0000'
+
     // 毫米到像素的
     private mmToPixel: number
     // 主canvas的context
@@ -39,169 +37,8 @@ export class DrawStampUtils {
     private canvas: HTMLCanvasElement
     private stampOffsetX: number = 0
     private stampOffsetY: number = 0
-    private agingIntensity: number = 50
-    private ruler: IShowRuler = {
-        showRuler: true,
-        showFullRuler: true,
-        showCrossLine: true,
-        showDashLine: true,
-        showSideRuler: true,
-        showCurrentPositionText: true
-    }
-    private drawStar: IDrawStar = {
-        svgPath: 'M 0 -1 L 0.588 0.809 L -0.951 -0.309 L 0.951 -0.309 L -0.588 0.809 Z',
-        drawStar: false,
-        starDiameter: 14,
-        starPositionY: 0,
-        scaleToSmallStar: false
-    }
-    // 防伪纹路
-    private securityPattern: ISecurityPattern = {
-        openSecurityPattern: true,
-        securityPatternWidth: 0.15,
-        securityPatternLength: 3,
-        securityPatternCount: 5,
-        securityPatternAngleRange: 40,
-        securityPatternParams: []
-    }
-    private company: ICompany = {
-        companyName: '印章绘制有限责任公司',
-        compression: 1,
-        borderOffset: 1,
-        textDistributionFactor: 5,
-        fontFamily: 'SimSun',
-        fontHeight: 4.2,
-        fontWeight: 'normal',
-        shape: 'ellipse',
-        adjustEllipseText: false,
-        adjustEllipseTextFactor: 0.5,
-        startAngle: 0,
-        rotateDirection: "counterclockwise"
-    }
-    private taxNumber: ITaxNumber = {
-        code: '000000000000000000',
-        compression: 0.7,
-        fontHeight: 3.7,
-        fontFamily: 'Arial',
-        fontWidth: 1.3,
-        letterSpacing: 8,
-        positionY: 0,
-        totalWidth: 26,
-        fontWeight: 'normal',
-    }
-    private stampCode: ICode = {
-        code: '1234567890',
-        compression: 1,
-        fontHeight: 1.2,
-        fontFamily: 'Arial',
-        borderOffset: 1,
-        fontWidth: 1.2,
-        textDistributionFactor: 50,
-        fontWeight: 'normal',
-    }
-    private stampType: IStampType = {
-        stampType: '印章类型',
-        fontHeight: 4.6,
-        fontFamily: 'Arial',
-        fontWidth: 3,
-        compression: 0.75,
-        letterSpacing: 0,
-        positionY: -3,
-        fontWeight: 'normal',
-        lineSpacing: 2 // 新增：行间距
-    }
-    // 做旧效果
-    private agingEffect: IAgingEffect = {
-        applyAging: false,
-        agingIntensity: 50,
-        agingEffectParams: []
-    }
-
-    // 内圈圆
-    private innerCircle: IInnerCircle = {
-        drawInnerCircle: true,
-        innerCircleLineWidth: 0.5,
-        innerCircleLineRadiusX: 16,
-        innerCircleLineRadiusY: 12
-    }
-    // 比外圈细的稍微内
-    private outThinCircle: IInnerCircle = {
-        drawInnerCircle: true,
-        innerCircleLineWidth: 0.2,
-        innerCircleLineRadiusX: 36,
-        innerCircleLineRadiusY: 27
-    }
-    // 毛边效果
-    private roughEdge: IRoughEdge = {
-        drawRoughEdge: true,
-        roughEdgeWidth: 0.2,
-        roughEdgeHeight: 5,
-        roughEdgeParams: [],
-        roughEdgeProbability: 0.3,
-        roughEdgeShift: 8,
-        roughEdgePoints: 360
-    }
-    // 印章类型列表，用于多行的文字显示，且可以设置每行的高度和文字宽度，默认添加一个发票专用章类型
-    private stampTypeList: IStampType[] = [
-        {
-            stampType: '印章类型',
-            fontHeight: 4.6,
-            fontFamily: 'Arial',
-            fontWidth: 3,
-            compression: 0.75,
-            letterSpacing: 0,
-            positionY: -3,
-            fontWeight: 'normal',
-            lineSpacing: 2 // 新增：行间距
-        }
-    ]
-    // 添加公司列表属性
-    private companyList: ICompany[] = [
-        {
-            companyName: '绘制印章有限责任公司',
-            compression: 1,
-            borderOffset: 1,
-            textDistributionFactor: 3, // 将默认值从20改为10
-            fontFamily: 'SimSun',
-            fontHeight: 4.2,
-            fontWeight: 'normal',
-            shape: 'ellipse',
-            adjustEllipseText: true,
-            adjustEllipseTextFactor: 0.5,
-            startAngle: 0,
-            rotateDirection: "counterclockwise"
-        }
-    ]
-    // 内圈圆列表
-    private innerCircleList: IInnerCircle[] = [];
-    // 图片列表
-    private imageList: IDrawImage[] = [];
     // 总的印章绘制参数
-    private drawStampConfigs: IDrawStampConfig = {
-        roughEdge: this.roughEdge,
-        ruler: this.ruler,
-        drawStar: this.drawStar,
-        securityPattern: this.securityPattern,
-        company: this.company,
-        stampCode: this.stampCode,
-        width: 40,
-        height: 30,
-        stampType: this.stampType,
-        primaryColor: this.primaryColor,
-        borderWidth: 1,
-        refreshSecurityPattern: false,
-        refreshOld: false,
-        taxNumber: this.taxNumber,
-        agingEffect: this.agingEffect,
-        innerCircle: this.innerCircle,
-        outThinCircle: this.outThinCircle,
-        openManualAging: false,
-        stampTypeList: this.stampTypeList,
-        companyList: this.companyList,
-        innerCircleList: this.innerCircleList,
-        imageList: this.imageList
-    }
-
+    private drawStampConfigs: IDrawStampConfig
     // 添加图片缓存
     private imageCache: Map<string, ImageBitmap> = new Map();
     // 绘制内径圆的工具类
@@ -214,6 +51,8 @@ export class DrawStampUtils {
     private drawRulerUtils: DrawRulerUtils
     // 绘制防伪纹路的工具类
     private drawSecurityPatternUtils: DrawSecurityPatternUtils
+    // 初始化绘制印章配置的工具类
+    private initDrawStampConfigsUtils: InitDrawStampConfigsUtils
 
     /**
      * 构造函数
@@ -228,6 +67,8 @@ export class DrawStampUtils {
         if (!ctx) {
             throw new Error('Failed to get canvas context')
         }
+        this.initDrawStampConfigsUtils = new InitDrawStampConfigsUtils()
+        this.drawStampConfigs = this.initDrawStampConfigsUtils.initDrawStampConfigs()
         this.canvasCtx = ctx
         this.mmToPixel = mmToPixel
         this.canvas = canvas
@@ -1076,10 +917,6 @@ export class DrawStampUtils {
         offscreenCtx.restore()
         // 将离屏 canvas 的内容绘制到主 canvas
         ctx.save()
-        // 先绘制临时 canvas 上的图片（如果有的话）
-        // if (this.drawStampConfigs.drawStar.drawStar) {
-        //     ctx.drawImage(tempCanvas, 0, 0)
-        // }
         // 添加毛边效果
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
             this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshRoughEdge)
