@@ -8,6 +8,9 @@ import {
   IShowRuler, IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
+import { drawBasicBorder } from "./utils/DrawBorderUtils.ts";
+import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
+import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 // 标尺宽度
 const RULER_WIDTH = 80
 // 标尺高度
@@ -198,7 +201,10 @@ export class DrawStampUtils {
 
     // 添加图片缓存
     private imageCache: Map<string, ImageBitmap> = new Map();
-
+    // 绘制内径圆的工具类
+    private drawCircleUtils: DrawCircleUtils
+    // 绘制svg的工具类
+    private drawSvgUtils: DrawSvgUtils
     /**
      * 构造函数
      * @param canvas 画布
@@ -223,6 +229,13 @@ export class DrawStampUtils {
             this.offscreenCanvas.height = canvas.height
         }
         this.addCanvasListener()
+        this.initDrawUtils()
+    }
+
+    // 初始化绘制圆的工具类
+    private initDrawUtils() {
+        this.drawCircleUtils = new DrawCircleUtils(this.mmToPixel)
+        this.drawSvgUtils = new DrawSvgUtils(this.mmToPixel)
     }
 
 
@@ -431,26 +444,6 @@ export class DrawStampUtils {
         }
     }
 
-    private drawSVGPath(
-        ctx: CanvasRenderingContext2D,
-        svgPath: string,
-        x: number,
-        y: number,
-        scale: number = 1
-    ) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(scale, scale);
-        // 创建 Path2D 对象
-        const path = new Path2D(svgPath);
-        // 填充路径
-        ctx.fillStyle = this.drawStampConfigs.primaryColor;
-        ctx.fill(path);
-
-        ctx.restore();
-    }
-
-        
     // 添加绘制图片列表的方法
     private async drawImageList(
         ctx: CanvasRenderingContext2D,
@@ -532,66 +525,6 @@ export class DrawStampUtils {
             bitmap.close();
         }
         this.imageCache.clear();
-    }
-
-    /**
-     * 绘制五角星
-     * @param canvasCtx 画笔
-     * @param x 圆心x坐标
-     * @param y 圆心y坐标
-     * @param r 半径
-     */
-    private async drawStarShape(
-        ctx: CanvasRenderingContext2D,
-        starConfig: IDrawStar,
-        centerX: number,
-        centerY: number
-    ) {
-        const drawStarDia = starConfig.starDiameter / 2 * this.mmToPixel;
-        if (starConfig.svgPath.startsWith('<svg')) {
-            this.drawSVGContent(ctx, starConfig.svgPath, centerX, centerY, 1);
-        } else {
-            this.drawSVGPath(ctx, starConfig.svgPath, centerX, centerY, drawStarDia);
-        }
-    }
-
-    private drawSVGContent(ctx: CanvasRenderingContext2D, svgContent: string, x: number, y: number, scale: number = 1) {
-        // 创建一个临时的 SVG 元素
-        const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svgElement.innerHTML = svgContent;
-        const svgContentEle = svgElement.firstChild as SVGElement
-
-        // 获取 SVG 的宽度和高度
-        const svgWidth = parseFloat(svgContentEle.getAttribute('width') || '0');
-        const svgHeight = parseFloat(svgContentEle.getAttribute('height') || '0');
-
-        // 创建一个新的 Image 对象
-        const img = new Image();
-
-        // 将 SVG 转换为 data URL
-        const svgBlob = new Blob([svgContent], {type: 'image/svg+xml;charset=utf-8'});
-        const url = URL.createObjectURL(svgBlob);
-
-        // 当图片加载完成时在 canvas 上绘制它
-        img.onload = () => {
-            console.log("svg content img loaded", x, y, svgWidth, svgHeight, img);
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(scale, scale);
-            ctx.drawImage(img, -svgWidth / 2, -svgHeight / 2, svgWidth, svgHeight);
-            ctx.restore();
-
-            // 清理 URL 对象
-            URL.revokeObjectURL(url);
-        };
-
-        // 设置图片源为 SVG 的 data URL
-        img.src = url;
-
-        // 添加错误处理
-        img.onerror = (error) => {
-            console.error("加载SVG图像时出错:", error);
-        };
     }
 
     /**
@@ -1370,31 +1303,6 @@ export class DrawStampUtils {
         })
     }
 
-    // 绘制内圈列表
-    private drawInnerCircleList(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, borderColor: string) {
-        const innerCircleList = this.drawStampConfigs.innerCircleList
-        innerCircleList.forEach((innerCircle) => {
-            if (innerCircle.drawInnerCircle) {
-                this.drawInnerCircle(ctx, centerX, centerY, borderColor, innerCircle)
-            }
-        })
-    }
-
-    // 绘制内圈
-    private drawInnerCircle(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, borderColor: string, innerCircle: IInnerCircle) {
-        const innerCircleWidth = (innerCircle.innerCircleLineRadiusX - innerCircle.innerCircleLineWidth) / 2
-        const innerCircleHeight = (innerCircle.innerCircleLineRadiusY - innerCircle.innerCircleLineWidth) / 2
-        this.drawEllipse(
-            ctx,
-            centerX,
-            centerY,
-            innerCircleWidth * this.mmToPixel,
-            innerCircleHeight * this.mmToPixel,
-            innerCircle.innerCircleLineWidth * this.mmToPixel,
-            borderColor
-        )
-    }
-
     /**
      * 绘制印章
      * @param x 圆心x坐标
@@ -1433,28 +1341,20 @@ export class DrawStampUtils {
         tempCanvas.height = this.canvas.height
         const tempCtx = tempCanvas.getContext('2d')
         if (!tempCtx) return
-        // 先在临时 canvas 上绘制图片（如果有的话）
-        if (this.drawStampConfigs.drawStar.drawStar && this.drawStampConfigs.drawStar.useImage) {
-            this.drawStarShape(tempCtx, this.drawStampConfigs.drawStar, centerX, centerY)
-        }
         // 在离屏 canvas 上绘制印章基本形状
-        offscreenCtx.beginPath()
-        offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
-        offscreenCtx.strokeStyle = this.drawStampConfigs.primaryColor
-        offscreenCtx.lineWidth = borderWidth
-        offscreenCtx.stroke()
-        // 创建裁剪区域
+        drawBasicBorder(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, borderColor);
+        // 创建裁剪区域，确保所有内容（文字、图片、五角星等）都被限制在印章的椭圆形状内
         offscreenCtx.save()
         offscreenCtx.beginPath()
         offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
         offscreenCtx.clip()
         // 绘制内圈列表
         if (this.drawStampConfigs.innerCircleList.length > 0) {
-            this.drawInnerCircleList(offscreenCtx, centerX, centerY, borderColor)
+            this.drawCircleUtils.drawCircleList(offscreenCtx, this.drawStampConfigs.innerCircleList, centerX, centerY, borderColor)
         }
         // 如果没有图片，绘制五角星
-        if (this.drawStampConfigs.drawStar.drawStar && !this.drawStampConfigs.drawStar.useImage) {
-            this.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY)
+        if (this.drawStampConfigs.drawStar.drawStar) {
+            this.drawSvgUtils.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY, this.drawStampConfigs.primaryColor)
         }
         // 绘制图片列表
         if (this.drawStampConfigs.imageList && this.drawStampConfigs.imageList.length > 0) {
@@ -1469,9 +1369,9 @@ export class DrawStampUtils {
         // 将离屏 canvas 的内容绘制到主 canvas
         ctx.save()
         // 先绘制临时 canvas 上的图片（如果有的话）
-        if (this.drawStampConfigs.drawStar.drawStar && this.drawStampConfigs.drawStar.useImage) {
-            ctx.drawImage(tempCanvas, 0, 0)
-        }
+        // if (this.drawStampConfigs.drawStar.drawStar) {
+        //     ctx.drawImage(tempCanvas, 0, 0)
+        // }
         // 添加毛边效果
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
             this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, borderWidth, refreshRoughEdge)

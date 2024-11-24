@@ -374,7 +374,7 @@
       <!-- 税号设置 -->
       <div class="control-group">
         <div class="group-header" @click="toggleGroup('taxNumber')">
-          <h3>税号设置</h3>
+          <h3>中间数字设置</h3>
           <span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span>
         </div>
         <div class="group-content" v-show="expandedGroups.taxNumber">
