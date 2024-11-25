@@ -5,6 +5,6 @@ export default defineConfig({
   plugins: [vue()],
   base: '/drawstamputils/',
   build: {
-    outDir: "dist"
+    outDir: "docs"
   }
 })
