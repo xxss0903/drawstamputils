@@ -929,19 +929,7 @@ export class DrawStampUtils {
         }
         // 如果没有图片，绘制五角星或SVG
         if (this.drawStampConfigs.drawStar.drawStar) {
-            this.drawStampConfigs.drawStar.svgPath = `<svg width="100px" height="100px" viewBox="0 0 12.5 12.5" xmlns="http://www.w3.org/2000/svg" version="1.1">
-  <path style="fill:#D0CEA9;stroke:#222222;stroke-width:2" d="M0.25 11V3.125s-0.075 -0.625 0.55 -0.625H1.5v-0.75s0 -0.375 0.375 -0.375h2.125s0.375 0 0.375 0.375v0.75h5.375s0.5 0 0.5 0.5v8z"/>
-  <path style="fill:#E8DC88;stroke:#222222;stroke-width:2;fill-opacity:0.8" d="m0.25 11 1.875 -4.25s0.125 -0.625 1.125 -0.625h8.125s1.125 0 0.875 0.625 -1.75 4.25 -1.75 4.25z"/>
-</svg>
-`
-            this.drawSvgImage(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY)
-            // this.drawSvgUtils.drawStarShape(
-            //     offscreenCtx,
-            //     this.drawStampConfigs.drawStar,
-            //     centerX,
-            //     centerY,
-            //     this.drawStampConfigs.primaryColor
-            // );
+            this.drawSvgUtils.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY, this.drawStampConfigs.primaryColor)
         }
         // 绘制图片列表
         if (this.drawStampConfigs.imageList && this.drawStampConfigs.imageList.length > 0) {
