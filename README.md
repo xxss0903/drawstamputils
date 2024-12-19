@@ -13,7 +13,7 @@
 
 ![npm](https://img.shields.io/npm/v/drawstamputils.svg)
 
-## 简介
+## 简介 
 
 DrawStampUtils.js 是一个使用 TypeScript 制作电子印章的工具。该项目Demo使用 Vue 3，源码使用TypeScript，并通过 Vite 进行开发和构建。
 
