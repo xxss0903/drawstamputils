@@ -64,7 +64,12 @@ export class DrawCompanyUtils {
       
         // 计算字符位置时考虑椭圆文字调整
         if (company.adjustEllipseText) {
-          const halfCharCount = (characterCount + 1) / 2
+          let halfCharCount = 0
+          if(characterCount % 2 !== 0){
+            halfCharCount = characterCount / 2
+          }else{
+            halfCharCount = (characterCount + 1) / 2
+          }
       
           characters.forEach((char, index) => {
             // 计算当前字符的角度，包含椭圆调整
