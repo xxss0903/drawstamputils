@@ -36,7 +36,9 @@ const messages = {
         fontWeight: '字体粗细',
         compression: '压缩比例',
         distribution: '分布因子',
-        margin: '边距 (mm)'
+        margin: '边距 (mm)',
+        startAngle: '起始角度 (°)',
+        rotateDirection: '旋转方向'
       },
       stampType: {
         title: '印章类型列表设置',
@@ -192,7 +194,9 @@ const messages = {
         fontWeight: 'Font Weight',
         compression: 'Compression Ratio',
         distribution: 'Distribution Factor',
-        margin: 'Margin (mm)'
+        margin: 'Margin (mm)',
+        startAngle: 'Start Angle (°)',
+        rotateDirection: 'Rotate Direction'
       },
       stampType: {
         title: 'Stamp Type List Settings',

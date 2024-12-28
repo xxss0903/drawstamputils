@@ -176,6 +176,26 @@
               {{ t('stamp.company.margin') }}:
               <input type="number" v-model.number="company.borderOffset" min="-10" max="10" step="0.05" />
             </label>
+            <label>
+              {{ t('stamp.company.startAngle') }}:
+              <div class="range-container">
+                <input
+                  type="range"
+                  v-model.number="company.startAngle"
+                  min="-3.14"
+                  max="3.14"
+                  step="0.01"
+                />
+                <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
+              </div>
+            </label>
+            <label>
+              {{ t('stamp.company.rotateDirection') }}:
+              <select v-model="company.rotateDirection">
+                <option value="clockwise">{{ t('stamp.company.clockwise') }}</option>
+                <option value="counterclockwise">{{ t('stamp.company.counterclockwise') }}</option>
+              </select>
+            </label>
           </div>
           <button class="add-button" @click="addNewCompany">{{ t('stamp.common.addNew') }}</button>
         </div>
@@ -722,7 +742,7 @@ const textDistributionFactor = ref(3)
 const adjustEllipseText = ref(false)
 // 调整椭圆文字因子
 const adjustEllipseTextFactor = ref(0.5)
-// 文字边距，控制公司名称文字距离椭圆边缘的距离（单位：毫米）
+// 文字边距，控制公���名称文字距离椭圆边缘的距离（单位：毫米）
 const textMarginMM = ref(1) // 默认值为1mm
 // 编码边距，控制印章编码距离椭圆边缘的距离（单位毫米）
 const codeMarginMM = ref(1) // 默认值为1mm
