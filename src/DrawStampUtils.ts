@@ -84,20 +84,15 @@ export class DrawStampUtils {
             this.offscreenCanvas.height = canvas.height
         }
         this.addCanvasListener()
-        this.initDrawUtils()
-        this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
-        this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
-    }
-
-    // 初始化绘制圆的工具类
-    private initDrawUtils() {
         this.drawCircleUtils = new DrawCircleUtils(this.mmToPixel)
         this.drawSvgUtils = new DrawSvgUtils(this.mmToPixel)
         this.drawCompanyUtils = new DrawCompanyUtils(this.mmToPixel)
         this.drawRulerUtils = new DrawRulerUtils(this.mmToPixel, RULER_WIDTH * this.mmToPixel)
         this.drawSecurityPatternUtils = new DrawSecurityPatternUtils(this.mmToPixel)
-    }
 
+        this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
+        this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
+    }
 
     private isDragging = false
     private dragStartX = 0
@@ -260,29 +255,6 @@ export class DrawStampUtils {
         }
     }
 
-    private async drawSvgImage(ctx: CanvasRenderingContext2D, image: IDrawStar, centerX: number, centerY: number) {
-        try {
-            // 计算绘制尺寸
-            const width = 200;
-            const height = 200;
-            
-            // 使用图像 canvas 绘制
-            const imageCanvas = await this.imageCanvas.drawImage(
-                image.svgPath,
-                centerX - width/2,
-                centerY - height/2,
-                width,
-                height
-            );
-
-            // 将图像 canvas 的内容绘制到主 canvas
-            ctx.drawImage(imageCanvas, 0, 0);
-
-        } catch (error) {
-            console.error("Error drawing SVG:", error);
-        }
-    }
-
     // 添加绘制图片列表的方法
     private async drawImageList(
         ctx: CanvasRenderingContext2D,
@@ -441,31 +413,6 @@ export class DrawStampUtils {
             this.drawStampType(ctx, stampType, centerX, centerY, radiusX)
         })
         ctx.restore()
-    }
-
-    /**
-     * 绘制椭圆
-     * @param x 圆心x坐标
-     * @param y 圆心y坐标
-     * @param radiusX 半径x
-     * @param radiusY 半径y
-     * @param borderWidth 边框宽度
-     * @param borderColor 边框颜色
-     */
-    private drawEllipse(
-        ctx: CanvasRenderingContext2D,
-        x: number,
-        y: number,
-        radiusX: number,
-        radiusY: number,
-        borderWidth: number,
-        borderColor: string
-    ) {
-        ctx.beginPath()
-        ctx.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2)
-        ctx.strokeStyle = borderColor
-        ctx.lineWidth = borderWidth
-        ctx.stroke()
     }
 
     /**
