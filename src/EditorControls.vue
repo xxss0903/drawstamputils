@@ -607,13 +607,13 @@
   
   const editorControls = ref<HTMLDivElement | null>(null)
 
+  // 将drawStampUtils作为props传递给EditorControls
   const props = defineProps<{
     drawStampUtils: DrawStampUtils
     }>()
 
-
+  // 更新drawStampUtils，更新绘制印章
   const emit = defineEmits(['updateDrawStamp'])
-  
 
   const isCircleDetect = ref(true)
   // 添加响应式数据
