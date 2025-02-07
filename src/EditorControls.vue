@@ -595,9 +595,12 @@
         </div>
       </div>
     </div>
+    <div class="tooltip" v-if="showTooltip" :style="tooltipStyle">
+      {{ tooltipText }}
+    </div>
   </template>
   <script setup lang="ts">
-  import { ref, onMounted, watch, computed } from 'vue'
+  import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
   import {DrawStampUtils} from './DrawStampUtils'
   import { getSystemFonts } from './utils/fontUtils'
   import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
@@ -1208,6 +1211,7 @@
         updateFontPreview({ target: element } as unknown as Event);
       }
     });
+    window.addEventListener('mousemove', handleMouseMove)
   })
   
   // 监听所有响应式数据的变化
@@ -1417,7 +1421,62 @@
   watch(showSecurityWarning, (newValue) => {
     localStorage.setItem('showSecurityWarning', String(newValue))
   })
+
+  // 添加提示相关的响应式数据
+  const showTooltip = ref(false)
+  const tooltipText = ref('')
+  const tooltipStyle = ref({
+    left: '0px',
+    top: '0px'
+  })
+
+  // 添加鼠标移动检测
+  const handleMouseMove = (event: MouseEvent) => {
+    const canvas = props.drawStampUtils.canvas
+    if (!canvas) return
+
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+
+    // 获取文字路径
+    const textPaths = props.drawStampUtils.drawCompanyUtils.getTextPaths()
+    
+    // 检查是否悬停在文字上
+    for (const textPath of textPaths) {
+      if (x >= textPath.bounds.x && 
+          x <= textPath.bounds.x + textPath.bounds.width &&
+          y >= textPath.bounds.y && 
+          y <= textPath.bounds.y + textPath.bounds.height) {
+        
+        showTooltip.value = true
+        tooltipText.value = textPath.text
+        tooltipStyle.value = {
+          left: `${event.clientX + 10}px`,
+          top: `${event.clientY + 10}px`
+        }
+        return
+      }
+    }
+    
+    showTooltip.value = false
+  }
+
+  // 在组件卸载时移除事件监听
+  onUnmounted(() => {
+    window.removeEventListener('mousemove', handleMouseMove)
+  })
   </script>
   <style scoped>
+  .tooltip {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1000;
+  }
   </style>
   

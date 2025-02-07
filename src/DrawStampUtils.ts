@@ -36,7 +36,7 @@ export class DrawStampUtils {
     // 离屏的canvas
     private offscreenCanvas: HTMLCanvasElement
     // 主canvas
-    private canvas: HTMLCanvasElement
+    public canvas: HTMLCanvasElement
     // 印章偏移量
     private stampOffsetX: number = 0
     private stampOffsetY: number = 0
@@ -49,7 +49,7 @@ export class DrawStampUtils {
     // 绘制svg的工具类
     private drawSvgUtils: DrawSvgUtils
     // 绘制公司的工具类
-    private drawCompanyUtils: DrawCompanyUtils
+    public drawCompanyUtils: DrawCompanyUtils
     // 绘制标尺的工具类
     private drawRulerUtils: DrawRulerUtils
     // 绘制防伪纹路的工具类
