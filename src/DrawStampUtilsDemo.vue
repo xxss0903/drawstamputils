@@ -42,31 +42,6 @@
 
     <!-- Canvas 容器 -->
     <div class="canvas-container">
-      <div style="display: flex; flex-direction: row; margin-top: 12px; gap: 12px">
-        <!-- 做旧效果设置 -->
-        <div class="control-group">
-          <h3>{{ t('stamp.aging.title') }}</h3>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="applyAging" />
-            {{ t('stamp.aging.enable') }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="manualAging" />
-            {{ t('stamp.aging.manual') }}
-          </label>
-          <label v-if="applyAging">
-            {{ t('stamp.aging.intensity') }}:
-            <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
-          </label>
-          <button @click="drawStamp(false, true)">{{ t('stamp.aging.refresh') }}</button>
-        </div>
-
-        <!-- 修改提取印章功能部分 -->
-        <div class="control-group">
-          <h3>{{ t('stamp.extract.title') }}</h3>
-          <button @click="openExtractStampTool">{{ t('stamp.extract.tool') }}</button>
-        </div>
-      </div>
       <div style="margin-top: 12px;">
         <canvas ref="stampCanvas" width="600" height="600"></canvas>
       </div>
@@ -122,12 +97,6 @@ const editorControls = ref<HTMLDivElement | null>(null)
 const stampCanvas = ref<HTMLCanvasElement | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
-// 做旧效果
-const applyAging = ref(false)
-// 手动做旧
-const manualAging = ref(false)
-// 添加新的响应式数据
-const agingIntensity = ref(50)
 const showLegalDialog = ref(false) // 是否显示法律提示弹窗
 
 

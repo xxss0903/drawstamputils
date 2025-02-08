@@ -531,18 +531,28 @@
           <div class="group-content" v-show="expandedGroups.aging">
 
             <label class="checkbox-label">
-              <input type="checkbox" v-model="applyAging" />
+              <input type="checkbox" v-model="applyAging" @change="updateAgingEffect" />
               {{ t('stamp.aging.enable') }}
             </label>
             <label class="checkbox-label">
-              <input type="checkbox" v-model="manualAging" />
+              <input type="checkbox" v-model="manualAging" @change="updateAgingEffect" />
               {{ t('stamp.aging.manual') }}
             </label>
             <label v-if="applyAging">
               {{ t('stamp.aging.intensity') }}:
-              <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
+              <input 
+                type="range" 
+                v-model.number="agingIntensity" 
+                min="0" 
+                max="100" 
+                step="1"
+                @input="updateAgingEffect"
+              />
+              <span>{{ agingIntensity }}%</span>
             </label>
-            <button @click="drawStamp(false, true)">{{ t('stamp.aging.refresh') }}</button>
+            <button @click="refreshAgingEffect" class="refresh-button">
+              {{ t('stamp.aging.refresh') }}
+            </button>
           </div>
         </div>
   
@@ -1446,6 +1456,24 @@
   onUnmounted(() => {
     window.removeEventListener('mousemove', handleMouseMove)
   })
+
+  // 更新做旧效果
+  const updateAgingEffect = () => {
+    const config = props.drawStampUtils.getDrawConfigs()
+    config.agingEffect = {
+      ...config.agingEffect,
+      applyAging: applyAging.value,
+      manualAging: manualAging.value,
+      intensity: agingIntensity.value
+    }
+    
+    emit('updateDrawStamp', config, false, true, false)
+  }
+
+  // 刷新做旧效果
+  const refreshAgingEffect = () => {
+    emit('updateDrawStamp', props.drawStampUtils.getDrawConfigs(), false, true, false)
+  }
   </script>
   <style scoped>
   .tooltip {
@@ -1457,6 +1485,21 @@
     font-size: 14px;
     pointer-events: none;
     z-index: 1000;
+  }
+
+  .refresh-button {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .refresh-button:hover {
+    background-color: #e6f7ff;
+    border-color: #1890ff;
   }
   </style>
   
