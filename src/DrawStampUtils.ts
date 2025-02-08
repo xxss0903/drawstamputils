@@ -16,6 +16,7 @@ import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 import { InitDrawStampConfigsUtils } from "./utils/InitDrawStampConfigsUtils.ts";
 import { DrawImageCanvas } from "./utils/DrawImageCanvas.ts";
 import { DrawCodeUtils } from './utils/DrawCodeUtils'
+import { DrawStampTypeUtils } from './utils/DrawStampTypeUtils'
 // 标尺宽度
 const RULER_WIDTH = 8
 // 标尺高度
@@ -59,6 +60,7 @@ export class DrawStampUtils {
     private initDrawStampConfigsUtils: InitDrawStampConfigsUtils
     private imageCanvas: DrawImageCanvas;
     public drawCodeUtils: DrawCodeUtils
+    public drawStampTypeUtils: DrawStampTypeUtils
 
     /**
      * 构造函数
@@ -94,6 +96,7 @@ export class DrawStampUtils {
         this.drawCodeUtils = new DrawCodeUtils(mmToPixel)
         this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
         this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
+        this.drawStampTypeUtils = new DrawStampTypeUtils(mmToPixel)
     }
 
     private isDragging = false
@@ -830,11 +833,9 @@ export class DrawStampUtils {
         }
         // 绘制公司文字内容，边框的圆形文字
         this.drawCompanyUtils.drawCompanyList(offscreenCtx, this.drawStampConfigs.companyList, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
-        // 绘制印章类型文字内容，边框的矩形文字
-        this.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX)
+        this.drawStampTypeUtils.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX, this.drawStampConfigs.primaryColor)
         // 绘制编码文字内容，边框的圆形文字
         this.drawCodeUtils.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
-        // this.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY)
         // 绘制税号文字内容，边框的圆形文字
         this.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY)
         offscreenCtx.restore()
