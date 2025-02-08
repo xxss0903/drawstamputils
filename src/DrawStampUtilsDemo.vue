@@ -395,8 +395,10 @@ const handleMouseMove = (event: MouseEvent) => {
   // 获取所有文字路径
   const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
   const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
-  const allTextPaths = [...companyTextPaths, ...codeTextPaths]
+  const stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
+  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths]
   
+
   // 检查是否悬停在文字上
   let isOverText = false
   for (const textPath of allTextPaths) {
@@ -432,10 +434,11 @@ const handleCanvasClick = (event: MouseEvent) => {
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
 
-  // 获取所有文字路径（公司名称和编码）
+  // 获取所有文字路径（公司名称、编码和印章类型）
   const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
   const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
-  const allTextPaths = [...companyTextPaths, ...codeTextPaths]
+  const stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
+  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths]
   
   // 检查点击的文字
   for (const textPath of allTextPaths) {
@@ -465,6 +468,15 @@ const handleCanvasClick = (event: MouseEvent) => {
         if (editorControlsRef) {
           editorControlsRef.scrollToCode()
         }
+      } else if (textPath.type === 'stampType') {
+        // 点击印章类型文字时，展开印章类型设置组
+        const stampTypeIndex = findStampTypeIndexByText(textPath.text)
+        if (stampTypeIndex !== -1) {
+          const editorControlsRef = editorControls.value
+          if (editorControlsRef) {
+            editorControlsRef.scrollToStampType(stampTypeIndex)
+          }
+        }
       }
       
       return
@@ -476,6 +488,13 @@ const handleCanvasClick = (event: MouseEvent) => {
 const findCompanyIndexByText = (text: string) => {
   return drawStampUtils.getDrawConfigs().companyList.findIndex(
     company => company.companyName.includes(text)
+  )
+}
+
+// 查找印章类型索引
+const findStampTypeIndexByText = (text: string) => {
+  return drawStampUtils.getDrawConfigs().stampTypeList.findIndex(
+    stampType => stampType.stampType.includes(text)
   )
 }
 </script>

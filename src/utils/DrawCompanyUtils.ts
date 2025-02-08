@@ -153,6 +153,7 @@ export class DrawCompanyUtils {
             this.textPaths.push({
                 text: char,
                 path: path,
+                type: 'company',
                 bounds: {
                     x: x - fontSize/2,
                     y: y - fontSize,

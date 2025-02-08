@@ -1370,10 +1370,25 @@
 
   }
 
+  // 添加滚动到印章类型的方法
+  const scrollToStampType = (index: number) => {
+    // 展开印章类型设置组
+    expandedGroups.value.stampType = true
+    
+    // 等待 DOM 更新后滚动
+    nextTick(() => {
+      const stampTypeItem = document.querySelector(`.stamp-type-item:nth-child(${index + 1})`)
+      if (stampTypeItem) {
+        stampTypeItem.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    })
+  }
+
   // 暴露方法给父组件
   defineExpose({
     scrollToCompanyText,
-    scrollToCode
+    scrollToCode,
+    scrollToStampType
   })
   </script>
   <style scoped>
