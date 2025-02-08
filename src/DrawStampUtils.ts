@@ -594,7 +594,7 @@ export class DrawStampUtils {
         height: number,
         forceRefresh: boolean = false
     ) {
-        console.log("addAgingEffect", "width", width, "height", height, "forceRefresh", this.drawStampConfigs.agingEffect.applyAging)
+        // console.log("addAgingEffect", "width", width, "height", height, "forceRefresh", this.drawStampConfigs.agingEffect.applyAging)
         if (!this.drawStampConfigs.agingEffect.applyAging) return;
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;

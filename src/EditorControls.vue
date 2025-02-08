@@ -786,68 +786,6 @@
     imageList.value.splice(index, 1)
   }
   
-  // 保存模板
-  const saveAsTemplate = () => {
-    const drawConfigs = props.drawStampUtils.getDrawConfigs()
-    const jsonStr = JSON.stringify(drawConfigs, null, 2)
-  
-    // 创建 Blob
-    const blob = new Blob([jsonStr], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-  
-    // 创建下载链接
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'stamp_template.json'
-    document.body.appendChild(link)
-    link.click()
-  
-    // 清理
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
-  
-  // 触发文件选择
-  const triggerTemplateLoad = () => {
-    templateFileInput.value?.click()
-  }
-  
-  // 载模板
-  const loadTemplate = (event: Event) => {
-    const target = event.target as HTMLInputElement
-    if (target.files && target.files[0]) {
-      const file = target.files[0]
-      const reader = new FileReader()
-  
-      reader.onload = (e) => {
-        try {
-          if (e.target?.result) {
-            const jsonStr = e.target.result as string
-            const configs = JSON.parse(jsonStr)
-  
-            // 设置新的配置
-            props.drawStampUtils.setDrawConfigs(configs)
-  
-
-            // 恢复界面显示
-            restoreDrawConfigs()
-  
-            // 刷新印章显示
-            drawStamp()
-          }
-        } catch (error) {
-          console.error('加载模板失败:', error)
-          alert('加载模板失败，请确保文件格式正确')
-        }
-      }
-  
-      reader.readAsText(file)
-    }
-  
-    // 清除文件选择，确保同一文件可以重复选择
-    target.value = ''
-  }
-  
   // 修改图片上传处理函数
   const handleImageUpload = (event: Event, index: number) => {
     const target = event.target as HTMLInputElement
@@ -917,10 +855,6 @@
     companyList.value.splice(index, 1)
   }
   
-  const saveStampAsPNG = () => {
-    showLegalDialog.value = true
-  }
-  
   const drawStampWidth = ref(40)
   const drawStampHeight = ref(30)
   
@@ -932,8 +866,6 @@
     props.drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
     emit('updateDrawStamp', props.drawStampUtils.getDrawConfigs(), refreshSecurityPattern, refreshOld, refreshRoughEdge)
   }
-
-  
   
   // 添加新内圈
   const addNewInnerCircle = () => {
@@ -1065,18 +997,6 @@
   
     drawStamp()
   }
-  
-  // 取消保存
-  const cancelSave = () => {
-    showLegalDialog.value = false
-  }
-  
-  // 确认保存
-  const confirmSave = () => {
-    showLegalDialog.value = false
-    props.drawStampUtils.saveStampAsPNG()
-  }
-  
 
   const restoreDrawConfigs = () => {
     const drawConfigs = props.drawStampUtils.getDrawConfigs()
@@ -1351,11 +1271,6 @@
   watch(stampTypePresets, () => {
     savePresetsToLocalStorage()
   }, { deep: true })
-  
-  // 打开提取印章工具网址
-  const openExtractStampTool = () => {
-    window.open('https://xxss0903.github.io/extractstamp/', '_blank')
-  }
   
   // 修改字体预览更新函数
   const updateFontPreview = (event: Event) => {
