@@ -72,32 +72,31 @@
       </div>
     </div>
 
-    <!-- 添加模板列表面板 -->
-    <div class="template-panel">
-      <div class="template-header">
-        <h3>{{ t('stamp.template.title') }}</h3>
-        <button class="add-template" @click="saveCurrentAsTemplate">
-          <span>+</span> {{ t('stamp.template.save') }}
+    <!-- 使用模板弹窗组件 -->
+    <TemplateDialog
+      :show="showTemplateDialog"
+      :templates="defaultTemplates"
+      :currentIndex="currentTemplateIndex"
+      @close="showTemplateDialog = false"
+      @save="saveCurrentAsTemplate"
+      @select="loadDefaultTemplate"
+    />
+
+    <!-- 右侧工具栏 -->
+    <div class="right-toolbar">
+      <div class="toolbar-buttons">
+        <button class="toolbar-button" @click="showTemplateDialog = true">
+          <span class="button-icon">📋</span>
+          {{ t('stamp.template.open') }}
         </button>
-      </div>
-      
-      <div class="template-list">
-        <!-- 默认模板 -->
-        <div class="template-category">
-          <h4>{{ t('stamp.template.defaultTitle') }}</h4>
-          <div v-for="(template, index) in defaultTemplates" 
-               :key="'default-' + index" 
-               class="template-item"
-               :class="{ 'active': currentTemplateIndex === (-1 - index) }"
-               @click="loadDefaultTemplate(template)">
-            <div class="template-preview">
-              <img :src="template.preview" :alt="t('stamp.template.preview')" />
-            </div>
-            <div class="template-info">
-              <span class="template-name">{{ t('stamp.template.name') }}: {{ template.name }}</span>
-            </div>
-          </div>
-        </div>
+        <button class="toolbar-button" @click="saveStampAsPNG">
+          <span class="button-icon">💾</span>
+          {{ t('stamp.save') }}
+        </button>
+        <button class="toolbar-button" @click="openExtractStampTool">
+          <span class="button-icon">🔍</span>
+          {{ t('stamp.extract.tool') }}
+        </button>
       </div>
     </div>
   </div>
@@ -111,6 +110,7 @@ import { useI18n } from 'vue-i18n'
 import stampTemplate1 from './assets/templates/stamp_template1.json'
 import stampTemplate2 from './assets/templates/stamp_template2.json'
 import EditorControls from './EditorControls.vue'
+import TemplateDialog from './components/TemplateDialog.vue'
 
 const { t } = useI18n()
 // 添加一个标志来控制 EditorControls 的加载
@@ -163,11 +163,16 @@ const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean 
   drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
 }
 
+// 保存印章为PNG
+const saveStampAsPNG = () => {
+  showLegalDialog.value = true
+}
 
 // 取消保存
 const cancelSave = () => {
   showLegalDialog.value = false
 }
+
 
 // 确认保存
 const confirmSave = () => {
@@ -416,7 +421,108 @@ const updateDrawStamp = (newConfig: IDrawStampConfig, refreshSecurityPattern: bo
   drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
 }
 
+// 添加模板弹窗控制
+const showTemplateDialog = ref(false)
 
 </script>
 <style scoped>
+/* 模板弹窗样式 */
+.template-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.template-dialog {
+  background-color: white;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.template-dialog-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.template-dialog-footer {
+  padding: 16px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+/* 右侧工具栏样式 */
+.right-toolbar {
+  width: 250px;
+  background-color: white;
+  border-left: 1px solid #eee;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toolbar-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.toolbar-button:hover {
+  background-color: #e6f7ff;
+}
+
+.button-icon {
+  font-size: 20px;
+}
+
+.close-button {
+  border: none;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-button:hover {
+  color: #333;
+}
 </style>
