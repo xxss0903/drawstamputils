@@ -421,7 +421,13 @@ onMounted(() => {
   padding: 16px;
 }
 
-/* 右侧工具栏样式 */
+/* 修改容器样式 */
+.container {
+  display: flex;
+  background-color: #f5f5f5;
+}
+
+/* 修改右侧工具栏样式 */
 .right-toolbar {
   width: 250px;
   background-color: white;
@@ -429,10 +435,14 @@ onMounted(() => {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  position: sticky;
+  top: 0;
+  height: 100%;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
 }
 
 .toolbar-buttons {
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
