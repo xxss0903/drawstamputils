@@ -21,8 +21,7 @@
         <!-- 印章基本设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('basic')">
-            <h3>{{ t('stamp.basic.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.basic }">▼</span>
+            <h3>{{ t('stamp.basic.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.basic }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.basic">
             <label class="checkbox-label">
@@ -57,8 +56,7 @@
         <!-- 公司名称设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('company')">
-            <h3>{{ t('stamp.company.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.company }">▼</span>
+            <h3>{{ t('stamp.company.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.company }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.company">
             <div v-for="(company, index) in companyList" :key="index" class="company-item">
@@ -170,10 +168,10 @@
         <!-- 印章类型设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('stampType')">
-            <h3>{{ t('stamp.stampType.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.stampType }">▼</span>
+            <h3>{{ t('stamp.stampType.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.stampType }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.stampType">
+
             <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
               <div class="stamp-type-header">
                 <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
@@ -261,10 +259,10 @@
         <!-- 印章编码设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('code')">
-            <h3>{{ t('stamp.code.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.code }">▼</span>
+            <h3>{{ t('stamp.code.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.code }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.code">
+
             <label>{{ t('stamp.code.code') }}: <input v-model="stampCode" /></label>
             <label>
               {{ t('stamp.code.font') }}:
@@ -335,10 +333,10 @@
         <!-- 税号设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('taxNumber')">
-            <h3>{{ t('stamp.taxNumber.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span>
+            <h3>{{ t('stamp.taxNumber.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.taxNumber">
+
             <label>{{ t('stamp.taxNumber.number') }}: <input v-model="taxNumberValue" /></label>
             <label>
               {{ t('stamp.taxNumber.font') }}:
@@ -406,10 +404,10 @@
         <!-- 图片列表设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('images')">
-            <h3>{{ t('stamp.images.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.images }">▼</span>
+            <h3>{{ t('stamp.images.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.images }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.images">
+
             <div v-for="(image, index) in imageList" :key="index" class="image-item">
               <div class="image-header">
                 <span>{{ t('stamp.images.image', { index: index + 1 }) }}</span>
@@ -450,10 +448,10 @@
         <!-- 五角星设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('star')">
-            <h3>{{ t('stamp.star.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.star }">▼</span>
+            <h3>{{ t('stamp.star.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.star }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.star">
+
             <label class="checkbox-label">
               <input type="checkbox" v-model="shouldDrawStar" />
               {{ t('stamp.star.enable') }}
@@ -473,10 +471,10 @@
         <!-- 防伪纹路设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('security')">
-            <h3>{{ t('stamp.security.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.security }">▼</span>
+            <h3>{{ t('stamp.security.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.security }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.security">
+
             <label>
               {{ t('stamp.security.enable') }}:
               <input type="checkbox" v-model="securityPatternEnabled" />
@@ -505,10 +503,10 @@
         <!-- 毛边效果设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('roughEdge')">
-            <h3>{{ t('stamp.roughEdge.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.roughEdge }">▼</span>
+            <h3>{{ t('stamp.roughEdge.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.roughEdge }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.roughEdge">
+
             <label class="checkbox-label">
               <input type="checkbox" v-model="shouldDrawRoughEdge" />
               {{ t('stamp.roughEdge.enable') }}
@@ -545,10 +543,10 @@
         <!-- 做旧效果设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('aging')">
-            <h3>{{ t('stamp.aging.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.aging }">▼</span>
+            <h3>{{ t('stamp.aging.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.aging }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.aging">
+
             <label class="checkbox-label">
               <input type="checkbox" v-model="applyAging" />
               {{ t('stamp.aging.enable') }}
@@ -568,8 +566,7 @@
         <!-- 内圈圆形设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('innerCircle')">
-            <h3>{{ t('stamp.innerCircle.title') }}</h3>
-            <span class="expand-icon" :class="{ 'expanded': expandedGroups.innerCircle }">▼</span>
+            <h3>{{ t('stamp.innerCircle.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.innerCircle }">▼</span></h3>
           </div>
           <div class="group-content" v-show="expandedGroups.innerCircle">
             <button @click="addNewInnerCircle">{{ t('stamp.innerCircle.addNew') }}</button>
