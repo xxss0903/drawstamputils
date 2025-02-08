@@ -58,7 +58,7 @@ export class DrawStampUtils {
     // 初始化绘制印章配置的工具类
     private initDrawStampConfigsUtils: InitDrawStampConfigsUtils
     private imageCanvas: DrawImageCanvas;
-    private drawCodeUtils: DrawCodeUtils
+    public drawCodeUtils: DrawCodeUtils
 
     /**
      * 构造函数

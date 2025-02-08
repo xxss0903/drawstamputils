@@ -240,7 +240,7 @@
         </div>
   
         <!-- 印章编码设置 -->
-        <div class="control-group">
+        <div class="control-group stamp-code-group">
           <div class="group-header" @click="toggleGroup('code')">
             <h3>{{ t('stamp.code.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.code }">▼</span></h3>
           </div>
@@ -1355,9 +1355,25 @@
     })
   }
 
+  // 添加滚动到编码的方法
+  const scrollToCode = () => {
+    // 展开编码设置组
+    expandedGroups.value.code = true
+    
+    // 等待 DOM 更新后滚动
+    nextTick(() => {
+      const codeSection = document.querySelector('.stamp-code-group')
+      if (codeSection) {
+        codeSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    })
+
+  }
+
   // 暴露方法给父组件
   defineExpose({
-    scrollToCompanyText
+    scrollToCompanyText,
+    scrollToCode
   })
   </script>
   <style scoped>

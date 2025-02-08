@@ -392,12 +392,14 @@ const handleMouseMove = (event: MouseEvent) => {
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
 
-  // 获取文字路径
-  const textPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  // 获取所有文字路径
+  const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
+  const allTextPaths = [...companyTextPaths, ...codeTextPaths]
   
   // 检查是否悬停在文字上
   let isOverText = false
-  for (const textPath of textPaths) {
+  for (const textPath of allTextPaths) {
     if (x >= textPath.bounds.x && 
         x <= textPath.bounds.x + textPath.bounds.width &&
         y >= textPath.bounds.y && 
@@ -430,11 +432,13 @@ const handleCanvasClick = (event: MouseEvent) => {
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
 
-  // 获取文字路径
-  const textPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  // 获取所有文字路径（公司名称和编码）
+  const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
+  const allTextPaths = [...companyTextPaths, ...codeTextPaths]
   
   // 检查点击的文字
-  for (const textPath of textPaths) {
+  for (const textPath of allTextPaths) {
     if (x >= textPath.bounds.x && 
         x <= textPath.bounds.x + textPath.bounds.width &&
         y >= textPath.bounds.y && 
@@ -444,14 +448,22 @@ const handleCanvasClick = (event: MouseEvent) => {
       console.log('点击的文字:', textPath.text)
       console.log('文字路径:', textPath.path)
       console.log('文字边界:', textPath.bounds)
+      console.log('文字类型:', textPath.type)
 
-      // 找到对应的公司文字组件并滚动到该位置
-      const companyIndex = findCompanyIndexByText(textPath.text)
-      if (companyIndex !== -1) {
-        // 通知 EditorControls 组件展开公司设置组并滚动到对应位置
+      // 根据文字类型处理点击
+      if (textPath.type === 'company') {
+        const companyIndex = findCompanyIndexByText(textPath.text)
+        if (companyIndex !== -1) {
+          const editorControlsRef = editorControls.value
+          if (editorControlsRef) {
+            editorControlsRef.scrollToCompanyText(companyIndex)
+          }
+        }
+      } else if (textPath.type === 'code') {
+        // 点击编码文字时，展开编码设置组
         const editorControlsRef = editorControls.value
         if (editorControlsRef) {
-          editorControlsRef.scrollToCompanyText(companyIndex)
+          editorControlsRef.scrollToCode()
         }
       }
       
