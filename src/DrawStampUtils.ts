@@ -15,6 +15,7 @@ import { DrawSecurityPatternUtils } from "./utils/DrawSecurityPatternUtils.ts";
 import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 import { InitDrawStampConfigsUtils } from "./utils/InitDrawStampConfigsUtils.ts";
 import { DrawImageCanvas } from "./utils/DrawImageCanvas.ts";
+import { DrawCodeUtils } from './utils/DrawCodeUtils'
 // 标尺宽度
 const RULER_WIDTH = 8
 // 标尺高度
@@ -57,6 +58,7 @@ export class DrawStampUtils {
     // 初始化绘制印章配置的工具类
     private initDrawStampConfigsUtils: InitDrawStampConfigsUtils
     private imageCanvas: DrawImageCanvas;
+    private drawCodeUtils: DrawCodeUtils
 
     /**
      * 构造函数
@@ -89,7 +91,7 @@ export class DrawStampUtils {
         this.drawCompanyUtils = new DrawCompanyUtils(this.mmToPixel)
         this.drawRulerUtils = new DrawRulerUtils(this.mmToPixel, RULER_WIDTH * this.mmToPixel)
         this.drawSecurityPatternUtils = new DrawSecurityPatternUtils(this.mmToPixel)
-
+        this.drawCodeUtils = new DrawCodeUtils(mmToPixel)
         this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
         this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
     }
@@ -412,69 +414,6 @@ export class DrawStampUtils {
         stampTypeList.forEach((stampType) => {
             this.drawStampType(ctx, stampType, centerX, centerY, radiusX)
         })
-        ctx.restore()
-    }
-
-    /**
-     * 绘制印章编码
-     * @param centerX 圆心x坐标
-     * @param centerY 圆心y坐标
-     * @param radiusX 椭圆长轴半径
-     * @param radiusY 椭圆短轴半径
-     * @param text 编码文本
-     * @param fontSize 字大小
-     */
-    private drawCode(
-        ctx: CanvasRenderingContext2D,
-        code: ICode,
-        centerX: number,
-        centerY: number,
-        radiusX: number,
-        radiusY: number
-    ) {
-        const fontSize = code.fontHeight * this.mmToPixel
-        const text = code.code
-        const fontWeight = code.fontWeight || 'normal'; // 新增字体粗细参数
-
-        ctx.save()
-        ctx.font = `${fontWeight} ${fontSize}px ${code.fontFamily}`;
-        ctx.fillStyle = this.drawStampConfigs.primaryColor
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-
-        const characters = text.split('')
-        const characterCount = characters.length
-        // 处理单个字符的情况
-        if (characterCount === 1) {
-            // 单个字符直接绘制在底部中心位置
-            const x = centerX
-            const y = centerY + radiusY - fontSize - code.borderOffset * this.mmToPixel
-
-            ctx.save()
-            ctx.translate(x, y)
-            ctx.scale(code.compression, 1)
-            ctx.fillText(text, 0, 0)
-            ctx.restore()
-        } else {
-            // 多个字符时的弧形排列
-            const totalAngle = Math.PI * ((1 + characterCount) / code.textDistributionFactor)
-            const startAngle = Math.PI / 2 + totalAngle / 2
-            const anglePerChar = totalAngle / (characterCount - 1)
-
-            characters.forEach((char, index) => {
-                const angle = startAngle - anglePerChar * index
-                const x = centerX + Math.cos(angle) * (radiusX - fontSize / 2 - code.borderOffset * this.mmToPixel)
-                const y = centerY + Math.sin(angle) * (radiusY - fontSize / 2 - code.borderOffset * this.mmToPixel)
-
-                ctx.save()
-                ctx.translate(x, y)
-                ctx.rotate(angle - Math.PI / 2)
-                ctx.scale(code.compression, 1)
-                ctx.fillText(char, 0, 0)
-                ctx.restore()
-            })
-        }
-
         ctx.restore()
     }
 
@@ -894,7 +833,8 @@ export class DrawStampUtils {
         // 绘制印章类型文字内容，边框的矩形文字
         this.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX)
         // 绘制编码文字内容，边框的圆形文字
-        this.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY)
+        this.drawCodeUtils.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
+        // this.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY)
         // 绘制税号文字内容，边框的圆形文字
         this.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY)
         offscreenCtx.restore()
