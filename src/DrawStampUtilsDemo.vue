@@ -79,7 +79,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
 import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
@@ -150,6 +150,14 @@ onMounted(async () => {
     }
   });
   isDrawStampUtilsReady.value = true
+  window.addEventListener('mousemove', handleMouseMove)
+  drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
+})
+
+// 在组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleMouseMove)
+  drawStampUtils?.canvas?.removeEventListener('click', handleCanvasClick)
 })
 
 // 添加新的类型定义
@@ -368,6 +376,96 @@ const loadTemplatesFromStorage = () => {
 onMounted(() => {
   loadTemplatesFromStorage()
 })
+
+// 添加提示相关的响应式数据
+const showTooltip = ref(false)
+const tooltipStyle = ref({
+  left: '0px',
+  top: '0px'
+})
+
+// 添加鼠标移动检测
+const handleMouseMove = (event: MouseEvent) => {
+  if (!drawStampUtils?.canvas) return
+
+  const rect = drawStampUtils.canvas.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+
+  // 获取文字路径
+  const textPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  
+  // 检查是否悬停在文字上
+  let isOverText = false
+  for (const textPath of textPaths) {
+    if (x >= textPath.bounds.x && 
+        x <= textPath.bounds.x + textPath.bounds.width &&
+        y >= textPath.bounds.y && 
+        y <= textPath.bounds.y + textPath.bounds.height) {
+      
+      isOverText = true
+      showTooltip.value = true
+      tooltipStyle.value = {
+        left: `${event.clientX + 10}px`,
+        top: `${event.clientY + 10}px`
+      }
+
+      // 设置鼠标样式为指针
+      drawStampUtils.canvas.style.cursor = 'pointer'
+      return
+    }
+  }
+  
+  if (!isOverText) {
+    showTooltip.value = false
+    drawStampUtils.canvas.style.cursor = 'default'
+  }
+}
+
+// 添加点击事件处理
+const handleCanvasClick = (event: MouseEvent) => {
+  if (!drawStampUtils?.canvas) return
+
+  const rect = drawStampUtils.canvas.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+
+  // 获取文字路径
+  const textPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  
+  // 检查点击的文字
+  for (const textPath of textPaths) {
+    if (x >= textPath.bounds.x && 
+        x <= textPath.bounds.x + textPath.bounds.width &&
+        y >= textPath.bounds.y && 
+        y <= textPath.bounds.y + textPath.bounds.height) {
+      
+      // 打印文字信息
+      console.log('点击的文字:', textPath.text)
+      console.log('文字路径:', textPath.path)
+      console.log('文字边界:', textPath.bounds)
+
+      // 找到对应的公司文字组件并滚动到该位置
+      const companyIndex = findCompanyIndexByText(textPath.text)
+      if (companyIndex !== -1) {
+        // 通知 EditorControls 组件展开公司设置组并滚动到对应位置
+        const editorControlsRef = editorControls.value
+        if (editorControlsRef) {
+          editorControlsRef.scrollToCompanyText(companyIndex)
+        }
+      }
+      
+      return
+    }
+  }
+}
+
+// 查找文字对应的公司索引
+const findCompanyIndexByText = (text: string) => {
+  return drawStampUtils.getDrawConfigs().companyList.findIndex(
+    company => company.companyName.includes(text)
+  )
+}
 </script>
 <style scoped>
 /* 模板弹窗样式 */
@@ -478,5 +576,16 @@ onMounted(() => {
 
 .close-button:hover {
   color: #333;
+}
+
+.tooltip {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 1000;
 }
 </style>
