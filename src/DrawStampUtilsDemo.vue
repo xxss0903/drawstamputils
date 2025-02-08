@@ -77,9 +77,11 @@
       :show="showTemplateDialog"
       :templates="defaultTemplates"
       :currentIndex="currentTemplateIndex"
+      :drawStampUtils="drawStampUtils"
       @close="showTemplateDialog = false"
       @save="saveCurrentAsTemplate"
       @select="loadDefaultTemplate"
+      @update="drawStamp"
     />
 
     <!-- 右侧工具栏 -->
@@ -127,28 +129,6 @@ const manualAging = ref(false)
 // 添加新的响应式数据
 const agingIntensity = ref(50)
 const showLegalDialog = ref(false) // 是否显示法律提示弹窗
-
-
-// 保存模板
-const saveAsTemplate = () => {
-  const drawConfigs = drawStampUtils.getDrawConfigs()
-  const jsonStr = JSON.stringify(drawConfigs, null, 2)
-
-  // 创建 Blob
-  const blob = new Blob([jsonStr], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-
-  // 创建下载链接
-  const link = document.createElement('a')
-  link.href = url
-  link.download = 'stamp_template.json'
-  document.body.appendChild(link)
-  link.click()
-
-  // 清理
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-}
 
 
 // 绘制工具
@@ -337,7 +317,7 @@ const currentTemplateIndex = ref(-1)
 // 保存当前设置为模板
 const saveCurrentAsTemplate = async () => {
   // 保存到本地存储
-  saveAsTemplate()
+  localStorage.setItem('stampTemplates', JSON.stringify(templateList.value))
 }
 
 // 加载模板
@@ -365,35 +345,6 @@ const loadDefaultTemplate = (template: Template) => {
     alert('加载默认模板失败')
   }
 }
-
-// 保存模板列表到本地存储
-const saveTemplatesToStorage = () => {
-  localStorage.setItem('stampTemplates', JSON.stringify(templateList.value))
-}
-
-// 从本地存储加载模板列表
-const loadTemplatesFromStorage = () => {
-  // 生成默认模板的预览图
-  defaultTemplates.forEach(async (template) => {
-    // 临时创建一个 canvas 生成预览图
-    const tempCanvas = document.createElement('canvas')
-    tempCanvas.width = 500
-    tempCanvas.height = 500
-    const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
-    template.config.ruler.showRuler = false;
-    // 设置模板配置
-    tempDrawStampUtils.setDrawConfigs(template.config)
-    tempDrawStampUtils.refreshStamp()
-    
-    // 生成预览图
-    template.preview = tempCanvas.toDataURL('image/png')
-  })
-}
-
-// 在组件挂载时加载保存的模板
-onMounted(() => {
-  loadTemplatesFromStorage()
-})
 
 // 添加默认模板的类型定义和数据
 const defaultTemplates: Template[] = [
@@ -424,6 +375,30 @@ const updateDrawStamp = (newConfig: IDrawStampConfig, refreshSecurityPattern: bo
 // 添加模板弹窗控制
 const showTemplateDialog = ref(false)
 
+
+// 从本地存储加载模板列表
+const loadTemplatesFromStorage = () => {
+  // 生成默认模板的预览图
+  defaultTemplates.forEach(async (template) => {
+    // 临时创建一个 canvas 生成预览图
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = 500
+    tempCanvas.height = 500
+    const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
+    template.config.ruler.showRuler = false;
+    // 设置模板配置
+    tempDrawStampUtils.setDrawConfigs(template.config)
+    tempDrawStampUtils.refreshStamp()
+    
+    // 生成预览图
+    template.preview = tempCanvas.toDataURL('image/png')
+  })
+}
+
+// 在组件挂载时加载保存的模板
+onMounted(() => {
+  loadTemplatesFromStorage()
+})
 </script>
 <style scoped>
 /* 模板弹窗样式 */

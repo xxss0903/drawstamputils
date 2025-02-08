@@ -28,19 +28,33 @@
         </div>
       </div>
       <div class="template-dialog-footer">
-        <button class="add-template" @click="onSave">
-          {{ t('stamp.template.save') }}
-        </button>
+        <input 
+          type="file" 
+          ref="templateFileInput"
+          style="display: none"
+          accept=".json"
+          @change="loadTemplateFile"
+        />
+        <div class="footer-buttons">
+          <button class="load-template" @click="triggerTemplateLoad">
+            {{ t('stamp.template.load') }}
+          </button>
+          <button class="add-template" @click="saveAsTemplate">
+            {{ t('stamp.template.save') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { IDrawStampConfig } from '../DrawStampTypes'
 
 const { t } = useI18n()
+const templateFileInput = ref<HTMLInputElement | null>(null)
 
 interface Template {
   name: string
@@ -52,6 +66,7 @@ interface Props {
   show: boolean
   templates: Template[]
   currentIndex: number
+  drawStampUtils: any // 添加 drawStampUtils 属性
 }
 
 const props = defineProps<Props>()
@@ -60,18 +75,67 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'save'): void
   (e: 'select', template: Template): void
+  (e: 'update'): void
 }>()
 
 const onClose = () => {
   emit('close')
 }
 
-const onSave = () => {
-  emit('save')
-}
-
 const onSelectTemplate = (template: Template) => {
   emit('select', template)
+}
+
+// 保存当前模板
+const saveAsTemplate = () => {
+  if (!props.drawStampUtils) return
+  
+  const drawConfigs = props.drawStampUtils.getDrawConfigs()
+  const jsonStr = JSON.stringify(drawConfigs, null, 2)
+
+  // 创建 Blob
+  const blob = new Blob([jsonStr], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+
+  // 创建下载链接
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'stamp_template.json'
+  document.body.appendChild(link)
+  link.click()
+
+  // 清理
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+// 触发文件选择
+const triggerTemplateLoad = () => {
+  templateFileInput.value?.click()
+}
+
+// 加载模板文件
+const loadTemplateFile = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (!input.files?.length) return
+
+  try {
+    const file = input.files[0]
+    const text = await file.text()
+    const config = JSON.parse(text) as IDrawStampConfig
+
+    // 设置新的配置
+    if (props.drawStampUtils) {
+      props.drawStampUtils.setDrawConfigs(config)
+      emit('update') // 通知父组件更新
+    }
+  } catch (error) {
+    console.error('加载模板失败:', error)
+    alert(t('stamp.template.loadError'))
+  }
+
+  // 清除文件选择
+  input.value = ''
 }
 </script>
 
@@ -180,5 +244,25 @@ const onSelectTemplate = (template: Template) => {
 
 .add-template:hover {
   background-color: #40a9ff;
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.load-template {
+  padding: 8px 16px;
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  background-color: white;
+  color: #1890ff;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.load-template:hover {
+  background-color: #e6f7ff;
 }
 </style> 

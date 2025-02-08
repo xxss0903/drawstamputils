@@ -1,23 +1,6 @@
 <template>
     <div class="container" :class="{ 'has-warning': showSecurityWarning }">
       <div class="editor-controls" ref="editorControls">
-        <!-- 顶部固定按钮 -->
-        <div
-          class="button-group"
-          style="position: sticky; top: 0; z-index: 1000; background-color: white; padding: 10px"
-        >
-          <button @click="saveStampAsPNG">{{ t('stamp.save') }}</button>
-          <button @click="saveAsTemplate">{{ t('stamp.saveTemplate') }}</button>
-          <input
-            type="file"
-            ref="templateFileInput"
-            style="display: none"
-            accept=".json"
-            @change="loadTemplate"
-          />
-          <button @click="triggerTemplateLoad">{{ t('stamp.loadTemplate') }}</button>
-        </div>
-  
         <!-- 印章基本设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('basic')">
