@@ -82,7 +82,7 @@ export class DrawTaxNumberUtils {
                 bounds: {
                     x: x - (charWidth * taxNumber.compression) / 2,
                     y: adjustedCenterY - fontSize / 2,
-                    width: charWidth * taxNumber.compression,
+                    width: Math.abs(charWidth * taxNumber.compression),
                     height: fontSize * 1.35
                 }
 

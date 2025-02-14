@@ -93,8 +93,8 @@ const { t } = useI18n()
 // 添加一个标志来控制 EditorControls 的加载
 const isDrawStampUtilsReady = ref(false)
 
-const editorControls = ref<HTMLDivElement | null>(null)
-const stampCanvas = ref<HTMLCanvasElement | null>(null)
+const editorControls = ref<any | null>(null)
+const stampCanvas = ref<any | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
 const showLegalDialog = ref(false) // 是否显示法律提示弹窗
@@ -107,9 +107,24 @@ const initDrawStampUtils = () => {
   drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
 }
 
+
+  // 获取所有文字路径（公司名称、编码和印章类型）
+  let allTextPaths: any[] = []
+  let companyTextPaths: any[] = []
+  let codeTextPaths: any[] = []
+  let stampTypeTextPaths: any[] = []
+  let taxNumberTextPaths: any[] = []
+
 const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
   // 使用drawstamputils进行绘制
   drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
+  companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
+  stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
+  taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
+  allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
+
+  console.log("drawStamp taxNumberTextPaths", codeTextPaths)
 }
 
 // 保存印章为PNG
@@ -392,14 +407,6 @@ const handleMouseMove = (event: MouseEvent) => {
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
 
-  // 获取所有文字路径
-  const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
-  const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
-  const stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
-  const taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
-  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
-  
-
   // 检查是否悬停在文字上
   let isOverText = false
   for (const textPath of allTextPaths) {
@@ -434,13 +441,6 @@ const handleCanvasClick = (event: MouseEvent) => {
   const rect = drawStampUtils.canvas.getBoundingClientRect()
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
-
-  // 获取所有文字路径（公司名称、编码和印章类型）
-  const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
-  const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
-  const stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
-  const taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
-  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
   
   // 检查点击的文字
   for (const textPath of allTextPaths) {
