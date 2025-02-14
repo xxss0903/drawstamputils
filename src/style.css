@@ -313,7 +313,6 @@ button:focus-visible {
 
 /* Canvas 容器样式 */
 .canvas-container {
-  height: 100%;
   background-color: #f8f9fa;
   display: flex;
   flex-direction: column;

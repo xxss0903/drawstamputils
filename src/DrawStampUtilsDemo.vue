@@ -573,7 +573,7 @@ const findStampTypeIndexByText = (text: string) => {
   flex-direction: column;
   position: sticky;
   top: 0;
-  height: 100%;
+  height: 90%;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
 }
 
