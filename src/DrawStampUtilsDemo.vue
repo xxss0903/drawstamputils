@@ -477,7 +477,7 @@ const handleCanvasClick = (event: MouseEvent) => {
             editorControlsRef.scrollToStampType(stampTypeIndex)
           }
         }
-      }
+      } 
       
       return
     }

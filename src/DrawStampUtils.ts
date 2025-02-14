@@ -17,6 +17,7 @@ import { InitDrawStampConfigsUtils } from "./utils/InitDrawStampConfigsUtils.ts"
 import { DrawImageCanvas } from "./utils/DrawImageCanvas.ts";
 import { DrawCodeUtils } from './utils/DrawCodeUtils'
 import { DrawStampTypeUtils } from './utils/DrawStampTypeUtils'
+import { DrawTaxNumberUtils } from './utils/DrawTaxNumberUtils'
 // 标尺宽度
 const RULER_WIDTH = 8
 // 标尺高度
@@ -61,6 +62,7 @@ export class DrawStampUtils {
     private imageCanvas: DrawImageCanvas;
     public drawCodeUtils: DrawCodeUtils
     public drawStampTypeUtils: DrawStampTypeUtils
+    public drawTaxNumberUtils: DrawTaxNumberUtils
 
     /**
      * 构造函数
@@ -97,6 +99,7 @@ export class DrawStampUtils {
         this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
         this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
         this.drawStampTypeUtils = new DrawStampTypeUtils(mmToPixel)
+        this.drawTaxNumberUtils = new DrawTaxNumberUtils(mmToPixel)
     }
 
     private isDragging = false
@@ -837,11 +840,12 @@ export class DrawStampUtils {
         // 绘制编码文字内容，边框的圆形文字
         this.drawCodeUtils.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
         // 绘制税号文字内容，边框的圆形文字
-        this.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY)
+        this.drawTaxNumberUtils.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY, this.drawStampConfigs.primaryColor)
         offscreenCtx.restore()
         // 将离屏 canvas 的内容绘制到主 canvas
         ctx.save()
         // 添加毛边效果
+
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
             this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, refreshRoughEdge)
         }
