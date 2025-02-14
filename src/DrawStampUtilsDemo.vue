@@ -396,7 +396,8 @@ const handleMouseMove = (event: MouseEvent) => {
   const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
   const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
   const stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
-  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths]
+  const taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
+  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
   
 
   // 检查是否悬停在文字上
@@ -438,7 +439,8 @@ const handleCanvasClick = (event: MouseEvent) => {
   const companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
   const codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
   const stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
-  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths]
+  const taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
+  const allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
   
   // 检查点击的文字
   for (const textPath of allTextPaths) {
@@ -477,8 +479,13 @@ const handleCanvasClick = (event: MouseEvent) => {
             editorControlsRef.scrollToStampType(stampTypeIndex)
           }
         }
-      } 
-      
+      } else if (textPath.type === 'taxNumber') {
+        // 点击税号文字时，展开税号设置组
+        const editorControlsRef = editorControls.value
+        if (editorControlsRef) {
+          editorControlsRef.scrollToTaxNumber()
+        }
+      }
       return
     }
   }

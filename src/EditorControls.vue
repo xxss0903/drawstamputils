@@ -314,7 +314,7 @@
         </div>
   
         <!-- 税号设置 -->
-        <div class="control-group">
+        <div class="control-group tax-number-group">
           <div class="group-header" @click="toggleGroup('taxNumber')">
             <h3>{{ t('stamp.taxNumber.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span></h3>
           </div>
@@ -1384,11 +1384,26 @@
     })
   }
 
+  // 添加滚动到税号的方法
+  const scrollToTaxNumber = () => {
+    // 展开税号设置组
+    expandedGroups.value.taxNumber = true
+    
+    // 等待 DOM 更新后滚动
+    nextTick(() => {
+      const taxNumberItem = document.querySelector('.tax-number-group')
+      if (taxNumberItem) {
+        taxNumberItem.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    })
+  }
+
   // 暴露方法给父组件
   defineExpose({
     scrollToCompanyText,
     scrollToCode,
-    scrollToStampType
+    scrollToStampType,
+    scrollToTaxNumber
   })
   </script>
   <style scoped>

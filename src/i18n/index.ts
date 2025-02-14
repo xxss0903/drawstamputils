@@ -127,7 +127,7 @@ const messages = {
       },
       taxNumber: {
         title: '中间数字设置',
-        number: '税号',
+        number: '数字',
         font: '字体',
         fontSize: '字体大小 (mm)',
         fontWeight: '字体粗细',
