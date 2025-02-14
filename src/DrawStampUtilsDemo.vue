@@ -42,26 +42,11 @@
 
     <!-- Canvas 容器 -->
     <div class="canvas-container">
-      <div style="margin-top: 12px;">
+      <div class="canvas-wrapper">
         <canvas ref="stampCanvas" width="600" height="600"></canvas>
       </div>
-    </div>
-
-    <!-- 使用模板弹窗组件 -->
-    <TemplateDialog
-      :show="showTemplateDialog"
-      :templates="defaultTemplates"
-      :currentIndex="currentTemplateIndex"
-      :drawStampUtils="drawStampUtils"
-      @close="showTemplateDialog = false"
-      @save="saveCurrentAsTemplate"
-      @select="loadDefaultTemplate"
-      @update="drawStamp"
-    />
-
-    <!-- 右侧工具栏 -->
-    <div class="right-toolbar">
-      <div class="toolbar-buttons">
+      <!-- 添加底部工具栏 -->
+      <div class="bottom-toolbar">
         <button class="toolbar-button" @click="showTemplateDialog = true">
           <span class="button-icon">📋</span>
           {{ t('stamp.template.open') }}
@@ -76,6 +61,21 @@
         </button>
       </div>
     </div>
+    <!-- 右侧工具栏 -->
+    <div class="right-toolbar">
+      
+    </div>
+    <!-- 使用模板弹窗组件 -->
+    <TemplateDialog
+      :show="showTemplateDialog"
+      :templates="defaultTemplates"
+      :currentIndex="currentTemplateIndex"
+      :drawStampUtils="drawStampUtils"
+      @close="showTemplateDialog = false"
+      @save="saveCurrentAsTemplate"
+      @select="loadDefaultTemplate"
+      @update="drawStamp"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -563,41 +563,46 @@ const findStampTypeIndexByText = (text: string) => {
   background-color: #f5f5f5;
 }
 
-/* 修改右侧工具栏样式 */
-.right-toolbar {
-  width: 250px;
-  background-color: white;
-  border-left: 1px solid #eee;
-  padding: 16px;
+/* 修改 Canvas 容器样式 */
+.canvas-container {
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 90%;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+  align-items: center;
+  padding: 20px;
+  flex: 1;
 }
 
-.toolbar-buttons {
-  margin-top: 12px;
+.canvas-wrapper {
+  margin-bottom: 20px;
+}
+
+/* 底部工具栏样式 */
+.bottom-toolbar {
   display: flex;
-  flex-direction: column;
   gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: fit-content;
 }
 
 .toolbar-button {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
+  padding: 12px 20px;
   border: none;
   border-radius: 6px;
   background-color: #f5f5f5;
   cursor: pointer;
   transition: all 0.3s;
+  font-size: 14px;
 }
 
 .toolbar-button:hover {
   background-color: #e6f7ff;
+  transform: translateY(-1px);
 }
 
 .button-icon {
@@ -625,5 +630,10 @@ const findStampTypeIndexByText = (text: string) => {
   font-size: 14px;
   pointer-events: none;
   z-index: 1000;
+}
+
+/* 移除右侧工具栏相关样式 */
+.right-toolbar {
+  display: none;
 }
 </style>
