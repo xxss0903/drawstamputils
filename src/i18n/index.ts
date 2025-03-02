@@ -38,7 +38,9 @@ const messages = {
         distribution: '分布因子',
         margin: '边距 (mm)',
         startAngle: '起始角度 (°)',
-        rotateDirection: '旋转方向'
+        rotateDirection: '旋转方向',
+        counterclockwise: '逆时针',
+        clockwise: '顺时针'
       },
       stampType: {
         title: '印章类型列表设置',
@@ -93,7 +95,9 @@ const messages = {
         save: '保存当前为模板',
         defaultTitle: '默认模板',
         preview: '预览',
-        name: '模板名称'
+        name: '模板名称',
+        open: '打开模板',
+        load: '加载模板'
       },
       common: {
         line: '第 {index} 行',
@@ -196,7 +200,9 @@ const messages = {
         distribution: 'Distribution Factor',
         margin: 'Margin (mm)',
         startAngle: 'Start Angle (°)',
-        rotateDirection: 'Rotate Direction'
+        rotateDirection: 'Rotate Direction',
+        counterclockwise: 'Counter Clockwise',
+        clockwise: 'Clockwise'
       },
       stampType: {
         title: 'Stamp Type List Settings',
@@ -251,7 +257,9 @@ const messages = {
         save: 'Save Current as Template',
         defaultTitle: 'Default Templates',
         preview: 'Preview',
-        name: 'Template Name'
+        name: 'Template Name',
+        open: 'Open Template',
+        load: 'Load Template'
       },
       common: {
         line: 'Line {index}',
