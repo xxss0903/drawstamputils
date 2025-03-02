@@ -157,7 +157,7 @@ onMounted(async () => {
   initDrawStampUtils()
   await loadSystemFonts()
   drawStamp()
-
+  loadTemplatesFromStorage()
   // 初始化所有字体选择器的预览
   document.querySelectorAll('.font-select, .font-input').forEach((element) => {
     if (element instanceof HTMLElement) {
@@ -232,11 +232,6 @@ const loadPresetsFromLocalStorage = () => {
     stampTypePresets.value = JSON.parse(saved)
   }
 }
-
-// 在组件挂载时加载保存的预设
-onMounted(() => {
-  loadPresetsFromLocalStorage()
-})
 
 // 在预设变化时保存
 watch(stampTypePresets, () => {
@@ -315,6 +310,17 @@ const saveCurrentAsTemplate = async () => {
 // 加载模板
 const loadDefaultTemplate = (template: Template) => {
   try {
+    // 临时创建一个 canvas 生成预览图
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = 500
+    tempCanvas.height = 500
+    const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
+    template.config.ruler.showRuler = false;
+    // 设置模板配置
+    tempDrawStampUtils.setDrawConfigs(template.config)
+    tempDrawStampUtils.refreshStamp()
+
+
     const newConfig = JSON.parse(JSON.stringify(template.config)) as IDrawStampConfig
     newConfig.ruler.showRuler = true
     newConfig.ruler.showFullRuler = true
@@ -386,11 +392,6 @@ const loadTemplatesFromStorage = () => {
     template.preview = tempCanvas.toDataURL('image/png')
   })
 }
-
-// 在组件挂载时加载保存的模板
-onMounted(() => {
-  loadTemplatesFromStorage()
-})
 
 // 添加提示相关的响应式数据
 const showTooltip = ref(false)
