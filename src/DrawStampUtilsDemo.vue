@@ -74,7 +74,6 @@
       @close="showTemplateDialog = false"
       @save="saveCurrentAsTemplate"
       @select="loadDefaultTemplate"
-      @update="drawStamp"
     />
   </div>
 </template>
@@ -93,7 +92,7 @@ const { t } = useI18n()
 // 添加一个标志来控制 EditorControls 的加载
 const isDrawStampUtilsReady = ref(false)
 
-const editorControls = ref<any | null>(null)
+const editorControls = ref<InstanceType<typeof EditorControls> | null>(null)
 const stampCanvas = ref<any | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
@@ -157,6 +156,7 @@ onMounted(async () => {
   initDrawStampUtils()
   await loadSystemFonts()
   drawStamp()
+  // 加载模板列表，这里是预览的模板列表
   loadTemplatesFromStorage()
   // 初始化所有字体选择器的预览
   document.querySelectorAll('.font-select, .font-input').forEach((element) => {
@@ -310,15 +310,17 @@ const saveCurrentAsTemplate = async () => {
 // 加载模板
 const loadDefaultTemplate = (template: Template) => {
   try {
-    // 临时创建一个 canvas 生成预览图
-    const tempCanvas = document.createElement('canvas')
-    tempCanvas.width = 500
-    tempCanvas.height = 500
-    const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
-    template.config.ruler.showRuler = false;
-    // 设置模板配置
-    tempDrawStampUtils.setDrawConfigs(template.config)
-    tempDrawStampUtils.refreshStamp()
+    drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
+    drawStamp()
+    // 初始化所有字体选择器的预览
+    document.querySelectorAll('.font-select, .font-input').forEach((element) => {
+      if (element instanceof HTMLElement) {
+        updateFontPreview({ target: element } as unknown as Event);
+      }
+    });
+    isDrawStampUtilsReady.value = true
+    window.addEventListener('mousemove', handleMouseMove)
+    drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
 
 
     const newConfig = JSON.parse(JSON.stringify(template.config)) as IDrawStampConfig
@@ -331,11 +333,14 @@ const loadDefaultTemplate = (template: Template) => {
     newConfig.company.startAngle = template.config.company.startAngle
     newConfig.company.rotateDirection = template.config.company.rotateDirection
 
-    console.log("load template", template, newConfig)
-    // 设置新的配置
     drawStampUtils.setDrawConfigs(newConfig)
-    // 刷新印章显示
-    drawStamp()
+    drawStampUtils.refreshStamp()
+
+    isDrawStampUtilsReady.value = false
+    setTimeout(() => {
+      isDrawStampUtilsReady.value = true
+    }, 100)
+    
     // 更新当前选中的模板索引（使用负数表示默认模板）
     currentTemplateIndex.value = -1 - defaultTemplates.findIndex(t => t === template)
   } catch (error) {

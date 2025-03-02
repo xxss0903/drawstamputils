@@ -1110,9 +1110,6 @@
     drawStamp()
     loadPresetsFromLocalStorage()
     // 初始化所有字体选择器的预览
-
-
-
     document.querySelectorAll('.font-select, .font-input').forEach((element) => {
       if (element instanceof HTMLElement) {
         updateFontPreview({ target: element } as unknown as Event);
@@ -1403,7 +1400,8 @@
     scrollToCompanyText,
     scrollToCode,
     scrollToStampType,
-    scrollToTaxNumber
+    scrollToTaxNumber,
+    restoreDrawConfigs
   })
   </script>
   <style scoped>
