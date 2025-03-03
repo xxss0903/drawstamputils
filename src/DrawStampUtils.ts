@@ -63,6 +63,10 @@ export class DrawStampUtils {
     public drawCodeUtils: DrawCodeUtils
     public drawStampTypeUtils: DrawStampTypeUtils
     public drawTaxNumberUtils: DrawTaxNumberUtils
+    private isDraggable: boolean = true;
+    private isDragging: boolean = false;
+    private dragStartPos: { x: number, y: number } = { x: 0, y: 0 };
+    private stampPosition: { x: number, y: number } = { x: 0, y: 0 };
 
     /**
      * 构造函数
@@ -101,10 +105,6 @@ export class DrawStampUtils {
         this.drawStampTypeUtils = new DrawStampTypeUtils(mmToPixel)
         this.drawTaxNumberUtils = new DrawTaxNumberUtils(mmToPixel)
     }
-
-    private isDragging = false
-    private dragStartX = 0
-    private dragStartY = 0
 
     // 获取绘制印章的配置
     getDrawConfigs() {
@@ -166,7 +166,9 @@ export class DrawStampUtils {
                 const agingIntensity = this.drawStampConfigs.agingEffect.agingIntensity / 100;
                 this.addManualAgingEffect(x, y, agingIntensity);
             } else {
-                this.onMouseMove(event)
+                if (this.isDraggable) {
+                    this.onMouseMove(event)
+                }
             }
         })
         this.canvas.addEventListener('mouseleave', (event) => {
@@ -230,8 +232,10 @@ export class DrawStampUtils {
 
     private onMouseDown = (event: MouseEvent) => {
         this.isDragging = true
-        this.dragStartX = event.clientX - this.stampOffsetX * this.mmToPixel
-        this.dragStartY = event.clientY - this.stampOffsetY * this.mmToPixel
+        this.dragStartPos = {
+            x: event.clientX - this.stampOffsetX * this.mmToPixel,
+            y: event.clientY - this.stampOffsetY * this.mmToPixel
+        }
     }
 
     private onMouseMove = (event: MouseEvent) => {
@@ -240,8 +244,8 @@ export class DrawStampUtils {
         }
         
         if (this.isDragging) {
-            const newOffsetX = (event.clientX - this.dragStartX) / this.mmToPixel
-            const newOffsetY = (event.clientY - this.dragStartY) / this.mmToPixel
+            const newOffsetX = (event.clientX - this.dragStartPos.x) / this.mmToPixel
+            const newOffsetY = (event.clientY - this.dragStartPos.y) / this.mmToPixel
             this.stampOffsetX = Math.round(newOffsetX * 10) / 10 // 四舍五入到小数点后一位
             this.stampOffsetY = Math.round(newOffsetY * 10) / 10
             this.refreshStamp()
@@ -862,5 +866,10 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.agingEffect.applyAging) {
             this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
         }
+    }
+
+    // 设置是否可拖动
+    public setDraggable(draggable: boolean): void {
+        this.isDraggable = draggable;
     }
 }

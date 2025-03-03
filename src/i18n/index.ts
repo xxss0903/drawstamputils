@@ -156,10 +156,13 @@ const messages = {
         lineWidth: '内圈圆线宽 (mm)',
         radiusX: '内圈圆半径X (mm)',
         radiusY: '内圈圆半径Y (mm)'
-      },
+      },  
       outBorder: {
         enable: '显示外圈边框',
         lineWidth: '边框宽度 (mm)'
+      },
+      drag: {
+        label: '移动印章'
       }
     }
   },
@@ -322,6 +325,9 @@ const messages = {
       outBorder: {
         enable: 'Show Outer Border',
         lineWidth: 'Border Width (mm)'
+      },
+      drag: {
+        label: 'Move Stamp'
       }
     }
   }

@@ -59,6 +59,15 @@
           <span class="button-icon">🔍</span>
           {{ t('stamp.extract.tool') }}
         </button>
+        
+        <!-- 添加拖动开关 -->
+        <div class="drag-switch-container">
+          <span class="drag-label">{{ t('stamp.drag.label') }}</span>
+          <label class="switch">
+            <input type="checkbox" v-model="isDraggable">
+            <span class="slider round"></span>
+          </label>
+        </div>
       </div>
     </div>
     <!-- 右侧工具栏 -->
@@ -97,6 +106,7 @@ const stampCanvas = ref<any | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
 const showLegalDialog = ref(false) // 是否显示法律提示弹窗
+const isDraggable = ref(true) // 是否开启拖动
 
 
 // 绘制工具
@@ -117,13 +127,16 @@ const initDrawStampUtils = () => {
 const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
   // 使用drawstamputils进行绘制
   drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
+  
+  // 确保拖动设置与当前状态一致
+  drawStampUtils.setDraggable(isDraggable.value)
+  
+  // 更新文字路径
   companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
   codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
   stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
   taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
   allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
-
-  console.log("drawStamp taxNumberTextPaths", codeTextPaths)
 }
 
 // 保存印章为PNG
@@ -155,6 +168,13 @@ const loadSystemFonts = async () => {
 onMounted(async () => {
   initDrawStampUtils()
   await loadSystemFonts()
+  
+  // 设置初始拖动状态
+  drawStampUtils.setDraggable(isDraggable.value)
+  if (stampCanvas.value) {
+    stampCanvas.value.style.cursor = isDraggable.value ? 'move' : 'default'
+  }
+  
   drawStamp()
   // 加载模板列表，这里是预览的模板列表
   loadTemplatesFromStorage()
@@ -510,6 +530,19 @@ const findStampTypeIndexByText = (text: string) => {
     stampType => stampType.stampType.includes(text)
   )
 }
+
+// 监听拖动状态变化
+watch(isDraggable, (newValue) => {
+  if (drawStampUtils) {
+    // 更新 drawStampUtils 中的拖动状态
+    drawStampUtils.setDraggable(newValue)
+    
+    // 更新鼠标样式
+    if (stampCanvas.value) {
+      stampCanvas.value.style.cursor = newValue ? 'move' : 'default'
+    }
+  }
+})
 </script>
 <style scoped>
 /* 模板弹窗样式 */
@@ -641,5 +674,73 @@ const findStampTypeIndexByText = (text: string) => {
 /* 移除右侧工具栏相关样式 */
 .right-toolbar {
   display: none;
+}
+
+/* 拖动开关样式 */
+.drag-switch-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drag-label {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 开关样式 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 </style>
