@@ -82,7 +82,7 @@
       :drawStampUtils="drawStampUtils"
       @close="showTemplateDialog = false"
       @save="saveCurrentAsTemplate"
-      @select="loadDefaultTemplate"
+      @select="loadSelectedTemplate"
     />
   </div>
 </template>
@@ -106,7 +106,7 @@ const stampCanvas = ref<any | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
 const showLegalDialog = ref(false) // 是否显示法律提示弹窗
-const isDraggable = ref(true) // 是否开启拖动
+const isDraggable = ref(false) // 是否开启拖动
 
 
 // 绘制工具
@@ -328,8 +328,10 @@ const saveCurrentAsTemplate = async () => {
 }
 
 // 加载模板
-const loadDefaultTemplate = (template: Template) => {
+const loadSelectedTemplate = (template: Template) => {
   try {
+    isDrawStampUtilsReady.value = false
+
     drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
     drawStamp()
     // 初始化所有字体选择器的预览
@@ -354,9 +356,8 @@ const loadDefaultTemplate = (template: Template) => {
     newConfig.company.rotateDirection = template.config.company.rotateDirection
 
     drawStampUtils.setDrawConfigs(newConfig)
-    drawStampUtils.refreshStamp()
-
-    isDrawStampUtilsReady.value = false
+    drawStamp()
+    // drawStampUtils.refreshStamp()
     setTimeout(() => {
       isDrawStampUtilsReady.value = true
     }, 100)
