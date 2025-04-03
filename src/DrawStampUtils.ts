@@ -155,6 +155,7 @@ export class DrawStampUtils {
     // 设置绘制印章的配置，比如可以保存某些印章的配置，然后保存之后直接设置绘制，更加方便
     setDrawConfigs(drawConfigs: IDrawStampConfig) {
         this.drawStampConfigs = drawConfigs
+
     }
 
     private addCanvasListener() {
@@ -242,7 +243,7 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.openManualAging) {
             return
         }
-        
+
         if (this.isDragging) {
             const newOffsetX = (event.clientX - this.dragStartPos.x) / this.mmToPixel
             const newOffsetY = (event.clientY - this.dragStartPos.y) / this.mmToPixel
@@ -278,7 +279,7 @@ export class DrawStampUtils {
             if (image.imageUrl) {
                 // 检查缓存中是否已有该图片
                 let img = this.imageCache.get(image.imageUrl);
-                
+
                 if (img) {
                     this.drawSingleImage(ctx, img, image, centerX, centerY);
                 } else {
@@ -286,22 +287,22 @@ export class DrawStampUtils {
                         // 创建一个新的图片对象
                         const tempImg = new Image();
                         tempImg.src = image.imageUrl;
-                        
+
                         // 等待图片加载完成
                         await new Promise((resolve, reject) => {
                             tempImg.onload = resolve;
                             tempImg.onerror = reject;
                         });
-                        
+
                         // 将图片转换为 ImageBitmap
                         const bitmap = await createImageBitmap(tempImg);
-                        
+
                         // 存入缓存
                         this.imageCache.set(image.imageUrl, bitmap);
-                        
+
                         // 绘制图片
                         this.drawSingleImage(ctx, bitmap, image, centerX, centerY);
-                        
+
                         requestAnimationFrame(() => {
                             this.refreshStamp();
                         });
@@ -324,18 +325,18 @@ export class DrawStampUtils {
         // 计算绘制尺寸
         let width = imageConfig.imageWidth * this.mmToPixel;
         let height = imageConfig.imageHeight * this.mmToPixel;
-        
+
         if (imageConfig.keepAspectRatio) {
             // 如果需要保持宽高比，计算缩放比例
             const scale = Math.min(width / img.width, height / img.height);
             width = img.width * scale;
             height = img.height * scale;
         }
-        
+
         // 计算绘制位置（考虑偏移）
         const x = centerX - width / 2 + imageConfig.positionX * this.mmToPixel;
         const y = centerY - height / 2 + imageConfig.positionY * this.mmToPixel;
-        
+
         ctx.save();
         ctx.drawImage(img, x, y, width, height);
         ctx.restore();
@@ -730,7 +731,7 @@ export class DrawStampUtils {
         this.canvasCtx.translate(this.offsetX, this.offsetY);
         this.canvasCtx.scale(this.scale, this.scale);
 
-        
+
         // 设置起始点为距离左边和上边 5mm 的位置
         const startX = (this.drawStampConfigs.width / 2) * 10 + RULER_WIDTH * this.mmToPixel;
         const startY = (this.drawStampConfigs.height / 2) * 10 + RULER_HEIGHT * this.mmToPixel;

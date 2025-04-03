@@ -18,7 +18,7 @@
 
   <div class="container" :class="{ 'has-warning': showSecurityWarning }">
     <!-- 修改法律免责说明 -->
-    <div class="legal-disclaimer" 
+    <div class="legal-disclaimer"
          v-if="showSecurityWarning"
          :class="{ 'hidden': !showSecurityWarning }">
       <div class="disclaimer-content">
@@ -35,7 +35,7 @@
     </div>
     <EditorControls
       v-if="isDrawStampUtilsReady"
-      ref="editorControls"
+      ref="editorControlsRef"
       :drawStampUtils="drawStampUtils"
       @updateDrawStamp="updateDrawStamp"
     />
@@ -59,7 +59,7 @@
           <span class="button-icon">🔍</span>
           {{ t('stamp.extract.tool') }}
         </button>
-        
+
         <!-- 添加拖动开关 -->
         <div class="drag-switch-container">
           <span class="drag-label">{{ t('stamp.drag.label') }}</span>
@@ -72,7 +72,7 @@
     </div>
     <!-- 右侧工具栏 -->
     <div class="right-toolbar">
-      
+
     </div>
     <!-- 使用模板弹窗组件 -->
     <TemplateDialog
@@ -101,7 +101,7 @@ const { t } = useI18n()
 // 添加一个标志来控制 EditorControls 的加载
 const isDrawStampUtilsReady = ref(false)
 
-const editorControls = ref<InstanceType<typeof EditorControls> | null>(null)
+const editorControlsRef = ref<InstanceType<typeof EditorControls> | null>(null)
 const stampCanvas = ref<any | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
@@ -127,10 +127,10 @@ const initDrawStampUtils = () => {
 const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
   // 使用drawstamputils进行绘制
   drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
-  
+
   // 确保拖动设置与当前状态一致
   drawStampUtils.setDraggable(isDraggable.value)
-  
+
   // 更新文字路径
   companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
   codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
@@ -168,13 +168,13 @@ const loadSystemFonts = async () => {
 onMounted(async () => {
   initDrawStampUtils()
   await loadSystemFonts()
-  
+
   // 设置初始拖动状态
   drawStampUtils.setDraggable(isDraggable.value)
   if (stampCanvas.value) {
     stampCanvas.value.style.cursor = isDraggable.value ? 'move' : 'default'
   }
-  
+
   drawStamp()
   // 加载模板列表，这里是预览的模板列表
   loadTemplatesFromStorage()
@@ -327,11 +327,11 @@ const saveCurrentAsTemplate = async () => {
   localStorage.setItem('stampTemplates', JSON.stringify(templateList.value))
 }
 
-// 加载模板
+// 加载模板，从模板弹窗选中模板，需要将模板的值设置到左边设置里面
 const loadSelectedTemplate = (template: Template) => {
   try {
     isDrawStampUtilsReady.value = false
-
+    // 绘制印章
     drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
     drawStamp()
     // 初始化所有字体选择器的预览
@@ -344,7 +344,7 @@ const loadSelectedTemplate = (template: Template) => {
     window.addEventListener('mousemove', handleMouseMove)
     drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
 
-
+    // 将选中的config进行设置
     const newConfig = JSON.parse(JSON.stringify(template.config)) as IDrawStampConfig
     newConfig.ruler.showRuler = true
     newConfig.ruler.showFullRuler = true
@@ -360,8 +360,10 @@ const loadSelectedTemplate = (template: Template) => {
     // drawStampUtils.refreshStamp()
     setTimeout(() => {
       isDrawStampUtilsReady.value = true
+      console.log("refresh editor controls")
+      editorControlsRef.value.restoreDrawConfigs()
     }, 100)
-    
+
     // 更新当前选中的模板索引（使用负数表示默认模板）
     currentTemplateIndex.value = -1 - defaultTemplates.findIndex(t => t === template)
   } catch (error) {
@@ -413,7 +415,7 @@ const loadTemplatesFromStorage = () => {
     // 设置模板配置
     tempDrawStampUtils.setDrawConfigs(template.config)
     tempDrawStampUtils.refreshStamp()
-    
+
     // 生成预览图
     template.preview = tempCanvas.toDataURL('image/png')
   })
@@ -437,11 +439,11 @@ const handleMouseMove = (event: MouseEvent) => {
   // 检查是否悬停在文字上
   let isOverText = false
   for (const textPath of allTextPaths) {
-    if (x >= textPath.bounds.x && 
+    if (x >= textPath.bounds.x &&
         x <= textPath.bounds.x + textPath.bounds.width &&
-        y >= textPath.bounds.y && 
+        y >= textPath.bounds.y &&
         y <= textPath.bounds.y + textPath.bounds.height) {
-      
+
       isOverText = true
       showTooltip.value = true
       tooltipStyle.value = {
@@ -454,7 +456,7 @@ const handleMouseMove = (event: MouseEvent) => {
       return
     }
   }
-  
+
   if (!isOverText) {
     showTooltip.value = false
     drawStampUtils.canvas.style.cursor = 'default'
@@ -468,14 +470,14 @@ const handleCanvasClick = (event: MouseEvent) => {
   const rect = drawStampUtils.canvas.getBoundingClientRect()
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
-  
+
   // 检查点击的文字
   for (const textPath of allTextPaths) {
-    if (x >= textPath.bounds.x && 
+    if (x >= textPath.bounds.x &&
         x <= textPath.bounds.x + textPath.bounds.width &&
-        y >= textPath.bounds.y && 
+        y >= textPath.bounds.y &&
         y <= textPath.bounds.y + textPath.bounds.height) {
-      
+
       // 打印文字信息
       console.log('点击的文字:', textPath.text)
       console.log('文字路径:', textPath.path)
@@ -486,14 +488,14 @@ const handleCanvasClick = (event: MouseEvent) => {
       if (textPath.type === 'company') {
         const companyIndex = findCompanyIndexByText(textPath.text)
         if (companyIndex !== -1) {
-          const editorControlsRef = editorControls.value
+          const editorControlsRef = editorControlsRef.value
           if (editorControlsRef) {
             editorControlsRef.scrollToCompanyText(companyIndex)
           }
         }
       } else if (textPath.type === 'code') {
         // 点击编码文字时，展开编码设置组
-        const editorControlsRef = editorControls.value
+        const editorControlsRef = editorControlsRef.value
         if (editorControlsRef) {
           editorControlsRef.scrollToCode()
         }
@@ -501,14 +503,14 @@ const handleCanvasClick = (event: MouseEvent) => {
         // 点击印章类型文字时，展开印章类型设置组
         const stampTypeIndex = findStampTypeIndexByText(textPath.text)
         if (stampTypeIndex !== -1) {
-          const editorControlsRef = editorControls.value
+          const editorControlsRef = editorControlsRef.value
           if (editorControlsRef) {
             editorControlsRef.scrollToStampType(stampTypeIndex)
           }
         }
       } else if (textPath.type === 'taxNumber') {
         // 点击税号文字时，展开税号设置组
-        const editorControlsRef = editorControls.value
+        const editorControlsRef = editorControlsRef.value
         if (editorControlsRef) {
           editorControlsRef.scrollToTaxNumber()
         }
@@ -537,7 +539,7 @@ watch(isDraggable, (newValue) => {
   if (drawStampUtils) {
     // 更新 drawStampUtils 中的拖动状态
     drawStampUtils.setDraggable(newValue)
-    
+
     // 更新鼠标样式
     if (stampCanvas.value) {
       stampCanvas.value.style.cursor = newValue ? 'move' : 'default'
