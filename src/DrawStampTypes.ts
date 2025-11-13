@@ -34,12 +34,18 @@ export type ICompany = {
     fontFamily: string // 字体
     fontHeight: number // 字体高度
     fontWeight: string | number // 字体粗细
-    shape: 'ellipse' | 'rectangle' // 新增：印章形状
+    shape: 'ellipse' | 'rectangle' // 印章形状
     adjustEllipseText: boolean // 是否调整椭圆
     adjustEllipseTextFactor: number // 调整椭圆的因子
     color?: string | undefined // 颜色
     startAngle: number // 文字开始角度（弧度）
-    rotateDirection: 'clockwise' | 'counterclockwise' // 旋转方向
+    rotateDirection: 'clockwise' | 'counterclockwise' // 旋转方向（仅椭圆使用）
+    // 矩形印章相关配置
+    rectangleTextDirection: 'horizontal' | 'vertical' // 矩形文字方向：横向或纵向
+    rectangleTextPosition: 'top' | 'bottom' | 'left' | 'right' | 'center' // 矩形文字位置
+    rectangleTextAlignment: 'left' | 'center' | 'right' // 矩形文字对齐方式（横向时）
+    rectangleVerticalAlignment: 'top' | 'center' | 'bottom' // 矩形文字对齐方式（纵向时）
+    rectangleLineSpacing: number // 矩形文字行间距（纵向时）
 }
 
 // 印章编码

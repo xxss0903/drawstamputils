@@ -7,7 +7,7 @@ import {
   IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
-import { drawBasicBorder } from "./utils/DrawBorderUtils.ts";
+import { drawBasicBorder, drawRectangleBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
 import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
 import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
@@ -818,14 +818,48 @@ export class DrawStampUtils {
         tempCanvas.height = this.canvas.height
         const tempCtx = tempCanvas.getContext('2d')
         if (!tempCtx) return
+        // 检查是否有矩形印章
+        const hasRectangleStamp = this.drawStampConfigs.companyList.some(company => company.shape === 'rectangle')
+        const isRectangle = hasRectangleStamp
+        
+        // 矩形印章的尺寸（使用 width 和 height）
+        const rectWidth = this.drawStampConfigs.width * this.mmToPixel
+        const rectHeight = this.drawStampConfigs.height * this.mmToPixel
+
         if(this.drawStampConfigs.outBorder.drawInnerCircle) {
             // 在离屏 canvas 上绘制印章基本形状
-            drawBasicBorder(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, borderColor);
+            if (isRectangle) {
+                // 绘制矩形边框
+                drawRectangleBorder(
+                    offscreenCtx,
+                    centerX,
+                    centerY,
+                    rectWidth,
+                    rectHeight,
+                    this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel,
+                    borderColor
+                )
+            } else {
+                // 绘制椭圆边框
+                drawBasicBorder(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, borderColor);
+            }
         }
-        // 创建裁剪区域，确保所有内容（文字、图片、五角星等）都被限制在印章的椭圆形状内
+        
+        // 创建裁剪区域，确保所有内容（文字、图片、五角星等）都被限制在印章形状内
         offscreenCtx.save()
         offscreenCtx.beginPath()
-        offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
+        if (isRectangle) {
+            // 矩形裁剪区域
+            offscreenCtx.rect(
+                centerX - rectWidth / 2,
+                centerY - rectHeight / 2,
+                rectWidth,
+                rectHeight
+            )
+        } else {
+            // 椭圆裁剪区域
+            offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
+        }
         offscreenCtx.clip()
         // 绘制内圈列表
         if (this.drawStampConfigs.innerCircleList.length > 0) {
@@ -839,8 +873,29 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.imageList && this.drawStampConfigs.imageList.length > 0) {
             this.drawImageList(offscreenCtx, this.drawStampConfigs.imageList, centerX, centerY)
         }
-        // 绘制公司文字内容，边框的圆形文字
-        this.drawCompanyUtils.drawCompanyList(offscreenCtx, this.drawStampConfigs.companyList, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
+        // 绘制公司文字内容（支持椭圆和矩形）
+        // 对于矩形印章，传递宽度和高度；对于椭圆印章，传递半径
+        if (isRectangle) {
+            this.drawCompanyUtils.drawCompanyList(
+                offscreenCtx,
+                this.drawStampConfigs.companyList,
+                centerX,
+                centerY,
+                this.drawStampConfigs.width,
+                this.drawStampConfigs.height,
+                this.drawStampConfigs.primaryColor
+            )
+        } else {
+            this.drawCompanyUtils.drawCompanyList(
+                offscreenCtx,
+                this.drawStampConfigs.companyList,
+                centerX,
+                centerY,
+                radiusX,
+                radiusY,
+                this.drawStampConfigs.primaryColor
+            )
+        }
         this.drawStampTypeUtils.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX, this.drawStampConfigs.primaryColor)
         // 绘制编码文字内容，边框的圆形文字
         this.drawCodeUtils.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
@@ -852,11 +907,21 @@ export class DrawStampUtils {
         // 添加毛边效果
 
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
-            this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, refreshRoughEdge)
+            if (isRectangle) {
+                // 矩形毛边效果（暂时使用椭圆方法，后续可以优化）
+                this.addRoughEdge(offscreenCtx, centerX, centerY, rectWidth / 2, rectHeight / 2, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, refreshRoughEdge)
+            } else {
+                this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, refreshRoughEdge)
+            }
         }
         if(this.drawStampConfigs.securityPattern.openSecurityPattern) {
             // 绘制防伪纹路
-            this.drawSecurityPatternUtils.drawSecurityPattern(offscreenCtx, this.drawStampConfigs.securityPattern, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
+            if (isRectangle) {
+                // 矩形防伪纹路（暂时使用椭圆方法，后续可以优化）
+                this.drawSecurityPatternUtils.drawSecurityPattern(offscreenCtx, this.drawStampConfigs.securityPattern, centerX, centerY, rectWidth / 2, rectHeight / 2, refreshSecurityPattern)
+            } else {
+                this.drawSecurityPatternUtils.drawSecurityPattern(offscreenCtx, this.drawStampConfigs.securityPattern, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
+            }
         }
 
         // 设置合成模式，确保印章内容只在椭圆区域内显示

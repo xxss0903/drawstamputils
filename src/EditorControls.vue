@@ -124,25 +124,75 @@
                 <input type="number" v-model.number="company.borderOffset" min="-10" max="10" step="0.05" />
               </label>
               <label>
-                {{ t('stamp.company.startAngle') }}:
-                <div class="range-container">
-                  <input
-                    type="range"
-                    v-model.number="company.startAngle"
-                    min="-3.14"
-                    max="3.14"
-                    step="0.01"
-                  />
-                  <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
-                </div>
-              </label>
-              <label>
-                {{ t('stamp.company.rotateDirection') }}:
-                <select v-model="company.rotateDirection">
-                  <option value="clockwise">{{ t('stamp.company.clockwise') }}</option>
-                  <option value="counterclockwise">{{ t('stamp.company.counterclockwise') }}</option>
+                印章形状:
+                <select v-model="company.shape">
+                  <option value="ellipse">椭圆/圆形</option>
+                  <option value="rectangle">矩形</option>
                 </select>
               </label>
+              <!-- 椭圆印章相关设置 -->
+              <template v-if="company.shape === 'ellipse'">
+                <label>
+                  {{ t('stamp.company.startAngle') }}:
+                  <div class="range-container">
+                    <input
+                      type="range"
+                      v-model.number="company.startAngle"
+                      min="-3.14"
+                      max="3.14"
+                      step="0.01"
+                    />
+                    <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
+                  </div>
+                </label>
+                <label>
+                  {{ t('stamp.company.rotateDirection') }}:
+                  <select v-model="company.rotateDirection">
+                    <option value="clockwise">{{ t('stamp.company.clockwise') }}</option>
+                    <option value="counterclockwise">{{ t('stamp.company.counterclockwise') }}</option>
+                  </select>
+                </label>
+              </template>
+              <!-- 矩形印章相关设置 -->
+              <template v-if="company.shape === 'rectangle'">
+                <label>
+                  文字方向:
+                  <select v-model="company.rectangleTextDirection">
+                    <option value="horizontal">横向</option>
+                    <option value="vertical">纵向</option>
+                  </select>
+                </label>
+                <label>
+                  文字位置:
+                  <select v-model="company.rectangleTextPosition">
+                    <option value="top">顶部</option>
+                    <option value="bottom">底部</option>
+                    <option value="left">左侧</option>
+                    <option value="right">右侧</option>
+                    <option value="center">中心</option>
+                  </select>
+                </label>
+                <label v-if="company.rectangleTextDirection === 'horizontal'">
+                  横向对齐:
+                  <select v-model="company.rectangleTextAlignment">
+                    <option value="left">左对齐</option>
+                    <option value="center">居中</option>
+                    <option value="right">右对齐</option>
+                  </select>
+                </label>
+                <label v-if="company.rectangleTextDirection === 'vertical'">
+                  纵向对齐:
+                  <select v-model="company.rectangleVerticalAlignment">
+                    <option value="top">顶部对齐</option>
+                    <option value="center">居中</option>
+                    <option value="bottom">底部对齐</option>
+                  </select>
+                </label>
+                <label v-if="company.rectangleTextDirection === 'vertical'">
+                  行间距 (mm):
+                  <input type="number" v-model.number="company.rectangleLineSpacing" min="0" max="10" step="0.1" />
+                </label>
+              </template>
             </div>
             <button class="add-button" @click="addNewCompany">{{ t('stamp.common.addNew') }}</button>
           </div>
@@ -722,7 +772,13 @@
       adjustEllipseText: false,
       adjustEllipseTextFactor: 0.5,
       startAngle: 0,
-      rotateDirection: "counterclockwise"
+      rotateDirection: "counterclockwise",
+      // 矩形印章默认配置
+      rectangleTextDirection: 'horizontal',
+      rectangleTextPosition: 'center',
+      rectangleTextAlignment: 'center',
+      rectangleVerticalAlignment: 'center',
+      rectangleLineSpacing: 0
     }
   ])
   // 添加新的响应式变量
@@ -839,12 +895,17 @@
       fontFamily: 'SimSun',
       fontHeight: 4.2,
       fontWeight: 'normal',
-      shape: 'ellipse',
+      shape: 'ellipse' as const,
       adjustEllipseText: false,
       adjustEllipseTextFactor: 0.5,
       startAngle: 0,
-      rotateDirection: "counterclockwise"
-    })
+      rotateDirection: "counterclockwise" as const,
+      rectangleTextDirection: 'horizontal' as const,
+      rectangleTextPosition: 'center' as const,
+      rectangleTextAlignment: 'center' as const,
+      rectangleVerticalAlignment: 'center' as const,
+      rectangleLineSpacing: 0
+    } as ICompany)
   }
 
   // 删除指定的公司行

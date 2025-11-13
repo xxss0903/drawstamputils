@@ -41,7 +41,13 @@ export class InitDrawStampConfigsUtils {
         adjustEllipseText: false,
         adjustEllipseTextFactor: 0.5,
         startAngle: 0,
-        rotateDirection: "counterclockwise"
+        rotateDirection: "counterclockwise",
+        // 矩形印章默认配置
+        rectangleTextDirection: 'horizontal',
+        rectangleTextPosition: 'center',
+        rectangleTextAlignment: 'center',
+        rectangleVerticalAlignment: 'center',
+        rectangleLineSpacing: 0
     }
     private taxNumber: ITaxNumber = {
         code: '000000000000000000',
@@ -140,7 +146,13 @@ export class InitDrawStampConfigsUtils {
             adjustEllipseText: true,
             adjustEllipseTextFactor: 0.5,
             startAngle: 0,
-            rotateDirection: "counterclockwise"
+            rotateDirection: "counterclockwise",
+            // 矩形印章默认配置
+            rectangleTextDirection: 'horizontal',
+            rectangleTextPosition: 'center',
+            rectangleTextAlignment: 'center',
+            rectangleVerticalAlignment: 'center',
+            rectangleLineSpacing: 0
         }
     ]
     // 内圈圆列表
