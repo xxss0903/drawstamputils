@@ -3,7 +3,11 @@
       <div class="editor-controls" ref="editorControls">
         <BasicSettingsPanel
           :expanded="expandedGroups.basic"
-          @toggle="toggleGroup('basic')"
+          :is-circle-detect="isCircleDetect"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.basic = value)"
+          @update:is-circle-detect="handleIsCircleDetectChange"
+          @update-config="handleBasicConfigUpdate"
         />
 
         <!-- 公司名称设置 -->
@@ -612,13 +616,13 @@
     </div>
   </template>
   <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
 import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
 import { useI18n } from 'vue-i18n'
 import { useStampStore } from './stores/stampStore'
-import BasicSettingsPanel from "./components/editor/settings/BasicSettingsPanel.vue"
+import BasicSettingsPanel from './components/editor/panels/BasicSettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -635,7 +639,7 @@ const stampStore = useStampStore()
 
 const getDrawConfigs = (): IDrawStampConfig => {
   if (!stampStore.state.config) {
-  const config = getDrawConfigs()
+    const config = props.drawStampUtils.getDrawConfigs()
     stampStore.setConfig(config)
     return config
   }
@@ -710,7 +714,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const securityPatternColor = ref('#FF0000')
   const securityPatternCount = ref(5) // 防伪纹路数量
   const securityPatternLength = ref(2) // 纹路长度，单为毫米
-  const showFullRuler = ref(false)
   const shouldDrawStar = ref(false) // 默认绘制五角星
   const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
   const taxNumberLetterSpacing = ref(0.3) // 税号文字间距（单位：毫米）
@@ -723,14 +726,12 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const outThinCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
   const outThinCircleWidth = ref(25) // 内圈圆宽度，单位为毫米
   const outThinCircleHeight = ref(22) // 内圈圆高度，单位为毫米
-  const stampImageRef = ref<HTMLImageElement | null>(null)
   const shouldDrawRoughEdge = ref(false) // 是否绘制毛边
   const roughEdgeWidth = ref(0.2) // 毛边宽度，单位为毫米
   const roughEdgeHeight = ref(5) // 毛边高度，单位为毫米
   const roughEdgeProbability = ref(0.5) // 毛边概率
   const roughEdgeShift = ref(8) // 毛边偏移
   const roughEdgePoints = ref(360) // 毛边点数
-  const showLegalDialog = ref(false) // 是否显示法律提示弹窗
   // 添加印章类型列表的响式数据
   const stampTypeList = ref<IStampType[]>([
     {
@@ -789,7 +790,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
       innerCircleLineRadiusY: 12
     }
   ])
-  const templateFileInput = ref<HTMLInputElement | null>(null)
   // 添加图片列表的响应式数据
   const imageList = ref<IDrawImage[]>([{
     imageUrl: '',
@@ -803,6 +803,10 @@ const getDrawConfigs = (): IDrawStampConfig => {
   // 添加外圈圆形边的响应式数据
   const drawOutBorder = ref(true)
   const outBorderLineWidth = ref(1)
+
+const handleIsCircleDetectChange = (value: boolean) => {
+  isCircleDetect.value = value
+}
 
   // 添加新图片
   const addNewImage = () => {
@@ -1144,6 +1148,15 @@ const getDrawConfigs = (): IDrawStampConfig => {
     outBorderLineWidth.value = drawConfigs.outBorder.innerCircleLineWidth
   }
 
+const handleBasicConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  console.log("handle basic config settings")
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
   // 添加系统字体列表
   const systemFonts = ref<string[]>([])
 
@@ -1357,24 +1370,24 @@ type GroupKey =
   | 'innerCircle'
   | 'images'
 
-const expandedGroups = ref<Record<GroupKey, boolean>>({
-    basic: false,
-    company: false,
-    stampType: false,
-    code: false,
-    taxNumber: false,
-    star: false,
-    security: false,
-    roughEdge: false,
-    aging: false,
-    innerCircle: false,
-    images: false // 新增图片列表设置
-  })
+const expandedGroups = reactive<Record<GroupKey, boolean>>({
+  basic: false,
+  company: false,
+  stampType: false,
+  code: false,
+  taxNumber: false,
+  star: false,
+  security: false,
+  roughEdge: false,
+  aging: false,
+  innerCircle: false,
+  images: false // 新增图片列表设置
+})
 
-  // 切换组的展开/折叠状态
+// 切换组的展开/折叠状态
 const toggleGroup = (groupName: GroupKey) => {
-    expandedGroups.value[groupName] = !expandedGroups.value[groupName]
-  }
+  expandedGroups[groupName] = !expandedGroups[groupName]
+}
 
   // 添加新的响应式变量
   const showSecurityWarning = ref(localStorage.getItem('showSecurityWarning') !== 'false')
@@ -1404,7 +1417,7 @@ const toggleGroup = (groupName: GroupKey) => {
   // 添加滚动到公司文字组件的方法
   const scrollToCompanyText = (index: number) => {
     // 展开公司设置组
-    expandedGroups.value.company = true
+    expandedGroups.company = true
 
     // 等待 DOM 更新后滚动
     nextTick(() => {
@@ -1418,7 +1431,7 @@ const toggleGroup = (groupName: GroupKey) => {
   // 添加滚动到编码的方法
   const scrollToCode = () => {
     // 展开编码设置组
-    expandedGroups.value.code = true
+    expandedGroups.code = true
 
     // 等待 DOM 更新后滚动
     nextTick(() => {
@@ -1433,7 +1446,7 @@ const toggleGroup = (groupName: GroupKey) => {
   // 添加滚动到印章类型的方法
   const scrollToStampType = (index: number) => {
     // 展开印章类型设置组
-    expandedGroups.value.stampType = true
+    expandedGroups.stampType = true
 
     // 等待 DOM 更新后滚动
     nextTick(() => {
@@ -1447,7 +1460,7 @@ const toggleGroup = (groupName: GroupKey) => {
   // 添加滚动到税号的方法
   const scrollToTaxNumber = () => {
     // 展开税号设置组
-    expandedGroups.value.taxNumber = true
+    expandedGroups.taxNumber = true
 
     // 等待 DOM 更新后滚动
     nextTick(() => {

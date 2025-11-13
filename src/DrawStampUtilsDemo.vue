@@ -170,7 +170,7 @@
 import { ref, onMounted, watch, onUnmounted } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
-import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
+import { IDrawStampConfig } from './DrawStampTypes'
 import { useI18n } from 'vue-i18n'
 import stampTemplate1 from './assets/templates/stamp_template1.json'
 import stampTemplate2 from './assets/templates/stamp_template2.json'
@@ -345,23 +345,12 @@ const savePresetsToLocalStorage = () => {
   localStorage.setItem('stampTypePresets', JSON.stringify(stampTypePresets.value))
 }
 
-const loadPresetsFromLocalStorage = () => {
-  const saved = localStorage.getItem('stampTypePresets')
-  if (saved) {
-    stampTypePresets.value = JSON.parse(saved)
-  }
-}
-
 // 在预设变化时保存
 watch(stampTypePresets, () => {
   savePresetsToLocalStorage()
 }, { deep: true })
 
 // 打开提取印章工具网址
-const openExtractStampTool = () => {
-  window.open('https://xxss0903.github.io/extractstamp/', '_blank')
-}
-
 // 修改字体预览更新函数
 const updateFontPreview = (event: Event) => {
   const element = event.target as HTMLElement;
