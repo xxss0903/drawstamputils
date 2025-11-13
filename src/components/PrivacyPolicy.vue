@@ -1,6 +1,6 @@
 <template>
   <div class="privacy-policy">
-    <div class="container">
+    <div class="page-container">
       <h1>隐私政策</h1>
       <p class="last-updated">最后更新日期: {{ new Date().toLocaleDateString('zh-CN') }}</p>
 

@@ -13,7 +13,7 @@
 
     <!-- Stamp Types Section -->
     <section class="stamp-types-section">
-      <div class="container">
+      <div class="item-container">
         <h2 class="section-title">支持多种印章类型</h2>
         <div class="stamp-types-grid">
           <div class="stamp-type-item">公司印章</div>
@@ -37,7 +37,7 @@
 
     <!-- Why Choose Us Section -->
     <section class="why-choose-section">
-      <div class="container">
+      <div class="item-container">
         <h2 class="section-title">为什么选择 DrawStamp？</h2>
         <div class="features-grid">
           <div class="feature-item">
@@ -76,7 +76,7 @@
 
     <!-- How It Works Section -->
     <section class="how-it-works-section">
-      <div class="container">
+      <div class="item-container">
         <h2 class="section-title">只需几个步骤，即可完成您的印章！</h2>
         <div class="steps-container">
           <div class="step-item">
@@ -108,7 +108,7 @@
 
     <!-- Features Section -->
     <section class="features-section">
-      <div class="container">
+      <div class="item-container">
         <h2 class="section-title">我们的印章制作工具让您能够快速：</h2>
         <div class="features-list">
           <div class="feature-card">
@@ -133,7 +133,7 @@
 
     <!-- FAQ Section -->
     <section class="faq-section">
-      <div class="container">
+      <div class="item-container">
         <h2 class="section-title">常见问题</h2>
         <div class="faq-list">
           <div class="faq-item">
@@ -165,15 +165,15 @@
     </section>
 
     <!-- Warning Section -->
-    <section class="warning-section">
-      <div class="container">
-        <div class="warning-box">
-          <h3>⚠️ 重要提示</h3>
-          <p>本工具仅供学习和参考使用！严禁用于任何非法用途！</p>
-          <p>使用本工具生成的任何图片请勿用于任何非法用途。因违法使用本工具造成的任何法律责任和损失，需自行承担。请遵守相关法律法规，合法使用本工具。</p>
-        </div>
-      </div>
-    </section>
+<!--    <section class="warning-section">-->
+<!--      <div class="container">-->
+<!--        <div class="warning-box">-->
+<!--          <h3>⚠️ 重要提示</h3>-->
+<!--          <p>本工具仅供学习和参考使用！严禁用于任何非法用途！</p>-->
+<!--          <p>使用本工具生成的任何图片请勿用于任何非法用途。因违法使用本工具造成的任何法律责任和损失，需自行承担。请遵守相关法律法规，合法使用本工具。</p>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </section>-->
   </div>
 </template>
 

@@ -203,16 +203,16 @@
   .nav-links {
     display: none;
   }
-  
+
   .title {
     font-size: 2.5rem;
   }
-  
+
   .mountain {
     width: 150px;
     height: 200px;
   }
-  
+
   .house {
     width: 150px;
     height: 150px;

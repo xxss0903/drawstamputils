@@ -58,9 +58,8 @@ button:focus-visible {
 }
 
 #app {
-  background-color: #d8ae8c;
+  background-color: #f2f2f2;
   flex: 1;
-  padding: 4rem;
   text-align: center;
   display: flex;
   flex-direction: column;

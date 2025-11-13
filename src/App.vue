@@ -84,6 +84,8 @@ const isHomePage = computed(() => route.path === '/')
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f2f2f2;
+  color: #343a40;
 }
 
 .navbar {
@@ -92,6 +94,7 @@ const isHomePage = computed(() => route.path === '/')
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
 }
 
 .nav-content {
