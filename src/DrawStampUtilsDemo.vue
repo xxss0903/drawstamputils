@@ -16,6 +16,14 @@
     </div>
   </div>
 
+  <!-- 工具页面介绍 -->
+  <div class="tool-intro">
+    <div class="tool-intro-content">
+      <h1>印章制作工具</h1>
+      <p>使用我们的在线编辑器，轻松创建专业的电子印章。所有操作都在您的浏览器本地完成，保护您的隐私安全。</p>
+    </div>
+  </div>
+
   <div class="container" :class="{ 'has-warning': showSecurityWarning }">
     <!-- 修改法律免责说明 -->
     <div class="legal-disclaimer" 
@@ -1605,4 +1613,43 @@ watch(showSecurityWarning, (newValue) => {
 
 </script>
 <style scoped>
+/* 工具页面介绍样式 */
+.tool-intro {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.tool-intro-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.tool-intro h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.tool-intro p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+@media (max-width: 768px) {
+  .tool-intro {
+    padding: 1.5rem;
+  }
+
+  .tool-intro h1 {
+    font-size: 1.5rem;
+  }
+
+  .tool-intro p {
+    font-size: 1rem;
+  }
+}
 </style>
