@@ -46,6 +46,7 @@ export type ICompany = {
     rectangleTextAlignment: 'left' | 'center' | 'right' // 矩形文字对齐方式（横向时）
     rectangleVerticalAlignment: 'top' | 'center' | 'bottom' // 矩形文字对齐方式（纵向时）
     rectangleLineSpacing: number // 矩形文字行间距（纵向时）
+    rectangleTextMargin: number // 矩形文字距离边框的边距（毫米）
 }
 
 // 印章编码

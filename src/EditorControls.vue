@@ -192,6 +192,11 @@
                   行间距 (mm):
                   <input type="number" v-model.number="company.rectangleLineSpacing" min="0" max="10" step="0.1" />
                 </label>
+                <label>
+                  文字边距 (mm):
+                  <input type="number" v-model.number="company.rectangleTextMargin" min="0" max="20" step="0.1" />
+                  <span class="help-text">文字距离边框的距离</span>
+                </label>
               </template>
             </div>
             <button class="add-button" @click="addNewCompany">{{ t('stamp.common.addNew') }}</button>
@@ -778,7 +783,8 @@
       rectangleTextPosition: 'center',
       rectangleTextAlignment: 'center',
       rectangleVerticalAlignment: 'center',
-      rectangleLineSpacing: 0
+      rectangleLineSpacing: 0,
+      rectangleTextMargin: 1
     }
   ])
   // 添加新的响应式变量
@@ -904,7 +910,8 @@
       rectangleTextPosition: 'center' as const,
       rectangleTextAlignment: 'center' as const,
       rectangleVerticalAlignment: 'center' as const,
-      rectangleLineSpacing: 0
+      rectangleLineSpacing: 0,
+      rectangleTextMargin: 1
     } as ICompany)
   }
 

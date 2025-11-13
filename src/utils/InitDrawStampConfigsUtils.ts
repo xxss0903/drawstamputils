@@ -47,7 +47,8 @@ export class InitDrawStampConfigsUtils {
         rectangleTextPosition: 'center',
         rectangleTextAlignment: 'center',
         rectangleVerticalAlignment: 'center',
-        rectangleLineSpacing: 0
+        rectangleLineSpacing: 0,
+        rectangleTextMargin: 1
     }
     private taxNumber: ITaxNumber = {
         code: '000000000000000000',
@@ -152,7 +153,8 @@ export class InitDrawStampConfigsUtils {
             rectangleTextPosition: 'center',
             rectangleTextAlignment: 'center',
             rectangleVerticalAlignment: 'center',
-            rectangleLineSpacing: 0
+            rectangleLineSpacing: 0,
+            rectangleTextMargin: 1
         }
     ]
     // 内圈圆列表
