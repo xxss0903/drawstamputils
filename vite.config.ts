@@ -3,9 +3,11 @@ import vue from '@vitejs/plugin-vue'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  base: '/drawstamputils/',
+  base: '/', // 生产环境使用根路径
   build: {
-    outDir: "docs"
+    outDir: "dist", // Cloudflare Pages 默认使用 dist 目录
+    minify: 'terser', // 生产环境启用压缩
+    sourcemap: false // 生产环境不生成 sourcemap
   }
 })
 
