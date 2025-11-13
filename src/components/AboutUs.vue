@@ -77,18 +77,10 @@
 
 <style scoped>
 .about-us {
+  width: 100%;
   min-height: 100vh;
   padding: 2rem;
   background-color: #f2f2f2;
-}
-
-.page-container {
-  max-width: 900px;
-  margin: 0 auto;
-  background: white;
-  padding: 3rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 h1 {
@@ -303,11 +295,6 @@ section:nth-of-type(4) ul li::before {
 @media (max-width: 768px) {
   .about-us {
     padding: 1rem;
-  }
-
-  .page-container {
-    padding: 1.5rem;
-    border-radius: 8px;
   }
 
   h1 {

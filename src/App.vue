@@ -168,12 +168,6 @@ const isHomePage = computed(() => route.path === '/')
   border-color: #0056b3;
 }
 
-.main-content {
-  flex: 1;
-  width: 80%;
-  align-items: center;
-  justify-content: center;
-}
 
 .footer {
   background: #2c3e50;

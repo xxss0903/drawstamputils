@@ -86,15 +86,6 @@
   justify-content: center;
 }
 
-/* 主要内容区域 */
-.main-content {
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 2rem 2rem 2rem;
-}
-
 .title {
   font-weight: bold;
   color: #FFF;
