@@ -605,15 +605,6 @@ watch(isDraggable, (newValue) => {
   background-color: #f5f5f5;
 }
 
-/* 修改 Canvas 容器样式 */
-.canvas-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  flex: 1;
-}
-
 .canvas-wrapper {
   margin-bottom: 20px;
 }
