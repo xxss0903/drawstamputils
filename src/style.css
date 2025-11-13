@@ -92,6 +92,25 @@ button:focus-visible {
   overflow: hidden;
 }
 
+.editor-container {
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.maker-container {
+  border-radius: 12px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  overflow: hidden;
+}
+
 /* 编辑器控制面板样式 */
 .editor-controls {
   height: 80vh;
@@ -312,7 +331,6 @@ button:focus-visible {
 
 /* Canvas 容器样式 */
 .canvas-container {
-  background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
   justify-content: center;

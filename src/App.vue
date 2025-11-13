@@ -171,6 +171,8 @@ const isHomePage = computed(() => route.path === '/')
 .main-content {
   flex: 1;
   width: 80%;
+  align-items: center;
+  justify-content: center;
 }
 
 .footer {

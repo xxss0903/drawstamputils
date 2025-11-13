@@ -1,5 +1,5 @@
 <template>
-    <div class="container" :class="{ 'has-warning': showSecurityWarning }">
+    <div class="editor-container" :class="{ 'has-warning': showSecurityWarning }">
       <div class="editor-controls" ref="editorControls">
         <!-- 印章基本设置 -->
         <div class="control-group">
@@ -35,7 +35,7 @@
             </label>
           </div>
         </div>
-  
+
         <!-- 公司名称设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('company')">
@@ -147,7 +147,7 @@
             <button class="add-button" @click="addNewCompany">{{ t('stamp.common.addNew') }}</button>
           </div>
         </div>
-  
+
         <!-- 印章类型设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('stampType')">
@@ -238,7 +238,7 @@
             <button class="add-button" @click="addNewStampType">{{ t('stamp.stampType.addNew') }}</button>
           </div>
         </div>
-  
+
         <!-- 印章编码设置 -->
         <div class="control-group stamp-code-group">
           <div class="group-header" @click="toggleGroup('code')">
@@ -312,7 +312,7 @@
             </label>
           </div>
         </div>
-  
+
         <!-- 税号设置 -->
         <div class="control-group tax-number-group">
           <div class="group-header" @click="toggleGroup('taxNumber')">
@@ -383,7 +383,7 @@
             </label>
           </div>
         </div>
-  
+
         <!-- 图片列表设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('images')">
@@ -427,7 +427,7 @@
             <button class="add-button" @click="addNewImage">{{ t('stamp.common.addNew') }}</button>
           </div>
         </div>
-  
+
         <!-- 五角星设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('star')">
@@ -482,7 +482,7 @@
             /></label>
           </div>
         </div>
-  
+
         <!-- 毛边效果设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('roughEdge')">
@@ -522,7 +522,7 @@
             <button @click="drawStamp(false, false, true)">{{ t('stamp.roughEdge.refresh') }}</button>
           </div>
         </div>
-  
+
         <!-- 做旧效果设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('aging')">
@@ -540,11 +540,11 @@
             </label>
             <label v-if="applyAging">
               {{ t('stamp.aging.intensity') }}:
-              <input 
-                type="range" 
-                v-model.number="agingIntensity" 
-                min="0" 
-                max="100" 
+              <input
+                type="range"
+                v-model.number="agingIntensity"
+                min="0"
+                max="100"
                 step="1"
                 @input="updateAgingEffect"
               />
@@ -555,7 +555,7 @@
             </button>
           </div>
         </div>
-  
+
         <!-- 内圈圆形设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('innerCircle')">
@@ -592,9 +592,9 @@
   import { getSystemFonts } from './utils/fontUtils'
   import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
   import { useI18n } from 'vue-i18n'
-  
+
   const { t } = useI18n()
-  
+
   const editorControls = ref<HTMLDivElement | null>(null)
 
   // 将drawStampUtils作为props传递给EditorControls
@@ -755,11 +755,11 @@
     positionY: 0,
     keepAspectRatio: true
   }])
-  
+
   // 添加外圈圆形边的响应式数据
   const drawOutBorder = ref(true)
   const outBorderLineWidth = ref(1)
-  
+
   // 添加新图片
   const addNewImage = () => {
     console.log("add new image", imageList.value)
@@ -777,12 +777,12 @@
       })
     }
   }
-  
+
   // 删除图片
   const removeImage = (index: number) => {
     imageList.value.splice(index, 1)
   }
-  
+
   // 修改图片上传处理函数
   const handleImageUpload = (event: Event, index: number) => {
     const target = event.target as HTMLInputElement
@@ -798,7 +798,7 @@
       reader.readAsDataURL(file)
     }
   }
-  
+
   // 添加新的印章类型行
   const addNewStampType = () => {
     let newPositionY = -3
@@ -818,12 +818,12 @@
       fontWidth: 3
     })
   }
-  
+
   // 删除指定的印章型行
   const removeStampType = (index: number) => {
     stampTypeList.value.splice(index, 1)
   }
-  
+
   // 添加新的公司行
   const addNewCompany = () => {
     let newBorderOffset = 1
@@ -846,24 +846,24 @@
       rotateDirection: "counterclockwise"
     })
   }
-  
+
   // 删除指定的公司行
   const removeCompany = (index: number) => {
     companyList.value.splice(index, 1)
   }
-  
+
   const drawStampWidth = ref(40)
   const drawStampHeight = ref(30)
-  
+
   // 添加新的响应式变量
   const bottomTextLineSpacing = ref(1.2) // 默认行间距为1.2mm
-  
+
   const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
     // 使用drawstamputils进行绘制
     props.drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
     emit('updateDrawStamp', props.drawStampUtils.getDrawConfigs(), refreshSecurityPattern, refreshOld, refreshRoughEdge)
   }
-  
+
   // 添加新内圈
   const addNewInnerCircle = () => {
     innerCircleList.value.push({
@@ -873,12 +873,12 @@
       innerCircleLineRadiusY: 12
     })
   }
-  
+
   // 删除内圈
   const removeInnerCircle = (index: number) => {
     innerCircleList.value.splice(index, 1)
   }
-  
+
   // 更新绘制配置
   const updateDrawConfigs = () => {
     const drawConfigs = props.drawStampUtils.getDrawConfigs()
@@ -887,14 +887,14 @@
     agingEffect.applyAging = applyAging.value
     agingEffect.agingIntensity = agingIntensity.value
     drawConfigs.openManualAging = manualAging.value
-  
+
     // 防伪纹路
     const securityPattern: ISecurityPattern = drawConfigs.securityPattern
     securityPattern.openSecurityPattern = securityPatternEnabled.value
     securityPattern.securityPatternCount = securityPatternCount.value
     securityPattern.securityPatternWidth = securityPatternWidth.value
     securityPattern.securityPatternLength = securityPatternLength.value
-  
+
     // 公司名称
     const company: ICompany = drawConfigs.company
     company.companyName = companyName.value
@@ -906,7 +906,7 @@
     company.fontWeight = companyNameFontWeight.value
     company.adjustEllipseText = adjustEllipseText.value
     company.adjustEllipseTextFactor = adjustEllipseTextFactor.value
-  
+
     // 税号
     const taxNumber: ITaxNumber = drawConfigs.taxNumber
     taxNumber.code = taxNumberValue.value
@@ -915,7 +915,7 @@
     taxNumber.letterSpacing = taxNumberLetterSpacing.value
     taxNumber.fontFamily = taxNumberFontFamily.value
     taxNumber.fontWeight = taxNumberFontWeight.value
-  
+
     // 印章类型
     const stampType: IStampType = drawConfigs.stampType
     stampType.stampType = bottomText.value
@@ -927,7 +927,7 @@
     stampType.compression = bottomTextCompression.value
     stampType.fontWeight = bottomTextFontWeight.value
     stampType.lineSpacing = bottomTextLineSpacing.value // 新增：置行间距
-  
+
     // 印章编码
     const code: ICode = drawConfigs.stampCode
     code.code = stampCode.value
@@ -943,7 +943,7 @@
     drawConfigs.borderWidth = circleBorderWidth.value
     drawConfigs.width = drawStampWidth.value
     drawConfigs.height = drawStampHeight.value
-  
+
     // 五角星/图片配置
     const drawStar: IDrawStar = drawConfigs.drawStar
     drawStar.drawStar = shouldDrawStar.value
@@ -953,7 +953,7 @@
     drawStar.keepAspectRatio = keepAspectRatio.value
     drawStar.starDiameter = starDiameter.value
     drawStar.starPositionY = starPositionY.value
-  
+
     // 毛边
     const roughEdge: IRoughEdge = drawConfigs.roughEdge
     roughEdge.drawRoughEdge = shouldDrawRoughEdge.value
@@ -962,53 +962,53 @@
     roughEdge.roughEdgeProbability = roughEdgeProbability.value
     roughEdge.roughEdgeShift = roughEdgeShift.value
     roughEdge.roughEdgePoints = roughEdgePoints.value
-  
+
     // 内圈圆
     const innerCircle: IInnerCircle = drawConfigs.innerCircle
     innerCircle.drawInnerCircle = drawInnerCircle.value
     innerCircle.innerCircleLineWidth = innerCircleLineWidth.value
     innerCircle.innerCircleLineRadiusX = innerCircleWidth.value
     innerCircle.innerCircleLineRadiusY = innerCircleHeight.value
-  
+
     // 外部细圈
     const outThinCircle: IInnerCircle = drawConfigs.outThinCircle
     outThinCircle.drawInnerCircle = drawOutThinCircle.value
     outThinCircle.innerCircleLineWidth = outThinCircleLineWidth.value
     outThinCircle.innerCircleLineRadiusX = outThinCircleWidth.value
     outThinCircle.innerCircleLineRadiusY = outThinCircleHeight.value
-  
+
     // 更新印章类型列表
     drawConfigs.stampTypeList = stampTypeList.value
-  
+
     // 更新公司列表
     drawConfigs.companyList = companyList.value
     // 更新内圈列表
     drawConfigs.innerCircleList = innerCircleList.value
     // 更新图片列表
     drawConfigs.imageList = imageList.value
-  
+
       // 外圈圆形边
       const outBorder: IInnerCircle = drawConfigs.outBorder
     outBorder.drawInnerCircle = drawOutBorder.value
     outBorder.innerCircleLineWidth = outBorderLineWidth.value
-  
+
     drawStamp()
   }
 
   const restoreDrawConfigs = () => {
     const drawConfigs = props.drawStampUtils.getDrawConfigs()
-  
+
     // 做旧效果
     applyAging.value = drawConfigs.agingEffect.applyAging
     agingIntensity.value = drawConfigs.agingEffect.agingIntensity
     manualAging.value = drawConfigs.openManualAging
-  
+
     // 防伪纹路
     securityPatternEnabled.value = drawConfigs.securityPattern.openSecurityPattern
     securityPatternCount.value = drawConfigs.securityPattern.securityPatternCount
     securityPatternWidth.value = drawConfigs.securityPattern.securityPatternWidth
     securityPatternLength.value = drawConfigs.securityPattern.securityPatternLength
-  
+
     // 毛边效果
     shouldDrawRoughEdge.value = drawConfigs.roughEdge.drawRoughEdge
     roughEdgeWidth.value = drawConfigs.roughEdge.roughEdgeWidth
@@ -1016,13 +1016,13 @@
     roughEdgeProbability.value = drawConfigs.roughEdge.roughEdgeProbability
     roughEdgeShift.value = drawConfigs.roughEdge.roughEdgeShift
     roughEdgePoints.value = drawConfigs.roughEdge.roughEdgePoints
-  
+
     // 印章基本设置
     drawStampWidth.value = drawConfigs.width
     drawStampHeight.value = drawConfigs.height
     circleBorderWidth.value = drawConfigs.borderWidth
     primaryColor.value = drawConfigs.primaryColor
-  
+
     // 公司名称
     companyName.value = drawConfigs.company.companyName
     companyFontSizeMM.value = drawConfigs.company.fontHeight
@@ -1030,7 +1030,7 @@
     textDistributionFactor.value = drawConfigs.company.textDistributionFactor
     textMarginMM.value = drawConfigs.company.borderOffset
     companyList.value = drawConfigs.companyList
-  
+
     // 印章编码
     const stampCodeConfig: ICode = drawConfigs.stampCode
     stampCode.value = stampCodeConfig.code
@@ -1041,7 +1041,7 @@
     codeFontFamily.value = stampCodeConfig.fontFamily
     codeFontWeight.value = stampCodeConfig.fontWeight
     codeCompression.value = stampCodeConfig.compression
-  
+
     // 税号
     const taxNumber: ITaxNumber = drawConfigs.taxNumber
     taxNumberValue.value = taxNumber.code
@@ -1050,7 +1050,7 @@
     taxNumberPositionY.value = taxNumber.positionY
     taxNumberFontFamily.value = taxNumber.fontFamily
     taxNumberFontWeight.value = taxNumber.fontWeight
-  
+
     // 印章类型
     const stampTypeConfig: IStampType = drawConfigs.stampType
     bottomText.value = stampTypeConfig.stampType
@@ -1063,7 +1063,7 @@
     bottomTextCompression.value = stampTypeConfig.compression
     bottomTextLineSpacing.value = stampTypeConfig.lineSpacing
     stampTypeList.value = drawConfigs.stampTypeList
-  
+
     // 五角星/图片配置
     shouldDrawStar.value = drawConfigs.drawStar.drawStar
     useStarImage.value = drawConfigs.drawStar.useImage
@@ -1072,36 +1072,36 @@
     keepAspectRatio.value = drawConfigs.drawStar.keepAspectRatio
     starDiameter.value = drawConfigs.drawStar.starDiameter
     starPositionY.value = drawConfigs.drawStar.starPositionY
-  
+
     // 内圈圆形
     drawInnerCircle.value = drawConfigs.innerCircle.drawInnerCircle
     innerCircleLineWidth.value = drawConfigs.innerCircle.innerCircleLineWidth
     innerCircleWidth.value = drawConfigs.innerCircle.innerCircleLineRadiusX
     innerCircleHeight.value = drawConfigs.innerCircle.innerCircleLineRadiusY
     innerCircleList.value = drawConfigs.innerCircleList
-  
+
     // 外部细圈
     drawOutThinCircle.value = drawConfigs.outThinCircle.drawInnerCircle
     outThinCircleLineWidth.value = drawConfigs.outThinCircle.innerCircleLineWidth
     outThinCircleWidth.value = drawConfigs.outThinCircle.innerCircleLineRadiusX
     outThinCircleHeight.value = drawConfigs.outThinCircle.innerCircleLineRadiusY
-  
+
     // 图片列表
     imageList.value = drawConfigs.imageList || []
-  
+
       // 外圈圆形边
       drawOutBorder.value = drawConfigs.outBorder.drawInnerCircle
     outBorderLineWidth.value = drawConfigs.outBorder.innerCircleLineWidth
   }
-  
+
   // 添加系统字体列表
   const systemFonts = ref<string[]>([])
-  
+
   // 加载系统字体
   const loadSystemFonts = async () => {
     systemFonts.value = await getSystemFonts()
   }
-  
+
   // 在组件挂载时加载字体
   onMounted(async () => {
     console.log('onMounted drawStampUtils', props.drawStampUtils)
@@ -1116,7 +1116,7 @@
       }
     });
   })
-  
+
   // 监听所有响应式数据的变化
   watch(
     [
@@ -1201,7 +1201,7 @@
     },
     { deep: true }
   )
-  
+
   // 添加新的类型定义
   interface StampTypePreset {
     id: string;
@@ -1213,7 +1213,7 @@
     positionY: number;
     compression: number;
   }
-  
+
   // 添加预设数据
   const stampTypePresets = ref<StampTypePreset[]>([
     {
@@ -1247,33 +1247,33 @@
       compression: 0.85
     }
   ])
-  
+
   // 可以选择性地添加持久化存储功能
   const savePresetsToLocalStorage = () => {
     localStorage.setItem('stampTypePresets', JSON.stringify(stampTypePresets.value))
   }
-  
+
   const loadPresetsFromLocalStorage = () => {
     const saved = localStorage.getItem('stampTypePresets')
     if (saved) {
       stampTypePresets.value = JSON.parse(saved)
     }
   }
-  
+
   // 在预设变化时保存
   watch(stampTypePresets, () => {
     savePresetsToLocalStorage()
   }, { deep: true })
-  
+
   // 修改字体预览更新函数
   const updateFontPreview = (event: Event) => {
     const element = event.target as HTMLElement;
     const fontFamily = element.tagName === 'SELECT'
       ? (element as HTMLSelectElement).value
       : (element as HTMLInputElement).value;
-  
+
     element.style.setProperty('--current-font', fontFamily);
-  
+
     // 如果是select变化，同步更新input
     if (element.tagName === 'SELECT') {
       const input = element.parentElement?.querySelector('.font-input') as HTMLInputElement;
@@ -1282,7 +1282,7 @@
         input.style.setProperty('--current-font', fontFamily);
       }
     }
-  
+
     // 如果input变化，同步更新select
     if (element.tagName === 'INPUT') {
       const select = element.parentElement?.querySelector('.font-select') as HTMLSelectElement;
@@ -1292,7 +1292,7 @@
       }
     }
   }
-  
+
   // 添加展开/折叠状态控制
   const expandedGroups = ref({
     basic: false,
@@ -1307,15 +1307,15 @@
     innerCircle: false,
     images: false // 新增图片列表设置
   })
-  
+
   // 切换组的展开/折叠状态
   const toggleGroup = (groupName: string) => {
     expandedGroups.value[groupName] = !expandedGroups.value[groupName]
   }
-  
+
   // 添加新的响应式变量
   const showSecurityWarning = ref(localStorage.getItem('showSecurityWarning') !== 'false')
-  
+
   watch(showSecurityWarning, (newValue) => {
     localStorage.setItem('showSecurityWarning', String(newValue))
   })
@@ -1329,7 +1329,7 @@
       manualAging: manualAging.value,
       intensity: agingIntensity.value
     }
-    
+
     emit('updateDrawStamp', config, false, true, false)
   }
 
@@ -1342,7 +1342,7 @@
   const scrollToCompanyText = (index: number) => {
     // 展开公司设置组
     expandedGroups.value.company = true
-    
+
     // 等待 DOM 更新后滚动
     nextTick(() => {
       const companyItem = document.querySelector(`.company-item:nth-child(${index + 1})`)
@@ -1356,7 +1356,7 @@
   const scrollToCode = () => {
     // 展开编码设置组
     expandedGroups.value.code = true
-    
+
     // 等待 DOM 更新后滚动
     nextTick(() => {
       const codeSection = document.querySelector('.stamp-code-group')
@@ -1371,7 +1371,7 @@
   const scrollToStampType = (index: number) => {
     // 展开印章类型设置组
     expandedGroups.value.stampType = true
-    
+
     // 等待 DOM 更新后滚动
     nextTick(() => {
       const stampTypeItem = document.querySelector(`.stamp-type-item:nth-child(${index + 1})`)
@@ -1385,7 +1385,7 @@
   const scrollToTaxNumber = () => {
     // 展开税号设置组
     expandedGroups.value.taxNumber = true
-    
+
     // 等待 DOM 更新后滚动
     nextTick(() => {
       const taxNumberItem = document.querySelector('.tax-number-group')
@@ -1420,4 +1420,3 @@
     border-color: #1890ff;
   }
   </style>
-  

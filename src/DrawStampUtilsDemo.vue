@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <div class="container" :class="{ 'has-warning': showSecurityWarning }">
+  <div class="maker-container" :class="{ 'has-warning': showSecurityWarning }">
     <!-- 修改法律免责说明 -->
     <div class="legal-disclaimer"
          v-if="showSecurityWarning"
