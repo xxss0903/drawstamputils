@@ -86,6 +86,8 @@ const isHomePage = computed(() => route.path === '/')
   flex-direction: column;
   background-color: #f2f2f2;
   color: #343a40;
+  align-items: center;
+  width: 100%;
 }
 
 .navbar {
@@ -168,12 +170,14 @@ const isHomePage = computed(() => route.path === '/')
 
 .main-content {
   flex: 1;
+  width: 80%;
 }
 
 .footer {
   background: #2c3e50;
   color: #ecf0f1;
   margin-top: auto;
+  width: 100%;
 }
 
 .footer-content {

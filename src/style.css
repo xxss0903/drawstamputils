@@ -647,3 +647,14 @@ canvas {
   height: 100%;
   object-fit: contain;
 }
+
+.item-container {
+  margin-left: 24px;
+  margin-right: 24px;
+}
+
+.drawtool-container {
+  display: flex;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}

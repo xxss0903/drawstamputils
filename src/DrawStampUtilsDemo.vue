@@ -17,106 +17,303 @@
   </div>
 
   <!-- 工具页面介绍 -->
-  <div class="tool-intro">
+  <!-- <div class="tool-intro">
     <div class="tool-intro-content">
       <h1>印章制作工具</h1>
       <p>使用我们的在线编辑器，轻松创建专业的电子印章。所有操作都在您的浏览器本地完成，保护您的隐私安全。</p>
     </div>
-  </div>
+  </div> -->
 
-  <div class="container" :class="{ 'has-warning': showSecurityWarning }">
-    <!-- 修改法律免责说明 -->
-    <div class="legal-disclaimer" 
-         v-if="showSecurityWarning"
-         :class="{ 'hidden': !showSecurityWarning }">
-      <div class="disclaimer-content">
-        <div class="warning-icon">⚠️</div>
-        <div class="warning-text">
-          <h3>{{ t('legal.securityWarning') }}</h3>
-          <p><strong>{{ t('legal.securityNotice') }}</strong></p>
-          <p>
-            <span style="white-space: pre-line">{{ t('legal.securityItems') }}</span>
-          </p>
-          <button class="close-warning" @click="showSecurityWarning = false">×</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="editor-controls" ref="editorControls">
-      <!-- 顶部固定按钮 -->
-      <div
-        class="button-group"
-        style="position: sticky; top: 0; z-index: 1000; background-color: white; padding: 10px"
-      >
-        <button @click="saveStampAsPNG">{{ t('stamp.save') }}</button>
-        <button @click="saveAsTemplate">{{ t('stamp.saveTemplate') }}</button>
-        <input
-          type="file"
-          ref="templateFileInput"
-          style="display: none"
-          accept=".json"
-          @change="loadTemplate"
-        />
-        <button @click="triggerTemplateLoad">{{ t('stamp.loadTemplate') }}</button>
-      </div>
-
-      <!-- 印章基本设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('basic')">
-          <h3>{{ t('stamp.basic.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.basic }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.basic">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="isCircleDetect" />
-            {{ t('stamp.basic.extractCircle') }}
-          </label>
-          <label>
-            {{ t('stamp.basic.width') }}:
-            <input type="number" v-model.number="drawStampWidth" min="1" max="50" step="1" />
-          </label>
-          <label>
-            {{ t('stamp.basic.height') }}:
-            <input type="number" v-model.number="drawStampHeight" min="1" max="50" step="1" />
-          </label>
-          <label>
-            {{ t('stamp.basic.borderWidth') }}: <input type="number" step="0.1" v-model.number="circleBorderWidth" />
-          </label>
-          <label>
-            {{ t('stamp.basic.color') }}: <input type="color" v-model="primaryColor" />
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="drawOutBorder" />
-            {{ t('stamp.outBorder.enable') }}
-          </label>
-          <label v-if="drawOutBorder">
-            {{ t('stamp.outBorder.lineWidth') }}:
-            <input type="number" v-model.number="outBorderLineWidth" min="0.1" max="5" step="0.1" />
-          </label>
+  <div class="drawtool-container">
+    <div class="container" :class="{ 'has-warning': showSecurityWarning }">
+      <!-- 修改法律免责说明 -->
+      <div class="legal-disclaimer"
+           v-if="showSecurityWarning"
+           :class="{ 'hidden': !showSecurityWarning }">
+        <div class="disclaimer-content">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-text">
+            <h3>{{ t('legal.securityWarning') }}</h3>
+            <p><strong>{{ t('legal.securityNotice') }}</strong></p>
+            <p>
+              <span style="white-space: pre-line">{{ t('legal.securityItems') }}</span>
+            </p>
+            <button class="close-warning" @click="showSecurityWarning = false">×</button>
+          </div>
         </div>
       </div>
 
-      <!-- 公司名称设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('company')">
-          <h3>{{ t('stamp.company.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.company }">▼</span>
+      <div class="editor-controls" ref="editorControls">
+        <!-- 顶部固定按钮 -->
+        <div
+          class="button-group"
+          style="position: sticky; top: 0; z-index: 1000; background-color: white; padding: 10px"
+        >
+          <button @click="saveStampAsPNG">{{ t('stamp.save') }}</button>
+          <button @click="saveAsTemplate">{{ t('stamp.saveTemplate') }}</button>
+          <input
+            type="file"
+            ref="templateFileInput"
+            style="display: none"
+            accept=".json"
+            @change="loadTemplate"
+          />
+          <button @click="triggerTemplateLoad">{{ t('stamp.loadTemplate') }}</button>
         </div>
-        <div class="group-content" v-show="expandedGroups.company">
-          <div v-for="(company, index) in companyList" :key="index" class="company-item">
-            <div class="company-header">
-              <span>{{ t('stamp.common.line', { index: index + 1 }) }}</span>
-              <button class="small-button delete-button" @click="removeCompany(index)">{{ t('stamp.common.delete') }}</button>
-            </div>
-            <label>
-              {{ t('stamp.company.name') }}:
-              <input type="text" v-model="company.companyName" />
+
+        <!-- 印章基本设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('basic')">
+            <h3>{{ t('stamp.basic.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.basic }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.basic">
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="isCircleDetect" />
+              {{ t('stamp.basic.extractCircle') }}
             </label>
             <label>
-              {{ t('stamp.company.font') }}:
+              {{ t('stamp.basic.width') }}:
+              <input type="number" v-model.number="drawStampWidth" min="1" max="50" step="1" />
+            </label>
+            <label>
+              {{ t('stamp.basic.height') }}:
+              <input type="number" v-model.number="drawStampHeight" min="1" max="50" step="1" />
+            </label>
+            <label>
+              {{ t('stamp.basic.borderWidth') }}: <input type="number" step="0.1" v-model.number="circleBorderWidth" />
+            </label>
+            <label>
+              {{ t('stamp.basic.color') }}: <input type="color" v-model="primaryColor" />
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="drawOutBorder" />
+              {{ t('stamp.outBorder.enable') }}
+            </label>
+            <label v-if="drawOutBorder">
+              {{ t('stamp.outBorder.lineWidth') }}:
+              <input type="number" v-model.number="outBorderLineWidth" min="0.1" max="5" step="0.1" />
+            </label>
+          </div>
+        </div>
+
+        <!-- 公司名称设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('company')">
+            <h3>{{ t('stamp.company.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.company }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.company">
+            <div v-for="(company, index) in companyList" :key="index" class="company-item">
+              <div class="company-header">
+                <span>{{ t('stamp.common.line', { index: index + 1 }) }}</span>
+                <button class="small-button delete-button" @click="removeCompany(index)">{{ t('stamp.common.delete') }}</button>
+              </div>
+              <label>
+                {{ t('stamp.company.name') }}:
+                <input type="text" v-model="company.companyName" />
+              </label>
+              <label>
+                {{ t('stamp.company.font') }}:
+                <div class="font-input-group">
+                  <select
+                    v-model="company.fontFamily"
+                    class="font-select"
+                    @change="updateFontPreview"
+                  >
+                    <option
+                      v-for="font in systemFonts"
+                      :key="font"
+                      :value="font"
+                      :style="{ fontFamily: font }"
+                    >
+                      {{ font }}
+                    </option>
+                  </select>
+                  <input
+                    type="text"
+                    v-model="company.fontFamily"
+                    class="font-input"
+                    @input="updateFontPreview"
+                    :placeholder="t('stamp.common.fontPlaceholder')"
+                  />
+                </div>
+              </label>
+              <label>
+                {{ t('stamp.company.fontSize') }}:
+                <input type="number" v-model.number="company.fontHeight" min="1" max="10" step="0.1" />
+              </label>
+              <label>
+                {{ t('stamp.company.fontWeight') }}:
+                <select v-model="company.fontWeight">
+                  <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
+                  <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="300">300</option>
+                  <option value="400">400</option>
+                  <option value="500">500</option>
+                  <option value="600">600</option>
+                  <option value="700">700</option>
+                  <option value="800">800</option>
+                  <option value="900">900</option>
+                </select>
+              </label>
+              <label>
+                {{ t('stamp.company.compression') }}:
+                <input
+                  type="range"
+                  v-model.number="company.compression"
+                  min="0.5"
+                  max="1.5"
+                  step="0.05"
+                />
+                <span>{{ company.compression.toFixed(2) }}</span>
+              </label>
+              <label>
+                {{ t('stamp.company.distribution') }}:
+                <input
+                  type="range"
+                  v-model.number="company.textDistributionFactor"
+                  min="0"
+                  max="50"
+                  step="0.1"
+                />
+                <span>{{ company.textDistributionFactor.toFixed(2) }}</span>
+              </label>
+              <label>
+                {{ t('stamp.company.margin') }}:
+                <input type="number" v-model.number="company.borderOffset" min="-10" max="10" step="0.05" />
+              </label>
+              <label>
+                {{ t('stamp.company.startAngle') }}:
+                <div class="range-container">
+                  <input
+                    type="range"
+                    v-model.number="company.startAngle"
+                    min="-3.14"
+                    max="3.14"
+                    step="0.01"
+                  />
+                  <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
+                </div>
+              </label>
+              <label>
+                {{ t('stamp.company.rotateDirection') }}:
+                <select v-model="company.rotateDirection">
+                  <option value="clockwise">{{ t('stamp.company.clockwise') }}</option>
+                  <option value="counterclockwise">{{ t('stamp.company.counterclockwise') }}</option>
+                </select>
+              </label>
+            </div>
+            <button class="add-button" @click="addNewCompany">{{ t('stamp.common.addNew') }}</button>
+          </div>
+        </div>
+
+        <!-- 印章类型设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('stampType')">
+            <h3>{{ t('stamp.stampType.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.stampType }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.stampType">
+            <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
+              <div class="stamp-type-header">
+                <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
+                <button class="small-button delete-button" @click="removeStampType(index)">{{ t('stamp.stampType.delete') }}</button>
+              </div>
+              <label>
+                {{ t('stamp.stampType.type') }}:
+                <input type="text" v-model="type.stampType" />
+              </label>
+              <label>
+                {{ t('stamp.stampType.fontSize') }}:
+                <input type="number" v-model.number="type.fontHeight" min="1" max="10" step="0.1" />
+              </label>
+              <label>
+                {{ t('stamp.stampType.font') }}:
+                <div class="font-input-group">
+                  <input
+                    type="text"
+                    v-model="type.fontFamily"
+                    list="stampTypeFontList"
+                    class="font-input"
+                  />
+                  <datalist id="stampTypeFontList">
+                    <option v-for="font in systemFonts"
+                            :key="font"
+                            :value="font">
+                      {{ font }}
+                    </option>
+                  </datalist>
+                </div>
+              </label>
+              <label>
+                {{ t('stamp.stampType.fontWeight') }}:
+                <select v-model="type.fontWeight">
+                  <option value="normal">正常</option>
+                  <option value="bold">粗体</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="300">300</option>
+                  <option value="400">400</option>
+                  <option value="500">500</option>
+                  <option value="600">600</option>
+                  <option value="700">700</option>
+                  <option value="800">800</option>
+                  <option value="900">900</option>
+                </select>
+              </label>
+              <label>
+                {{ t('stamp.stampType.compression') }}:
+                <input
+                  type="range"
+                  v-model.number="type.compression"
+                  min="0.1"
+                  max="1.5"
+                  step="0.05"
+                />
+                <span>{{ type.compression.toFixed(2) }}</span>
+              </label>
+              <label>
+                {{ t('stamp.stampType.letterSpacing') }}:
+                <input
+                  type="range"
+                  v-model.number="type.letterSpacing"
+                  min="-1"
+                  max="10"
+                  step="0.05"
+                />
+                <span>{{ type.letterSpacing.toFixed(2) }}</span>
+              </label>
+              <label>
+                {{ t('stamp.stampType.verticalPosition') }}:
+                <input
+                  type="number"
+                  v-model.number="type.positionY"
+                  min="-20"
+                  max="20"
+                  step="0.5"
+                />
+              </label>
+            </div>
+            <button class="add-button" @click="addNewStampType">{{ t('stamp.stampType.addNew') }}</button>
+          </div>
+        </div>
+
+        <!-- 印章编码设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('code')">
+            <h3>{{ t('stamp.code.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.code }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.code">
+            <label>{{ t('stamp.code.code') }}: <input v-model="stampCode" /></label>
+            <label>
+              {{ t('stamp.code.font') }}:
               <div class="font-input-group">
                 <select
-                  v-model="company.fontFamily"
+                  v-model="codeFontFamily"
                   class="font-select"
                   @change="updateFontPreview"
                 >
@@ -131,20 +328,19 @@
                 </select>
                 <input
                   type="text"
-                  v-model="company.fontFamily"
+                  v-model="codeFontFamily"
                   class="font-input"
                   @input="updateFontPreview"
-                  :placeholder="t('stamp.common.fontPlaceholder')"
+                  placeholder="输入字体名称"
                 />
               </div>
             </label>
             <label>
-              {{ t('stamp.company.fontSize') }}:
-              <input type="number" v-model.number="company.fontHeight" min="1" max="10" step="0.1" />
+              {{ t('stamp.code.fontSize') }}: <input type="number" v-model.number="codeFontSizeMM" step="0.1" />
             </label>
             <label>
-              {{ t('stamp.company.fontWeight') }}:
-              <select v-model="company.fontWeight">
+              {{ t('stamp.code.fontWeight') }}:
+              <select v-model="codeFontWeight">
                 <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
                 <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
                 <option value="100">100</option>
@@ -159,97 +355,63 @@
               </select>
             </label>
             <label>
-              {{ t('stamp.company.compression') }}:
-              <input
-                type="range"
-                v-model.number="company.compression"
-                min="0.5"
-                max="1.5"
-                step="0.05"
-              />
-              <span>{{ company.compression.toFixed(2) }}</span>
+              <span>{{ t('stamp.common.compression', { value: codeCompression.toFixed(2) }) }}</span>
+              <input type="range" v-model.number="codeCompression" min="0.0" max="3" step="0.01" />
             </label>
             <label>
-              {{ t('stamp.company.distribution') }}:
+              <span>{{ t('stamp.common.distribution', { value: codeDistributionFactor.toFixed(1) }) }}</span>
               <input
                 type="range"
-                v-model.number="company.textDistributionFactor"
+                v-model.number="codeDistributionFactor"
                 min="0"
-                max="50"
-                step="0.1"
+                max="100"
+                step="0.5"
               />
-              <span>{{ company.textDistributionFactor.toFixed(2) }}</span>
             </label>
             <label>
-              {{ t('stamp.company.margin') }}:
-              <input type="number" v-model.number="company.borderOffset" min="-10" max="10" step="0.05" />
-            </label>
-            <label>
-              {{ t('stamp.company.startAngle') }}:
-              <div class="range-container">
-                <input
-                  type="range"
-                  v-model.number="company.startAngle"
-                  min="-3.14"
-                  max="3.14"
-                  step="0.01"
-                />
-                <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
-              </div>
-            </label>
-            <label>
-              {{ t('stamp.company.rotateDirection') }}:
-              <select v-model="company.rotateDirection">
-                <option value="clockwise">{{ t('stamp.company.clockwise') }}</option>
-                <option value="counterclockwise">{{ t('stamp.company.counterclockwise') }}</option>
-              </select>
+              {{ t('stamp.code.margin') }}:
+              <input type="number" v-model.number="codeMarginMM" min="-10" max="20" step="0.05" />
             </label>
           </div>
-          <button class="add-button" @click="addNewCompany">{{ t('stamp.common.addNew') }}</button>
         </div>
-      </div>
 
-      <!-- 印章类型设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('stampType')">
-          <h3>{{ t('stamp.stampType.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.stampType }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.stampType">
-          <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
-            <div class="stamp-type-header">
-              <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
-              <button class="small-button delete-button" @click="removeStampType(index)">{{ t('stamp.stampType.delete') }}</button>
-            </div>
+        <!-- 税号设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('taxNumber')">
+            <h3>{{ t('stamp.taxNumber.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.taxNumber">
+            <label>{{ t('stamp.taxNumber.number') }}: <input v-model="taxNumberValue" /></label>
             <label>
-              {{ t('stamp.stampType.type') }}:
-              <input type="text" v-model="type.stampType" />
-            </label>
-            <label>
-              {{ t('stamp.stampType.fontSize') }}:
-              <input type="number" v-model.number="type.fontHeight" min="1" max="10" step="0.1" />
-            </label>
-            <label>
-              {{ t('stamp.stampType.font') }}:
+              {{ t('stamp.taxNumber.font') }}:
               <div class="font-input-group">
-                <input
-                  type="text"
-                  v-model="type.fontFamily"
-                  list="stampTypeFontList"
-                  class="font-input"
-                />
-                <datalist id="stampTypeFontList">
-                  <option v-for="font in systemFonts"
-                          :key="font"
-                          :value="font">
+                <select
+                  v-model="taxNumberFontFamily"
+                  class="font-select"
+                  @change="updateFontPreview"
+                >
+                  <option
+                    v-for="font in systemFonts"
+                    :key="font"
+                    :value="font"
+                    :style="{ fontFamily: font }"
+                  >
                     {{ font }}
                   </option>
-                </datalist>
+                </select>
+                <input
+                  type="text"
+                  v-model="taxNumberFontFamily"
+                  class="font-input"
+                  @input="updateFontPreview"
+                  placeholder="输入字体名称"
+                />
               </div>
             </label>
             <label>
-              {{ t('stamp.stampType.fontWeight') }}:
-              <select v-model="type.fontWeight">
+              {{ t('stamp.taxNumber.fontWeight') }}:
+              <select v-model="taxNumberFontWeight">
                 <option value="normal">正常</option>
                 <option value="bold">粗体</option>
                 <option value="100">100</option>
@@ -264,441 +426,284 @@
               </select>
             </label>
             <label>
-              {{ t('stamp.stampType.compression') }}:
-              <input
-                type="range"
-                v-model.number="type.compression"
-                min="0.1"
-                max="1.5"
-                step="0.05"
-              />
-              <span>{{ type.compression.toFixed(2) }}</span>
+              <span>{{ t('stamp.common.compression', { value: taxNumberCompression.toFixed(2) }) }}</span>
+              <input type="range" v-model.number="taxNumberCompression" min="0.0" max="3" step="0.01" />
             </label>
             <label>
-              {{ t('stamp.stampType.letterSpacing') }}:
+              <span>{{ t('stamp.common.letterSpacing', { value: taxNumberLetterSpacing.toFixed(2) }) }}</span>
               <input
                 type="range"
-                v-model.number="type.letterSpacing"
+                v-model.number="taxNumberLetterSpacing"
                 min="-1"
-                max="10"
+                max="20"
                 step="0.05"
               />
-              <span>{{ type.letterSpacing.toFixed(2) }}</span>
             </label>
             <label>
-              {{ t('stamp.stampType.verticalPosition') }}:
-              <input
-                type="number"
-                v-model.number="type.positionY"
-                min="-20"
-                max="20"
-                step="0.5"
-              />
+              <span>{{ t('stamp.common.verticalPosition', { value: taxNumberPositionY.toFixed(1) }) }}</span>
+              <input type="range" v-model.number="taxNumberPositionY" min="-10" max="10" step="0.1" />
             </label>
           </div>
-          <button class="add-button" @click="addNewStampType">{{ t('stamp.stampType.addNew') }}</button>
         </div>
-      </div>
 
-      <!-- 印章编码设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('code')">
-          <h3>{{ t('stamp.code.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.code }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.code">
-          <label>{{ t('stamp.code.code') }}: <input v-model="stampCode" /></label>
-          <label>
-            {{ t('stamp.code.font') }}:
-            <div class="font-input-group">
-              <select
-                v-model="codeFontFamily"
-                class="font-select"
-                @change="updateFontPreview"
-              >
-                <option
-                  v-for="font in systemFonts"
-                  :key="font"
-                  :value="font"
-                  :style="{ fontFamily: font }"
-                >
-                  {{ font }}
-                </option>
-              </select>
-              <input
-                type="text"
-                v-model="codeFontFamily"
-                class="font-input"
-                @input="updateFontPreview"
-                placeholder="输入字体名称"
-              />
+        <!-- 图片列表设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('images')">
+            <h3>{{ t('stamp.images.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.images }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.images">
+            <div v-for="(image, index) in imageList" :key="index" class="image-item">
+              <div class="image-header">
+                <span>{{ t('stamp.images.image', { index: index + 1 }) }}</span>
+                <button class="small-button delete-button" @click="removeImage(index)">删除</button>
+              </div>
+              <div class="image-preview" v-if="image.imageUrl">
+                <img :src="image.imageUrl" :alt="t('stamp.common.preview')" />
+              </div>
+              <label>
+                {{ t('stamp.images.select') }}:
+                <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
+              </label>
+              <label>
+                {{ t('stamp.images.width') }}:
+                <input type="number" v-model.number="image.imageWidth" min="1" max="100" step="0.5" />
+              </label>
+              <label>
+                {{ t('stamp.images.height') }}:
+                <input type="number" v-model.number="image.imageHeight" min="1" max="100" step="0.5" />
+              </label>
+              <label>
+                {{ t('stamp.images.positionX') }}:
+                <input type="number" v-model.number="image.positionX" min="-20" max="20" step="0.5" />
+              </label>
+              <label>
+                {{ t('stamp.images.positionY') }}:
+                <input type="number" v-model.number="image.positionY" min="-20" max="20" step="0.5" />
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="image.keepAspectRatio" />
+                {{ t('stamp.images.keepRatio') }}
+              </label>
             </div>
-          </label>
-          <label>
-            {{ t('stamp.code.fontSize') }}: <input type="number" v-model.number="codeFontSizeMM" step="0.1" />
-          </label>
-          <label>
-            {{ t('stamp.code.fontWeight') }}:
-            <select v-model="codeFontWeight">
-              <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
-              <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
-              <option value="100">100</option>
-              <option value="200">200</option>
-              <option value="300">300</option>
-              <option value="400">400</option>
-              <option value="500">500</option>
-              <option value="600">600</option>
-              <option value="700">700</option>
-              <option value="800">800</option>
-              <option value="900">900</option>
-            </select>
-          </label>
-          <label>
-            <span>{{ t('stamp.common.compression', { value: codeCompression.toFixed(2) }) }}</span>
-            <input type="range" v-model.number="codeCompression" min="0.0" max="3" step="0.01" />
-          </label>
-          <label>
-            <span>{{ t('stamp.common.distribution', { value: codeDistributionFactor.toFixed(1) }) }}</span>
-            <input
-              type="range"
-              v-model.number="codeDistributionFactor"
-              min="0"
-              max="100"
-              step="0.5"
-            />
-          </label>
-          <label>
-            {{ t('stamp.code.margin') }}:
-            <input type="number" v-model.number="codeMarginMM" min="-10" max="20" step="0.05" />
-          </label>
+            <button class="add-button" @click="addNewImage">{{ t('stamp.common.addNew') }}</button>
+          </div>
         </div>
-      </div>
 
-      <!-- 税号设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('taxNumber')">
-          <h3>{{ t('stamp.taxNumber.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.taxNumber">
-          <label>{{ t('stamp.taxNumber.number') }}: <input v-model="taxNumberValue" /></label>
-          <label>
-            {{ t('stamp.taxNumber.font') }}:
-            <div class="font-input-group">
-              <select
-                v-model="taxNumberFontFamily"
-                class="font-select"
-                @change="updateFontPreview"
-              >
-                <option
-                  v-for="font in systemFonts"
-                  :key="font"
-                  :value="font"
-                  :style="{ fontFamily: font }"
-                >
-                  {{ font }}
-                </option>
-              </select>
-              <input
-                type="text"
-                v-model="taxNumberFontFamily"
-                class="font-input"
-                @input="updateFontPreview"
-                placeholder="输入字体名称"
-              />
-            </div>
-          </label>
-          <label>
-            {{ t('stamp.taxNumber.fontWeight') }}:
-            <select v-model="taxNumberFontWeight">
-              <option value="normal">正常</option>
-              <option value="bold">粗体</option>
-              <option value="100">100</option>
-              <option value="200">200</option>
-              <option value="300">300</option>
-              <option value="400">400</option>
-              <option value="500">500</option>
-              <option value="600">600</option>
-              <option value="700">700</option>
-              <option value="800">800</option>
-              <option value="900">900</option>
-            </select>
-          </label>
-          <label>
-            <span>{{ t('stamp.common.compression', { value: taxNumberCompression.toFixed(2) }) }}</span>
-            <input type="range" v-model.number="taxNumberCompression" min="0.0" max="3" step="0.01" />
-          </label>
-          <label>
-            <span>{{ t('stamp.common.letterSpacing', { value: taxNumberLetterSpacing.toFixed(2) }) }}</span>
-            <input
-              type="range"
-              v-model.number="taxNumberLetterSpacing"
-              min="-1"
-              max="20"
-              step="0.05"
-            />
-          </label>
-          <label>
-            <span>{{ t('stamp.common.verticalPosition', { value: taxNumberPositionY.toFixed(1) }) }}</span>
-            <input type="range" v-model.number="taxNumberPositionY" min="-10" max="10" step="0.1" />
-          </label>
-        </div>
-      </div>
-
-      <!-- 图片列表设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('images')">
-          <h3>{{ t('stamp.images.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.images }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.images">
-          <div v-for="(image, index) in imageList" :key="index" class="image-item">
-            <div class="image-header">
-              <span>{{ t('stamp.images.image', { index: index + 1 }) }}</span>
-              <button class="small-button delete-button" @click="removeImage(index)">删除</button>
-            </div>
-            <div class="image-preview" v-if="image.imageUrl">
-              <img :src="image.imageUrl" :alt="t('stamp.common.preview')" />
-            </div>
-            <label>
-              {{ t('stamp.images.select') }}:
-              <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
-            </label>
-            <label>
-              {{ t('stamp.images.width') }}:
-              <input type="number" v-model.number="image.imageWidth" min="1" max="100" step="0.5" />
-            </label>
-            <label>
-              {{ t('stamp.images.height') }}:
-              <input type="number" v-model.number="image.imageHeight" min="1" max="100" step="0.5" />
-            </label>
-            <label>
-              {{ t('stamp.images.positionX') }}:
-              <input type="number" v-model.number="image.positionX" min="-20" max="20" step="0.5" />
-            </label>
-            <label>
-              {{ t('stamp.images.positionY') }}:
-              <input type="number" v-model.number="image.positionY" min="-20" max="20" step="0.5" />
-            </label>
+        <!-- 五角星设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('star')">
+            <h3>{{ t('stamp.star.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.star }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.star">
             <label class="checkbox-label">
-              <input type="checkbox" v-model="image.keepAspectRatio" />
-              {{ t('stamp.images.keepRatio') }}
+              <input type="checkbox" v-model="shouldDrawStar" />
+              {{ t('stamp.star.enable') }}
             </label>
-          </div>
-          <button class="add-button" @click="addNewImage">{{ t('stamp.common.addNew') }}</button>
-        </div>
-      </div>
-
-      <!-- 五角星设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('star')">
-          <h3>{{ t('stamp.star.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.star }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.star">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="shouldDrawStar" />
-            {{ t('stamp.star.enable') }}
-          </label>
-          <div v-if="shouldDrawStar">
-            <label>
-              {{ t('stamp.star.diameter') }}:
-              <input type="number" v-model.number="starDiameter" step="0.1" />
-            </label>
-            <label>
-              {{ t('stamp.star.verticalPosition') }}:
-              <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
-            </label>
-          </div>
-        </div>
-      </div>
-      <!-- 防伪纹路设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('security')">
-          <h3>{{ t('stamp.security.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.security }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.security">
-          <label>
-            {{ t('stamp.security.enable') }}:
-            <input type="checkbox" v-model="securityPatternEnabled" />
-          </label>
-          <button @click="drawStamp(true, false)">{{ t('stamp.security.refresh') }}</button>
-          <label
-            >{{ t('stamp.security.count') }}:
-            <input type="range" v-model.number="securityPatternCount" min="1" max="100" step="1"
-          /></label>
-          <label
-            >{{ t('stamp.security.length') }}:
-            <input type="range" v-model.number="securityPatternLength" min="0.1" max="100" step="0.1"
-          /></label>
-          <label
-            >{{ t('stamp.security.width') }}:
-            <input
-              type="range"
-              v-model.number="securityPatternWidth"
-              min="0.05"
-              max="0.5"
-              step="0.05"
-          /></label>
-        </div>
-      </div>
-
-      <!-- 毛边效果设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('roughEdge')">
-          <h3>{{ t('stamp.roughEdge.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.roughEdge }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.roughEdge">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="shouldDrawRoughEdge" />
-            {{ t('stamp.roughEdge.enable') }}
-          </label>
-          <label v-if="shouldDrawRoughEdge">
-            {{ t('stamp.roughEdge.width') }}:
-            <input type="range" v-model.number="roughEdgeWidth" min="0.05" max="0.5" step="0.05" />
-            <span>{{ roughEdgeWidth.toFixed(2) }}</span>
-          </label>
-          <label v-if="shouldDrawRoughEdge">
-            {{ t('stamp.roughEdge.height') }}:
-            <input type="range" v-model.number="roughEdgeHeight" min="0.1" max="5" step="0.1" />
-            <span>{{ roughEdgeHeight.toFixed(1) }}</span>
-          </label>
-          <label v-if="shouldDrawRoughEdge">
-            {{ t('stamp.roughEdge.probability') }}:
-            <input type="range" v-model.number="roughEdgeProbability" min="0" max="1" step="0.01" />
-            <span>{{ roughEdgeProbability.toFixed(2) }}</span>
-          </label>
-          <label v-if="shouldDrawRoughEdge">
-            {{ t('stamp.roughEdge.shift') }}:
-            <input type="range" v-model.number="roughEdgeShift" min="-10" max="10" step="0.01" />
-            <span>{{ roughEdgeShift.toFixed(2) }}</span>
-          </label>
-          <label v-if="shouldDrawRoughEdge">
-            {{ t('stamp.roughEdge.points') }}:
-            <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
-            <span>{{ roughEdgePoints }}</span>
-          </label>
-          <button @click="drawStamp(false, false, true)">{{ t('stamp.roughEdge.refresh') }}</button>
-        </div>
-      </div>
-
-      <!-- 做旧效果设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('aging')">
-          <h3>{{ t('stamp.aging.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.aging }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.aging">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="applyAging" />
-            {{ t('stamp.aging.enable') }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="manualAging" />
-            {{ t('stamp.aging.manual') }}
-          </label>
-          <label v-if="applyAging">
-            {{ t('stamp.aging.intensity') }}:
-            <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
-          </label>
-          <button @click="drawStamp(false, true)">{{ t('stamp.aging.refresh') }}</button>
-        </div>
-      </div>
-
-      <!-- 内圈圆形设置 -->
-      <div class="control-group">
-        <div class="group-header" @click="toggleGroup('innerCircle')">
-          <h3>{{ t('stamp.innerCircle.title') }}</h3>
-          <span class="expand-icon" :class="{ 'expanded': expandedGroups.innerCircle }">▼</span>
-        </div>
-        <div class="group-content" v-show="expandedGroups.innerCircle">
-          <button @click="addNewInnerCircle">{{ t('stamp.innerCircle.addNew') }}</button>
-          <div v-for="(innerCircle, index) in innerCircleList" :key="index" class="inner-circle-item">
-            <div class="inner-circle-header">
-              <span>第 {{ index + 1 }} 行</span>
-              <button class="small-button delete-button" @click="removeInnerCircle(index)">删除</button>
+            <div v-if="shouldDrawStar">
+              <label>
+                {{ t('stamp.star.diameter') }}:
+                <input type="number" v-model.number="starDiameter" step="0.1" />
+              </label>
+              <label>
+                {{ t('stamp.star.verticalPosition') }}:
+                <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
+              </label>
             </div>
-            <label>
-              {{ t('stamp.innerCircle.lineWidth') }}:
-              <input type="number" v-model.number="innerCircle.innerCircleLineWidth" min="0.05" max="0.5" step="0.05" />
-            </label>
-            <label>
-              {{ t('stamp.innerCircle.radiusX') }}:
-              <input type="number" v-model.number="innerCircle.innerCircleLineRadiusX" min="1" max="50" step="0.1" />
-            </label>
-            <label>
-              {{ t('stamp.innerCircle.radiusY') }}:
-              <input type="number" v-model.number="innerCircle.innerCircleLineRadiusY" min="1" max="50" step="0.1" />
-            </label>
           </div>
         </div>
-      </div>
-    </div>
+        <!-- 防伪纹路设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('security')">
+            <h3>{{ t('stamp.security.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.security }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.security">
+            <label>
+              {{ t('stamp.security.enable') }}:
+              <input type="checkbox" v-model="securityPatternEnabled" />
+            </label>
+            <button @click="drawStamp(true, false)">{{ t('stamp.security.refresh') }}</button>
+            <label
+            >{{ t('stamp.security.count') }}:
+              <input type="range" v-model.number="securityPatternCount" min="1" max="100" step="1"
+              /></label>
+            <label
+            >{{ t('stamp.security.length') }}:
+              <input type="range" v-model.number="securityPatternLength" min="0.1" max="100" step="0.1"
+              /></label>
+            <label
+            >{{ t('stamp.security.width') }}:
+              <input
+                type="range"
+                v-model.number="securityPatternWidth"
+                min="0.05"
+                max="0.5"
+                step="0.05"
+              /></label>
+          </div>
+        </div>
 
+        <!-- 毛边效果设置 -->
+        <div class="control-group">
+          <div class="group-header" @click="toggleGroup('roughEdge')">
+            <h3>{{ t('stamp.roughEdge.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.roughEdge }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.roughEdge">
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="shouldDrawRoughEdge" />
+              {{ t('stamp.roughEdge.enable') }}
+            </label>
+            <label v-if="shouldDrawRoughEdge">
+              {{ t('stamp.roughEdge.width') }}:
+              <input type="range" v-model.number="roughEdgeWidth" min="0.05" max="0.5" step="0.05" />
+              <span>{{ roughEdgeWidth.toFixed(2) }}</span>
+            </label>
+            <label v-if="shouldDrawRoughEdge">
+              {{ t('stamp.roughEdge.height') }}:
+              <input type="range" v-model.number="roughEdgeHeight" min="0.1" max="5" step="0.1" />
+              <span>{{ roughEdgeHeight.toFixed(1) }}</span>
+            </label>
+            <label v-if="shouldDrawRoughEdge">
+              {{ t('stamp.roughEdge.probability') }}:
+              <input type="range" v-model.number="roughEdgeProbability" min="0" max="1" step="0.01" />
+              <span>{{ roughEdgeProbability.toFixed(2) }}</span>
+            </label>
+            <label v-if="shouldDrawRoughEdge">
+              {{ t('stamp.roughEdge.shift') }}:
+              <input type="range" v-model.number="roughEdgeShift" min="-10" max="10" step="0.01" />
+              <span>{{ roughEdgeShift.toFixed(2) }}</span>
+            </label>
+            <label v-if="shouldDrawRoughEdge">
+              {{ t('stamp.roughEdge.points') }}:
+              <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
+              <span>{{ roughEdgePoints }}</span>
+            </label>
+            <button @click="drawStamp(false, false, true)">{{ t('stamp.roughEdge.refresh') }}</button>
+          </div>
+        </div>
 
-    <!-- Canvas 容器 -->
-    <div class="canvas-container">
-      <div style="display: flex; flex-direction: row; margin-top: 12px; gap: 12px">
         <!-- 做旧效果设置 -->
         <div class="control-group">
-          <h3>{{ t('stamp.aging.title') }}</h3>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="applyAging" />
-            {{ t('stamp.aging.enable') }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="manualAging" />
-            {{ t('stamp.aging.manual') }}
-          </label>
-          <label v-if="applyAging">
-            {{ t('stamp.aging.intensity') }}:
-            <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
-          </label>
-          <button @click="drawStamp(false, true)">{{ t('stamp.aging.refresh') }}</button>
+          <div class="group-header" @click="toggleGroup('aging')">
+            <h3>{{ t('stamp.aging.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.aging }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.aging">
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="applyAging" />
+              {{ t('stamp.aging.enable') }}
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="manualAging" />
+              {{ t('stamp.aging.manual') }}
+            </label>
+            <label v-if="applyAging">
+              {{ t('stamp.aging.intensity') }}:
+              <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
+            </label>
+            <button @click="drawStamp(false, true)">{{ t('stamp.aging.refresh') }}</button>
+          </div>
         </div>
 
-        <!-- 修改提取印章功能部分 -->
+        <!-- 内圈圆形设置 -->
         <div class="control-group">
-          <h3>{{ t('stamp.extract.title') }}</h3>
-          <button @click="openExtractStampTool">{{ t('stamp.extract.tool') }}</button>
+          <div class="group-header" @click="toggleGroup('innerCircle')">
+            <h3>{{ t('stamp.innerCircle.title') }}</h3>
+            <span class="expand-icon" :class="{ 'expanded': expandedGroups.innerCircle }">▼</span>
+          </div>
+          <div class="group-content" v-show="expandedGroups.innerCircle">
+            <button @click="addNewInnerCircle">{{ t('stamp.innerCircle.addNew') }}</button>
+            <div v-for="(innerCircle, index) in innerCircleList" :key="index" class="inner-circle-item">
+              <div class="inner-circle-header">
+                <span>第 {{ index + 1 }} 行</span>
+                <button class="small-button delete-button" @click="removeInnerCircle(index)">删除</button>
+              </div>
+              <label>
+                {{ t('stamp.innerCircle.lineWidth') }}:
+                <input type="number" v-model.number="innerCircle.innerCircleLineWidth" min="0.05" max="0.5" step="0.05" />
+              </label>
+              <label>
+                {{ t('stamp.innerCircle.radiusX') }}:
+                <input type="number" v-model.number="innerCircle.innerCircleLineRadiusX" min="1" max="50" step="0.1" />
+              </label>
+              <label>
+                {{ t('stamp.innerCircle.radiusY') }}:
+                <input type="number" v-model.number="innerCircle.innerCircleLineRadiusY" min="1" max="50" step="0.1" />
+              </label>
+            </div>
+          </div>
         </div>
       </div>
-      <div style="margin-top: 12px;">
-        <canvas ref="stampCanvas" width="600" height="600"></canvas>
-      </div>
-    </div>
 
-    <!-- 添加模板列表面板 -->
-    <div class="template-panel">
-      <div class="template-header">
-        <h3>{{ t('stamp.template.title') }}</h3>
-        <button class="add-template" @click="saveCurrentAsTemplate">
-          <span>+</span> {{ t('stamp.template.save') }}
-        </button>
-      </div>
-      
-      <div class="template-list">
-        <!-- 默认模板 -->
-        <div class="template-category">
-          <h4>{{ t('stamp.template.defaultTitle') }}</h4>
-          <div v-for="(template, index) in defaultTemplates" 
-               :key="'default-' + index" 
-               class="template-item"
-               :class="{ 'active': currentTemplateIndex === (-1 - index) }"
-               @click="loadDefaultTemplate(template)">
-            <div class="template-preview">
-              <img :src="template.preview" :alt="t('stamp.template.preview')" />
+
+      <!-- Canvas 容器 -->
+      <div class="canvas-container">
+        <div class="canvas-controls-row">
+          <!-- 做旧效果设置 -->
+          <div class="canvas-control-group">
+            <h3>{{ t('stamp.aging.title') }}</h3>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="applyAging" />
+              {{ t('stamp.aging.enable') }}
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="manualAging" />
+              {{ t('stamp.aging.manual') }}
+            </label>
+            <div class="aging-intensity-wrapper" :class="{ 'visible': applyAging }">
+              <label>
+                {{ t('stamp.aging.intensity') }}:
+                <input type="range" v-model.number="agingIntensity" min="0" max="100" step="1" />
+              </label>
             </div>
-            <div class="template-info">
-              <span class="template-name">{{ t('stamp.template.name') }}: {{ template.name }}</span>
+            <button @click="drawStamp(false, true)">{{ t('stamp.aging.refresh') }}</button>
+          </div>
+
+          <!-- 修改提取印章功能部分 -->
+          <div class="canvas-control-group">
+            <h3>{{ t('stamp.extract.title') }}</h3>
+            <button @click="openExtractStampTool">{{ t('stamp.extract.tool') }}</button>
+          </div>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas ref="stampCanvas" width="600" height="600"></canvas>
+        </div>
+      </div>
+
+      <!-- 添加模板列表面板 -->
+      <div class="template-panel">
+        <div class="template-header">
+          <h3>{{ t('stamp.template.title') }}</h3>
+          <button class="add-template" @click="saveCurrentAsTemplate">
+            <span>+</span> {{ t('stamp.template.save') }}
+          </button>
+        </div>
+
+        <div class="template-list">
+          <!-- 默认模板 -->
+          <div class="template-category">
+            <h4>{{ t('stamp.template.defaultTitle') }}</h4>
+            <div v-for="(template, index) in defaultTemplates"
+                 :key="'default-' + index"
+                 class="template-item"
+                 :class="{ 'active': currentTemplateIndex === (-1 - index) }"
+                 @click="loadDefaultTemplate(template)">
+              <div class="template-preview">
+                <img :src="template.preview" :alt="t('stamp.template.preview')" />
+              </div>
+              <div class="template-info">
+                <span class="template-name">{{ t('stamp.template.name') }}: {{ template.name }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
 </template>
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
@@ -1578,7 +1583,7 @@ const loadTemplatesFromStorage = () => {
     // 设置模板配置
     tempDrawStampUtils.setDrawConfigs(template.config)
     tempDrawStampUtils.refreshStamp()
-    
+
     // 生成预览图
     template.preview = tempCanvas.toDataURL('image/png')
   })
@@ -1650,6 +1655,139 @@ watch(showSecurityWarning, (newValue) => {
 
   .tool-intro p {
     font-size: 1rem;
+  }
+}
+
+/* Canvas 控制区域样式 */
+.canvas-controls-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.canvas-control-group {
+  flex: 1;
+  min-width: 0;
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.canvas-control-group h3 {
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #4caf50;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.canvas-control-group label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #555;
+}
+
+.canvas-control-group .checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  cursor: pointer;
+}
+
+.canvas-control-group .checkbox-label input[type='checkbox'] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.canvas-control-group button {
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.canvas-control-group button:hover {
+  background-color: #45a049;
+  transform: translateY(-1px);
+}
+
+/* 做旧强度包装器 - 预留空间避免布局变化 */
+.aging-intensity-wrapper {
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+  margin: 0;
+}
+
+.aging-intensity-wrapper.visible {
+  height: auto;
+  opacity: 1;
+  margin: 0;
+  overflow: visible;
+}
+
+.aging-intensity-wrapper label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #555;
+}
+
+.aging-intensity-wrapper input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
+  outline: none;
+}
+
+.aging-intensity-wrapper input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4caf50;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.aging-intensity-wrapper input[type='range']::-webkit-slider-thumb:hover {
+  background: #45a049;
+}
+
+.canvas-wrapper {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .canvas-controls-row {
+    flex-direction: column;
+  }
+
+  .canvas-control-group {
+    width: 100%;
   }
 }
 </style>
