@@ -98,7 +98,8 @@ button:focus-visible {
   align-items: center;
   flex-direction: row;
   justify-content: center;
-  overflow: hidden;
+  overflow-y: auto;
+  height: 100%;
 }
 
 .maker-container {
@@ -110,14 +111,6 @@ button:focus-visible {
   flex-direction: column;
   overflow: hidden;
   height: 100vh;
-}
-
-/* 编辑器控制面板样式 */
-.editor-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 .editor-controls {
