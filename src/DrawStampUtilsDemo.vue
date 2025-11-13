@@ -167,7 +167,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
 import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
@@ -175,17 +175,18 @@ import { useI18n } from 'vue-i18n'
 import stampTemplate1 from './assets/templates/stamp_template1.json'
 import stampTemplate2 from './assets/templates/stamp_template2.json'
 import rectangleTemplate from './assets/templates/rectangle_template.json'
-import EditorControls from './EditorControls.vue'
 import TemplateDialog from './components/TemplateDialog.vue'
 import ElementList from './components/editor/ElementList.vue'
 import PropertiesPanel from './components/editor/PropertiesPanel.vue'
+import { useStampStore } from './stores/stampStore'
 
 const { t } = useI18n()
 // 添加一个标志来控制 EditorControls 的加载
 const isDrawStampUtilsReady = ref(false)
 
-const editorControlsRef = ref<InstanceType<typeof EditorControls> | null>(null)
 const propertiesPanelRef = ref<InstanceType<typeof PropertiesPanel> | null>(null)
+
+const stampStore = useStampStore()
 
 // 选中的元素
 const selectedElement = ref<string>('')
@@ -210,6 +211,7 @@ let drawStampUtils: DrawStampUtils
 // 初始化绘制印章参数
 const initDrawStampUtils = () => {
   drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
+  stampStore.setConfig(drawStampUtils.getDrawConfigs())
 }
 
 
@@ -226,6 +228,7 @@ const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean 
 
   // 确保拖动设置与当前状态一致
   drawStampUtils.setDraggable(isDraggable.value)
+  stampStore.setConfig(drawStampUtils.getDrawConfigs())
 
   // 更新文字路径
   companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
@@ -388,25 +391,6 @@ const updateFontPreview = (event: Event) => {
 }
 
 // 添加展开/折叠状态控制
-const expandedGroups = ref({
-  basic: false,
-  company: false,
-  stampType: false,
-  code: false,
-  taxNumber: false,
-  star: false,
-  security: false,
-  roughEdge: false,
-  aging: false,
-  innerCircle: false,
-  images: false // 新增图片列表设置
-})
-
-// 切换组的展开/折叠状态
-const toggleGroup = (groupName: string) => {
-  expandedGroups.value[groupName] = !expandedGroups.value[groupName]
-}
-
 // 添加模板相关的类型定义
 interface Template {
   name: string;

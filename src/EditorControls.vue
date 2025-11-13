@@ -1,40 +1,10 @@
 <template>
     <div class="editor-container" :class="{ 'has-warning': showSecurityWarning }">
       <div class="editor-controls" ref="editorControls">
-        <!-- 印章基本设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('basic')">
-            <h3>{{ t('stamp.basic.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.basic }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.basic">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="isCircleDetect" />
-              {{ t('stamp.basic.extractCircle') }}
-            </label>
-            <label>
-              {{ t('stamp.basic.width') }}:
-              <input type="number" v-model.number="drawStampWidth" min="1" max="50" step="1" />
-            </label>
-            <label>
-              {{ t('stamp.basic.height') }}:
-              <input type="number" v-model.number="drawStampHeight" min="1" max="50" step="1" />
-            </label>
-            <label>
-              {{ t('stamp.basic.borderWidth') }}: <input type="number" step="0.1" v-model.number="circleBorderWidth" />
-            </label>
-            <label>
-              {{ t('stamp.basic.color') }}: <input type="color" v-model="primaryColor" />
-            </label>
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="drawOutBorder" />
-              {{ t('stamp.outBorder.enable') }}
-            </label>
-            <label v-if="drawOutBorder">
-              {{ t('stamp.outBorder.lineWidth') }}:
-              <input type="number" v-model.number="outBorderLineWidth" min="0.1" max="5" step="0.1" />
-            </label>
-          </div>
-        </div>
+        <BasicSettingsPanel
+          :expanded="expandedGroups.basic"
+          @toggle="toggleGroup('basic')"
+        />
 
         <!-- 公司名称设置 -->
         <div class="control-group">
@@ -642,11 +612,13 @@
     </div>
   </template>
   <script setup lang="ts">
-  import { ref, onMounted, watch, computed, onUnmounted, nextTick } from 'vue'
-  import {DrawStampUtils} from './DrawStampUtils'
-  import { getSystemFonts } from './utils/fontUtils'
-  import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
-  import { useI18n } from 'vue-i18n'
+import { ref, onMounted, watch, nextTick } from 'vue'
+import {DrawStampUtils} from './DrawStampUtils'
+import { getSystemFonts } from './utils/fontUtils'
+import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
+import { useI18n } from 'vue-i18n'
+import { useStampStore } from './stores/stampStore'
+import BasicSettingsPanel from "./components/editor/settings/BasicSettingsPanel.vue"
 
   const { t } = useI18n()
 
@@ -659,6 +631,16 @@
 
   // 更新drawStampUtils，更新绘制印章
   const emit = defineEmits(['updateDrawStamp'])
+const stampStore = useStampStore()
+
+const getDrawConfigs = (): IDrawStampConfig => {
+  if (!stampStore.state.config) {
+  const config = getDrawConfigs()
+    stampStore.setConfig(config)
+    return config
+  }
+  return stampStore.state.config
+}
 
   const isCircleDetect = ref(true)
   // 添加响应式数据
@@ -929,7 +911,7 @@
   const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
     // 使用drawstamputils进行绘制
     props.drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
-    emit('updateDrawStamp', props.drawStampUtils.getDrawConfigs(), refreshSecurityPattern, refreshOld, refreshRoughEdge)
+    emit('updateDrawStamp', getDrawConfigs(), refreshSecurityPattern, refreshOld, refreshRoughEdge)
   }
 
   // 添加新内圈
@@ -949,7 +931,7 @@
 
   // 更新绘制配置
   const updateDrawConfigs = () => {
-    const drawConfigs = props.drawStampUtils.getDrawConfigs()
+    const drawConfigs = getDrawConfigs()
     // 做旧效果
     const agingEffect = drawConfigs.agingEffect
     agingEffect.applyAging = applyAging.value
@@ -1064,7 +1046,7 @@
   }
 
   const restoreDrawConfigs = () => {
-    const drawConfigs = props.drawStampUtils.getDrawConfigs()
+    const drawConfigs = getDrawConfigs()
 
     // 做旧效果
     applyAging.value = drawConfigs.agingEffect.applyAging
@@ -1362,7 +1344,20 @@
   }
 
   // 添加展开/折叠状态控制
-  const expandedGroups = ref({
+type GroupKey =
+  | 'basic'
+  | 'company'
+  | 'stampType'
+  | 'code'
+  | 'taxNumber'
+  | 'star'
+  | 'security'
+  | 'roughEdge'
+  | 'aging'
+  | 'innerCircle'
+  | 'images'
+
+const expandedGroups = ref<Record<GroupKey, boolean>>({
     basic: false,
     company: false,
     stampType: false,
@@ -1377,7 +1372,7 @@
   })
 
   // 切换组的展开/折叠状态
-  const toggleGroup = (groupName: string) => {
+const toggleGroup = (groupName: GroupKey) => {
     expandedGroups.value[groupName] = !expandedGroups.value[groupName]
   }
 
@@ -1390,20 +1385,20 @@
 
   // 更新做旧效果
   const updateAgingEffect = () => {
-    const config = props.drawStampUtils.getDrawConfigs()
+    const config = getDrawConfigs()
     config.agingEffect = {
       ...config.agingEffect,
       applyAging: applyAging.value,
-      manualAging: manualAging.value,
-      intensity: agingIntensity.value
+      agingIntensity: agingIntensity.value
     }
+    config.openManualAging = manualAging.value
 
     emit('updateDrawStamp', config, false, true, false)
   }
 
   // 刷新做旧效果
   const refreshAgingEffect = () => {
-    emit('updateDrawStamp', props.drawStampUtils.getDrawConfigs(), false, true, false)
+    emit('updateDrawStamp', getDrawConfigs(), false, true, false)
   }
 
   // 添加滚动到公司文字组件的方法

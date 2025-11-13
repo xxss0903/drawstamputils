@@ -119,9 +119,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { IDrawStampConfig } from '../../DrawStampTypes'
+import { useStampStore } from '../../stores/stampStore'
 
 interface Props {
-  drawStampUtils: any
+  drawStampUtils?: any
 }
 
 const props = defineProps<Props>()
@@ -139,8 +140,13 @@ const tabs = [
   { key: 'figure', label: '图形' }
 ]
 
+const stampStore = useStampStore()
+
 const config = computed(() => {
-  return props.drawStampUtils?.getDrawConfigs() || {} as IDrawStampConfig
+  if (stampStore.state.config) {
+    return stampStore.state.config
+  }
+  return (props.drawStampUtils?.getDrawConfigs?.() || {}) as IDrawStampConfig
 })
 
 const companyList = computed(() => config.value.companyList || [])
