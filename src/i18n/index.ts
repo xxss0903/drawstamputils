@@ -38,7 +38,9 @@ const messages = {
         distribution: '分布因子',
         margin: '边距 (mm)',
         startAngle: '起始角度 (°)',
-        rotateDirection: '旋转方向'
+        rotateDirection: '旋转方向',
+        counterclockwise: '逆时针',
+        clockwise: '顺时针'
       },
       stampType: {
         title: '印章类型列表设置',
@@ -93,7 +95,9 @@ const messages = {
         save: '保存当前为模板',
         defaultTitle: '默认模板',
         preview: '预览',
-        name: '模板名称'
+        name: '模板名称',
+        open: '打开模板',
+        load: '加载模板'
       },
       common: {
         line: '第 {index} 行',
@@ -127,7 +131,7 @@ const messages = {
       },
       taxNumber: {
         title: '中间数字设置',
-        number: '税号',
+        number: '数字',
         font: '字体',
         fontSize: '字体大小 (mm)',
         fontWeight: '字体粗细',
@@ -152,10 +156,13 @@ const messages = {
         lineWidth: '内圈圆线宽 (mm)',
         radiusX: '内圈圆半径X (mm)',
         radiusY: '内圈圆半径Y (mm)'
-      },
+      },  
       outBorder: {
         enable: '显示外圈边框',
         lineWidth: '边框宽度 (mm)'
+      },
+      drag: {
+        label: '移动印章'
       }
     }
   },
@@ -196,7 +203,9 @@ const messages = {
         distribution: 'Distribution Factor',
         margin: 'Margin (mm)',
         startAngle: 'Start Angle (°)',
-        rotateDirection: 'Rotate Direction'
+        rotateDirection: 'Rotate Direction',
+        counterclockwise: 'Counter Clockwise',
+        clockwise: 'Clockwise'
       },
       stampType: {
         title: 'Stamp Type List Settings',
@@ -251,7 +260,9 @@ const messages = {
         save: 'Save Current as Template',
         defaultTitle: 'Default Templates',
         preview: 'Preview',
-        name: 'Template Name'
+        name: 'Template Name',
+        open: 'Open Template',
+        load: 'Load Template'
       },
       common: {
         line: 'Line {index}',
@@ -314,6 +325,9 @@ const messages = {
       outBorder: {
         enable: 'Show Outer Border',
         lineWidth: 'Border Width (mm)'
+      },
+      drag: {
+        label: 'Move Stamp'
       }
     }
   }

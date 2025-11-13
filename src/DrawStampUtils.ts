@@ -15,6 +15,9 @@ import { DrawSecurityPatternUtils } from "./utils/DrawSecurityPatternUtils.ts";
 import { DrawSvgUtils } from "./utils/DrawSvgUtils.ts";
 import { InitDrawStampConfigsUtils } from "./utils/InitDrawStampConfigsUtils.ts";
 import { DrawImageCanvas } from "./utils/DrawImageCanvas.ts";
+import { DrawCodeUtils } from './utils/DrawCodeUtils'
+import { DrawStampTypeUtils } from './utils/DrawStampTypeUtils'
+import { DrawTaxNumberUtils } from './utils/DrawTaxNumberUtils'
 // 标尺宽度
 const RULER_WIDTH = 8
 // 标尺高度
@@ -36,7 +39,7 @@ export class DrawStampUtils {
     // 离屏的canvas
     private offscreenCanvas: HTMLCanvasElement
     // 主canvas
-    private canvas: HTMLCanvasElement
+    public canvas: HTMLCanvasElement
     // 印章偏移量
     private stampOffsetX: number = 0
     private stampOffsetY: number = 0
@@ -49,7 +52,7 @@ export class DrawStampUtils {
     // 绘制svg的工具类
     private drawSvgUtils: DrawSvgUtils
     // 绘制公司的工具类
-    private drawCompanyUtils: DrawCompanyUtils
+    public drawCompanyUtils: DrawCompanyUtils
     // 绘制标尺的工具类
     private drawRulerUtils: DrawRulerUtils
     // 绘制防伪纹路的工具类
@@ -57,6 +60,13 @@ export class DrawStampUtils {
     // 初始化绘制印章配置的工具类
     private initDrawStampConfigsUtils: InitDrawStampConfigsUtils
     private imageCanvas: DrawImageCanvas;
+    public drawCodeUtils: DrawCodeUtils
+    public drawStampTypeUtils: DrawStampTypeUtils
+    public drawTaxNumberUtils: DrawTaxNumberUtils
+    private isDraggable: boolean = true;
+    private isDragging: boolean = false;
+    private dragStartPos: { x: number, y: number } = { x: 0, y: 0 };
+    private stampPosition: { x: number, y: number } = { x: 0, y: 0 };
 
     /**
      * 构造函数
@@ -84,24 +94,17 @@ export class DrawStampUtils {
             this.offscreenCanvas.height = canvas.height
         }
         this.addCanvasListener()
-        this.initDrawUtils()
-        this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
-        this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
-    }
-
-    // 初始化绘制圆的工具类
-    private initDrawUtils() {
         this.drawCircleUtils = new DrawCircleUtils(this.mmToPixel)
         this.drawSvgUtils = new DrawSvgUtils(this.mmToPixel)
         this.drawCompanyUtils = new DrawCompanyUtils(this.mmToPixel)
         this.drawRulerUtils = new DrawRulerUtils(this.mmToPixel, RULER_WIDTH * this.mmToPixel)
         this.drawSecurityPatternUtils = new DrawSecurityPatternUtils(this.mmToPixel)
+        this.drawCodeUtils = new DrawCodeUtils(mmToPixel)
+        this.drawSvgUtils = new DrawSvgUtils(mmToPixel);
+        this.imageCanvas = new DrawImageCanvas(canvas.width, canvas.height);
+        this.drawStampTypeUtils = new DrawStampTypeUtils(mmToPixel)
+        this.drawTaxNumberUtils = new DrawTaxNumberUtils(mmToPixel)
     }
-
-
-    private isDragging = false
-    private dragStartX = 0
-    private dragStartY = 0
 
     // 获取绘制印章的配置
     getDrawConfigs() {
@@ -152,6 +155,7 @@ export class DrawStampUtils {
     // 设置绘制印章的配置，比如可以保存某些印章的配置，然后保存之后直接设置绘制，更加方便
     setDrawConfigs(drawConfigs: IDrawStampConfig) {
         this.drawStampConfigs = drawConfigs
+
     }
 
     private addCanvasListener() {
@@ -163,7 +167,9 @@ export class DrawStampUtils {
                 const agingIntensity = this.drawStampConfigs.agingEffect.agingIntensity / 100;
                 this.addManualAgingEffect(x, y, agingIntensity);
             } else {
-                this.onMouseMove(event)
+                if (this.isDraggable) {
+                    this.onMouseMove(event)
+                }
             }
         })
         this.canvas.addEventListener('mouseleave', (event) => {
@@ -227,18 +233,20 @@ export class DrawStampUtils {
 
     private onMouseDown = (event: MouseEvent) => {
         this.isDragging = true
-        this.dragStartX = event.clientX - this.stampOffsetX * this.mmToPixel
-        this.dragStartY = event.clientY - this.stampOffsetY * this.mmToPixel
+        this.dragStartPos = {
+            x: event.clientX - this.stampOffsetX * this.mmToPixel,
+            y: event.clientY - this.stampOffsetY * this.mmToPixel
+        }
     }
 
     private onMouseMove = (event: MouseEvent) => {
         if (this.drawStampConfigs.openManualAging) {
             return
         }
-        
+
         if (this.isDragging) {
-            const newOffsetX = (event.clientX - this.dragStartX) / this.mmToPixel
-            const newOffsetY = (event.clientY - this.dragStartY) / this.mmToPixel
+            const newOffsetX = (event.clientX - this.dragStartPos.x) / this.mmToPixel
+            const newOffsetY = (event.clientY - this.dragStartPos.y) / this.mmToPixel
             this.stampOffsetX = Math.round(newOffsetX * 10) / 10 // 四舍五入到小数点后一位
             this.stampOffsetY = Math.round(newOffsetY * 10) / 10
             this.refreshStamp()
@@ -260,29 +268,6 @@ export class DrawStampUtils {
         }
     }
 
-    private async drawSvgImage(ctx: CanvasRenderingContext2D, image: IDrawStar, centerX: number, centerY: number) {
-        try {
-            // 计算绘制尺寸
-            const width = 200;
-            const height = 200;
-            
-            // 使用图像 canvas 绘制
-            const imageCanvas = await this.imageCanvas.drawImage(
-                image.svgPath,
-                centerX - width/2,
-                centerY - height/2,
-                width,
-                height
-            );
-
-            // 将图像 canvas 的内容绘制到主 canvas
-            ctx.drawImage(imageCanvas, 0, 0);
-
-        } catch (error) {
-            console.error("Error drawing SVG:", error);
-        }
-    }
-
     // 添加绘制图片列表的方法
     private async drawImageList(
         ctx: CanvasRenderingContext2D,
@@ -294,7 +279,7 @@ export class DrawStampUtils {
             if (image.imageUrl) {
                 // 检查缓存中是否已有该图片
                 let img = this.imageCache.get(image.imageUrl);
-                
+
                 if (img) {
                     this.drawSingleImage(ctx, img, image, centerX, centerY);
                 } else {
@@ -302,22 +287,22 @@ export class DrawStampUtils {
                         // 创建一个新的图片对象
                         const tempImg = new Image();
                         tempImg.src = image.imageUrl;
-                        
+
                         // 等待图片加载完成
                         await new Promise((resolve, reject) => {
                             tempImg.onload = resolve;
                             tempImg.onerror = reject;
                         });
-                        
+
                         // 将图片转换为 ImageBitmap
                         const bitmap = await createImageBitmap(tempImg);
-                        
+
                         // 存入缓存
                         this.imageCache.set(image.imageUrl, bitmap);
-                        
+
                         // 绘制图片
                         this.drawSingleImage(ctx, bitmap, image, centerX, centerY);
-                        
+
                         requestAnimationFrame(() => {
                             this.refreshStamp();
                         });
@@ -340,18 +325,18 @@ export class DrawStampUtils {
         // 计算绘制尺寸
         let width = imageConfig.imageWidth * this.mmToPixel;
         let height = imageConfig.imageHeight * this.mmToPixel;
-        
+
         if (imageConfig.keepAspectRatio) {
             // 如果需要保持宽高比，计算缩放比例
             const scale = Math.min(width / img.width, height / img.height);
             width = img.width * scale;
             height = img.height * scale;
         }
-        
+
         // 计算绘制位置（考虑偏移）
         const x = centerX - width / 2 + imageConfig.positionX * this.mmToPixel;
         const y = centerY - height / 2 + imageConfig.positionY * this.mmToPixel;
-        
+
         ctx.save();
         ctx.drawImage(img, x, y, width, height);
         ctx.restore();
@@ -440,94 +425,6 @@ export class DrawStampUtils {
         stampTypeList.forEach((stampType) => {
             this.drawStampType(ctx, stampType, centerX, centerY, radiusX)
         })
-        ctx.restore()
-    }
-
-    /**
-     * 绘制椭圆
-     * @param x 圆心x坐标
-     * @param y 圆心y坐标
-     * @param radiusX 半径x
-     * @param radiusY 半径y
-     * @param borderWidth 边框宽度
-     * @param borderColor 边框颜色
-     */
-    private drawEllipse(
-        ctx: CanvasRenderingContext2D,
-        x: number,
-        y: number,
-        radiusX: number,
-        radiusY: number,
-        borderWidth: number,
-        borderColor: string
-    ) {
-        ctx.beginPath()
-        ctx.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2)
-        ctx.strokeStyle = borderColor
-        ctx.lineWidth = borderWidth
-        ctx.stroke()
-    }
-
-    /**
-     * 绘制印章编码
-     * @param centerX 圆心x坐标
-     * @param centerY 圆心y坐标
-     * @param radiusX 椭圆长轴半径
-     * @param radiusY 椭圆短轴半径
-     * @param text 编码文本
-     * @param fontSize 字大小
-     */
-    private drawCode(
-        ctx: CanvasRenderingContext2D,
-        code: ICode,
-        centerX: number,
-        centerY: number,
-        radiusX: number,
-        radiusY: number
-    ) {
-        const fontSize = code.fontHeight * this.mmToPixel
-        const text = code.code
-        const fontWeight = code.fontWeight || 'normal'; // 新增字体粗细参数
-
-        ctx.save()
-        ctx.font = `${fontWeight} ${fontSize}px ${code.fontFamily}`;
-        ctx.fillStyle = this.drawStampConfigs.primaryColor
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-
-        const characters = text.split('')
-        const characterCount = characters.length
-        // 处理单个字符的情况
-        if (characterCount === 1) {
-            // 单个字符直接绘制在底部中心位置
-            const x = centerX
-            const y = centerY + radiusY - fontSize - code.borderOffset * this.mmToPixel
-
-            ctx.save()
-            ctx.translate(x, y)
-            ctx.scale(code.compression, 1)
-            ctx.fillText(text, 0, 0)
-            ctx.restore()
-        } else {
-            // 多个字符时的弧形排列
-            const totalAngle = Math.PI * ((1 + characterCount) / code.textDistributionFactor)
-            const startAngle = Math.PI / 2 + totalAngle / 2
-            const anglePerChar = totalAngle / (characterCount - 1)
-
-            characters.forEach((char, index) => {
-                const angle = startAngle - anglePerChar * index
-                const x = centerX + Math.cos(angle) * (radiusX - fontSize / 2 - code.borderOffset * this.mmToPixel)
-                const y = centerY + Math.sin(angle) * (radiusY - fontSize / 2 - code.borderOffset * this.mmToPixel)
-
-                ctx.save()
-                ctx.translate(x, y)
-                ctx.rotate(angle - Math.PI / 2)
-                ctx.scale(code.compression, 1)
-                ctx.fillText(char, 0, 0)
-                ctx.restore()
-            })
-        }
-
         ctx.restore()
     }
 
@@ -647,7 +544,7 @@ export class DrawStampUtils {
         height: number,
         forceRefresh: boolean = false
     ) {
-        console.log("addAgingEffect", "width", width, "height", height, "forceRefresh", this.drawStampConfigs.agingEffect.applyAging)
+        // console.log("addAgingEffect", "width", width, "height", height, "forceRefresh", this.drawStampConfigs.agingEffect.applyAging)
         if (!this.drawStampConfigs.agingEffect.applyAging) return;
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
@@ -834,7 +731,7 @@ export class DrawStampUtils {
         this.canvasCtx.translate(this.offsetX, this.offsetY);
         this.canvasCtx.scale(this.scale, this.scale);
 
-        
+
         // 设置起始点为距离左边和上边 5mm 的位置
         const startX = (this.drawStampConfigs.width / 2) * 10 + RULER_WIDTH * this.mmToPixel;
         const startY = (this.drawStampConfigs.height / 2) * 10 + RULER_HEIGHT * this.mmToPixel;
@@ -944,16 +841,16 @@ export class DrawStampUtils {
         }
         // 绘制公司文字内容，边框的圆形文字
         this.drawCompanyUtils.drawCompanyList(offscreenCtx, this.drawStampConfigs.companyList, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
-        // 绘制印章类型文字内容，边框的矩形文字
-        this.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX)
+        this.drawStampTypeUtils.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX, this.drawStampConfigs.primaryColor)
         // 绘制编码文字内容，边框的圆形文字
-        this.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY)
+        this.drawCodeUtils.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
         // 绘制税号文字内容，边框的圆形文字
-        this.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY)
+        this.drawTaxNumberUtils.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY, this.drawStampConfigs.primaryColor)
         offscreenCtx.restore()
         // 将离屏 canvas 的内容绘制到主 canvas
         ctx.save()
         // 添加毛边效果
+
         if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
             this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, refreshRoughEdge)
         }
@@ -970,5 +867,10 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.agingEffect.applyAging) {
             this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
         }
+    }
+
+    // 设置是否可拖动
+    public setDraggable(draggable: boolean): void {
+        this.isDraggable = draggable;
     }
 }
