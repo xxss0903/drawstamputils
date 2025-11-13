@@ -143,22 +143,26 @@ const handleSubmit = () => {
 .contact-us {
   min-height: 100vh;
   padding: 2rem;
-  background-color: #f5f5f5;
+  background-color: #f2f2f2;
 }
 
-.container {
+.page-container {
   max-width: 900px;
   margin: 0 auto;
   background: white;
   padding: 3rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 h1 {
-  color: #333;
+  color: #343a40;
   margin-bottom: 1rem;
   font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #4caf50;
 }
 
 .intro {
@@ -166,17 +170,36 @@ h1 {
   color: #666;
   margin-bottom: 2rem;
   line-height: 1.8;
+  text-align: center;
 }
 
 section {
   margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+section:last-of-type {
+  border-bottom: none;
 }
 
 h2 {
-  color: #444;
-  margin-top: 2rem;
+  color: #343a40;
+  margin-top: 0;
   margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+h2::before {
+  content: '';
+  width: 4px;
+  height: 24px;
+  background: #4caf50;
+  border-radius: 2px;
 }
 
 .contact-info {
@@ -186,31 +209,66 @@ h2 {
 
 .contact-item {
   padding: 1.5rem;
-  background: #f9f9f9;
+  background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #4caf50;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.contact-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .contact-item h3 {
-  color: #333;
-  margin-bottom: 0.5rem;
+  color: #343a40;
+  margin-bottom: 0.75rem;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .contact-item p {
   color: #555;
   line-height: 1.8;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
+/* 美化联系信息中的列表 */
 .contact-item ul {
-  margin-left: 1.5rem;
-  margin-top: 0.5rem;
+  margin-left: 0;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
 }
 
 .contact-item li {
   color: #555;
   line-height: 1.8;
+  margin-bottom: 0.5rem;
+  padding-left: 1.75rem;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.contact-item li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-item li:hover {
+  color: #343a40;
 }
 
 .faq {
@@ -220,19 +278,29 @@ h2 {
 
 .faq-item {
   padding: 1.5rem;
-  background: #f9f9f9;
+  background: #f8f9fa;
   border-radius: 8px;
+  border-left: 4px solid #4caf50;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(4px);
 }
 
 .faq-item h3 {
-  color: #333;
-  margin-bottom: 0.5rem;
+  color: #343a40;
+  margin-bottom: 0.75rem;
   font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .faq-item p {
   color: #555;
   line-height: 1.8;
+  margin: 0;
 }
 
 .feedback-form {
@@ -256,9 +324,18 @@ h2 {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
 .form-group textarea {
@@ -266,18 +343,26 @@ h2 {
 }
 
 .submit-btn {
-  background: #007bff;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
   padding: 0.75rem 2rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
 }
 
 .submit-btn:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
 }
 
 .submit-status {
@@ -298,9 +383,12 @@ h2 {
   border: 1px solid #f5c6cb;
 }
 
+/* 美化相关链接列表 */
 .links {
   list-style: none;
   margin-left: 0;
+  margin-bottom: 0;
+  padding-left: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -308,20 +396,33 @@ h2 {
 
 .links li {
   margin: 0;
+  padding: 0;
+}
+
+.links li::before {
+  display: none;
 }
 
 .links a {
-  color: #007bff;
+  color: #4caf50;
   text-decoration: none;
-  padding: 0.5rem 1rem;
-  background: #f0f0f0;
-  border-radius: 4px;
-  transition: background 0.3s;
+  padding: 0.75rem 1.5rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .links a:hover {
-  background: #e0e0e0;
+  background: #e8f5e9;
+  border-color: #4caf50;
+  color: #45a049;
   text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.15);
 }
 
 @media (max-width: 768px) {
@@ -329,16 +430,45 @@ h2 {
     padding: 1rem;
   }
 
-  .container {
+  .page-container {
     padding: 1.5rem;
+    border-radius: 8px;
   }
 
   h1 {
     font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .contact-item {
+    padding: 1.25rem;
+  }
+
+  .contact-item li {
+    padding-left: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .faq-item {
+    padding: 1.25rem;
   }
 
   .links {
     flex-direction: column;
+  }
+
+  .links a {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>
