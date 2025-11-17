@@ -58,6 +58,16 @@
           <span class="element-name">五角星</span>
           <span class="element-type">图形</span>
         </div>
+        <template v-for="(image, index) in imageList" :key="`image-${index}`">
+          <div class="element-item"
+               v-if="image && image.imageUrl"
+               :class="{ active: selectedElement === `image-${index}` }"
+               @click="selectElement(`image-${index}`, 'image', index)">
+            <span class="element-icon">🖼️</span>
+            <span class="element-name">图片 {{ index + 1 }}</span>
+            <span class="element-type">图片</span>
+          </div>
+        </template>
       </div>
 
       <!-- 文字元素 -->
@@ -104,13 +114,22 @@
           <span class="element-name">五角星</span>
         </div>
         <div class="element-item"
-             v-for="(circle, index) in innerCircleList"
+             v-for="(_, index) in innerCircleList"
              :key="`circle-${index}`"
              :class="{ active: selectedElement === `circle-${index}` }"
              @click="selectElement(`circle-${index}`, 'circle', index)">
           <span class="element-icon">⭕</span>
           <span class="element-name">内圈 {{ index + 1 }}</span>
         </div>
+        <template v-for="(image, index) in imageList" :key="`image-${index}`">
+          <div class="element-item"
+               v-if="image && image.imageUrl"
+               :class="{ active: selectedElement === `image-${index}` }"
+               @click="selectElement(`image-${index}`, 'image', index)">
+            <span class="element-icon">🖼️</span>
+            <span class="element-name">图片 {{ index + 1 }}</span>
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -135,9 +154,9 @@ const activeTab = ref<'all' | 'text' | 'figure'>('all')
 const selectedElement = ref<string>('')
 
 const tabs = [
-  { key: 'all', label: '全部' },
-  { key: 'text', label: '文字' },
-  { key: 'figure', label: '图形' }
+  { key: 'all' as const, label: '全部' },
+  { key: 'text' as const, label: '文字' },
+  { key: 'figure' as const, label: '图形' }
 ]
 
 const stampStore = useStampStore()
@@ -155,6 +174,7 @@ const stampCode = computed(() => config.value.stampCode || { code: '' })
 const taxNumber = computed(() => config.value.taxNumber || { code: '' })
 const drawStar = computed(() => config.value.drawStar || { drawStar: false })
 const innerCircleList = computed(() => config.value.innerCircleList || [])
+const imageList = computed(() => config.value.imageList || [])
 
 const selectElement = (elementId: string, elementType: string, index: number) => {
   selectedElement.value = elementId
