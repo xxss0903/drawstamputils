@@ -17,6 +17,12 @@
       <!-- 全部元素 -->
       <div v-show="activeTab === 'all'" class="element-category">
         <div class="element-item"
+             :class="{ active: selectedElement === 'basic-settings' }"
+             @click.stop="selectElement('basic-settings', 'basic', 0)">
+          <span class="element-icon">⚙️</span>
+          <span class="element-name">印章基础设置</span>
+        </div>
+        <div class="element-item"
              v-for="(company, index) in companyList"
              :key="`company-${index}`"
              :class="{ active: selectedElement === `company-${index}` }"
