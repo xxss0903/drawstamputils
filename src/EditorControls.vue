@@ -18,96 +18,13 @@
           @update-config="handleCompanyConfigUpdate"
         />
 
-        <!-- 印章类型设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('stampType')">
-            <h3>{{ t('stamp.stampType.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.stampType }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.stampType">
-
-            <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
-              <div class="stamp-type-header">
-                <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
-                <button class="small-button delete-button" @click="removeStampType(index)">{{ t('stamp.stampType.delete') }}</button>
-              </div>
-              <label>
-                {{ t('stamp.stampType.type') }}:
-                <input type="text" v-model="type.stampType" />
-              </label>
-              <label>
-                {{ t('stamp.stampType.fontSize') }}:
-                <input type="number" v-model.number="type.fontHeight" min="1" max="10" step="0.1" />
-              </label>
-              <label>
-                {{ t('stamp.stampType.font') }}:
-                <div class="font-input-group">
-                  <input
-                    type="text"
-                    v-model="type.fontFamily"
-                    list="stampTypeFontList"
-                    class="font-input"
-                  />
-                  <datalist id="stampTypeFontList">
-                    <option v-for="font in systemFonts"
-                            :key="font"
-                            :value="font">
-                      {{ font }}
-                    </option>
-                  </datalist>
-                </div>
-              </label>
-              <label>
-                {{ t('stamp.stampType.fontWeight') }}:
-                <select v-model="type.fontWeight">
-                  <option value="normal">正常</option>
-                  <option value="bold">粗体</option>
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                  <option value="300">300</option>
-                  <option value="400">400</option>
-                  <option value="500">500</option>
-                  <option value="600">600</option>
-                  <option value="700">700</option>
-                  <option value="800">800</option>
-                  <option value="900">900</option>
-                </select>
-              </label>
-              <label>
-                {{ t('stamp.stampType.compression') }}:
-                <input
-                  type="range"
-                  v-model.number="type.compression"
-                  min="0.1"
-                  max="1.5"
-                  step="0.05"
-                />
-                <span>{{ type.compression.toFixed(2) }}</span>
-              </label>
-              <label>
-                {{ t('stamp.stampType.letterSpacing') }}:
-                <input
-                  type="range"
-                  v-model.number="type.letterSpacing"
-                  min="-1"
-                  max="10"
-                  step="0.05"
-                />
-                <span>{{ type.letterSpacing.toFixed(2) }}</span>
-              </label>
-              <label>
-                {{ t('stamp.stampType.verticalPosition') }}:
-                <input
-                  type="number"
-                  v-model.number="type.positionY"
-                  min="-20"
-                  max="20"
-                  step="0.5"
-                />
-              </label>
-            </div>
-            <button class="add-button" @click="addNewStampType">{{ t('stamp.stampType.addNew') }}</button>
-          </div>
-        </div>
+        <StampTypeSettingsPanel
+          :expanded="expandedGroups.stampType"
+          :config="getDrawConfigs()"
+          :system-fonts="systemFonts"
+          @update:expanded="value => (expandedGroups.stampType = value)"
+          @update-config="handleStampTypeConfigUpdate"
+        />
 
         <!-- 印章编码设置 -->
         <div class="control-group stamp-code-group">
@@ -465,6 +382,7 @@ import { useI18n } from 'vue-i18n'
 import { useStampStore } from './stores/stampStore'
 import BasicSettingsPanel from './components/editor/panels/BasicSettingsPanel.vue'
 import CompanySettingsPanel from './components/editor/panels/CompanySettingsPanel.vue'
+import StampTypeSettingsPanel from './components/editor/panels/StampTypeSettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -574,20 +492,7 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const roughEdgeProbability = ref(0.5) // 毛边概率
   const roughEdgeShift = ref(8) // 毛边偏移
   const roughEdgePoints = ref(360) // 毛边点数
-  // 添加印章类型列表的响式数据
-  const stampTypeList = ref<IStampType[]>([
-    {
-      stampType: '印章类型',
-      fontHeight: 4.6,
-      fontFamily: 'SimSun',
-      compression: 0.75,
-      letterSpacing: 0,
-      positionY: -3,
-      fontWeight: 'normal',
-      lineSpacing: 2,
-      fontWidth: 3
-    }
-  ])
+  // 印章类型列表现在从 config 中直接读取，不需要单独的 ref
   // 添加公司列表的响应式数据
   // 添加新的响应式变量
   const useStarImage = ref(false)
@@ -666,30 +571,6 @@ const handleIsCircleDetectChange = (value: boolean) => {
     }
   }
 
-  // 添加新的印章类型行
-  const addNewStampType = () => {
-    let newPositionY = -3
-    if(stampTypeList.value.length > 0){
-      const lastStampType = stampTypeList.value[stampTypeList.value.length - 1]
-      newPositionY = lastStampType.positionY + lastStampType.fontHeight
-    }
-    stampTypeList.value.push({
-      stampType: '新印章类型',
-      fontHeight: 4.0,
-      fontFamily: 'SimSun',
-      compression: 0.75,
-      letterSpacing: 0,
-      positionY: newPositionY,
-      fontWeight: 'normal',
-      lineSpacing: 2,
-      fontWidth: 3
-    })
-  }
-
-  // 删除指定的印章型行
-  const removeStampType = (index: number) => {
-    stampTypeList.value.splice(index, 1)
-  }
 
   const drawStampWidth = ref(40)
   const drawStampHeight = ref(30)
@@ -816,8 +697,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     outThinCircle.innerCircleLineRadiusX = outThinCircleWidth.value
     outThinCircle.innerCircleLineRadiusY = outThinCircleHeight.value
 
-    // 更新印章类型列表
-    drawConfigs.stampTypeList = stampTypeList.value
+    // 印章类型列表已在组件中直接更新到 config
 
     // 更新公司列表
     // 更新内圈列表
@@ -898,7 +778,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     bottomTextFontWeight.value = stampTypeConfig.fontWeight
     bottomTextCompression.value = stampTypeConfig.compression
     bottomTextLineSpacing.value = stampTypeConfig.lineSpacing
-    stampTypeList.value = drawConfigs.stampTypeList
+    // stampTypeList 现在从 config 中直接读取，不需要单独的 ref
 
     // 五角星/图片配置
     shouldDrawStar.value = drawConfigs.drawStar.drawStar
@@ -940,6 +820,17 @@ const handleBasicConfigUpdate = (updater: (config: IDrawStampConfig) => void) =>
 
 const handleCompanyConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
   stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
+const handleStampTypeConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    if (!config.stampTypeList) {
+      config.stampTypeList = []
+    }
     updater(config)
   })
   restoreDrawConfigs()
@@ -1037,7 +928,6 @@ const handleCompanyConfigUpdate = (updater: (config: IDrawStampConfig) => void) 
       adjustEllipseText,
       adjustEllipseTextFactor,
       bottomTextLineSpacing,
-      stampTypeList,
       useStarImage,
       starImageWidth,
       starImageHeight,
