@@ -4,8 +4,8 @@
       <h3>元素列表</h3>
     </div>
     <div class="panel-tabs">
-      <button 
-        v-for="tab in tabs" 
+      <button
+        v-for="tab in tabs"
         :key="tab.key"
         :class="['tab-button', { active: activeTab === tab.key }]"
         @click="activeTab = tab.key"
@@ -16,8 +16,8 @@
     <div class="panel-content">
       <!-- 全部元素 -->
       <div v-show="activeTab === 'all'" class="element-category">
-        <div class="element-item" 
-             v-for="(company, index) in companyList" 
+        <div class="element-item"
+             v-for="(company, index) in companyList"
              :key="`company-${index}`"
              :class="{ active: selectedElement === `company-${index}` }"
              @click="selectElement(`company-${index}`, 'company', index)">
@@ -25,8 +25,8 @@
           <span class="element-name">{{ company.companyName || `公司名称 ${index + 1}` }}</span>
           <span class="element-type">{{ company.shape === 'rectangle' ? '矩形' : '椭圆' }}</span>
         </div>
-        <div class="element-item" 
-             v-for="(type, index) in stampTypeList" 
+        <div class="element-item"
+             v-for="(type, index) in stampTypeList"
              :key="`stampType-${index}`"
              :class="{ active: selectedElement === `stampType-${index}` }"
              @click="selectElement(`stampType-${index}`, 'stampType', index)">
@@ -34,7 +34,7 @@
           <span class="element-name">{{ type.stampType || `印章类型 ${index + 1}` }}</span>
           <span class="element-type">类型</span>
         </div>
-        <div class="element-item" 
+        <div class="element-item"
              v-if="stampCode.code"
              :class="{ active: selectedElement === 'code' }"
              @click="selectElement('code', 'code', 0)">
@@ -42,7 +42,7 @@
           <span class="element-name">{{ stampCode.code }}</span>
           <span class="element-type">编码</span>
         </div>
-        <div class="element-item" 
+        <div class="element-item"
              v-if="taxNumber.code"
              :class="{ active: selectedElement === 'taxNumber' }"
              @click="selectElement('taxNumber', 'taxNumber', 0)">
@@ -50,7 +50,7 @@
           <span class="element-name">{{ taxNumber.code }}</span>
           <span class="element-type">税号</span>
         </div>
-        <div class="element-item" 
+        <div class="element-item"
              v-if="drawStar.drawStar"
              :class="{ active: selectedElement === 'star' }"
              @click="selectElement('star', 'star', 0)">
@@ -62,30 +62,30 @@
 
       <!-- 文字元素 -->
       <div v-show="activeTab === 'text'" class="element-category">
-        <div class="element-item" 
-             v-for="(company, index) in companyList" 
+        <div class="element-item"
+             v-for="(company, index) in companyList"
              :key="`company-${index}`"
              :class="{ active: selectedElement === `company-${index}` }"
              @click="selectElement(`company-${index}`, 'company', index)">
           <span class="element-icon">📝</span>
           <span class="element-name">{{ company.companyName || `公司名称 ${index + 1}` }}</span>
         </div>
-        <div class="element-item" 
-             v-for="(type, index) in stampTypeList" 
+        <div class="element-item"
+             v-for="(type, index) in stampTypeList"
              :key="`stampType-${index}`"
              :class="{ active: selectedElement === `stampType-${index}` }"
              @click="selectElement(`stampType-${index}`, 'stampType', index)">
           <span class="element-icon">🏷️</span>
           <span class="element-name">{{ type.stampType || `印章类型 ${index + 1}` }}</span>
         </div>
-        <div class="element-item" 
+        <div class="element-item"
              v-if="stampCode.code"
              :class="{ active: selectedElement === 'code' }"
              @click="selectElement('code', 'code', 0)">
           <span class="element-icon">🔢</span>
           <span class="element-name">{{ stampCode.code }}</span>
         </div>
-        <div class="element-item" 
+        <div class="element-item"
              v-if="taxNumber.code"
              :class="{ active: selectedElement === 'taxNumber' }"
              @click="selectElement('taxNumber', 'taxNumber', 0)">
@@ -96,15 +96,15 @@
 
       <!-- 图形元素 -->
       <div v-show="activeTab === 'figure'" class="element-category">
-        <div class="element-item" 
+        <div class="element-item"
              v-if="drawStar.drawStar"
              :class="{ active: selectedElement === 'star' }"
              @click="selectElement('star', 'star', 0)">
           <span class="element-icon">⭐</span>
           <span class="element-name">五角星</span>
         </div>
-        <div class="element-item" 
-             v-for="(circle, index) in innerCircleList" 
+        <div class="element-item"
+             v-for="(circle, index) in innerCircleList"
              :key="`circle-${index}`"
              :class="{ active: selectedElement === `circle-${index}` }"
              @click="selectElement(`circle-${index}`, 'circle', index)">
@@ -164,12 +164,13 @@ const selectElement = (elementId: string, elementType: string, index: number) =>
 
 <style scoped>
 .element-list-panel {
-  width: 280px;
+  width: 300px;
   background: white;
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 60vh;
+  background-color: #f2f2f2;
 }
 
 .panel-header {

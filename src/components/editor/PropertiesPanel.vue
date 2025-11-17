@@ -65,12 +65,12 @@ defineExpose({
 
 <style scoped>
 .properties-panel {
-  width: 320px;
+  width: 300px;
   background: white;
   border-left: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 60vh;
   overflow: hidden;
 }
 

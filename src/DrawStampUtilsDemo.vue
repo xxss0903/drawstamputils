@@ -774,12 +774,12 @@ watch(isDraggable, (newValue) => {
 
 /* Canvas 区域 */
 .canvas-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  margin: 12px;
-  border-radius: 8px;
+  /*flex: 1;*/
+  /*display: flex;*/
+  /*flex-direction: column;*/
+  /*background: white;*/
+  /*margin: 12px;*/
+  /*border-radius: 8px;*/
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
