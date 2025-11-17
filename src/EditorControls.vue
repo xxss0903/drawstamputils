@@ -26,150 +26,21 @@
           @update-config="handleStampTypeConfigUpdate"
         />
 
-        <!-- 印章编码设置 -->
-        <div class="control-group stamp-code-group">
-          <div class="group-header" @click="toggleGroup('code')">
-            <h3>{{ t('stamp.code.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.code }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.code">
+        <CodeSettingsPanel
+          :expanded="expandedGroups.code"
+          :config="getDrawConfigs()"
+          :system-fonts="systemFonts"
+          @update:expanded="value => (expandedGroups.code = value)"
+          @update-config="handleCodeConfigUpdate"
+        />
 
-            <label>{{ t('stamp.code.code') }}: <input v-model="stampCode" /></label>
-            <label>
-              {{ t('stamp.code.font') }}:
-              <div class="font-input-group">
-                <select
-                  v-model="codeFontFamily"
-                  class="font-select"
-                  @change="updateFontPreview"
-                >
-                  <option
-                    v-for="font in systemFonts"
-                    :key="font"
-                    :value="font"
-                    :style="{ fontFamily: font }"
-                  >
-                    {{ font }}
-                  </option>
-                </select>
-                <input
-                  type="text"
-                  v-model="codeFontFamily"
-                  class="font-input"
-                  @input="updateFontPreview"
-                  placeholder="输入字体名称"
-                />
-              </div>
-            </label>
-            <label>
-              {{ t('stamp.code.fontSize') }}: <input type="number" v-model.number="codeFontSizeMM" step="0.1" />
-            </label>
-            <label>
-              {{ t('stamp.code.fontWeight') }}:
-              <select v-model="codeFontWeight">
-                <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
-                <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
-                <option value="300">300</option>
-                <option value="400">400</option>
-                <option value="500">500</option>
-                <option value="600">600</option>
-                <option value="700">700</option>
-                <option value="800">800</option>
-                <option value="900">900</option>
-              </select>
-            </label>
-            <label>
-              <span>{{ t('stamp.common.compression', { value: codeCompression.toFixed(2) }) }}</span>
-              <input type="range" v-model.number="codeCompression" min="0.0" max="3" step="0.01" />
-            </label>
-            <label>
-              <span>{{ t('stamp.common.distribution', { value: codeDistributionFactor.toFixed(1) }) }}</span>
-              <input
-                type="range"
-                v-model.number="codeDistributionFactor"
-                min="0"
-                max="100"
-                step="0.5"
-              />
-            </label>
-            <label>
-              {{ t('stamp.code.margin') }}:
-              <input type="number" v-model.number="codeMarginMM" min="-10" max="20" step="0.05" />
-            </label>
-          </div>
-        </div>
-
-        <!-- 税号设置 -->
-        <div class="control-group tax-number-group">
-          <div class="group-header" @click="toggleGroup('taxNumber')">
-            <h3>{{ t('stamp.taxNumber.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.taxNumber }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.taxNumber">
-
-            <label>{{ t('stamp.taxNumber.number') }}: <input v-model="taxNumberValue" /></label>
-            <label>
-              {{ t('stamp.taxNumber.font') }}:
-              <div class="font-input-group">
-                <select
-                  v-model="taxNumberFontFamily"
-                  class="font-select"
-                  @change="updateFontPreview"
-                >
-                  <option
-                    v-for="font in systemFonts"
-                    :key="font"
-                    :value="font"
-                    :style="{ fontFamily: font }"
-                  >
-                    {{ font }}
-                  </option>
-                </select>
-                <input
-                  type="text"
-                  v-model="taxNumberFontFamily"
-                  class="font-input"
-                  @input="updateFontPreview"
-                  placeholder="输入字体名称"
-                />
-              </div>
-            </label>
-            <label>
-              {{ t('stamp.taxNumber.fontWeight') }}:
-              <select v-model="taxNumberFontWeight">
-                <option value="normal">正常</option>
-                <option value="bold">粗体</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
-                <option value="300">300</option>
-                <option value="400">400</option>
-                <option value="500">500</option>
-                <option value="600">600</option>
-                <option value="700">700</option>
-                <option value="800">800</option>
-                <option value="900">900</option>
-              </select>
-            </label>
-            <label>
-              <span>{{ t('stamp.common.compression', { value: taxNumberCompression.toFixed(2) }) }}</span>
-              <input type="range" v-model.number="taxNumberCompression" min="0.0" max="3" step="0.01" />
-            </label>
-            <label>
-              <span>{{ t('stamp.common.letterSpacing', { value: taxNumberLetterSpacing.toFixed(2) }) }}</span>
-              <input
-                type="range"
-                v-model.number="taxNumberLetterSpacing"
-                min="-1"
-                max="20"
-                step="0.05"
-              />
-            </label>
-            <label>
-              <span>{{ t('stamp.common.verticalPosition', { value: taxNumberPositionY.toFixed(1) }) }}</span>
-              <input type="range" v-model.number="taxNumberPositionY" min="-10" max="10" step="0.1" />
-            </label>
-          </div>
-        </div>
+        <TaxNumberSettingsPanel
+          :expanded="expandedGroups.taxNumber"
+          :config="getDrawConfigs()"
+          :system-fonts="systemFonts"
+          @update:expanded="value => (expandedGroups.taxNumber = value)"
+          @update-config="handleTaxNumberConfigUpdate"
+        />
 
         <!-- 图片列表设置 -->
         <div class="control-group">
@@ -377,12 +248,14 @@
 import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
-import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
+import { ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType } from './DrawStampTypes'
 import { useI18n } from 'vue-i18n'
 import { useStampStore } from './stores/stampStore'
 import BasicSettingsPanel from './components/editor/panels/BasicSettingsPanel.vue'
 import CompanySettingsPanel from './components/editor/panels/CompanySettingsPanel.vue'
 import StampTypeSettingsPanel from './components/editor/panels/StampTypeSettingsPanel.vue'
+import CodeSettingsPanel from './components/editor/panels/CodeSettingsPanel.vue'
+import TaxNumberSettingsPanel from './components/editor/panels/TaxNumberSettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -409,18 +282,9 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const isCircleDetect = ref(true)
   // 添加响应式数据
   const companyName = ref('绘制印章有限责任公司')
-  // 印章编码
-  const stampCode = ref('1234567890123')
-  // 税号
-  const taxNumberValue = ref('000000000000000000')
   // 公司名称字体大（毫米）
   const companyFontFamily = ref('Songti SC')
   const companyFontSizeMM = ref(4.2)
-  const codeFontFamily = ref('SimSun')
-  // 编码字体大小（毫米）
-  const codeFontSizeMM = ref(1.2)
-  // 编码字体宽度（毫米）
-  const codeFontWidthMM = ref(1.2)
   // 圆形印章半径（毫米）
   const circleRadius = ref(20)
   // 圆形边框宽度（毫米）
@@ -443,10 +307,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const adjustEllipseTextFactor = ref(0.5)
   // 文字边距，控制公司名称文字距离椭圆边缘的距离（单位：毫米）
   const textMarginMM = ref(1) // 默认值为1mm
-  // 编码边距，控制印章编码距离椭圆边缘的距离（单位毫米）
-  const codeMarginMM = ref(1) // 默认值为1mm
-  // 编码分布因子，控制印章编码在椭圆下方的分布范围
-  const codeDistributionFactor = ref(20) // 默认值可以根据需要调整
   // 印章印章类型
   const bottomText = ref('合同专用章')
   // 印章类型大小，默认 4mm
@@ -462,11 +322,7 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const companyNameCompression = ref(1)
   const companyNameFontWeight = ref(400)
   const bottomTextFontWeight = ref<number|string>(400)
-  const codeFontWeight = ref<number|string>(400)
-  const taxNumberFontFamily = ref('Songti SC')
-  const taxNumberFontWeight = ref<number|string>(400)
   const bottomTextCompression = ref(1)
-  const codeCompression = ref(1)
   // 防伪纹路
   const securityPatternEnabled = ref(true)
   const securityPatternDensity = ref(0.5)
@@ -475,9 +331,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const securityPatternCount = ref(5) // 防伪纹路数量
   const securityPatternLength = ref(2) // 纹路长度，单为毫米
   const shouldDrawStar = ref(false) // 默认绘制五角星
-  const taxNumberCompression = ref(1) // 税号文字宽度缩放比例
-  const taxNumberLetterSpacing = ref(0.3) // 税号文字间距（单位：毫米）
-  const taxNumberPositionY = ref(0) // 税号垂直位置调，默认为0
   const drawInnerCircle = ref(true) // 是否绘制内圈圆
   const innerCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
   const innerCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
@@ -627,14 +480,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     company.adjustEllipseText = adjustEllipseText.value
     company.adjustEllipseTextFactor = adjustEllipseTextFactor.value
 
-    // 税号
-    const taxNumber: ITaxNumber = drawConfigs.taxNumber
-    taxNumber.code = taxNumberValue.value
-    taxNumber.compression = taxNumberCompression.value
-    taxNumber.positionY = taxNumberPositionY.value
-    taxNumber.letterSpacing = taxNumberLetterSpacing.value
-    taxNumber.fontFamily = taxNumberFontFamily.value
-    taxNumber.fontWeight = taxNumberFontWeight.value
+    // 税号和印章编码已在组件中直接更新到 config
 
     // 印章类型
     const stampType: IStampType = drawConfigs.stampType
@@ -648,16 +494,6 @@ const handleIsCircleDetectChange = (value: boolean) => {
     stampType.fontWeight = bottomTextFontWeight.value
     stampType.lineSpacing = bottomTextLineSpacing.value // 新增：置行间距
 
-    // 印章编码
-    const code: ICode = drawConfigs.stampCode
-    code.code = stampCode.value
-    code.compression = codeCompression.value
-    code.fontFamily = codeFontFamily.value
-    code.fontHeight = codeFontSizeMM.value
-    code.fontWidth = codeFontWidthMM.value
-    code.borderOffset = codeMarginMM.value
-    code.textDistributionFactor = codeDistributionFactor.value
-    code.fontWeight = codeFontWeight.value
     // 印章配置
     drawConfigs.primaryColor = primaryColor.value
     drawConfigs.borderWidth = circleBorderWidth.value
@@ -747,25 +583,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     companyNameCompression.value = drawConfigs.company.compression
     textDistributionFactor.value = drawConfigs.company.textDistributionFactor
     textMarginMM.value = drawConfigs.company.borderOffset
-    // 印章编码
-    const stampCodeConfig: ICode = drawConfigs.stampCode
-    stampCode.value = stampCodeConfig.code
-    codeFontSizeMM.value = stampCodeConfig.fontHeight
-    codeFontWidthMM.value = stampCodeConfig.fontWidth
-    codeDistributionFactor.value = stampCodeConfig.textDistributionFactor
-    codeMarginMM.value = stampCodeConfig.borderOffset
-    codeFontFamily.value = stampCodeConfig.fontFamily
-    codeFontWeight.value = stampCodeConfig.fontWeight
-    codeCompression.value = stampCodeConfig.compression
-
-    // 税号
-    const taxNumber: ITaxNumber = drawConfigs.taxNumber
-    taxNumberValue.value = taxNumber.code
-    taxNumberCompression.value = taxNumber.compression
-    taxNumberLetterSpacing.value = taxNumber.letterSpacing
-    taxNumberPositionY.value = taxNumber.positionY
-    taxNumberFontFamily.value = taxNumber.fontFamily
-    taxNumberFontWeight.value = taxNumber.fontWeight
+    // 印章编码和税号现在从 config 中直接读取，不需要单独的 ref
 
     // 印章类型
     const stampTypeConfig: IStampType = drawConfigs.stampType
@@ -837,6 +655,22 @@ const handleStampTypeConfigUpdate = (updater: (config: IDrawStampConfig) => void
   drawStamp()
 }
 
+const handleCodeConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
+const handleTaxNumberConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
   // 添加系统字体列表
   const systemFonts = ref<string[]>([])
 
@@ -865,29 +699,23 @@ const handleStampTypeConfigUpdate = (updater: (config: IDrawStampConfig) => void
     [
       companyName,
       companyFontFamily,
-      stampCode,
       companyFontSizeMM,
-      codeFontSizeMM,
       circleRadius,
       circleBorderWidth,
       primaryColor,
       starDiameter,
-      codeDistributionFactor,
       textDistributionFactor,
       textMarginMM,
-      codeMarginMM,
       agingIntensity,
       bottomText,
       bottomTextFontFamily,
       bottomTextFontSizeMM,
       bottomTextLetterSpacing,
       bottomTextPositionY,
-      taxNumberValue,
       applyAging,
       agingIntensity,
       companyNameCompression,
       bottomTextCompression,
-      codeCompression,
       bottomTextLetterSpacing,
       securityPatternColor,
       securityPatternDensity,
@@ -900,10 +728,6 @@ const handleStampTypeConfigUpdate = (updater: (config: IDrawStampConfig) => void
       drawStampHeight,
       shouldDrawStar,
       starPositionY,
-      taxNumberCompression,
-      taxNumberFontFamily,
-      taxNumberLetterSpacing,
-      taxNumberPositionY,
       starDiameter,
       drawInnerCircle,
       innerCircleLineWidth,
@@ -922,9 +746,6 @@ const handleStampTypeConfigUpdate = (updater: (config: IDrawStampConfig) => void
       roughEdgePoints,
       companyNameFontWeight,
       bottomTextFontWeight,
-      codeFontWeight,
-      codeFontFamily,
-      taxNumberFontWeight,
       adjustEllipseText,
       adjustEllipseTextFactor,
       bottomTextLineSpacing,
