@@ -70,11 +70,13 @@
       <!-- 主内容区域：三栏布局 -->
       <div class="main-workspace">
         <!-- 左侧：元素列表 -->
-        <ElementList
-          v-if="isDrawStampUtilsReady"
-          :drawStampUtils="drawStampUtils"
-          @selectElement="handleSelectElement"
-        />
+            <ElementList
+              v-if="isDrawStampUtilsReady"
+              :drawStampUtils="drawStampUtils"
+              @selectElement="handleSelectElement"
+              @update-config="handleElementListUpdate"
+              @refresh="handleElementListRefresh"
+            />
 
         <!-- 中间：Canvas 绘制区域 -->
         <div class="canvas-area">
@@ -201,6 +203,18 @@ const handleSelectElement = (elementId: string, elementType: string, index: numb
   selectedElement.value = elementId
   selectedElementType.value = elementType
   selectedElementIndex.value = index
+}
+
+// 处理元素列表配置更新
+const handleElementListUpdate = () => {
+  // 配置已通过 stampStore 更新，这里触发重新绘制
+  drawStamp()
+}
+
+// 处理元素列表刷新
+const handleElementListRefresh = () => {
+  // 刷新绘制
+  drawStamp()
 }
 const stampCanvas = ref<any | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素

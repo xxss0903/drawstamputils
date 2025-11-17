@@ -20,35 +20,101 @@
              v-for="(company, index) in companyList"
              :key="`company-${index}`"
              :class="{ active: selectedElement === `company-${index}` }"
-             @click="selectElement(`company-${index}`, 'company', index)">
+             @click.stop="selectElement(`company-${index}`, 'company', index)">
           <span class="element-icon">📝</span>
-          <span class="element-name">{{ company.companyName || `公司名称 ${index + 1}` }}</span>
+          <span class="element-name" v-if="editingElement !== `company-${index}`" @dblclick.stop="startEdit(`company-${index}`, 'company', index, company.companyName)">
+            {{ company.companyName || `公司名称 ${index + 1}` }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
           <span class="element-type">{{ company.shape === 'rectangle' ? '矩形' : '椭圆' }}</span>
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit(`company-${index}`, 'company', index, company.companyName)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('company', index)" title="清除">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('company', index)" title="删除">❌</button>
+          </div>
         </div>
         <div class="element-item"
              v-for="(type, index) in stampTypeList"
              :key="`stampType-${index}`"
              :class="{ active: selectedElement === `stampType-${index}` }"
-             @click="selectElement(`stampType-${index}`, 'stampType', index)">
+             @click.stop="selectElement(`stampType-${index}`, 'stampType', index)">
           <span class="element-icon">🏷️</span>
-          <span class="element-name">{{ type.stampType || `印章类型 ${index + 1}` }}</span>
+          <span class="element-name" v-if="editingElement !== `stampType-${index}`" @dblclick.stop="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)">
+            {{ type.stampType || `印章类型 ${index + 1}` }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
           <span class="element-type">类型</span>
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('stampType', index)" title="清除">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" title="删除">❌</button>
+          </div>
         </div>
         <div class="element-item"
              v-if="stampCode.code"
              :class="{ active: selectedElement === 'code' }"
-             @click="selectElement('code', 'code', 0)">
+             @click.stop="selectElement('code', 'code', 0)">
           <span class="element-icon">🔢</span>
-          <span class="element-name">{{ stampCode.code }}</span>
+          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code)">
+            {{ stampCode.code }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
           <span class="element-type">编码</span>
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('code', 0)" title="清除">🗑️</button>
+          </div>
         </div>
         <div class="element-item"
              v-if="taxNumber.code"
              :class="{ active: selectedElement === 'taxNumber' }"
-             @click="selectElement('taxNumber', 'taxNumber', 0)">
+             @click.stop="selectElement('taxNumber', 'taxNumber', 0)">
           <span class="element-icon">💼</span>
-          <span class="element-name">{{ taxNumber.code }}</span>
+          <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)">
+            {{ taxNumber.code }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
           <span class="element-type">税号</span>
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" title="清除">🗑️</button>
+          </div>
         </div>
         <div class="element-item"
              v-if="drawStar.drawStar"
@@ -76,31 +142,97 @@
              v-for="(company, index) in companyList"
              :key="`company-${index}`"
              :class="{ active: selectedElement === `company-${index}` }"
-             @click="selectElement(`company-${index}`, 'company', index)">
+             @click.stop="selectElement(`company-${index}`, 'company', index)">
           <span class="element-icon">📝</span>
-          <span class="element-name">{{ company.companyName || `公司名称 ${index + 1}` }}</span>
+          <span class="element-name" v-if="editingElement !== `company-${index}`" @dblclick.stop="startEdit(`company-${index}`, 'company', index, company.companyName)">
+            {{ company.companyName || `公司名称 ${index + 1}` }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit(`company-${index}`, 'company', index, company.companyName)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('company', index)" title="清除">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('company', index)" title="删除">❌</button>
+          </div>
         </div>
         <div class="element-item"
              v-for="(type, index) in stampTypeList"
              :key="`stampType-${index}`"
              :class="{ active: selectedElement === `stampType-${index}` }"
-             @click="selectElement(`stampType-${index}`, 'stampType', index)">
+             @click.stop="selectElement(`stampType-${index}`, 'stampType', index)">
           <span class="element-icon">🏷️</span>
-          <span class="element-name">{{ type.stampType || `印章类型 ${index + 1}` }}</span>
+          <span class="element-name" v-if="editingElement !== `stampType-${index}`" @dblclick.stop="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)">
+            {{ type.stampType || `印章类型 ${index + 1}` }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('stampType', index)" title="清除">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" title="删除">❌</button>
+          </div>
         </div>
         <div class="element-item"
              v-if="stampCode.code"
              :class="{ active: selectedElement === 'code' }"
-             @click="selectElement('code', 'code', 0)">
+             @click.stop="selectElement('code', 'code', 0)">
           <span class="element-icon">🔢</span>
-          <span class="element-name">{{ stampCode.code }}</span>
+          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code)">
+            {{ stampCode.code }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('code', 0)" title="清除">🗑️</button>
+          </div>
         </div>
         <div class="element-item"
              v-if="taxNumber.code"
              :class="{ active: selectedElement === 'taxNumber' }"
-             @click="selectElement('taxNumber', 'taxNumber', 0)">
+             @click.stop="selectElement('taxNumber', 'taxNumber', 0)">
           <span class="element-icon">💼</span>
-          <span class="element-name">{{ taxNumber.code }}</span>
+          <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)">
+            {{ taxNumber.code }}
+          </span>
+          <input
+            v-else
+            v-model="editingValue"
+            @blur="saveEdit"
+            @keyup.enter="saveEdit"
+            @keyup.esc="cancelEdit"
+            class="element-edit-input"
+            @click.stop
+            ref="editInputRef"
+          />
+          <div class="element-actions" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)" title="编辑">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" title="清除">🗑️</button>
+          </div>
         </div>
       </div>
 
@@ -136,7 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { IDrawStampConfig } from '../../DrawStampTypes'
 import { useStampStore } from '../../stores/stampStore'
 
@@ -148,10 +280,19 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'selectElement', elementId: string, elementType: string, index: number): void
+  (e: 'updateConfig'): void
+  (e: 'refresh'): void
 }>()
 
 const activeTab = ref<'all' | 'text' | 'figure'>('all')
 const selectedElement = ref<string>('')
+
+// 编辑相关状态
+const editingElement = ref<string>('')
+const editingElementType = ref<string>('')
+const editingElementIndex = ref<number>(-1)
+const editingValue = ref<string>('')
+const editInputRef = ref<HTMLInputElement | null>(null)
 
 const tabs = [
   { key: 'all' as const, label: '全部' },
@@ -179,6 +320,94 @@ const imageList = computed(() => config.value.imageList || [])
 const selectElement = (elementId: string, elementType: string, index: number) => {
   selectedElement.value = elementId
   emit('selectElement', elementId, elementType, index)
+}
+
+// 开始编辑
+const startEdit = (elementId: string, elementType: string, index: number, currentValue: string) => {
+  editingElement.value = elementId
+  editingElementType.value = elementType
+  editingElementIndex.value = index
+  editingValue.value = currentValue || ''
+  nextTick(() => {
+    if (editInputRef.value) {
+      editInputRef.value.focus()
+      editInputRef.value.select()
+    }
+  })
+}
+
+// 保存编辑
+const saveEdit = () => {
+  if (editingElement.value && editingElementType.value !== '' && editingValue.value !== undefined) {
+    const elementType = editingElementType.value
+    const index = editingElementIndex.value
+    
+    stampStore.updateConfig((config) => {
+      if (elementType === 'company' && config.companyList && config.companyList[index]) {
+        config.companyList[index].companyName = editingValue.value
+      } else if (elementType === 'stampType' && config.stampTypeList && config.stampTypeList[index]) {
+        config.stampTypeList[index].stampType = editingValue.value
+      } else if (elementType === 'code') {
+        config.stampCode.code = editingValue.value
+      } else if (elementType === 'taxNumber') {
+        config.taxNumber.code = editingValue.value
+      }
+    })
+    
+    emit('updateConfig')
+  }
+  
+  cancelEdit()
+}
+
+// 取消编辑
+const cancelEdit = () => {
+  editingElement.value = ''
+  editingElementType.value = ''
+  editingElementIndex.value = -1
+  editingValue.value = ''
+}
+
+// 清除文字
+const clearText = (elementType: string, index: number) => {
+  stampStore.updateConfig((config) => {
+    if (elementType === 'company' && config.companyList && config.companyList[index]) {
+      config.companyList[index].companyName = ''
+    } else if (elementType === 'stampType' && config.stampTypeList && config.stampTypeList[index]) {
+      config.stampTypeList[index].stampType = ''
+    } else if (elementType === 'code') {
+      config.stampCode.code = ''
+    } else if (elementType === 'taxNumber') {
+      config.taxNumber.code = ''
+    }
+  })
+  
+  emit('updateConfig')
+  emit('refresh')
+}
+
+// 删除元素
+const deleteElement = (elementType: string, index: number) => {
+  if (confirm('确定要删除这个元素吗？')) {
+    stampStore.updateConfig((config) => {
+      if (elementType === 'company' && config.companyList) {
+        config.companyList.splice(index, 1)
+        // 如果删除后列表为空，取消选中
+        if (config.companyList.length === 0) {
+          selectedElement.value = ''
+        }
+      } else if (elementType === 'stampType' && config.stampTypeList) {
+        config.stampTypeList.splice(index, 1)
+        // 如果删除后列表为空，取消选中
+        if (config.stampTypeList.length === 0) {
+          selectedElement.value = ''
+        }
+      }
+    })
+    
+    emit('updateConfig')
+    emit('refresh')
+  }
 }
 </script>
 
@@ -287,6 +516,58 @@ const selectElement = (elementId: string, elementType: string, index: number) =>
   padding: 2px 8px;
   background: #f0f0f0;
   border-radius: 4px;
+}
+
+.element-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.element-item:hover .element-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.action-btn:hover {
+  background: #e6f7ff;
+}
+
+.edit-btn:hover {
+  background: #e6f7ff;
+}
+
+.clear-btn:hover {
+  background: #fff7e6;
+}
+
+.delete-btn:hover {
+  background: #fff1f0;
+}
+
+.element-edit-input {
+  flex: 1;
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  outline: none;
+  background: white;
 }
 </style>
 
