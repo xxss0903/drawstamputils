@@ -40,6 +40,13 @@
         {{ t('stamp.basic.color') }}:
         <input type="color" :value="props.config.primaryColor" @input="onPrimaryColorInput" />
       </label>
+      <label>
+        {{ t('stamp.basic.shape') }}:
+        <select :value="props.config.company.shape" @change="onCompanyShapeChange">
+          <option value="ellipse">椭圆/圆形</option>
+          <option value="rectangle">矩形</option>
+        </select>
+      </label>
       <label class="checkbox-label">
         <input
           type="checkbox"
@@ -115,6 +122,13 @@ const onPrimaryColorInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value
   emit('update-config', (config) => {
     config.primaryColor = value
+  })
+}
+
+const onCompanyShapeChange = (event: Event) => {
+  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle'
+  emit('update-config', (config) => {
+    config.company.shape = value
   })
 }
 

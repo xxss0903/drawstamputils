@@ -9,8 +9,8 @@ export type ISecurityPattern = {
 }
 // 毛边参数
 export type IRoughEdgeParams = {
-    angle: number // 
-    size: number // 
+    angle: number //
+    size: number //
     offset: number // 偏移量
     opacity: number // 透明度
 }

@@ -93,14 +93,6 @@
             @input="onNumberInput(index, 'borderOffset', $event)"
           />
         </label>
-        <label>
-          {{ t('stamp.company.shape') }}:
-          <select :value="company.shape" @change="onFieldInput(index, 'shape', $event)">
-            <option value="ellipse">椭圆/圆形</option>
-            <option value="rectangle">矩形</option>
-          </select>
-        </label>
-
         <template v-if="company.shape === 'ellipse'">
           <label>
             {{ t('stamp.company.startAngle') }}:

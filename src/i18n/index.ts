@@ -26,7 +26,8 @@ const messages = {
         width: '印章宽度 (mm)',
         height: '印章高度 (mm)',
         borderWidth: '圆形边框宽度 (mm)',
-        color: '印章颜色'
+        color: '印章颜色',
+        shape: '印章形状'
       },
       company: {
         title: '公司名称列表设置',
@@ -156,7 +157,7 @@ const messages = {
         lineWidth: '内圈圆线宽 (mm)',
         radiusX: '内圈圆半径X (mm)',
         radiusY: '内圈圆半径Y (mm)'
-      },  
+      },
       outBorder: {
         enable: '显示外圈边框',
         lineWidth: '边框宽度 (mm)'
@@ -339,4 +340,4 @@ const i18n = createI18n({
   messages
 })
 
-export default i18n 
+export default i18n
