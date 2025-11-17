@@ -119,19 +119,23 @@
         <div class="element-item"
              v-if="drawStar.drawStar"
              :class="{ active: selectedElement === 'star' }"
-             @click="selectElement('star', 'star', 0)">
+             @click.stop="selectElement('star', 'star', 0)">
           <span class="element-icon">⭐</span>
           <span class="element-name">五角星</span>
-          <span class="element-type">图形</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('star', 0)" title="删除">❌</button>
+          </div>
         </div>
         <div class="element-item"
-             v-for="(_, index) in visibleImages"
-             :key="`image-${index}`"
-             :class="{ active: selectedElement === `image-${index}` }"
-             @click="selectElement(`image-${index}`, 'image', index)">
+             v-for="imageInfo in visibleImages"
+             :key="`image-${imageInfo.index}`"
+             :class="{ active: selectedElement === `image-${imageInfo.index}` }"
+             @click.stop="selectElement(`image-${imageInfo.index}`, 'image', imageInfo.index)">
           <span class="element-icon">🖼️</span>
-          <span class="element-name">图片 {{ index + 1 }}</span>
-          <span class="element-type">图片</span>
+          <span class="element-name">图片 {{ imageInfo.index + 1 }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('image', imageInfo.index)" title="删除">❌</button>
+          </div>
         </div>
       </div>
 
@@ -238,9 +242,12 @@
         <div class="element-item"
              v-if="drawStar.drawStar"
              :class="{ active: selectedElement === 'star' }"
-             @click="selectElement('star', 'star', 0)">
+             @click.stop="selectElement('star', 'star', 0)">
           <span class="element-icon">⭐</span>
           <span class="element-name">五角星</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('star', 0)" title="删除">❌</button>
+          </div>
         </div>
         <div class="element-item"
              v-for="(_, index) in innerCircleList"
@@ -251,12 +258,15 @@
           <span class="element-name">内圈 {{ index + 1 }}</span>
         </div>
         <div class="element-item"
-             v-for="(_, index) in visibleImages"
-             :key="`image-figure-${index}`"
-             :class="{ active: selectedElement === `image-${index}` }"
-             @click="selectElement(`image-${index}`, 'image', index)">
+             v-for="imageInfo in visibleImages"
+             :key="`image-figure-${imageInfo.index}`"
+             :class="{ active: selectedElement === `image-${imageInfo.index}` }"
+             @click.stop="selectElement(`image-${imageInfo.index}`, 'image', imageInfo.index)">
           <span class="element-icon">🖼️</span>
-          <span class="element-name">图片 {{ index + 1 }}</span>
+          <span class="element-name">图片 {{ imageInfo.index + 1 }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('image', imageInfo.index)" title="删除">❌</button>
+          </div>
         </div>
       </div>
     </div>
@@ -311,8 +321,11 @@ const stampCode = computed(() => config.value.stampCode || { code: '' })
 const taxNumber = computed(() => config.value.taxNumber || { code: '' })
 const drawStar = computed(() => config.value.drawStar || { drawStar: false })
 const innerCircleList = computed(() => config.value.innerCircleList || [])
-const imageList = computed(() => config.value.imageList || [])
-const visibleImages = computed(() => (imageList.value || []).filter((image) => image && image.imageUrl))
+const visibleImages = computed(() =>
+  (config.value.imageList || [])
+    .map((image, index) => ({ image, index }))
+    .filter((item) => item.image && item.image.imageUrl)
+)
 
 const selectElement = (elementId: string, elementType: string, index: number) => {
   selectedElement.value = elementId
@@ -407,6 +420,16 @@ const deleteElement = (elementType: string, index: number) => {
       } else if (elementType === 'taxNumber') {
         config.taxNumber.code = ''
         if (selectedElement.value === 'taxNumber') {
+          selectedElement.value = ''
+        }
+      } else if (elementType === 'star' && config.drawStar) {
+        config.drawStar.drawStar = false
+        if (selectedElement.value === 'star') {
+          selectedElement.value = ''
+        }
+      } else if (elementType === 'image' && config.imageList) {
+        config.imageList.splice(index, 1)
+        if (config.imageList.length === 0) {
           selectedElement.value = ''
         }
       }
