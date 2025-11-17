@@ -103,14 +103,8 @@ button:focus-visible {
 }
 
 .maker-container {
-  justify-content: center;
-  width: 80%;
-  border-radius: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  height: 100vh;
+  width: 100%;
+  padding: 2rem;
 }
 
 .editor-controls {
@@ -700,7 +694,7 @@ canvas {
 
 
 .page-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   background: white;
   padding: 3rem;

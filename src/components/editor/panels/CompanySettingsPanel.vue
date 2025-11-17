@@ -1,0 +1,288 @@
+<template>
+  <div class="control-group">
+    <div class="group-header" @click="toggleExpanded">
+      <h3>
+        {{ t('stamp.company.title') }}
+        <span class="expand-icon" :class="{ expanded: expanded }">▼</span>
+      </h3>
+    </div>
+    <div class="group-content" v-show="expanded">
+      <div v-for="(company, index) in companyList" :key="index" class="company-item">
+        <div class="company-header">
+          <span>{{ t('stamp.common.line', { index: index + 1 }) }}</span>
+          <button class="small-button delete-button" @click="removeCompany(index)">
+            {{ t('stamp.common.delete') }}
+          </button>
+        </div>
+        <label>
+          {{ t('stamp.company.name') }}:
+          <input type="text" :value="company.companyName" @input="onFieldInput(index, 'companyName', $event)" />
+        </label>
+        <label>
+          {{ t('stamp.company.font') }}:
+          <div class="font-input-group">
+            <select
+              :value="company.fontFamily"
+              class="font-select"
+              @change="onFieldInput(index, 'fontFamily', $event)"
+            >
+              <option v-for="font in fonts" :key="font" :value="font" :style="{ fontFamily: font }">
+                {{ font }}
+              </option>
+            </select>
+            <input
+              type="text"
+              :value="company.fontFamily"
+              class="font-input"
+              @input="onFieldInput(index, 'fontFamily', $event)"
+              :placeholder="t('stamp.common.fontPlaceholder')"
+            />
+          </div>
+        </label>
+        <label>
+          {{ t('stamp.company.fontSize') }}:
+          <input
+            type="number"
+            :value="company.fontHeight"
+            min="1"
+            max="10"
+            step="0.1"
+            @input="onNumberInput(index, 'fontHeight', $event)"
+          />
+        </label>
+        <label>
+          {{ t('stamp.company.fontWeight') }}:
+          <select :value="company.fontWeight" @change="onFontWeightChange(index, $event)">
+            <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
+            <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
+            <option v-for="value in fontWeightOptions" :key="value" :value="value">{{ value }}</option>
+          </select>
+        </label>
+        <label>
+          {{ t('stamp.company.compression') }}:
+          <input
+            type="range"
+            :value="company.compression"
+            min="0.5"
+            max="1.5"
+            step="0.05"
+            @input="onNumberInput(index, 'compression', $event)"
+          />
+          <span>{{ company.compression.toFixed(2) }}</span>
+        </label>
+        <label>
+          {{ t('stamp.company.distribution') }}:
+          <input
+            type="range"
+            :value="company.textDistributionFactor"
+            min="0"
+            max="50"
+            step="0.1"
+            @input="onNumberInput(index, 'textDistributionFactor', $event)"
+          />
+          <span>{{ company.textDistributionFactor.toFixed(2) }}</span>
+        </label>
+        <label>
+          {{ t('stamp.company.margin') }}:
+          <input
+            type="number"
+            :value="company.borderOffset"
+            min="-10"
+            max="10"
+            step="0.05"
+            @input="onNumberInput(index, 'borderOffset', $event)"
+          />
+        </label>
+        <label>
+          {{ t('stamp.company.shape') }}:
+          <select :value="company.shape" @change="onFieldInput(index, 'shape', $event)">
+            <option value="ellipse">椭圆/圆形</option>
+            <option value="rectangle">矩形</option>
+          </select>
+        </label>
+
+        <template v-if="company.shape === 'ellipse'">
+          <label>
+            {{ t('stamp.company.startAngle') }}:
+            <div class="range-container">
+              <input
+                type="range"
+                :value="company.startAngle"
+                min="-3.14"
+                max="3.14"
+                step="0.01"
+                @input="onNumberInput(index, 'startAngle', $event)"
+              />
+              <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
+            </div>
+          </label>
+          <label>
+            {{ t('stamp.company.rotateDirection') }}:
+            <select :value="company.rotateDirection" @change="onFieldInput(index, 'rotateDirection', $event)">
+              <option value="clockwise">{{ t('stamp.company.clockwise') }}</option>
+              <option value="counterclockwise">{{ t('stamp.company.counterclockwise') }}</option>
+            </select>
+          </label>
+        </template>
+
+        <template v-else>
+          <label>
+            文字方向:
+            <select :value="company.rectangleTextDirection" @change="onFieldInput(index, 'rectangleTextDirection', $event)">
+              <option value="horizontal">横向</option>
+              <option value="vertical">纵向</option>
+            </select>
+          </label>
+          <label>
+            文字位置:
+            <select :value="company.rectangleTextPosition" @change="onFieldInput(index, 'rectangleTextPosition', $event)">
+              <option value="top">顶部</option>
+              <option value="bottom">底部</option>
+              <option value="left">左侧</option>
+              <option value="right">右侧</option>
+              <option value="center">中心</option>
+            </select>
+          </label>
+          <label v-if="company.rectangleTextDirection === 'horizontal'">
+            横向对齐:
+            <select :value="company.rectangleTextAlignment" @change="onFieldInput(index, 'rectangleTextAlignment', $event)">
+              <option value="left">左对齐</option>
+              <option value="center">居中</option>
+              <option value="right">右对齐</option>
+            </select>
+          </label>
+          <label v-else>
+            纵向对齐:
+            <select :value="company.rectangleVerticalAlignment" @change="onFieldInput(index, 'rectangleVerticalAlignment', $event)">
+              <option value="top">顶部对齐</option>
+              <option value="center">居中</option>
+              <option value="bottom">底部对齐</option>
+            </select>
+          </label>
+          <label v-if="company.rectangleTextDirection === 'vertical'">
+            行间距 (mm):
+            <input
+              type="number"
+              :value="company.rectangleLineSpacing"
+              min="0"
+              max="10"
+              step="0.1"
+              @input="onNumberInput(index, 'rectangleLineSpacing', $event)"
+            />
+          </label>
+          <label>
+            文字边距 (mm):
+            <input
+              type="number"
+              :value="company.rectangleTextMargin"
+              min="0"
+              max="20"
+              step="0.1"
+              @input="onNumberInput(index, 'rectangleTextMargin', $event)"
+            />
+            <span class="help-text">文字距离边框的距离</span>
+          </label>
+        </template>
+      </div>
+      <button class="add-button" @click="addCompany">{{ t('stamp.common.addNew') }}</button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import type { ICompany, IDrawStampConfig } from '../../../DrawStampTypes'
+
+const { t } = useI18n()
+
+const props = defineProps<{
+  expanded: boolean
+  config: IDrawStampConfig
+  systemFonts: string[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:expanded', value: boolean): void
+  (e: 'update-config', updater: (config: IDrawStampConfig) => void): void
+}>()
+
+const companyList = computed(() => props.config.companyList || [])
+const fonts = computed(() => props.systemFonts || [])
+const fontWeightOptions = [100, 200, 300, 400, 500, 600, 700, 800, 900]
+
+const toggleExpanded = () => {
+  emit('update:expanded', !props.expanded)
+}
+
+const updateConfig = (updater: (company: ICompany) => void, index: number) => {
+  emit('update-config', (config) => {
+    const list = config.companyList || []
+    if (list[index]) {
+      updater(list[index])
+    }
+  })
+}
+
+const onFieldInput = (index: number, field: keyof ICompany, event: Event) => {
+  const value = (event.target as HTMLInputElement).value as any
+  updateConfig((company) => {
+    ;(company as any)[field] = value
+  }, index)
+}
+
+const onNumberInput = (index: number, field: keyof ICompany, event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  updateConfig((company) => {
+    ;(company as any)[field] = value
+  }, index)
+}
+
+const onFontWeightChange = (index: number, event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const value = target.value === 'normal' || target.value === 'bold' ? target.value : Number(target.value)
+  updateConfig((company) => {
+    company.fontWeight = value
+  }, index)
+}
+
+const removeCompany = (index: number) => {
+  emit('update-config', (config) => {
+    if (!config.companyList) {
+      return
+    }
+    config.companyList.splice(index, 1)
+  })
+}
+
+const addCompany = () => {
+  emit('update-config', (config) => {
+    if (!config.companyList) {
+      config.companyList = []
+    }
+    const list = config.companyList
+    const last = list[list.length - 1]
+    const nextBorderOffset = last ? last.borderOffset + last.fontHeight : 1
+    list.push({
+      companyName: '新公司名称',
+      compression: 1,
+      borderOffset: nextBorderOffset,
+      textDistributionFactor: 3,
+      fontFamily: 'SimSun',
+      fontHeight: 4.2,
+      fontWeight: 'normal',
+      shape: 'ellipse',
+      adjustEllipseText: false,
+      adjustEllipseTextFactor: 0.5,
+      startAngle: 0,
+      rotateDirection: 'counterclockwise',
+      rectangleTextDirection: 'horizontal',
+      rectangleTextPosition: 'center',
+      rectangleTextAlignment: 'center',
+      rectangleVerticalAlignment: 'center',
+      rectangleLineSpacing: 0,
+      rectangleTextMargin: 1
+    })
+  })
+}
+</script>

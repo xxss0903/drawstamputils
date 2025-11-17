@@ -15,156 +15,159 @@
       </div>
     </div>
   </div>
+  <div class="maker-container">
+    <div class="page-container" :class="{ 'has-warning': showSecurityWarning }">
 
-  <div class="maker-container" :class="{ 'has-warning': showSecurityWarning }">
-    <!-- 修改法律免责说明 -->
-    <div class="legal-disclaimer"
-         v-if="showSecurityWarning"
-         :class="{ 'hidden': !showSecurityWarning }">
-      <div class="disclaimer-content">
-        <div class="warning-icon">⚠️</div>
-        <div class="warning-text">
-          <h3>{{ t('legal.securityWarning') }}</h3>
-          <p><strong>{{ t('legal.securityNotice') }}</strong></p>
-          <p>
-            <span style="white-space: pre-line">{{ t('legal.securityItems') }}</span>
-          </p>
-          <button class="close-warning" @click="showSecurityWarning = false">×</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 顶部工具栏 -->
-    <div class="top-toolbar">
-      <div class="toolbar-left">
-        <span class="app-title">DrawStamp - 印章制作工具</span>
-      </div>
-      <div class="toolbar-center">
-        <button class="tool-icon" title="添加文字">
-          <span>A+</span>
-        </button>
-        <button class="tool-icon" title="文字选项">
-          <span>A</span>
-        </button>
-        <button class="tool-icon" title="放大">
-          <span>🔍+</span>
-        </button>
-        <button class="tool-icon" title="缩小">
-          <span>🔍-</span>
-        </button>
-        <button class="tool-icon" title="新建">
-          <span>📄+</span>
-        </button>
-      </div>
-      <div class="toolbar-right">
-        <button class="primary-button" @click="showTemplateDialog = true">
-          < Templates
-        </button>
-        <button class="primary-button" @click="saveStampAsPNG">
-          下载印章
-        </button>
-      </div>
-    </div>
-
-    <!-- 主内容区域：三栏布局 -->
-    <div class="main-workspace">
-      <!-- 左侧：元素列表 -->
-      <ElementList
-        v-if="isDrawStampUtilsReady"
-        :drawStampUtils="drawStampUtils"
-        @selectElement="handleSelectElement"
-      />
-
-      <!-- 中间：Canvas 绘制区域 -->
-      <div class="canvas-area">
-        <div class="canvas-header">
-          <div class="canvas-tabs">
-            <div class="canvas-tab active">
-              <span>Canvas #0</span>
-            </div>
+      <!-- 修改法律免责说明 -->
+      <div class="legal-disclaimer"
+           v-if="showSecurityWarning"
+           :class="{ 'hidden': !showSecurityWarning }">
+        <div class="disclaimer-content">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-text">
+            <h3>{{ t('legal.securityWarning') }}</h3>
+            <p><strong>{{ t('legal.securityNotice') }}</strong></p>
+            <p>
+              <span style="white-space: pre-line">{{ t('legal.securityItems') }}</span>
+            </p>
+            <button class="close-warning" @click="showSecurityWarning = false">×</button>
           </div>
         </div>
-        <div class="canvas-wrapper">
-          <canvas ref="stampCanvas" width="600" height="600"></canvas>
+      </div>
+
+      <!-- 顶部工具栏 -->
+      <div class="top-toolbar">
+        <div class="toolbar-left">
+          <span class="app-title">DrawStamp - 印章制作工具</span>
         </div>
-        <div class="canvas-footer">
-          <button class="canvas-action-btn" title="可见性">
-            <span>👁️</span>
+        <div class="toolbar-center">
+          <button class="tool-icon" title="添加文字">
+            <span>A+</span>
           </button>
-          <button class="canvas-action-btn" title="效果">
-            <span>✨</span>
+          <button class="tool-icon" title="文字选项">
+            <span>A</span>
           </button>
-          <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
-            <span>💾</span>
+          <button class="tool-icon" title="放大">
+            <span>🔍+</span>
           </button>
-          <button class="canvas-action-btn" title="帮助">
-            <span>❓</span>
+          <button class="tool-icon" title="缩小">
+            <span>🔍-</span>
           </button>
-          <button class="canvas-action-btn" title="联系">
-            <span>✉️</span>
+          <button class="tool-icon" title="新建">
+            <span>📄+</span>
+          </button>
+        </div>
+        <div class="toolbar-right">
+          <button class="primary-button" @click="showTemplateDialog = true">
+            < Templates
+          </button>
+          <button class="primary-button" @click="saveStampAsPNG">
+            下载印章
           </button>
         </div>
       </div>
 
-      <!-- 右侧：属性编辑器 -->
-      <PropertiesPanel
-        v-if="isDrawStampUtilsReady"
-        ref="propertiesPanelRef"
-        :drawStampUtils="drawStampUtils"
-        :selectedElement="selectedElement"
-        :elementType="selectedElementType"
-        :elementIndex="selectedElementIndex"
-        @updateDrawStamp="updateDrawStamp"
-      />
-    </div>
+      <!-- 主内容区域：三栏布局 -->
+      <div class="main-workspace">
+        <!-- 左侧：元素列表 -->
+        <ElementList
+          v-if="isDrawStampUtilsReady"
+          :drawStampUtils="drawStampUtils"
+          @selectElement="handleSelectElement"
+        />
 
-    <!-- 底部：模板选择列表 -->
-    <div class="template-bar">
-      <div class="template-bar-header">
-        <h4>📋 模板选择</h4>
-        <div class="template-bar-actions">
-          <button class="load-template-btn" @click="showTemplateDialog = true">
-            <span>📂</span>
-            加载模板文件
-          </button>
-          <button class="save-template-btn" @click="saveCurrentAsTemplate">
-            <span>💾</span>
-            保存当前模板
-          </button>
-        </div>
-      </div>
-      <div class="template-list-horizontal">
-        <div
-          v-for="(template, index) in defaultTemplates"
-          :key="index"
-          class="template-item-horizontal"
-          :class="{ 'active': currentTemplateIndex === (-1 - index) }"
-          @click="loadSelectedTemplate(template)"
-          :title="template.name"
-        >
-          <div class="template-preview-small">
-            <img v-if="template.preview" :src="template.preview" :alt="template.name" />
-            <div v-else class="template-placeholder">
-              <div class="loading-spinner"></div>
-              <span>生成预览中...</span>
+        <!-- 中间：Canvas 绘制区域 -->
+        <div class="canvas-area">
+          <div class="canvas-header">
+            <div class="canvas-tabs">
+              <div class="canvas-tab active">
+                <span>Canvas #0</span>
+              </div>
             </div>
           </div>
-          <div class="template-name-small">{{ template.name }}</div>
+          <div class="canvas-wrapper">
+            <canvas ref="stampCanvas" width="600" height="600"></canvas>
+          </div>
+          <div class="canvas-footer">
+            <button class="canvas-action-btn" title="可见性">
+              <span>👁️</span>
+            </button>
+            <button class="canvas-action-btn" title="效果">
+              <span>✨</span>
+            </button>
+            <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
+              <span>💾</span>
+            </button>
+            <button class="canvas-action-btn" title="帮助">
+              <span>❓</span>
+            </button>
+            <button class="canvas-action-btn" title="联系">
+              <span>✉️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 右侧：属性编辑器 -->
+        <PropertiesPanel
+          v-if="isDrawStampUtilsReady"
+          ref="propertiesPanelRef"
+          :drawStampUtils="drawStampUtils"
+          :selectedElement="selectedElement"
+          :elementType="selectedElementType"
+          :elementIndex="selectedElementIndex"
+          @updateDrawStamp="updateDrawStamp"
+        />
+      </div>
+
+      <!-- 底部：模板选择列表 -->
+      <div class="template-bar">
+        <div class="template-bar-header">
+          <h4>📋 模板选择</h4>
+          <div class="template-bar-actions">
+            <button class="load-template-btn" @click="showTemplateDialog = true">
+              <span>📂</span>
+              加载模板文件
+            </button>
+            <button class="save-template-btn" @click="saveCurrentAsTemplate">
+              <span>💾</span>
+              保存当前模板
+            </button>
+          </div>
+        </div>
+        <div class="template-list-horizontal">
+          <div
+            v-for="(template, index) in defaultTemplates"
+            :key="index"
+            class="template-item-horizontal"
+            :class="{ 'active': currentTemplateIndex === (-1 - index) }"
+            @click="loadSelectedTemplate(template)"
+            :title="template.name"
+          >
+            <div class="template-preview-small">
+              <img v-if="template.preview" :src="template.preview" :alt="template.name" />
+              <div v-else class="template-placeholder">
+                <div class="loading-spinner"></div>
+                <span>生成预览中...</span>
+              </div>
+            </div>
+            <div class="template-name-small">{{ template.name }}</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 使用模板弹窗组件 -->
-    <TemplateDialog
-      :show="showTemplateDialog"
-      :templates="defaultTemplates"
-      :currentIndex="currentTemplateIndex"
-      :drawStampUtils="drawStampUtils"
-      @close="showTemplateDialog = false"
-      @save="saveCurrentAsTemplate"
-      @select="loadSelectedTemplate"
-    />
+      <!-- 使用模板弹窗组件 -->
+      <TemplateDialog
+        :show="showTemplateDialog"
+        :templates="defaultTemplates"
+        :currentIndex="currentTemplateIndex"
+        :drawStampUtils="drawStampUtils"
+        @close="showTemplateDialog = false"
+        @save="saveCurrentAsTemplate"
+        @select="loadSelectedTemplate"
+      />
+    </div>
   </div>
+
 </template>
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted } from 'vue'

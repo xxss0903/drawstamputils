@@ -10,172 +10,13 @@
           @update-config="handleBasicConfigUpdate"
         />
 
-        <!-- 公司名称设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('company')">
-            <h3>{{ t('stamp.company.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.company }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.company">
-            <div v-for="(company, index) in companyList" :key="index" class="company-item">
-              <div class="company-header">
-                <span>{{ t('stamp.common.line', { index: index + 1 }) }}</span>
-                <button class="small-button delete-button" @click="removeCompany(index)">{{ t('stamp.common.delete') }}</button>
-              </div>
-              <label>
-                {{ t('stamp.company.name') }}:
-                <input type="text" v-model="company.companyName" />
-              </label>
-              <label>
-                {{ t('stamp.company.font') }}:
-                <div class="font-input-group">
-                  <select
-                    v-model="company.fontFamily"
-                    class="font-select"
-                    @change="updateFontPreview"
-                  >
-                    <option
-                      v-for="font in systemFonts"
-                      :key="font"
-                      :value="font"
-                      :style="{ fontFamily: font }"
-                    >
-                      {{ font }}
-                    </option>
-                  </select>
-                  <input
-                    type="text"
-                    v-model="company.fontFamily"
-                    class="font-input"
-                    @input="updateFontPreview"
-                    :placeholder="t('stamp.common.fontPlaceholder')"
-                  />
-                </div>
-              </label>
-              <label>
-                {{ t('stamp.company.fontSize') }}:
-                <input type="number" v-model.number="company.fontHeight" min="1" max="10" step="0.1" />
-              </label>
-              <label>
-                {{ t('stamp.company.fontWeight') }}:
-                <select v-model="company.fontWeight">
-                  <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
-                  <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                  <option value="300">300</option>
-                  <option value="400">400</option>
-                  <option value="500">500</option>
-                  <option value="600">600</option>
-                  <option value="700">700</option>
-                  <option value="800">800</option>
-                  <option value="900">900</option>
-                </select>
-              </label>
-              <label>
-                {{ t('stamp.company.compression') }}:
-                <input
-                  type="range"
-                  v-model.number="company.compression"
-                  min="0.5"
-                  max="1.5"
-                  step="0.05"
-                />
-                <span>{{ company.compression.toFixed(2) }}</span>
-              </label>
-              <label>
-                {{ t('stamp.company.distribution') }}:
-                <input
-                  type="range"
-                  v-model.number="company.textDistributionFactor"
-                  min="0"
-                  max="50"
-                  step="0.1"
-                />
-                <span>{{ company.textDistributionFactor.toFixed(2) }}</span>
-              </label>
-              <label>
-                {{ t('stamp.company.margin') }}:
-                <input type="number" v-model.number="company.borderOffset" min="-10" max="10" step="0.05" />
-              </label>
-              <label>
-                印章形状:
-                <select v-model="company.shape">
-                  <option value="ellipse">椭圆/圆形</option>
-                  <option value="rectangle">矩形</option>
-                </select>
-              </label>
-              <!-- 椭圆印章相关设置 -->
-              <template v-if="company.shape === 'ellipse'">
-                <label>
-                  {{ t('stamp.company.startAngle') }}:
-                  <div class="range-container">
-                    <input
-                      type="range"
-                      v-model.number="company.startAngle"
-                      min="-3.14"
-                      max="3.14"
-                      step="0.01"
-                    />
-                    <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
-                  </div>
-                </label>
-                <label>
-                  {{ t('stamp.company.rotateDirection') }}:
-                  <select v-model="company.rotateDirection">
-                    <option value="clockwise">{{ t('stamp.company.clockwise') }}</option>
-                    <option value="counterclockwise">{{ t('stamp.company.counterclockwise') }}</option>
-                  </select>
-                </label>
-              </template>
-              <!-- 矩形印章相关设置 -->
-              <template v-if="company.shape === 'rectangle'">
-                <label>
-                  文字方向:
-                  <select v-model="company.rectangleTextDirection">
-                    <option value="horizontal">横向</option>
-                    <option value="vertical">纵向</option>
-                  </select>
-                </label>
-                <label>
-                  文字位置:
-                  <select v-model="company.rectangleTextPosition">
-                    <option value="top">顶部</option>
-                    <option value="bottom">底部</option>
-                    <option value="left">左侧</option>
-                    <option value="right">右侧</option>
-                    <option value="center">中心</option>
-                  </select>
-                </label>
-                <label v-if="company.rectangleTextDirection === 'horizontal'">
-                  横向对齐:
-                  <select v-model="company.rectangleTextAlignment">
-                    <option value="left">左对齐</option>
-                    <option value="center">居中</option>
-                    <option value="right">右对齐</option>
-                  </select>
-                </label>
-                <label v-if="company.rectangleTextDirection === 'vertical'">
-                  纵向对齐:
-                  <select v-model="company.rectangleVerticalAlignment">
-                    <option value="top">顶部对齐</option>
-                    <option value="center">居中</option>
-                    <option value="bottom">底部对齐</option>
-                  </select>
-                </label>
-                <label v-if="company.rectangleTextDirection === 'vertical'">
-                  行间距 (mm):
-                  <input type="number" v-model.number="company.rectangleLineSpacing" min="0" max="10" step="0.1" />
-                </label>
-                <label>
-                  文字边距 (mm):
-                  <input type="number" v-model.number="company.rectangleTextMargin" min="0" max="20" step="0.1" />
-                  <span class="help-text">文字距离边框的距离</span>
-                </label>
-              </template>
-            </div>
-            <button class="add-button" @click="addNewCompany">{{ t('stamp.common.addNew') }}</button>
-          </div>
-        </div>
+        <CompanySettingsPanel
+          :expanded="expandedGroups.company"
+          :config="getDrawConfigs()"
+          :system-fonts="systemFonts"
+          @update:expanded="value => (expandedGroups.company = value)"
+          @update-config="handleCompanyConfigUpdate"
+        />
 
         <!-- 印章类型设置 -->
         <div class="control-group">
@@ -623,6 +464,7 @@ import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle,
 import { useI18n } from 'vue-i18n'
 import { useStampStore } from './stores/stampStore'
 import BasicSettingsPanel from './components/editor/panels/BasicSettingsPanel.vue'
+import CompanySettingsPanel from './components/editor/panels/CompanySettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -747,29 +589,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
     }
   ])
   // 添加公司列表的响应式数据
-  const companyList = ref<ICompany[]>([
-    {
-      companyName: '绘制印章有限责任公司',
-      compression: 1,
-      borderOffset: 1,
-      textDistributionFactor: 3,
-      fontFamily: 'SimSun',
-      fontHeight: 4.2,
-      fontWeight: 'normal',
-      shape: 'ellipse',
-      adjustEllipseText: false,
-      adjustEllipseTextFactor: 0.5,
-      startAngle: 0,
-      rotateDirection: "counterclockwise",
-      // 矩形印章默认配置
-      rectangleTextDirection: 'horizontal',
-      rectangleTextPosition: 'center',
-      rectangleTextAlignment: 'center',
-      rectangleVerticalAlignment: 'center',
-      rectangleLineSpacing: 0,
-      rectangleTextMargin: 1
-    }
-  ])
   // 添加新的响应式变量
   const useStarImage = ref(false)
   const starImageWidth = ref(10) // 图片宽度，单位mm
@@ -870,40 +689,6 @@ const handleIsCircleDetectChange = (value: boolean) => {
   // 删除指定的印章型行
   const removeStampType = (index: number) => {
     stampTypeList.value.splice(index, 1)
-  }
-
-  // 添加新的公司行
-  const addNewCompany = () => {
-    let newBorderOffset = 1
-    if(companyList.value.length > 0) {
-      const lastCompany = companyList.value[companyList.value.length - 1]
-      newBorderOffset = lastCompany.borderOffset + lastCompany.fontHeight
-    }
-    companyList.value.push({
-      companyName: '新公司名称',
-      compression: 1,
-      borderOffset: newBorderOffset,
-      textDistributionFactor: 3,
-      fontFamily: 'SimSun',
-      fontHeight: 4.2,
-      fontWeight: 'normal',
-      shape: 'ellipse' as const,
-      adjustEllipseText: false,
-      adjustEllipseTextFactor: 0.5,
-      startAngle: 0,
-      rotateDirection: "counterclockwise" as const,
-      rectangleTextDirection: 'horizontal' as const,
-      rectangleTextPosition: 'center' as const,
-      rectangleTextAlignment: 'center' as const,
-      rectangleVerticalAlignment: 'center' as const,
-      rectangleLineSpacing: 0,
-      rectangleTextMargin: 1
-    } as ICompany)
-  }
-
-  // 删除指定的公司行
-  const removeCompany = (index: number) => {
-    companyList.value.splice(index, 1)
   }
 
   const drawStampWidth = ref(40)
@@ -1035,7 +820,6 @@ const handleIsCircleDetectChange = (value: boolean) => {
     drawConfigs.stampTypeList = stampTypeList.value
 
     // 更新公司列表
-    drawConfigs.companyList = companyList.value
     // 更新内圈列表
     drawConfigs.innerCircleList = innerCircleList.value
     // 更新图片列表
@@ -1083,8 +867,6 @@ const handleIsCircleDetectChange = (value: boolean) => {
     companyNameCompression.value = drawConfigs.company.compression
     textDistributionFactor.value = drawConfigs.company.textDistributionFactor
     textMarginMM.value = drawConfigs.company.borderOffset
-    companyList.value = drawConfigs.companyList
-
     // 印章编码
     const stampCodeConfig: ICode = drawConfigs.stampCode
     stampCode.value = stampCodeConfig.code
@@ -1149,7 +931,14 @@ const handleIsCircleDetectChange = (value: boolean) => {
   }
 
 const handleBasicConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
-  console.log("handle basic config settings")
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
+const handleCompanyConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
   stampStore.updateConfig((config) => {
     updater(config)
   })
@@ -1249,7 +1038,6 @@ const handleBasicConfigUpdate = (updater: (config: IDrawStampConfig) => void) =>
       adjustEllipseTextFactor,
       bottomTextLineSpacing,
       stampTypeList,
-      companyList,
       useStarImage,
       starImageWidth,
       starImageHeight,
