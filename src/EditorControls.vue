@@ -55,147 +55,46 @@
           @update:expanded="value => (expandedGroups.star = value)"
           @update-config="handleStarConfigUpdate"
         />
-        <!-- 防伪纹路设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('security')">
-            <h3>{{ t('stamp.security.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.security }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.security">
 
-            <label>
-              {{ t('stamp.security.enable') }}:
-              <input type="checkbox" v-model="securityPatternEnabled" />
-            </label>
-            <button @click="drawStamp(true, false)">{{ t('stamp.security.refresh') }}</button>
-            <label
-              >{{ t('stamp.security.count') }}:
-              <input type="range" v-model.number="securityPatternCount" min="1" max="100" step="1"
-            /></label>
-            <label
-              >{{ t('stamp.security.length') }}:
-              <input type="range" v-model.number="securityPatternLength" min="0.1" max="100" step="0.1"
-            /></label>
-            <label
-              >{{ t('stamp.security.width') }}:
-              <input
-                type="range"
-                v-model.number="securityPatternWidth"
-                min="0.05"
-                max="0.5"
-                step="0.05"
-            /></label>
-          </div>
-        </div>
+        <SecurityPatternSettingsPanel
+          :expanded="expandedGroups.security"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.security = value)"
+          @update-config="handleSecurityPatternConfigUpdate"
+          @refresh-security-pattern="refreshSecurityPattern"
+        />
 
-        <!-- 毛边效果设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('roughEdge')">
-            <h3>{{ t('stamp.roughEdge.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.roughEdge }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.roughEdge">
+        <RoughEdgeSettingsPanel
+          :expanded="expandedGroups.roughEdge"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.roughEdge = value)"
+          @update-config="handleRoughEdgeConfigUpdate"
+          @refresh-rough-edge="refreshRoughEdge"
+        />
 
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="shouldDrawRoughEdge" />
-              {{ t('stamp.roughEdge.enable') }}
-            </label>
-            <label v-if="shouldDrawRoughEdge">
-              {{ t('stamp.roughEdge.width') }}:
-              <input type="range" v-model.number="roughEdgeWidth" min="0.05" max="0.5" step="0.05" />
-              <span>{{ roughEdgeWidth.toFixed(2) }}</span>
-            </label>
-            <label v-if="shouldDrawRoughEdge">
-              {{ t('stamp.roughEdge.height') }}:
-              <input type="range" v-model.number="roughEdgeHeight" min="0.1" max="5" step="0.1" />
-              <span>{{ roughEdgeHeight.toFixed(1) }}</span>
-            </label>
-            <label v-if="shouldDrawRoughEdge">
-              {{ t('stamp.roughEdge.probability') }}:
-              <input type="range" v-model.number="roughEdgeProbability" min="0" max="1" step="0.01" />
-              <span>{{ roughEdgeProbability.toFixed(2) }}</span>
-            </label>
-            <label v-if="shouldDrawRoughEdge">
-              {{ t('stamp.roughEdge.shift') }}:
-              <input type="range" v-model.number="roughEdgeShift" min="-10" max="10" step="0.01" />
-              <span>{{ roughEdgeShift.toFixed(2) }}</span>
-            </label>
-            <label v-if="shouldDrawRoughEdge">
-              {{ t('stamp.roughEdge.points') }}:
-              <input type="range" v-model.number="roughEdgePoints" min="100" max="1000" step="10" />
-              <span>{{ roughEdgePoints }}</span>
-            </label>
-            <button @click="drawStamp(false, false, true)">{{ t('stamp.roughEdge.refresh') }}</button>
-          </div>
-        </div>
+        <AgingEffectSettingsPanel
+          :expanded="expandedGroups.aging"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.aging = value)"
+          @update-config="handleAgingEffectConfigUpdate"
+          @refresh-aging-effect="refreshAgingEffect"
+        />
 
-        <!-- 做旧效果设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('aging')">
-            <h3>{{ t('stamp.aging.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.aging }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.aging">
-
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="applyAging" @change="updateAgingEffect" />
-              {{ t('stamp.aging.enable') }}
-            </label>
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="manualAging" @change="updateAgingEffect" />
-              {{ t('stamp.aging.manual') }}
-            </label>
-            <label v-if="applyAging">
-              {{ t('stamp.aging.intensity') }}:
-              <input
-                type="range"
-                v-model.number="agingIntensity"
-                min="0"
-                max="100"
-                step="1"
-                @input="updateAgingEffect"
-              />
-              <span>{{ agingIntensity }}%</span>
-            </label>
-            <button @click="refreshAgingEffect" class="refresh-button">
-              {{ t('stamp.aging.refresh') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- 内圈圆形设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('innerCircle')">
-            <h3>{{ t('stamp.innerCircle.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.innerCircle }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.innerCircle">
-            <button @click="addNewInnerCircle">{{ t('stamp.innerCircle.addNew') }}</button>
-            <div v-for="(innerCircle, index) in innerCircleList" :key="index" class="inner-circle-item">
-              <div class="inner-circle-header">
-                <span>第 {{ index + 1 }} 行</span>
-                <button class="small-button delete-button" @click="removeInnerCircle(index)">删除</button>
-              </div>
-              <label>
-                {{ t('stamp.innerCircle.lineWidth') }}:
-                <input type="number" v-model.number="innerCircle.innerCircleLineWidth" min="0.05" max="0.5" step="0.05" />
-              </label>
-              <label>
-                {{ t('stamp.innerCircle.radiusX') }}:
-                <input type="number" v-model.number="innerCircle.innerCircleLineRadiusX" min="1" max="50" step="0.1" />
-              </label>
-              <label>
-                {{ t('stamp.innerCircle.radiusY') }}:
-                <input type="number" v-model.number="innerCircle.innerCircleLineRadiusY" min="1" max="50" step="0.1" />
-              </label>
-            </div>
-          </div>
-        </div>
+        <InnerCircleSettingsPanel
+          :expanded="expandedGroups.innerCircle"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.innerCircle = value)"
+          @update-config="handleInnerCircleConfigUpdate"
+        />
       </div>
     </div>
   </template>
   <script setup lang="ts">
 import { ref, reactive, onMounted, watch, nextTick } from 'vue'
-import {DrawStampUtils} from './DrawStampUtils'
-import { getSystemFonts } from './utils/fontUtils'
-import { ICompany, IDrawStampConfig, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType } from './DrawStampTypes'
-import { useI18n } from 'vue-i18n'
+  import {DrawStampUtils} from './DrawStampUtils'
+  import { getSystemFonts } from './utils/fontUtils'
+import { ICompany, IDrawStampConfig, IInnerCircle, IStampType } from './DrawStampTypes'
+  import { useI18n } from 'vue-i18n'
 import { useStampStore } from './stores/stampStore'
 import BasicSettingsPanel from './components/editor/panels/BasicSettingsPanel.vue'
 import CompanySettingsPanel from './components/editor/panels/CompanySettingsPanel.vue'
@@ -204,6 +103,10 @@ import CodeSettingsPanel from './components/editor/panels/CodeSettingsPanel.vue'
 import TaxNumberSettingsPanel from './components/editor/panels/TaxNumberSettingsPanel.vue'
 import ImageListSettingsPanel from './components/editor/panels/ImageListSettingsPanel.vue'
 import StarSettingsPanel from './components/editor/panels/StarSettingsPanel.vue'
+import SecurityPatternSettingsPanel from './components/editor/panels/SecurityPatternSettingsPanel.vue'
+import RoughEdgeSettingsPanel from './components/editor/panels/RoughEdgeSettingsPanel.vue'
+import AgingEffectSettingsPanel from './components/editor/panels/AgingEffectSettingsPanel.vue'
+import InnerCircleSettingsPanel from './components/editor/panels/InnerCircleSettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -239,12 +142,7 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const circleBorderWidth = ref(1)
   // 主题颜色
   const primaryColor = ref('blue')
-  // 做旧效果
-  const applyAging = ref(false)
-  // 手动做旧
-  const manualAging = ref(false)
-  // 添加新的响应式数据
-  const agingIntensity = ref(50)
+  // 做旧效果、防伪纹路、毛边效果、内圈圆设置现在从 config 中直接读取，不需要单独的 ref
   // 文字分布因子，控制公司名称文字在椭圆上的分布范围
   const textDistributionFactor = ref(3)
   // 调整椭圆文字
@@ -267,13 +165,9 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const companyNameFontWeight = ref(400)
   const bottomTextFontWeight = ref<number|string>(400)
   const bottomTextCompression = ref(1)
-  // 防伪纹路
-  const securityPatternEnabled = ref(true)
+  // 防伪纹路（部分属性仍需要 ref，用于其他用途）
   const securityPatternDensity = ref(0.5)
-  const securityPatternWidth = ref(0.2) // 纹路宽度，单位为毫米
   const securityPatternColor = ref('#FF0000')
-  const securityPatternCount = ref(5) // 防伪纹路数量
-  const securityPatternLength = ref(2) // 纹路长度，单为毫米
   // 五角星和图片列表设置现在从 config 中直接读取，不需要单独的 ref
   const drawInnerCircle = ref(true) // 是否绘制内圈圆
   const innerCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
@@ -283,29 +177,7 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const outThinCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
   const outThinCircleWidth = ref(25) // 内圈圆宽度，单位为毫米
   const outThinCircleHeight = ref(22) // 内圈圆高度，单位为毫米
-  const shouldDrawRoughEdge = ref(false) // 是否绘制毛边
-  const roughEdgeWidth = ref(0.2) // 毛边宽度，单位为毫米
-  const roughEdgeHeight = ref(5) // 毛边高度，单位为毫米
-  const roughEdgeProbability = ref(0.5) // 毛边概率
-  const roughEdgeShift = ref(8) // 毛边偏移
-  const roughEdgePoints = ref(360) // 毛边点数
-  // 印章类型列表、图片列表、五角星设置现在从 config 中直接读取，不需要单独的 ref
-  // 添加公司列表的响应式数据
-  // 添加内圈列表的响应式数据
-  const innerCircleList = ref<IInnerCircle[]>([
-    {
-      drawInnerCircle: true,
-      innerCircleLineWidth: 0.5,
-      innerCircleLineRadiusX: 36,
-      innerCircleLineRadiusY: 27
-    },
-    {
-      drawInnerCircle: true,
-      innerCircleLineWidth: 0.5,
-      innerCircleLineRadiusX: 16,
-      innerCircleLineRadiusY: 12
-    }
-  ])
+  // 印章类型列表、图片列表、五角星、做旧效果、防伪纹路、毛边效果、内圈圆列表设置现在从 config 中直接读取，不需要单独的 ref
 
   // 添加外圈圆形边的响应式数据
   const drawOutBorder = ref(true)
@@ -329,36 +201,11 @@ const handleIsCircleDetectChange = (value: boolean) => {
     emit('updateDrawStamp', getDrawConfigs(), refreshSecurityPattern, refreshOld, refreshRoughEdge)
   }
 
-  // 添加新内圈
-  const addNewInnerCircle = () => {
-    innerCircleList.value.push({
-      drawInnerCircle: true,
-      innerCircleLineWidth: 0.5,
-      innerCircleLineRadiusX: 16,
-      innerCircleLineRadiusY: 12
-    })
-  }
-
-  // 删除内圈
-  const removeInnerCircle = (index: number) => {
-    innerCircleList.value.splice(index, 1)
-  }
 
   // 更新绘制配置
   const updateDrawConfigs = () => {
     const drawConfigs = getDrawConfigs()
-    // 做旧效果
-    const agingEffect = drawConfigs.agingEffect
-    agingEffect.applyAging = applyAging.value
-    agingEffect.agingIntensity = agingIntensity.value
-    drawConfigs.openManualAging = manualAging.value
-
-    // 防伪纹路
-    const securityPattern: ISecurityPattern = drawConfigs.securityPattern
-    securityPattern.openSecurityPattern = securityPatternEnabled.value
-    securityPattern.securityPatternCount = securityPatternCount.value
-    securityPattern.securityPatternWidth = securityPatternWidth.value
-    securityPattern.securityPatternLength = securityPatternLength.value
+    // 做旧效果、防伪纹路、毛边效果、内圈圆列表已在组件中直接更新到 config
 
     // 公司名称
     const company: ICompany = drawConfigs.company
@@ -394,22 +241,6 @@ const handleIsCircleDetectChange = (value: boolean) => {
 
     // 五角星/图片配置已在组件中直接更新到 config
 
-    // 毛边
-    const roughEdge: IRoughEdge = drawConfigs.roughEdge
-    roughEdge.drawRoughEdge = shouldDrawRoughEdge.value
-    roughEdge.roughEdgeWidth = roughEdgeWidth.value
-    roughEdge.roughEdgeHeight = roughEdgeHeight.value
-    roughEdge.roughEdgeProbability = roughEdgeProbability.value
-    roughEdge.roughEdgeShift = roughEdgeShift.value
-    roughEdge.roughEdgePoints = roughEdgePoints.value
-
-    // 内圈圆
-    const innerCircle: IInnerCircle = drawConfigs.innerCircle
-    innerCircle.drawInnerCircle = drawInnerCircle.value
-    innerCircle.innerCircleLineWidth = innerCircleLineWidth.value
-    innerCircle.innerCircleLineRadiusX = innerCircleWidth.value
-    innerCircle.innerCircleLineRadiusY = innerCircleHeight.value
-
     // 外部细圈
     const outThinCircle: IInnerCircle = drawConfigs.outThinCircle
     outThinCircle.drawInnerCircle = drawOutThinCircle.value
@@ -417,12 +248,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     outThinCircle.innerCircleLineRadiusX = outThinCircleWidth.value
     outThinCircle.innerCircleLineRadiusY = outThinCircleHeight.value
 
-    // 印章类型列表已在组件中直接更新到 config
-
-    // 更新公司列表
-    // 更新内圈列表
-    drawConfigs.innerCircleList = innerCircleList.value
-    // 图片列表已在组件中直接更新到 config
+    // 印章类型列表、图片列表、内圈圆列表已在组件中直接更新到 config
 
       // 外圈圆形边
       const outBorder: IInnerCircle = drawConfigs.outBorder
@@ -435,24 +261,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
   const restoreDrawConfigs = () => {
     const drawConfigs = getDrawConfigs()
 
-    // 做旧效果
-    applyAging.value = drawConfigs.agingEffect.applyAging
-    agingIntensity.value = drawConfigs.agingEffect.agingIntensity
-    manualAging.value = drawConfigs.openManualAging
-
-    // 防伪纹路
-    securityPatternEnabled.value = drawConfigs.securityPattern.openSecurityPattern
-    securityPatternCount.value = drawConfigs.securityPattern.securityPatternCount
-    securityPatternWidth.value = drawConfigs.securityPattern.securityPatternWidth
-    securityPatternLength.value = drawConfigs.securityPattern.securityPatternLength
-
-    // 毛边效果
-    shouldDrawRoughEdge.value = drawConfigs.roughEdge.drawRoughEdge
-    roughEdgeWidth.value = drawConfigs.roughEdge.roughEdgeWidth
-    roughEdgeHeight.value = drawConfigs.roughEdge.roughEdgeHeight
-    roughEdgeProbability.value = drawConfigs.roughEdge.roughEdgeProbability
-    roughEdgeShift.value = drawConfigs.roughEdge.roughEdgeShift
-    roughEdgePoints.value = drawConfigs.roughEdge.roughEdgePoints
+    // 做旧效果、防伪纹路、毛边效果、内圈圆列表现在从 config 中直接读取，不需要单独的 ref
 
     // 印章基本设置
     drawStampWidth.value = drawConfigs.width
@@ -488,7 +297,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     innerCircleLineWidth.value = drawConfigs.innerCircle.innerCircleLineWidth
     innerCircleWidth.value = drawConfigs.innerCircle.innerCircleLineRadiusX
     innerCircleHeight.value = drawConfigs.innerCircle.innerCircleLineRadiusY
-    innerCircleList.value = drawConfigs.innerCircleList
+    // 内圈圆列表现在从 config 中直接读取，不需要单独的 ref
 
     // 外部细圈
     drawOutThinCircle.value = drawConfigs.outThinCircle.drawInnerCircle
@@ -565,6 +374,52 @@ const handleStarConfigUpdate = (updater: (config: IDrawStampConfig) => void) => 
   drawStamp()
 }
 
+const handleSecurityPatternConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
+const refreshSecurityPattern = () => {
+  drawStamp(true, false, false)
+}
+
+const handleRoughEdgeConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
+const refreshRoughEdge = () => {
+  drawStamp(false, false, true)
+}
+
+const handleAgingEffectConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+}
+
+const refreshAgingEffect = () => {
+  emit('updateDrawStamp', getDrawConfigs(), false, true, false)
+}
+
+const handleInnerCircleConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    if (!config.innerCircleList) {
+      config.innerCircleList = []
+    }
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
   // 添加系统字体列表
   const systemFonts = ref<string[]>([])
 
@@ -599,24 +454,17 @@ const handleStarConfigUpdate = (updater: (config: IDrawStampConfig) => void) => 
       primaryColor,
       textDistributionFactor,
       textMarginMM,
-      agingIntensity,
       bottomText,
       bottomTextFontFamily,
       bottomTextFontSizeMM,
       bottomTextLetterSpacing,
       bottomTextPositionY,
-      applyAging,
-      agingIntensity,
       companyNameCompression,
       bottomTextCompression,
       bottomTextLetterSpacing,
       securityPatternColor,
       securityPatternDensity,
       securityPatternColor,
-      securityPatternEnabled,
-      securityPatternCount,
-      securityPatternLength,
-      securityPatternWidth,
       drawStampWidth,
       drawStampHeight,
       drawInnerCircle,
@@ -627,19 +475,11 @@ const handleStarConfigUpdate = (updater: (config: IDrawStampConfig) => void) => 
       outThinCircleWidth,
       outThinCircleHeight,
       drawOutThinCircle,
-      manualAging,
-      shouldDrawRoughEdge,
-      roughEdgeWidth,
-      roughEdgeHeight,
-      roughEdgeProbability,
-      roughEdgeShift,
-      roughEdgePoints,
       companyNameFontWeight,
       bottomTextFontWeight,
       adjustEllipseText,
       adjustEllipseTextFactor,
       bottomTextLineSpacing,
-      innerCircleList,
       drawOutBorder,
       outBorderLineWidth,
     ],
@@ -755,23 +595,23 @@ type GroupKey =
   | 'images'
 
 const expandedGroups = reactive<Record<GroupKey, boolean>>({
-  basic: false,
-  company: false,
-  stampType: false,
-  code: false,
-  taxNumber: false,
-  star: false,
-  security: false,
-  roughEdge: false,
-  aging: false,
-  innerCircle: false,
-  images: false // 新增图片列表设置
-})
+    basic: false,
+    company: false,
+    stampType: false,
+    code: false,
+    taxNumber: false,
+    star: false,
+    security: false,
+    roughEdge: false,
+    aging: false,
+    innerCircle: false,
+    images: false // 新增图片列表设置
+  })
 
-// 切换组的展开/折叠状态
+  // 切换组的展开/折叠状态
 const toggleGroup = (groupName: GroupKey) => {
   expandedGroups[groupName] = !expandedGroups[groupName]
-}
+  }
 
   // 添加新的响应式变量
   const showSecurityWarning = ref(localStorage.getItem('showSecurityWarning') !== 'false')
@@ -780,23 +620,6 @@ const toggleGroup = (groupName: GroupKey) => {
     localStorage.setItem('showSecurityWarning', String(newValue))
   })
 
-  // 更新做旧效果
-  const updateAgingEffect = () => {
-    const config = getDrawConfigs()
-    config.agingEffect = {
-      ...config.agingEffect,
-      applyAging: applyAging.value,
-      agingIntensity: agingIntensity.value
-    }
-    config.openManualAging = manualAging.value
-
-    emit('updateDrawStamp', config, false, true, false)
-  }
-
-  // 刷新做旧效果
-  const refreshAgingEffect = () => {
-    emit('updateDrawStamp', getDrawConfigs(), false, true, false)
-  }
 
   // 添加滚动到公司文字组件的方法
   const scrollToCompanyText = (index: number) => {
