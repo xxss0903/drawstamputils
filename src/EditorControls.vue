@@ -42,73 +42,19 @@
           @update-config="handleTaxNumberConfigUpdate"
         />
 
-        <!-- 图片列表设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('images')">
-            <h3>{{ t('stamp.images.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.images }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.images">
+        <ImageListSettingsPanel
+          :expanded="expandedGroups.images"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.images = value)"
+          @update-config="handleImageListConfigUpdate"
+        />
 
-            <div v-for="(image, index) in imageList" :key="index" class="image-item">
-              <div class="image-header">
-                <span>{{ t('stamp.images.image', { index: index + 1 }) }}</span>
-                <button class="small-button delete-button" @click="removeImage(index)">删除</button>
-              </div>
-              <div class="image-preview" v-if="image.imageUrl">
-                <img :src="image.imageUrl" :alt="t('stamp.common.preview')" />
-              </div>
-              <label>
-                {{ t('stamp.images.select') }}:
-                <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
-              </label>
-              <label>
-                {{ t('stamp.images.width') }}:
-                <input type="number" v-model.number="image.imageWidth" min="1" max="100" step="0.5" />
-              </label>
-              <label>
-                {{ t('stamp.images.height') }}:
-                <input type="number" v-model.number="image.imageHeight" min="1" max="100" step="0.5" />
-              </label>
-              <label>
-                {{ t('stamp.images.positionX') }}:
-                <input type="number" v-model.number="image.positionX" min="-20" max="20" step="0.5" />
-              </label>
-              <label>
-                {{ t('stamp.images.positionY') }}:
-                <input type="number" v-model.number="image.positionY" min="-20" max="20" step="0.5" />
-              </label>
-              <label class="checkbox-label">
-                <input type="checkbox" v-model="image.keepAspectRatio" />
-                {{ t('stamp.images.keepRatio') }}
-              </label>
-            </div>
-            <button class="add-button" @click="addNewImage">{{ t('stamp.common.addNew') }}</button>
-          </div>
-        </div>
-
-        <!-- 五角星设置 -->
-        <div class="control-group">
-          <div class="group-header" @click="toggleGroup('star')">
-            <h3>{{ t('stamp.star.title') }}<span class="expand-icon" :class="{ 'expanded': expandedGroups.star }">▼</span></h3>
-          </div>
-          <div class="group-content" v-show="expandedGroups.star">
-
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="shouldDrawStar" />
-              {{ t('stamp.star.enable') }}
-            </label>
-            <div v-if="shouldDrawStar">
-              <label>
-                {{ t('stamp.star.diameter') }}:
-                <input type="number" v-model.number="starDiameter" step="0.1" />
-              </label>
-              <label>
-                {{ t('stamp.star.verticalPosition') }}:
-                <input type="number" v-model.number="starPositionY" min="-10" max="10" step="0.1" />
-              </label>
-            </div>
-          </div>
-        </div>
+        <StarSettingsPanel
+          :expanded="expandedGroups.star"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.star = value)"
+          @update-config="handleStarConfigUpdate"
+        />
         <!-- 防伪纹路设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('security')">
@@ -248,7 +194,7 @@
 import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
-import { ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType } from './DrawStampTypes'
+import { ICompany, IDrawStampConfig, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType } from './DrawStampTypes'
 import { useI18n } from 'vue-i18n'
 import { useStampStore } from './stores/stampStore'
 import BasicSettingsPanel from './components/editor/panels/BasicSettingsPanel.vue'
@@ -256,6 +202,8 @@ import CompanySettingsPanel from './components/editor/panels/CompanySettingsPane
 import StampTypeSettingsPanel from './components/editor/panels/StampTypeSettingsPanel.vue'
 import CodeSettingsPanel from './components/editor/panels/CodeSettingsPanel.vue'
 import TaxNumberSettingsPanel from './components/editor/panels/TaxNumberSettingsPanel.vue'
+import ImageListSettingsPanel from './components/editor/panels/ImageListSettingsPanel.vue'
+import StarSettingsPanel from './components/editor/panels/StarSettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -291,8 +239,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const circleBorderWidth = ref(1)
   // 主题颜色
   const primaryColor = ref('blue')
-  // 五角星直径（毫米）
-  const starDiameter = ref(14)
   // 做旧效果
   const applyAging = ref(false)
   // 手动做旧
@@ -315,8 +261,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const bottomTextFontWidthMM = ref(3)
   // 印章类型字符间距，默认 0
   const bottomTextLetterSpacing = ref(0)
-  // 五角星垂直位置调整，认 0
-  const starPositionY = ref(0)
   // 印章类型垂直位置调整，默认 0
   const bottomTextPositionY = ref(-5)
   const companyNameCompression = ref(1)
@@ -330,7 +274,7 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const securityPatternColor = ref('#FF0000')
   const securityPatternCount = ref(5) // 防伪纹路数量
   const securityPatternLength = ref(2) // 纹路长度，单为毫米
-  const shouldDrawStar = ref(false) // 默认绘制五角星
+  // 五角星和图片列表设置现在从 config 中直接读取，不需要单独的 ref
   const drawInnerCircle = ref(true) // 是否绘制内圈圆
   const innerCircleLineWidth = ref(0.5) // 内圈圆线宽，单位为毫米
   const innerCircleWidth = ref(15) // 内圈圆宽度，单位为毫米
@@ -345,13 +289,8 @@ const getDrawConfigs = (): IDrawStampConfig => {
   const roughEdgeProbability = ref(0.5) // 毛边概率
   const roughEdgeShift = ref(8) // 毛边偏移
   const roughEdgePoints = ref(360) // 毛边点数
-  // 印章类型列表现在从 config 中直接读取，不需要单独的 ref
+  // 印章类型列表、图片列表、五角星设置现在从 config 中直接读取，不需要单独的 ref
   // 添加公司列表的响应式数据
-  // 添加新的响应式变量
-  const useStarImage = ref(false)
-  const starImageWidth = ref(10) // 图片宽度，单位mm
-  const starImageHeight = ref(10) // 图片高度，单位mm
-  const keepAspectRatio = ref(true) // 是否保持宽高比
   // 添加内圈列表的响应式数据
   const innerCircleList = ref<IInnerCircle[]>([
     {
@@ -367,15 +306,6 @@ const getDrawConfigs = (): IDrawStampConfig => {
       innerCircleLineRadiusY: 12
     }
   ])
-  // 添加图片列表的响应式数据
-  const imageList = ref<IDrawImage[]>([{
-    imageUrl: '',
-    imageWidth: 10,
-    imageHeight: 10,
-    positionX: 0,
-    positionY: 0,
-    keepAspectRatio: true
-  }])
 
   // 添加外圈圆形边的响应式数据
   const drawOutBorder = ref(true)
@@ -385,44 +315,6 @@ const handleIsCircleDetectChange = (value: boolean) => {
   isCircleDetect.value = value
 }
 
-  // 添加新图片
-  const addNewImage = () => {
-    console.log("add new image", imageList.value)
-    if(imageList.value === undefined || imageList.value === null) {
-      imageList.value = []
-    }
-    if(imageList.value.length < 10) {
-      imageList.value.push({
-        imageUrl: '',
-        imageWidth: 10,
-        imageHeight: 10,
-        positionX: 0,
-        positionY: 0,
-        keepAspectRatio: true
-      })
-    }
-  }
-
-  // 删除图片
-  const removeImage = (index: number) => {
-    imageList.value.splice(index, 1)
-  }
-
-  // 修改图片上传处理函数
-  const handleImageUpload = (event: Event, index: number) => {
-    const target = event.target as HTMLInputElement
-    if (target.files && target.files[0]) {
-      const file = target.files[0]
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          imageList.value[index].imageUrl = e.target.result as string
-          drawStamp()
-        }
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
 
   const drawStampWidth = ref(40)
@@ -500,15 +392,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     drawConfigs.width = drawStampWidth.value
     drawConfigs.height = drawStampHeight.value
 
-    // 五角星/图片配置
-    const drawStar: IDrawStar = drawConfigs.drawStar
-    drawStar.drawStar = shouldDrawStar.value
-    drawStar.useImage = useStarImage.value
-    drawStar.imageWidth = starImageWidth.value
-    drawStar.imageHeight = starImageHeight.value
-    drawStar.keepAspectRatio = keepAspectRatio.value
-    drawStar.starDiameter = starDiameter.value
-    drawStar.starPositionY = starPositionY.value
+    // 五角星/图片配置已在组件中直接更新到 config
 
     // 毛边
     const roughEdge: IRoughEdge = drawConfigs.roughEdge
@@ -538,8 +422,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     // 更新公司列表
     // 更新内圈列表
     drawConfigs.innerCircleList = innerCircleList.value
-    // 更新图片列表
-    drawConfigs.imageList = imageList.value
+    // 图片列表已在组件中直接更新到 config
 
       // 外圈圆形边
       const outBorder: IInnerCircle = drawConfigs.outBorder
@@ -598,14 +481,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     bottomTextLineSpacing.value = stampTypeConfig.lineSpacing
     // stampTypeList 现在从 config 中直接读取，不需要单独的 ref
 
-    // 五角星/图片配置
-    shouldDrawStar.value = drawConfigs.drawStar.drawStar
-    useStarImage.value = drawConfigs.drawStar.useImage
-    starImageWidth.value = drawConfigs.drawStar.imageWidth
-    starImageHeight.value = drawConfigs.drawStar.imageHeight
-    keepAspectRatio.value = drawConfigs.drawStar.keepAspectRatio
-    starDiameter.value = drawConfigs.drawStar.starDiameter
-    starPositionY.value = drawConfigs.drawStar.starPositionY
+    // 五角星/图片配置现在从 config 中直接读取，不需要单独的 ref
 
     // 内圈圆形
     drawInnerCircle.value = drawConfigs.innerCircle.drawInnerCircle
@@ -620,8 +496,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
     outThinCircleWidth.value = drawConfigs.outThinCircle.innerCircleLineRadiusX
     outThinCircleHeight.value = drawConfigs.outThinCircle.innerCircleLineRadiusY
 
-    // 图片列表
-    imageList.value = drawConfigs.imageList || []
+    // 图片列表现在从 config 中直接读取，不需要单独的 ref
 
       // 外圈圆形边
       drawOutBorder.value = drawConfigs.outBorder.drawInnerCircle
@@ -671,6 +546,25 @@ const handleTaxNumberConfigUpdate = (updater: (config: IDrawStampConfig) => void
   drawStamp()
 }
 
+const handleImageListConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    if (!config.imageList) {
+      config.imageList = []
+    }
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
+const handleStarConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
   // 添加系统字体列表
   const systemFonts = ref<string[]>([])
 
@@ -703,7 +597,6 @@ const handleTaxNumberConfigUpdate = (updater: (config: IDrawStampConfig) => void
       circleRadius,
       circleBorderWidth,
       primaryColor,
-      starDiameter,
       textDistributionFactor,
       textMarginMM,
       agingIntensity,
@@ -726,9 +619,6 @@ const handleTaxNumberConfigUpdate = (updater: (config: IDrawStampConfig) => void
       securityPatternWidth,
       drawStampWidth,
       drawStampHeight,
-      shouldDrawStar,
-      starPositionY,
-      starDiameter,
       drawInnerCircle,
       innerCircleLineWidth,
       innerCircleWidth,
@@ -749,12 +639,7 @@ const handleTaxNumberConfigUpdate = (updater: (config: IDrawStampConfig) => void
       adjustEllipseText,
       adjustEllipseTextFactor,
       bottomTextLineSpacing,
-      useStarImage,
-      starImageWidth,
-      starImageHeight,
-      keepAspectRatio,
       innerCircleList,
-      imageList,
       drawOutBorder,
       outBorderLineWidth,
     ],
