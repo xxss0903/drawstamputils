@@ -69,12 +69,11 @@
           </div>
         </div>
         <div class="element-item"
-             v-if="stampCode.code"
              :class="{ active: selectedElement === 'code' }"
              @click.stop="selectElement('code', 'code', 0)">
           <span class="element-icon">🔢</span>
-          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code)">
-            {{ stampCode.code }}
+          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code || '')">
+            {{ stampCode.code || '编码（未设置）' }}
           </span>
           <input
             v-else
@@ -87,18 +86,18 @@
             ref="editInputRef"
           />
           <span class="element-type">编码</span>
-          <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code)" title="编辑">✏️</button>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('code', 0)" title="清除">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('code', 0)" title="删除">❌</button>
           </div>
         </div>
         <div class="element-item"
-             v-if="taxNumber.code"
              :class="{ active: selectedElement === 'taxNumber' }"
              @click.stop="selectElement('taxNumber', 'taxNumber', 0)">
           <span class="element-icon">💼</span>
-          <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)">
-            {{ taxNumber.code }}
+          <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')">
+            {{ taxNumber.code || '税号（未设置）' }}
           </span>
           <input
             v-else
@@ -111,9 +110,10 @@
             ref="editInputRef"
           />
           <span class="element-type">税号</span>
-          <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)" title="编辑">✏️</button>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" title="清除">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('taxNumber', 0)" title="删除">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -124,16 +124,15 @@
           <span class="element-name">五角星</span>
           <span class="element-type">图形</span>
         </div>
-        <template v-for="(image, index) in imageList" :key="`image-${index}`">
-          <div class="element-item"
-               v-if="image && image.imageUrl"
-               :class="{ active: selectedElement === `image-${index}` }"
-               @click="selectElement(`image-${index}`, 'image', index)">
-            <span class="element-icon">🖼️</span>
-            <span class="element-name">图片 {{ index + 1 }}</span>
-            <span class="element-type">图片</span>
-          </div>
-        </template>
+        <div class="element-item"
+             v-for="(_, index) in visibleImages"
+             :key="`image-${index}`"
+             :class="{ active: selectedElement === `image-${index}` }"
+             @click="selectElement(`image-${index}`, 'image', index)">
+          <span class="element-icon">🖼️</span>
+          <span class="element-name">图片 {{ index + 1 }}</span>
+          <span class="element-type">图片</span>
+        </div>
       </div>
 
       <!-- 文字元素 -->
@@ -189,12 +188,11 @@
           </div>
         </div>
         <div class="element-item"
-             v-if="stampCode.code"
              :class="{ active: selectedElement === 'code' }"
              @click.stop="selectElement('code', 'code', 0)">
           <span class="element-icon">🔢</span>
-          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code)">
-            {{ stampCode.code }}
+          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code || '')">
+            {{ stampCode.code || '编码（未设置）' }}
           </span>
           <input
             v-else
@@ -206,18 +204,17 @@
             @click.stop
             ref="editInputRef"
           />
-          <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code)" title="编辑">✏️</button>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('code', 0)" title="清除">🗑️</button>
           </div>
         </div>
         <div class="element-item"
-             v-if="taxNumber.code"
              :class="{ active: selectedElement === 'taxNumber' }"
              @click.stop="selectElement('taxNumber', 'taxNumber', 0)">
           <span class="element-icon">💼</span>
-          <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)">
-            {{ taxNumber.code }}
+          <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')">
+            {{ taxNumber.code || '税号（未设置）' }}
           </span>
           <input
             v-else
@@ -229,8 +226,8 @@
             @click.stop
             ref="editInputRef"
           />
-          <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code)" title="编辑">✏️</button>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" title="清除">🗑️</button>
           </div>
         </div>
@@ -253,15 +250,14 @@
           <span class="element-icon">⭕</span>
           <span class="element-name">内圈 {{ index + 1 }}</span>
         </div>
-        <template v-for="(image, index) in imageList" :key="`image-${index}`">
-          <div class="element-item"
-               v-if="image && image.imageUrl"
-               :class="{ active: selectedElement === `image-${index}` }"
-               @click="selectElement(`image-${index}`, 'image', index)">
-            <span class="element-icon">🖼️</span>
-            <span class="element-name">图片 {{ index + 1 }}</span>
-          </div>
-        </template>
+        <div class="element-item"
+             v-for="(_, index) in visibleImages"
+             :key="`image-figure-${index}`"
+             :class="{ active: selectedElement === `image-${index}` }"
+             @click="selectElement(`image-${index}`, 'image', index)">
+          <span class="element-icon">🖼️</span>
+          <span class="element-name">图片 {{ index + 1 }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -316,6 +312,7 @@ const taxNumber = computed(() => config.value.taxNumber || { code: '' })
 const drawStar = computed(() => config.value.drawStar || { drawStar: false })
 const innerCircleList = computed(() => config.value.innerCircleList || [])
 const imageList = computed(() => config.value.imageList || [])
+const visibleImages = computed(() => (imageList.value || []).filter((image) => image && image.imageUrl))
 
 const selectElement = (elementId: string, elementType: string, index: number) => {
   selectedElement.value = elementId
@@ -400,6 +397,16 @@ const deleteElement = (elementType: string, index: number) => {
         config.stampTypeList.splice(index, 1)
         // 如果删除后列表为空，取消选中
         if (config.stampTypeList.length === 0) {
+          selectedElement.value = ''
+        }
+      } else if (elementType === 'code') {
+        config.stampCode.code = ''
+        if (selectedElement.value === 'code') {
+          selectedElement.value = ''
+        }
+      } else if (elementType === 'taxNumber') {
+        config.taxNumber.code = ''
+        if (selectedElement.value === 'taxNumber') {
           selectedElement.value = ''
         }
       }
@@ -516,6 +523,7 @@ const deleteElement = (elementType: string, index: number) => {
   padding: 2px 8px;
   background: #f0f0f0;
   border-radius: 4px;
+  display: none;
 }
 
 .element-actions {
@@ -523,6 +531,10 @@ const deleteElement = (elementType: string, index: number) => {
   gap: 4px;
   opacity: 0;
   transition: opacity 0.2s;
+}
+
+.element-actions.show-always {
+  opacity: 1;
 }
 
 .element-item:hover .element-actions {
