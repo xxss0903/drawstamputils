@@ -143,6 +143,27 @@
             <button class="action-btn delete-btn" @click="deleteElement('image', imageInfo.index)" title="删除">❌</button>
           </div>
         </div>
+        <div class="element-item"
+             :class="{ active: selectedElement === 'aging' }"
+             @click.stop="selectElement('aging', 'aging', 0)">
+          <span class="element-icon">🕰️</span>
+          <span class="element-name">做旧效果</span>
+          <span class="element-type">{{ agingEffect.applyAging ? '已启用' : '未启用' }}</span>
+        </div>
+        <div class="element-item"
+             :class="{ active: selectedElement === 'roughEdge' }"
+             @click.stop="selectElement('roughEdge', 'roughEdge', 0)">
+          <span class="element-icon">🌊</span>
+          <span class="element-name">毛边效果</span>
+          <span class="element-type">{{ roughEdge.drawRoughEdge ? '已启用' : '未启用' }}</span>
+        </div>
+        <div class="element-item"
+             :class="{ active: selectedElement === 'security' }"
+             @click.stop="selectElement('security', 'security', 0)">
+          <span class="element-icon">🔒</span>
+          <span class="element-name">防伪纹路</span>
+          <span class="element-type">{{ securityPattern.openSecurityPattern ? '已启用' : '未启用' }}</span>
+        </div>
       </div>
 
       <!-- 文字元素 -->
@@ -279,6 +300,31 @@
           <span>添加图片</span>
         </button>
       </div>
+
+      <!-- 效果元素 -->
+      <div v-show="activeTab === 'effect'" class="element-category">
+        <div class="element-item"
+             :class="{ active: selectedElement === 'aging' }"
+             @click.stop="selectElement('aging', 'aging', 0)">
+          <span class="element-icon">🕰️</span>
+          <span class="element-name">做旧效果</span>
+          <span class="element-type">{{ agingEffect.applyAging ? '已启用' : '未启用' }}</span>
+        </div>
+        <div class="element-item"
+             :class="{ active: selectedElement === 'roughEdge' }"
+             @click.stop="selectElement('roughEdge', 'roughEdge', 0)">
+          <span class="element-icon">🌊</span>
+          <span class="element-name">毛边效果</span>
+          <span class="element-type">{{ roughEdge.drawRoughEdge ? '已启用' : '未启用' }}</span>
+        </div>
+        <div class="element-item"
+             :class="{ active: selectedElement === 'security' }"
+             @click.stop="selectElement('security', 'security', 0)">
+          <span class="element-icon">🔒</span>
+          <span class="element-name">防伪纹路</span>
+          <span class="element-type">{{ securityPattern.openSecurityPattern ? '已启用' : '未启用' }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -300,7 +346,7 @@ const emit = defineEmits<{
   (e: 'refresh'): void
 }>()
 
-const activeTab = ref<'all' | 'text' | 'figure'>('all')
+const activeTab = ref<'all' | 'text' | 'figure' | 'effect'>('all')
 const selectedElement = ref<string>('')
 
 // 编辑相关状态
@@ -313,7 +359,8 @@ const editInputRef = ref<HTMLInputElement | null>(null)
 const tabs = [
   { key: 'all' as const, label: '全部' },
   { key: 'text' as const, label: '文字' },
-  { key: 'figure' as const, label: '图形' }
+  { key: 'figure' as const, label: '图形' },
+  { key: 'effect' as const, label: '效果' }
 ]
 
 const stampStore = useStampStore()
@@ -336,6 +383,9 @@ const visibleImages = computed(() =>
     .map((image, index) => ({ image, index }))
     .filter((item) => item.image && item.image.imageUrl)
 )
+const agingEffect = computed(() => config.value.agingEffect || { applyAging: false })
+const roughEdge = computed(() => config.value.roughEdge || { drawRoughEdge: false })
+const securityPattern = computed(() => config.value.securityPattern || { openSecurityPattern: false })
 
 const selectElement = (elementId: string, elementType: string, index: number) => {
   selectedElement.value = elementId

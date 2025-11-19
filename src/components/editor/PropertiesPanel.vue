@@ -44,7 +44,7 @@ const handleUpdateDrawStamp = (
 }
 
 // 元素类型到设置组名称的映射
-const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 'code' | 'taxNumber' | 'star' | 'innerCircle' | 'images'> = {
+const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 'code' | 'taxNumber' | 'star' | 'innerCircle' | 'images' | 'aging' | 'roughEdge' | 'security'> = {
   'basic': 'basic',
   'company': 'company',
   'stampType': 'stampType',
@@ -52,7 +52,10 @@ const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 
   'taxNumber': 'taxNumber',
   'star': 'star',
   'circle': 'innerCircle',
-  'image': 'images'
+  'image': 'images',
+  'aging': 'aging',
+  'roughEdge': 'roughEdge',
+  'security': 'security'
 }
 
 // 监听元素选择变化，自动展开对应的设置组，收起其他组
