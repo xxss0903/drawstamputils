@@ -510,8 +510,8 @@ const loadTemplatesFromStorage = async () => {
     try {
       // 临时创建一个 canvas 生成预览图
       const tempCanvas = document.createElement('canvas')
-      tempCanvas.width = 200
-      tempCanvas.height = 200
+      tempCanvas.width = 500
+      tempCanvas.height = 500
       const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
 
       // 复制配置并关闭标尺
