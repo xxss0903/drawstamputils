@@ -40,7 +40,7 @@
         <div class="toolbar-left">
           <span v-if="false" class="app-title">DrawStamp - 印章制作工具</span>
         </div>
-        <div class="toolbar-center">
+        <div v-if="false" class="toolbar-center">
           <button class="tool-icon" title="添加文字">
             <span>A+</span>
           </button>
@@ -91,10 +91,10 @@
             <canvas ref="stampCanvas" width="600" height="600"></canvas>
           </div>
           <div class="canvas-footer">
-            <button class="canvas-action-btn" title="可见性">
+            <button v-if="false" class="canvas-action-btn" title="可见性">
               <span>👁️</span>
             </button>
-            <button class="canvas-action-btn" title="效果">
+            <button v-if="false" class="canvas-action-btn" title="效果">
               <span>✨</span>
             </button>
             <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
