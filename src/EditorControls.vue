@@ -642,6 +642,39 @@ const expandGroup = (groupName: GroupKey) => {
   })
 }
 
+  // 只展开指定的设置组，收起其他所有组
+const expandOnlyGroup = (groupName: GroupKey) => {
+  // 先收起所有组
+  Object.keys(expandedGroups).forEach((key) => {
+    expandedGroups[key as GroupKey] = false
+  })
+  // 然后展开指定的组
+  expandedGroups[groupName] = true
+  // 等待 DOM 更新后滚动到对应位置
+  nextTick(() => {
+    // 根据组名查找对应的设置组元素
+    let selector = '.control-group'
+    if (groupName === 'code') {
+      selector = '.stamp-code-group'
+    } else if (groupName === 'taxNumber') {
+      selector = '.tax-number-group'
+    }
+
+    // 查找所有匹配的元素，然后找到对应的那个
+    const allGroups = document.querySelectorAll(selector)
+    if (allGroups.length > 0) {
+      // 根据组名在 expandedGroups 中的顺序来定位
+      const groupKeys = Object.keys(expandedGroups) as GroupKey[]
+      const groupIndex = groupKeys.indexOf(groupName)
+      if (groupIndex >= 0 && allGroups[groupIndex]) {
+        allGroups[groupIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      } else if (allGroups[0]) {
+        allGroups[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+  })
+}
+
   // 添加新的响应式变量
   const showSecurityWarning = ref(localStorage.getItem('showSecurityWarning') !== 'false')
 
@@ -710,6 +743,7 @@ const expandGroup = (groupName: GroupKey) => {
   // 暴露方法给父组件
   defineExpose({
     expandGroup,
+    expandOnlyGroup,
     scrollToCompanyText,
     scrollToCode,
     scrollToStampType,

@@ -334,11 +334,25 @@ export class DrawStampUtils {
         }
 
         // 计算绘制位置（考虑偏移）
-        const x = centerX - width / 2 + imageConfig.positionX * this.mmToPixel;
-        const y = centerY - height / 2 + imageConfig.positionY * this.mmToPixel;
+        const x = centerX + imageConfig.positionX * this.mmToPixel;
+        const y = centerY + imageConfig.positionY * this.mmToPixel;
+
+        // 获取旋转角度（度转弧度）
+        const rotation = (imageConfig.rotation || 0) * Math.PI / 180;
 
         ctx.save();
-        ctx.drawImage(img, x, y, width, height);
+        
+        // 如果有旋转角度，先平移再旋转
+        if (rotation !== 0) {
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
+            // 旋转后，绘制位置需要相对于旋转中心（0,0）
+            ctx.drawImage(img, -width / 2, -height / 2, width, height);
+        } else {
+            // 没有旋转，直接绘制
+            ctx.drawImage(img, x - width / 2, y - height / 2, width, height);
+        }
+        
         ctx.restore();
     }
 

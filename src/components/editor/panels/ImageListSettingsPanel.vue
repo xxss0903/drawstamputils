@@ -43,25 +43,45 @@
         </label>
         <label>
           {{ t('stamp.images.positionX') }}:
-          <input
-            type="number"
-            :value="image.positionX"
-            min="-20"
-            max="20"
-            step="0.5"
-            @input="updateImage(index, 'positionX', parseNumber($event))"
-          />
+          <div class="range-container">
+            <input
+              type="range"
+              :value="image.positionX"
+              min="-20"
+              max="20"
+              step="0.1"
+              @input="updateImage(index, 'positionX', parseNumber($event))"
+            />
+            <span>{{ image.positionX.toFixed(1) }}</span>
+          </div>
         </label>
         <label>
           {{ t('stamp.images.positionY') }}:
-          <input
-            type="number"
-            :value="image.positionY"
-            min="-20"
-            max="20"
-            step="0.5"
-            @input="updateImage(index, 'positionY', parseNumber($event))"
-          />
+          <div class="range-container">
+            <input
+              type="range"
+              :value="image.positionY"
+              min="-20"
+              max="20"
+              step="0.1"
+              @input="updateImage(index, 'positionY', parseNumber($event))"
+            />
+            <span>{{ image.positionY.toFixed(1) }}</span>
+          </div>
+        </label>
+        <label>
+          旋转角度:
+          <div class="range-container">
+            <input
+              type="range"
+              :value="image.rotation || 0"
+              min="0"
+              max="360"
+              step="1"
+              @input="updateImage(index, 'rotation', parseNumber($event))"
+            />
+            <span>{{ (image.rotation || 0).toFixed(0) }}°</span>
+          </div>
         </label>
         <label class="checkbox-label">
           <input
@@ -134,7 +154,8 @@ const addImage = () => {
         imageHeight: 10,
         positionX: 0,
         positionY: 0,
-        keepAspectRatio: true
+        keepAspectRatio: true,
+        rotation: 0
       })
     }
   })
@@ -154,4 +175,23 @@ const handleImageUpload = (event: Event, index: number) => {
   }
 }
 </script>
+
+<style scoped>
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-container input[type="range"] {
+  flex: 1;
+}
+
+.range-container span {
+  min-width: 50px;
+  text-align: right;
+  font-size: 14px;
+  color: #666;
+}
+</style>
 

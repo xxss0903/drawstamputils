@@ -274,6 +274,10 @@
             <button class="action-btn delete-btn" @click="deleteElement('image', imageInfo.index)" title="删除">❌</button>
           </div>
         </div>
+        <button class="add-image-button" @click="addImage">
+          <span class="add-icon">➕</span>
+          <span>添加图片</span>
+        </button>
       </div>
     </div>
   </div>
@@ -281,7 +285,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
-import { IDrawStampConfig } from '../../DrawStampTypes'
+import { IDrawStampConfig, IDrawImage } from '../../DrawStampTypes'
 import { useStampStore } from '../../stores/stampStore'
 
 interface Props {
@@ -445,6 +449,34 @@ const deleteElement = (elementType: string, index: number) => {
     emit('refresh')
   }
 }
+
+// 添加图片
+const addImage = () => {
+  stampStore.updateConfig((config) => {
+    if (!config.imageList) {
+      config.imageList = []
+    }
+    if (config.imageList.length < 10) {
+      config.imageList.push({
+        imageUrl: '',
+        imageWidth: 10,
+        imageHeight: 10,
+        positionX: 0,
+        positionY: 0,
+        keepAspectRatio: true,
+        rotation: 0
+      } as IDrawImage)
+      // 自动选中新添加的图片
+      const newIndex = config.imageList.length - 1
+      nextTick(() => {
+        selectElement(`image-${newIndex}`, 'image', newIndex)
+      })
+    }
+  })
+  
+  emit('updateConfig')
+  emit('refresh')
+}
 </script>
 
 <style scoped>
@@ -583,6 +615,33 @@ const deleteElement = (elementType: string, index: number) => {
   justify-content: center;
   width: 24px;
   height: 24px;
+}
+
+.add-image-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: #f0f0f0;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #666;
+}
+
+.add-image-button:hover {
+  background: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.add-icon {
+  font-size: 16px;
 }
 
 .action-btn:hover {

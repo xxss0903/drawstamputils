@@ -104,6 +104,7 @@ export type IDrawImage = {
   positionX: number
   positionY: number
   keepAspectRatio: boolean
+  rotation?: number // 旋转角度（度），0-360
 }
 
 // 绘制五角星

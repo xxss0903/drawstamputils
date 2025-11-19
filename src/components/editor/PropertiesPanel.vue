@@ -55,16 +55,18 @@ const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 
   'image': 'images'
 }
 
-// 监听元素选择变化，自动展开对应的设置组
+// 监听元素选择变化，自动展开对应的设置组，收起其他组
 watch(() => props.elementType, (newType) => {
   if (newType && editorControlsRef.value) {
     const groupName = elementTypeToGroupMap[newType]
     if (groupName) {
       nextTick(() => {
-        editorControlsRef.value?.expandGroup(groupName)
+        // 使用 expandOnlyGroup 只展开当前组，收起其他所有组
+        editorControlsRef.value?.expandOnlyGroup(groupName)
       })
     }
   }
+  // 如果没有选中元素，不需要做任何操作，保持当前状态
 }, { immediate: true })
 
 // 暴露方法供父组件调用
