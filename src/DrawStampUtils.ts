@@ -920,22 +920,27 @@ export class DrawStampUtils {
         ctx.save()
         // 添加毛边效果
 
-        if (this.drawStampConfigs.roughEdge.drawRoughEdge) {
-            if (isRectangle) {
-                // 矩形毛边效果（暂时使用椭圆方法，后续可以优化）
-                this.addRoughEdge(offscreenCtx, centerX, centerY, rectWidth / 2, rectHeight / 2, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, refreshRoughEdge)
-            } else {
-                this.addRoughEdge(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, refreshRoughEdge)
-            }
+        if (!isRectangle && this.drawStampConfigs.roughEdge.drawRoughEdge) {
+            this.addRoughEdge(
+                offscreenCtx,
+                centerX,
+                centerY,
+                radiusX,
+                radiusY,
+                this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel,
+                refreshRoughEdge
+            );
         }
-        if(this.drawStampConfigs.securityPattern.openSecurityPattern) {
-            // 绘制防伪纹路
-            if (isRectangle) {
-                // 矩形防伪纹路（暂时使用椭圆方法，后续可以优化）
-                this.drawSecurityPatternUtils.drawSecurityPattern(offscreenCtx, this.drawStampConfigs.securityPattern, centerX, centerY, rectWidth / 2, rectHeight / 2, refreshSecurityPattern)
-            } else {
-                this.drawSecurityPatternUtils.drawSecurityPattern(offscreenCtx, this.drawStampConfigs.securityPattern, centerX, centerY, radiusX, radiusY, refreshSecurityPattern)
-            }
+        if (!isRectangle && this.drawStampConfigs.securityPattern.openSecurityPattern) {
+            this.drawSecurityPatternUtils.drawSecurityPattern(
+                offscreenCtx,
+                this.drawStampConfigs.securityPattern,
+                centerX,
+                centerY,
+                radiusX,
+                radiusY,
+                refreshSecurityPattern
+            );
         }
 
         // 设置合成模式，确保印章内容只在椭圆区域内显示
@@ -943,7 +948,7 @@ export class DrawStampUtils {
         ctx.drawImage(offscreenCanvas, 0, 0)
         ctx.restore()
         // 添加做旧效果
-        if (this.drawStampConfigs.agingEffect.applyAging) {
+        if (!isRectangle && this.drawStampConfigs.agingEffect.applyAging) {
             this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
         }
     }
