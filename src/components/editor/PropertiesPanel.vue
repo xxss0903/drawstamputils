@@ -2,12 +2,18 @@
   <div class="properties-panel">
     <div class="panel-header">
       <h3>属性设置</h3>
+      <label class="show-all-toggle">
+        <input type="checkbox" v-model="showAll" />
+        <span>显示全部</span>
+      </label>
     </div>
     <div class="panel-content">
       <EditorControls
         v-if="drawStampUtils"
         ref="editorControlsRef"
         :drawStampUtils="drawStampUtils"
+        :selected-element-type="elementType"
+        :show-all="showAll"
         @updateDrawStamp="handleUpdateDrawStamp"
       />
     </div>
@@ -27,6 +33,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// 控制是否显示全部设置面板，默认关闭
+const showAll = ref(false)
 
 const emit = defineEmits<{
   (e: 'updateDrawStamp', config: IDrawStampConfig, refreshSecurityPattern: boolean, refreshOld: boolean, refreshRoughEdge: boolean): void
@@ -58,19 +67,8 @@ const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 
   'security': 'security'
 }
 
-// 监听元素选择变化，自动展开对应的设置组，收起其他组
-watch(() => props.elementType, (newType) => {
-  if (newType && editorControlsRef.value) {
-    const groupName = elementTypeToGroupMap[newType]
-    if (groupName) {
-      nextTick(() => {
-        // 使用 expandOnlyGroup 只展开当前组，收起其他所有组
-        editorControlsRef.value?.expandOnlyGroup(groupName)
-      })
-    }
-  }
-  // 如果没有选中元素，不需要做任何操作，保持当前状态
-}, { immediate: true })
+// 元素类型变化时，EditorControls 会根据 selectedElementType 自动显示/隐藏对应的 control-group
+// 这里不需要额外的处理逻辑
 
 // 暴露方法供父组件调用
 defineExpose({
@@ -108,6 +106,9 @@ defineExpose({
   border-bottom: 1px solid #e0e0e0;
   background: #f8f9fa;
   flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .panel-header h3 {
@@ -115,6 +116,24 @@ defineExpose({
   font-size: 16px;
   font-weight: 600;
   color: #333;
+}
+
+.show-all-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  user-select: none;
+}
+
+.show-all-toggle input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.show-all-toggle span {
+  cursor: pointer;
 }
 
 .panel-content {

@@ -2,7 +2,8 @@
     <div class="editor-container" :class="{ 'has-warning': showSecurityWarning }">
       <div class="editor-controls" ref="editorControls">
         <BasicSettingsPanel
-          :expanded="expandedGroups.basic"
+          v-show="props.showAll || currentGroupName === 'basic'"
+          :expanded="props.showAll ? expandedGroups.basic : true"
           :is-circle-detect="isCircleDetect"
           :config="getDrawConfigs()"
           @update:expanded="value => (expandedGroups.basic = value)"
@@ -11,7 +12,8 @@
         />
 
         <CompanySettingsPanel
-          :expanded="expandedGroups.company"
+          v-show="props.showAll || currentGroupName === 'company'"
+          :expanded="props.showAll ? expandedGroups.company : true"
           :config="getDrawConfigs()"
           :system-fonts="systemFonts"
           @update:expanded="value => (expandedGroups.company = value)"
@@ -19,7 +21,8 @@
         />
 
         <StampTypeSettingsPanel
-          :expanded="expandedGroups.stampType"
+          v-show="props.showAll || currentGroupName === 'stampType'"
+          :expanded="props.showAll ? expandedGroups.stampType : true"
           :config="getDrawConfigs()"
           :system-fonts="systemFonts"
           @update:expanded="value => (expandedGroups.stampType = value)"
@@ -27,7 +30,8 @@
         />
 
         <CodeSettingsPanel
-          :expanded="expandedGroups.code"
+          v-show="props.showAll || currentGroupName === 'code'"
+          :expanded="props.showAll ? expandedGroups.code : true"
           :config="getDrawConfigs()"
           :system-fonts="systemFonts"
           @update:expanded="value => (expandedGroups.code = value)"
@@ -35,7 +39,8 @@
         />
 
         <TaxNumberSettingsPanel
-          :expanded="expandedGroups.taxNumber"
+          v-show="props.showAll || currentGroupName === 'taxNumber'"
+          :expanded="props.showAll ? expandedGroups.taxNumber : true"
           :config="getDrawConfigs()"
           :system-fonts="systemFonts"
           @update:expanded="value => (expandedGroups.taxNumber = value)"
@@ -43,21 +48,24 @@
         />
 
         <ImageListSettingsPanel
-          :expanded="expandedGroups.images"
+          v-show="props.showAll || currentGroupName === 'images'"
+          :expanded="props.showAll ? expandedGroups.images : true"
           :config="getDrawConfigs()"
           @update:expanded="value => (expandedGroups.images = value)"
           @update-config="handleImageListConfigUpdate"
         />
 
         <StarSettingsPanel
-          :expanded="expandedGroups.star"
+          v-show="props.showAll || currentGroupName === 'star'"
+          :expanded="props.showAll ? expandedGroups.star : true"
           :config="getDrawConfigs()"
           @update:expanded="value => (expandedGroups.star = value)"
           @update-config="handleStarConfigUpdate"
         />
 
         <SecurityPatternSettingsPanel
-          :expanded="expandedGroups.security"
+          v-show="props.showAll || currentGroupName === 'security'"
+          :expanded="props.showAll ? expandedGroups.security : true"
           :config="getDrawConfigs()"
           @update:expanded="value => (expandedGroups.security = value)"
           @update-config="handleSecurityPatternConfigUpdate"
@@ -65,7 +73,8 @@
         />
 
         <RoughEdgeSettingsPanel
-          :expanded="expandedGroups.roughEdge"
+          v-show="props.showAll || currentGroupName === 'roughEdge'"
+          :expanded="props.showAll ? expandedGroups.roughEdge : true"
           :config="getDrawConfigs()"
           @update:expanded="value => (expandedGroups.roughEdge = value)"
           @update-config="handleRoughEdgeConfigUpdate"
@@ -73,7 +82,8 @@
         />
 
         <AgingEffectSettingsPanel
-          :expanded="expandedGroups.aging"
+          v-show="props.showAll || currentGroupName === 'aging'"
+          :expanded="props.showAll ? expandedGroups.aging : true"
           :config="getDrawConfigs()"
           @update:expanded="value => (expandedGroups.aging = value)"
           @update-config="handleAgingEffectConfigUpdate"
@@ -81,7 +91,8 @@
         />
 
         <InnerCircleSettingsPanel
-          :expanded="expandedGroups.innerCircle"
+          v-show="props.showAll || currentGroupName === 'innerCircle'"
+          :expanded="props.showAll ? expandedGroups.innerCircle : true"
           :config="getDrawConfigs()"
           @update:expanded="value => (expandedGroups.innerCircle = value)"
           @update-config="handleInnerCircleConfigUpdate"
@@ -90,7 +101,7 @@
     </div>
   </template>
   <script setup lang="ts">
-import { ref, reactive, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
   import {DrawStampUtils} from './DrawStampUtils'
   import { getSystemFonts } from './utils/fontUtils'
 import { ICompany, IDrawStampConfig, IInnerCircle, IStampType } from './DrawStampTypes'
@@ -115,7 +126,30 @@ import InnerCircleSettingsPanel from './components/editor/panels/InnerCircleSett
   // 将drawStampUtils作为props传递给EditorControls
   const props = defineProps<{
     drawStampUtils: DrawStampUtils
+    selectedElementType?: string
+    showAll?: boolean
     }>()
+
+  // 元素类型到设置组名称的映射
+  const elementTypeToGroupMap: Record<string, string> = {
+    'basic': 'basic',
+    'company': 'company',
+    'stampType': 'stampType',
+    'code': 'code',
+    'taxNumber': 'taxNumber',
+    'star': 'star',
+    'circle': 'innerCircle',
+    'image': 'images',
+    'aging': 'aging',
+    'roughEdge': 'roughEdge',
+    'security': 'security'
+  }
+
+  // 获取当前应该显示的组名
+  const currentGroupName = computed(() => {
+    if (!props.selectedElementType) return ''
+    return elementTypeToGroupMap[props.selectedElementType] || ''
+  })
 
   // 更新drawStampUtils，更新绘制印章
   const emit = defineEmits(['updateDrawStamp'])
