@@ -38,7 +38,7 @@
       <!-- 顶部工具栏 -->
       <div class="top-toolbar">
         <div class="toolbar-left">
-          <span class="app-title">DrawStamp - 印章制作工具</span>
+          <span v-if="false" class="app-title">DrawStamp - 印章制作工具</span>
         </div>
         <div class="toolbar-center">
           <button class="tool-icon" title="添加文字">
@@ -832,7 +832,6 @@ watch(isDraggable, (newValue) => {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  overflow: auto;
   background:
     linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
     linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),

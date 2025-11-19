@@ -314,6 +314,7 @@ const handleIsCircleDetectChange = (value: boolean) => {
 
 const handleBasicConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
   stampStore.updateConfig((config) => {
+    console.log("update config company", config.company)
     updater(config)
   })
   restoreDrawConfigs()
@@ -625,7 +626,7 @@ const expandGroup = (groupName: GroupKey) => {
     } else if (groupName === 'taxNumber') {
       selector = '.tax-number-group'
     }
-    
+
     // 查找所有匹配的元素，然后找到对应的那个
     const allGroups = document.querySelectorAll(selector)
     if (allGroups.length > 0) {
