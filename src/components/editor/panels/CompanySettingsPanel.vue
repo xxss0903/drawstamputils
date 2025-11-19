@@ -174,6 +174,36 @@
             />
             <span class="help-text">文字距离边框的距离</span>
           </label>
+          <label>
+            水平位置调整 (mm):
+            <div class="range-container">
+              <input
+                type="range"
+                :value="company.rectanglePositionX || 0"
+                min="-20"
+                max="20"
+                step="0.1"
+                @input="onNumberInput(index, 'rectanglePositionX', $event)"
+              />
+              <span>{{ (company.rectanglePositionX || 0).toFixed(1) }}</span>
+            </div>
+            <span class="help-text">正数向右，负数向左</span>
+          </label>
+          <label>
+            垂直位置调整 (mm):
+            <div class="range-container">
+              <input
+                type="range"
+                :value="company.rectanglePositionY || 0"
+                min="-20"
+                max="20"
+                step="0.1"
+                @input="onNumberInput(index, 'rectanglePositionY', $event)"
+              />
+              <span>{{ (company.rectanglePositionY || 0).toFixed(1) }}</span>
+            </div>
+            <span class="help-text">正数向下，负数向上</span>
+          </label>
         </template>
       </div>
       <button class="add-button" @click="addCompany">{{ t('stamp.common.addNew') }}</button>
@@ -286,7 +316,9 @@ const addCompany = () => {
         rectangleTextAlignment: last?.rectangleTextAlignment || 'center',
         rectangleVerticalAlignment: last?.rectangleVerticalAlignment || 'center',
         rectangleLineSpacing: last?.rectangleLineSpacing || 0,
-        rectangleTextMargin: last?.rectangleTextMargin || 1
+        rectangleTextMargin: last?.rectangleTextMargin || 1,
+        rectanglePositionX: last?.rectanglePositionX || 0,
+        rectanglePositionY: last?.rectanglePositionY || 0
       }
     } else {
       // 椭圆印章：使用原有的逻辑

@@ -211,6 +211,12 @@ export class DrawCompanyUtils {
         const textAlignment = company.rectangleTextAlignment || 'center'
         const verticalAlignment = company.rectangleVerticalAlignment || 'center'
         const lineSpacing = (company.rectangleLineSpacing || 0) * this.mmToPixel
+        
+        // 应用位置偏移量（毫米转像素）
+        const positionOffsetX = (company.rectanglePositionX || 0) * this.mmToPixel
+        const positionOffsetY = (company.rectanglePositionY || 0) * this.mmToPixel
+        const adjustedCenterX = centerX + positionOffsetX
+        const adjustedCenterY = centerY + positionOffsetY
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`
@@ -225,8 +231,8 @@ export class DrawCompanyUtils {
             this.drawHorizontalTextWithWrap(
                 ctx,
                 company.companyName,
-                centerX,
-                centerY,
+                adjustedCenterX,
+                adjustedCenterY,
                 rectWidth,
                 rectHeight,
                 fontSize,
@@ -240,8 +246,8 @@ export class DrawCompanyUtils {
             this.drawVerticalTextWithWrap(
                 ctx,
                 company.companyName,
-                centerX,
-                centerY,
+                adjustedCenterX,
+                adjustedCenterY,
                 rectWidth,
                 rectHeight,
                 fontSize,

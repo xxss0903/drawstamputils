@@ -48,7 +48,9 @@ export class InitDrawStampConfigsUtils {
         rectangleTextAlignment: 'center',
         rectangleVerticalAlignment: 'center',
         rectangleLineSpacing: 0,
-        rectangleTextMargin: 1
+        rectangleTextMargin: 1,
+        rectanglePositionX: 0,
+        rectanglePositionY: 0
     }
     private taxNumber: ITaxNumber = {
         code: '000000000000000000',
