@@ -21,12 +21,18 @@ export function drawRectangleBorder(
     borderWidth: number,
     borderColor: string
 ) {
+    // 让描边完全限制在给定的宽高范围内
+    const adjustedWidth = Math.max(width - borderWidth, 0);
+    const adjustedHeight = Math.max(height - borderWidth, 0);
+    const halfWidth = adjustedWidth / 2;
+    const halfHeight = adjustedHeight / 2;
+
     ctx.beginPath();
     ctx.rect(
-        centerX - width / 2,
-        centerY - height / 2,
-        width,
-        height
+        centerX - halfWidth,
+        centerY - halfHeight,
+        adjustedWidth,
+        adjustedHeight
     );
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = borderWidth;
