@@ -254,27 +254,66 @@ const addCompany = () => {
     }
     const list = config.companyList
     const last = list[list.length - 1]
-    const nextBorderOffset = last ? last.borderOffset + last.fontHeight : 1
-    list.push({
-      companyName: '新公司名称',
-      compression: 1,
-      borderOffset: nextBorderOffset,
-      textDistributionFactor: 3,
-      fontFamily: 'SimSun',
-      fontHeight: 4.2,
-      fontWeight: 'normal',
-      shape: 'ellipse',
-      adjustEllipseText: false,
-      adjustEllipseTextFactor: 0.5,
-      startAngle: 0,
-      rotateDirection: 'counterclockwise',
-      rectangleTextDirection: 'horizontal',
-      rectangleTextPosition: 'center',
-      rectangleTextAlignment: 'center',
-      rectangleVerticalAlignment: 'center',
-      rectangleLineSpacing: 0,
-      rectangleTextMargin: 1
-    })
+    
+    // 获取当前印章的形状
+    const currentShape = config.company.shape || 'ellipse'
+    
+    // 根据印章形状设置不同的默认值
+    let newCompany: ICompany
+    
+    if (currentShape === 'rectangle') {
+      // 矩形印章：根据已有公司的位置来分配新位置
+      const usedPositions = new Set(list.map(c => c.rectangleTextPosition))
+      const availablePositions: Array<'top' | 'bottom' | 'left' | 'right' | 'center'> = 
+        ['top', 'bottom', 'left', 'right', 'center']
+      const nextPosition = availablePositions.find(pos => !usedPositions.has(pos)) || 'center'
+      
+      newCompany = {
+        companyName: '新公司名称',
+        compression: 1,
+        borderOffset: 1, // 矩形印章的 borderOffset 主要用于兼容，实际使用 rectangleTextMargin
+        textDistributionFactor: 3,
+        fontFamily: last?.fontFamily || 'SimSun',
+        fontHeight: last?.fontHeight || 4.2,
+        fontWeight: last?.fontWeight || 'normal',
+        shape: 'rectangle',
+        adjustEllipseText: false,
+        adjustEllipseTextFactor: 0.5,
+        startAngle: 0,
+        rotateDirection: 'counterclockwise',
+        rectangleTextDirection: last?.rectangleTextDirection || 'horizontal',
+        rectangleTextPosition: nextPosition,
+        rectangleTextAlignment: last?.rectangleTextAlignment || 'center',
+        rectangleVerticalAlignment: last?.rectangleVerticalAlignment || 'center',
+        rectangleLineSpacing: last?.rectangleLineSpacing || 0,
+        rectangleTextMargin: last?.rectangleTextMargin || 1
+      }
+    } else {
+      // 椭圆印章：使用原有的逻辑
+      const nextBorderOffset = last ? last.borderOffset + last.fontHeight : 1
+      newCompany = {
+        companyName: '新公司名称',
+        compression: 1,
+        borderOffset: nextBorderOffset,
+        textDistributionFactor: 3,
+        fontFamily: last?.fontFamily || 'SimSun',
+        fontHeight: last?.fontHeight || 4.2,
+        fontWeight: last?.fontWeight || 'normal',
+        shape: 'ellipse',
+        adjustEllipseText: false,
+        adjustEllipseTextFactor: 0.5,
+        startAngle: last?.startAngle || 0,
+        rotateDirection: last?.rotateDirection || 'counterclockwise',
+        rectangleTextDirection: 'horizontal',
+        rectangleTextPosition: 'center',
+        rectangleTextAlignment: 'center',
+        rectangleVerticalAlignment: 'center',
+        rectangleLineSpacing: 0,
+        rectangleTextMargin: 1
+      }
+    }
+    
+    list.push(newCompany)
   })
 }
 </script>
