@@ -58,7 +58,7 @@
           </button>
         </div>
         <div class="toolbar-right">
-          <button class="primary-button" @click="showTemplateDialog = true">
+          <button v-if="false" class="primary-button" @click="showTemplateDialog = true">
             < Templates
           </button>
           <button class="primary-button" @click="saveStampAsPNG">
