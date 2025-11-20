@@ -167,8 +167,24 @@ export class DrawStampUtils {
                 const agingIntensity = this.drawStampConfigs.agingEffect.agingIntensity / 100;
                 this.addManualAgingEffect(x, y, agingIntensity);
             } else {
+                // 始终调用 onMouseMove 以显示 crossline，即使不拖动
                 if (this.isDraggable) {
                     this.onMouseMove(event)
+                } else {
+                    // 即使不拖动，也要显示 crossline
+                    const rect = this.canvas.getBoundingClientRect()
+                    const x = event.clientX - rect.left
+                    const y = event.clientY - rect.top
+                    const mmX = Math.round(((x - RULER_WIDTH * this.mmToPixel) / this.mmToPixel) * 10) / 10
+                    const mmY = Math.round(((y - RULER_HEIGHT * this.mmToPixel) / this.mmToPixel) * 10) / 10
+
+                    this.refreshStamp()
+                    if (this.drawStampConfigs.ruler.showCurrentPositionText) {
+                        this.drawRulerUtils.drawCurrentPositionText(this.canvasCtx, mmX, mmY, this.scale, RULER_WIDTH * this.mmToPixel, RULER_HEIGHT * this.mmToPixel)
+                    }
+                    if (this.drawStampConfigs.ruler.showCrossLine) {
+                        this.drawRulerUtils.drawPositionCrossLines(this.offscreenCanvas, this.canvas, RULER_WIDTH * this.mmToPixel, RULER_HEIGHT * this.mmToPixel, x, y, this.drawStampConfigs.primaryColor)
+                    }
                 }
             }
         })
