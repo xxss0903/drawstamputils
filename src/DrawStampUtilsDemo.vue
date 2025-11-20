@@ -126,10 +126,18 @@
         <div class="template-bar-header">
           <h4>📋 模板选择</h4>
           <div class="template-bar-actions">
-            <button class="load-template-btn" @click="showTemplateDialog = true">
-              <span>📂</span>
-              加载模板文件
+            <button class="load-template-btn" @click="triggerTemplateFileLoad" :disabled="isLoadingTemplate">
+              <span v-if="!isLoadingTemplate">📂</span>
+              <span v-else class="loading-spinner-small"></span>
+              {{ isLoadingTemplate ? '加载中...' : '加载模板文件' }}
             </button>
+            <input
+              type="file"
+              ref="templateFileInput"
+              style="display: none"
+              accept=".json"
+              @change="loadTemplateFile"
+            />
             <button class="save-template-btn" @click="saveCurrentAsTemplate">
               <span>💾</span>
               保存当前模板
@@ -403,12 +411,83 @@ interface Template {
 
 // 添加模板相关的响应式数据
 const currentTemplateIndex = ref(-1)
+const templateFileInput = ref<HTMLInputElement | null>(null)
+const isLoadingTemplate = ref(false)
+
+// 触发文件选择
+const triggerTemplateFileLoad = () => {
+  templateFileInput.value?.click()
+}
+
+// 加载模板文件
+const loadTemplateFile = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (!input.files?.length) return
+
+  try {
+    isLoadingTemplate.value = true
+    const file = input.files[0]
+    const text = await file.text()
+    const config = JSON.parse(text) as IDrawStampConfig
+
+    // 关闭模板弹窗（如果打开）
+    showTemplateDialog.value = false
+
+    isDrawStampUtilsReady.value = false
+    // 绘制印章
+    drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
+    drawStamp()
+    // 初始化所有字体选择器的预览
+    document.querySelectorAll('.font-select, .font-input').forEach((element) => {
+      if (element instanceof HTMLElement) {
+        updateFontPreview({ target: element } as unknown as Event);
+      }
+    });
+    isDrawStampUtilsReady.value = true
+    window.addEventListener('mousemove', handleMouseMove)
+    drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
+
+    // 将选中的config进行设置
+    const newConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
+    newConfig.ruler.showRuler = true
+    newConfig.ruler.showFullRuler = true
+    newConfig.ruler.showSideRuler = true
+    newConfig.ruler.showCrossLine = true
+    newConfig.ruler.showCurrentPositionText = true
+    newConfig.ruler.showDashLine = true
+    if (config.company) {
+      newConfig.company.startAngle = config.company.startAngle
+      newConfig.company.rotateDirection = config.company.rotateDirection
+    }
+
+    drawStampUtils.setDrawConfigs(newConfig)
+    drawStamp()
+    setTimeout(() => {
+      isDrawStampUtilsReady.value = true
+      console.log("refresh editor controls")
+      propertiesPanelRef.value?.restoreDrawConfigs()
+    }, 100)
+
+    // 重置模板索引（因为是从文件加载的）
+    currentTemplateIndex.value = -1
+  } catch (error) {
+    console.error('加载模板文件失败:', error)
+    alert('加载模板文件失败，请检查文件格式是否正确')
+  } finally {
+    isLoadingTemplate.value = false
+    // 清除文件选择，以便可以再次选择同一个文件
+    if (input) {
+      input.value = ''
+    }
+  }
+}
 
 // 保存当前设置为模板
 const saveCurrentAsTemplate = async () => {
   // 保存到本地存储（如果需要保存自定义模板，可以在这里实现）
   const currentConfig = drawStampUtils.getDrawConfigs()
-  const jsonStr = JSON.stringify(currentConfig, null, 2)
+  // 使用紧凑格式（无缩进和换行）来减小文件大小
+  const jsonStr = JSON.stringify(currentConfig)
   const blob = new Blob([jsonStr], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
@@ -423,6 +502,9 @@ const saveCurrentAsTemplate = async () => {
 // 加载模板，从模板弹窗选中模板，需要将模板的值设置到左边设置里面
 const loadSelectedTemplate = (template: Template) => {
   try {
+    // 关闭模板弹窗
+    showTemplateDialog.value = false
+
     isDrawStampUtilsReady.value = false
     // 绘制印章
     drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
@@ -906,13 +988,26 @@ watch(isDraggable, (newValue) => {
   border-radius: 6px;
   background: white;
   color: #1890ff;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.load-template-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-spinner-small {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
 }
 
 .load-template-btn:hover {
@@ -941,13 +1036,14 @@ watch(isDraggable, (newValue) => {
 }
 
 .template-list-horizontal {
-  display: flex;
+  display: grid;
   gap: 16px;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 8px 0;
   scrollbar-width: thin;
   scrollbar-color: #d0d0d0 #f5f5f5;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 
 .template-list-horizontal::-webkit-scrollbar {

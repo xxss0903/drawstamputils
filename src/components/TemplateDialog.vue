@@ -91,7 +91,8 @@ const saveAsTemplate = () => {
   if (!props.drawStampUtils) return
   
   const drawConfigs = props.drawStampUtils.getDrawConfigs()
-  const jsonStr = JSON.stringify(drawConfigs, null, 2)
+  // 使用紧凑格式（无缩进和换行）来减小文件大小
+  const jsonStr = JSON.stringify(drawConfigs)
 
   // 创建 Blob
   const blob = new Blob([jsonStr], { type: 'application/json' })
