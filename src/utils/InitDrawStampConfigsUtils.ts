@@ -1,4 +1,4 @@
-import { IAgingEffect, ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IShowRuler, IStampType, ITaxNumber } from "../DrawStampTypes";
+import { IAgingEffect, ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, ILineConfig, IRoughEdge, ISecurityPattern, IShowRuler, IStampType, ITaxNumber } from "../DrawStampTypes";
 
 export class InitDrawStampConfigsUtils {
 
@@ -80,9 +80,11 @@ export class InitDrawStampConfigsUtils {
         fontWidth: 3,
         compression: 0.75,
         letterSpacing: 0,
+        positionX: 0,
         positionY: -3,
         fontWeight: 'normal',
-        lineSpacing: 2 // 新增：行间距
+        lineSpacing: 2, // 新增：行间距
+        orientation: 'horizontal'
     }
     // 做旧效果
     private agingEffect: IAgingEffect = {
@@ -130,9 +132,11 @@ export class InitDrawStampConfigsUtils {
             fontWidth: 3,
             compression: 0.75,
             letterSpacing: 0,
+            positionX: 0,
             positionY: -3,
             fontWeight: 'normal',
-            lineSpacing: 2 // 新增：行间距
+            lineSpacing: 2, // 新增：行间距
+            orientation: 'horizontal'
         }
     ]
     // 添加公司列表属性
@@ -163,6 +167,8 @@ export class InitDrawStampConfigsUtils {
     private innerCircleList: IInnerCircle[] = [];
     // 图片列表
     private imageList: IDrawImage[] = [];
+    // 线条列表
+    private lineList: ILineConfig[] = [];
     // 总的印章绘制参数
     private drawStampConfigs: IDrawStampConfig = {
         roughEdge: this.roughEdge,
@@ -187,6 +193,7 @@ export class InitDrawStampConfigsUtils {
         companyList: this.companyList,
         innerCircleList: this.innerCircleList,
         imageList: this.imageList,
+        lineList: this.lineList,
         scale: 1,
         offsetX: 0,
         offsetY: 0,

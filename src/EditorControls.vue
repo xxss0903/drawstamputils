@@ -55,6 +55,14 @@
           @update-config="handleImageListConfigUpdate"
         />
 
+        <LineSettingsPanel
+          v-show="props.showAll || currentGroupName === 'lines'"
+          :expanded="props.showAll ? expandedGroups.lines : true"
+          :config="getDrawConfigs()"
+          @update:expanded="value => (expandedGroups.lines = value)"
+          @update-config="handleLineConfigUpdate"
+        />
+
         <StarSettingsPanel
           v-show="props.showAll || currentGroupName === 'star'"
           :expanded="props.showAll ? expandedGroups.star : true"
@@ -118,6 +126,7 @@ import SecurityPatternSettingsPanel from './components/editor/panels/SecurityPat
 import RoughEdgeSettingsPanel from './components/editor/panels/RoughEdgeSettingsPanel.vue'
 import AgingEffectSettingsPanel from './components/editor/panels/AgingEffectSettingsPanel.vue'
 import InnerCircleSettingsPanel from './components/editor/panels/InnerCircleSettingsPanel.vue'
+import LineSettingsPanel from './components/editor/panels/LineSettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -131,7 +140,7 @@ import InnerCircleSettingsPanel from './components/editor/panels/InnerCircleSett
     }>()
 
   // 元素类型到设置组名称的映射
-  const elementTypeToGroupMap: Record<string, string> = {
+const elementTypeToGroupMap: Record<string, string> = {
     'basic': 'basic',
     'company': 'company',
     'stampType': 'stampType',
@@ -142,7 +151,8 @@ import InnerCircleSettingsPanel from './components/editor/panels/InnerCircleSett
     'image': 'images',
     'aging': 'aging',
     'roughEdge': 'roughEdge',
-    'security': 'security'
+    'security': 'security',
+    'line': 'lines'
   }
 
   // 获取当前应该显示的组名
@@ -455,6 +465,17 @@ const handleInnerCircleConfigUpdate = (updater: (config: IDrawStampConfig) => vo
   drawStamp()
 }
 
+const handleLineConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    if (!config.lineList) {
+      config.lineList = []
+    }
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
   // 添加系统字体列表
   const systemFonts = ref<string[]>([])
 
@@ -628,6 +649,7 @@ type GroupKey =
   | 'aging'
   | 'innerCircle'
   | 'images'
+  | 'lines'
 
 const expandedGroups = reactive<Record<GroupKey, boolean>>({
     basic: false,
@@ -640,7 +662,8 @@ const expandedGroups = reactive<Record<GroupKey, boolean>>({
     roughEdge: false,
     aging: false,
     innerCircle: false,
-    images: false // 新增图片列表设置
+    images: false,
+    lines: false
   })
 
   // 切换组的展开/折叠状态

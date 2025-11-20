@@ -228,6 +228,7 @@ button:focus-visible {
   border-radius: 6px;
   padding: 12px;
   transition: all 0.3s ease;
+  margin-bottom: 12px;
 }
 
 .inner-circle-item:hover,

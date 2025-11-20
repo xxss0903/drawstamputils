@@ -53,7 +53,7 @@ const handleUpdateDrawStamp = (
 }
 
 // 元素类型到设置组名称的映射
-const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 'code' | 'taxNumber' | 'star' | 'innerCircle' | 'images' | 'aging' | 'roughEdge' | 'security'> = {
+const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 'code' | 'taxNumber' | 'star' | 'innerCircle' | 'images' | 'aging' | 'roughEdge' | 'security' | 'lines'> = {
   'basic': 'basic',
   'company': 'company',
   'stampType': 'stampType',
@@ -64,7 +64,8 @@ const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 
   'image': 'images',
   'aging': 'aging',
   'roughEdge': 'roughEdge',
-  'security': 'security'
+  'security': 'security',
+  'line': 'lines'
 }
 
 // 元素类型变化时，EditorControls 会根据 selectedElementType 自动显示/隐藏对应的 control-group

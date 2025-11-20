@@ -144,6 +144,17 @@
           </div>
         </div>
         <div class="element-item"
+             v-for="(line, index) in lineList"
+             :key="line.id || `line-${index}`"
+             :class="{ active: selectedElement === `line-${index}` }"
+             @click.stop="selectElement(`line-${index}`, 'line', index)">
+          <span class="element-icon">{{ line.type === 'vertical' ? '↕️' : '↔️' }}</span>
+          <span class="element-name">{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('line', index)" title="删除">❌</button>
+          </div>
+        </div>
+        <div class="element-item"
              :class="{ active: selectedElement === 'aging' }"
              @click.stop="selectElement('aging', 'aging', 0)">
           <span class="element-icon">🕰️</span>
@@ -295,6 +306,27 @@
             <button class="action-btn delete-btn" @click="deleteElement('image', imageInfo.index)" title="删除">❌</button>
           </div>
         </div>
+        <div class="element-item"
+             v-for="(line, index) in lineList"
+             :key="`figure-line-${line.id || index}`"
+             :class="{ active: selectedElement === `line-${index}` }"
+             @click.stop="selectElement(`line-${index}`, 'line', index)">
+          <span class="element-icon">{{ line.type === 'vertical' ? '↕️' : '↔️' }}</span>
+          <span class="element-name">{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('line', index)" title="删除">❌</button>
+          </div>
+        </div>
+        <div class="line-action-buttons">
+          <button class="add-line-button" @click="addLine('horizontal')">
+            <span class="add-icon">➕</span>
+            <span>添加横线</span>
+          </button>
+          <button class="add-line-button" @click="addLine('vertical')">
+            <span class="add-icon">➕</span>
+            <span>添加竖线</span>
+          </button>
+        </div>
         <button class="add-image-button" @click="addImage">
           <span class="add-icon">➕</span>
           <span>添加图片</span>
@@ -331,7 +363,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
-import { IDrawStampConfig, IDrawImage } from '../../DrawStampTypes'
+import { IDrawStampConfig, IDrawImage, ILineConfig } from '../../DrawStampTypes'
 import { useStampStore } from '../../stores/stampStore'
 
 interface Props {
@@ -378,6 +410,7 @@ const stampCode = computed(() => config.value.stampCode || { code: '' })
 const taxNumber = computed(() => config.value.taxNumber || { code: '' })
 const drawStar = computed(() => config.value.drawStar || { drawStar: false })
 const innerCircleList = computed(() => config.value.innerCircleList || [])
+const lineList = computed(() => config.value.lineList || [])
 const visibleImages = computed(() =>
   (config.value.imageList || [])
     .map((image, index) => ({ image, index }))
@@ -492,12 +525,49 @@ const deleteElement = (elementType: string, index: number) => {
         if (config.imageList.length === 0) {
           selectedElement.value = ''
         }
+      } else if (elementType === 'line' && config.lineList) {
+        config.lineList.splice(index, 1)
+        if (config.lineList.length === 0) {
+          selectedElement.value = ''
+        }
       }
     })
     
     emit('updateConfig')
     emit('refresh')
   }
+}
+
+const generateLineId = () => `line-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+
+const createLineConfig = (type: 'horizontal' | 'vertical', cfg: IDrawStampConfig): ILineConfig => ({
+  id: generateLineId(),
+  type,
+  positionX: 0,
+  positionY: 0,
+  length: type === 'horizontal' ? cfg.width || 30 : cfg.height || 30,
+  lineWidth: 0.5,
+  color: cfg.primaryColor || '#d40000',
+  style: 'solid',
+  dashLength: 2,
+  gapLength: 1,
+  opacity: 1
+})
+
+const addLine = (type: 'horizontal' | 'vertical') => {
+  stampStore.updateConfig((config) => {
+    if (!config.lineList) {
+      config.lineList = []
+    }
+    config.lineList.push(createLineConfig(type, config))
+    const newIndex = config.lineList.length - 1
+    nextTick(() => {
+      selectElement(`line-${newIndex}`, 'line', newIndex)
+    })
+  })
+
+  emit('updateConfig')
+  emit('refresh')
 }
 
 // 添加图片
@@ -685,6 +755,34 @@ const addImage = () => {
 }
 
 .add-image-button:hover {
+  background: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.line-action-buttons {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.add-line-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: #f5f5f5;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #666;
+}
+
+.add-line-button:hover {
   background: #e6f7ff;
   border-color: #1890ff;
   color: #1890ff;

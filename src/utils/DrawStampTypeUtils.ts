@@ -55,10 +55,12 @@ export class DrawStampTypeUtils {
         primaryColor: string
     ) {
         const fontSize = stampType.fontHeight * this.mmToPixel
-        const letterSpacing = stampType.letterSpacing
+        const letterSpacingPx = stampType.letterSpacing * this.mmToPixel
         const positionY = stampType.positionY
+        const offsetX = (stampType.positionX || 0) * this.mmToPixel
         const fontWeight = stampType.fontWeight || 'normal'
-        const lineSpacing = stampType.lineSpacing * this.mmToPixel
+        const lineSpacingPx = stampType.lineSpacing * this.mmToPixel
+        const orientation = stampType.orientation || 'horizontal'
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${stampType.fontFamily}`
@@ -70,48 +72,85 @@ export class DrawStampTypeUtils {
         const lines = stampType.stampType.split('\n')
         const lineCount = lines.length
 
-        lines.forEach((line, lineIndex) => {
-            const chars = line.split('')
-            const charWidths = chars.map((char) => ctx.measureText(char).width)
-            const totalWidth =
-                charWidths.reduce((sum, width) => sum + width, 0) +
-                (chars.length - 1) * letterSpacing * this.mmToPixel
+        if (orientation === 'vertical') {
+            const baseY = centerY + radiusX * 0.5 + positionY * this.mmToPixel
+            lines.forEach((line, lineIndex) => {
+                const chars = line.split('')
+                const totalHeight =
+                    chars.length * fontSize + Math.max(0, chars.length - 1) * letterSpacingPx
+                const columnOffset =
+                    (lineIndex - (lineCount - 1) / 2) * (fontSize + lineSpacingPx)
+                const columnX = centerX + offsetX + columnOffset
+                const startY = baseY - totalHeight / 2
 
-            // 计算每行的垂直偏移，使用新的 lineSpacing
-            const lineOffset = (lineIndex - (lineCount - 1) / 2) * (fontSize + lineSpacing)
+                chars.forEach((char, charIndex) => {
+                    const charY = startY + charIndex * (fontSize + letterSpacingPx) + fontSize / 2
 
-            // 计算文字位置（在五角星正下方）
-            const textY = centerY + radiusX * 0.5 + positionY * this.mmToPixel + lineOffset
+                    ctx.save()
+                    ctx.translate(columnX, 0)
+                    ctx.scale(stampType.compression, 1)
+                    ctx.fillText(char, 0, charY)
+                    ctx.restore()
 
-            ctx.save()
-            ctx.translate(centerX, textY)
-            ctx.scale(stampType.compression, 1)
+                    const charWidth = ctx.measureText(char).width * stampType.compression
+                    this.textPaths.push({
+                        text: char,
+                        type: 'stampType',
+                        path: new Path2D(),
+                        bounds: {
+                            x: columnX - charWidth / 2,
+                            y: charY - fontSize / 2,
+                            width: charWidth,
+                            height: fontSize
+                        }
+                    })
+                })
+            })
+        } else {
+            lines.forEach((line, lineIndex) => {
+                const chars = line.split('')
+                const charWidths = chars.map((char) => ctx.measureText(char).width)
+                const totalWidth =
+                    charWidths.reduce((sum, width) => sum + width, 0) +
+                    (chars.length - 1) * letterSpacingPx
 
-            let currentX = -totalWidth / 2 // 从文本的左边缘开始
+                // 计算每行的垂直偏移，使用 lineSpacing
+                const lineOffset = (lineIndex - (lineCount - 1) / 2) * (fontSize + lineSpacingPx)
 
-            // 绘制每个字符并存储路径
-            chars.forEach((char, index) => {
-                const charX = currentX + charWidths[index] / 2
-                ctx.fillText(char, charX, 0)
+                // 计算文字位置（在五角星正下方）
+                const textY = centerY + radiusX * 0.5 + positionY * this.mmToPixel + lineOffset
 
-                // 存储每个字符的路径
-                this.textPaths.push({
-                    text: char,
-                    type: 'stampType',
-                    path: new Path2D(),
-                    bounds: {
-                        x: centerX + (charX * stampType.compression),
-                        y: textY - fontSize / 2,
-                        width: charWidths[index] * stampType.compression,
-                        height: fontSize
-                    }
+                ctx.save()
+                ctx.translate(centerX + offsetX, textY)
+                ctx.scale(stampType.compression, 1)
+
+                let currentX = -totalWidth / 2 // 从文本的左边缘开始
+
+                // 绘制每个字符并存储路径
+                chars.forEach((char, index) => {
+                    const charX = currentX + charWidths[index] / 2
+                    ctx.fillText(char, charX, 0)
+
+                    const charWidth = charWidths[index] * stampType.compression
+
+                    this.textPaths.push({
+                        text: char,
+                        type: 'stampType',
+                        path: new Path2D(),
+                        bounds: {
+                            x: centerX + offsetX + charX * stampType.compression - charWidth / 2,
+                            y: textY - fontSize / 2,
+                            width: charWidth,
+                            height: fontSize
+                        }
+                    })
+
+                    currentX += charWidths[index] + letterSpacingPx
                 })
 
-                currentX += charWidths[index] + letterSpacing * this.mmToPixel
+                ctx.restore()
             })
-
-            ctx.restore()
-        })
+        }
 
         ctx.restore()
     }

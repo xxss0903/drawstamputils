@@ -107,6 +107,23 @@ export type IDrawImage = {
   rotation?: number // 旋转角度（度），0-360
 }
 
+export type LineType = 'horizontal' | 'vertical'
+export type LineStyle = 'solid' | 'dashed' | 'dotted'
+
+export type ILineConfig = {
+    id: string
+    type: LineType
+    positionX: number
+    positionY: number
+    length: number
+    lineWidth: number
+    color: string
+    style: LineStyle
+    dashLength?: number
+    gapLength?: number
+    opacity?: number
+}
+
 // 绘制五角星
 export type IDrawStar = {
     svgPath: string // svg路径
@@ -128,11 +145,13 @@ export type IStampType = {
     fontFamily: string // 编码字体
     compression: number // 压缩比例
     letterSpacing: number // 字符间距
+    positionX?: number // 水平位置
     positionY: number // 位置
     fontWidth: number // 字体宽度
     fontWeight: string | number // 字体粗细
     lineSpacing: number // 新增：行间距
     color?: string // 颜色
+    orientation?: 'horizontal' | 'vertical' // 文字方向
 }
 
 // 内圈圆
@@ -178,6 +197,7 @@ export type IDrawStampConfig = {
     companyList: ICompany[] // 新增：公司名称列表
     innerCircleList: IInnerCircle[] // 新增：内圈圆列表
     imageList: IDrawImage[] // 新增：图片列表配置
+    lineList: ILineConfig[] // 新增：线条列表
     scale: number // 缩放比例
     offsetX: number // x轴偏移量
     offsetY: number // y轴偏移量

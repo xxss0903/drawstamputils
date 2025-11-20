@@ -94,15 +94,42 @@
           <span>{{ type.letterSpacing.toFixed(2) }}</span>
         </label>
         <label>
-          {{ t('stamp.stampType.verticalPosition') }}:
-          <input
-            type="number"
-            :value="type.positionY"
-            min="-20"
-            max="20"
-            step="0.5"
-            @input="updateStampType(index, 'positionY', parseNumber($event))"
-          />
+          水平位置 X (mm):
+          <div class="range-container">
+            <input
+              type="range"
+              :value="type.positionX || 0"
+              min="-20"
+              max="20"
+              step="0.1"
+              @input="updateStampType(index, 'positionX', parseNumber($event))"
+            />
+            <span>{{ (type.positionX || 0).toFixed(1) }}</span>
+          </div>
+        </label>
+        <label>
+          垂直位置 Y (mm):
+          <div class="range-container">
+            <input
+              type="range"
+              :value="type.positionY"
+              min="-20"
+              max="20"
+              step="0.1"
+              @input="updateStampType(index, 'positionY', parseNumber($event))"
+            />
+            <span>{{ type.positionY.toFixed(1) }}</span>
+          </div>
+        </label>
+        <label>
+          显示方向:
+          <select
+            :value="type.orientation || 'horizontal'"
+            @change="updateStampType(index, 'orientation', ($event.target as HTMLSelectElement).value as 'horizontal' | 'vertical')"
+          >
+            <option value="horizontal">水平</option>
+            <option value="vertical">竖直</option>
+          </select>
         </label>
       </div>
       <button class="add-button" @click="addStampType">
@@ -175,9 +202,28 @@ const addStampType = () => {
       positionY: newPositionY,
       fontWeight: 'normal',
       lineSpacing: 2,
-      fontWidth: 3
+      fontWidth: 3,
+      orientation: 'horizontal'
     })
   })
 }
 </script>
 
+<style scoped>
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-container input[type='range'] {
+  flex: 1;
+}
+
+.range-container span {
+  min-width: 50px;
+  text-align: right;
+  font-size: 14px;
+  color: #666;
+}
+</style>

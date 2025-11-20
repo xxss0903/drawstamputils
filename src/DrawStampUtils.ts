@@ -4,6 +4,7 @@ import {
   IDrawImage,
   IDrawStampConfig,
   IDrawStar,
+  ILineConfig,
   IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
@@ -154,8 +155,10 @@ export class DrawStampUtils {
 
     // 设置绘制印章的配置，比如可以保存某些印章的配置，然后保存之后直接设置绘制，更加方便
     setDrawConfigs(drawConfigs: IDrawStampConfig) {
+        if (!drawConfigs.lineList) {
+            drawConfigs.lineList = []
+        }
         this.drawStampConfigs = drawConfigs
-
     }
 
     private addCanvasListener() {
@@ -370,6 +373,52 @@ export class DrawStampUtils {
         }
         
         ctx.restore();
+    }
+
+    private drawLines(
+        ctx: CanvasRenderingContext2D,
+        lineList: ILineConfig[],
+        centerX: number,
+        centerY: number
+    ) {
+        if (!lineList || lineList.length === 0) return
+        ctx.save()
+        for (const line of lineList) {
+            const color = line.color || this.drawStampConfigs.primaryColor
+            const opacity = typeof line.opacity === 'number' ? line.opacity : 1
+            const lineWidth = Math.max(0.1, line.lineWidth || 0.5) * this.mmToPixel
+            const halfLength = Math.max(0, line.length || 0) * this.mmToPixel / 2
+            const posX = centerX + (line.positionX || 0) * this.mmToPixel
+            const posY = centerY + (line.positionY || 0) * this.mmToPixel
+
+            ctx.globalAlpha = opacity
+            ctx.strokeStyle = color
+            ctx.lineWidth = lineWidth
+
+            if (line.style === 'dashed') {
+                const dash = Math.max(0.5, line.dashLength ?? 2) * this.mmToPixel
+                const gap = Math.max(0.5, line.gapLength ?? 1) * this.mmToPixel
+                ctx.setLineDash([dash, gap])
+            } else if (line.style === 'dotted') {
+                const dot = Math.max(0.3, line.dashLength ?? 1) * this.mmToPixel
+                const gap = Math.max(0.5, line.gapLength ?? 1.5) * this.mmToPixel
+                ctx.setLineDash([dot, gap])
+            } else {
+                ctx.setLineDash([])
+            }
+
+            ctx.beginPath()
+            if (line.type === 'vertical') {
+                ctx.moveTo(posX, posY - halfLength)
+                ctx.lineTo(posX, posY + halfLength)
+            } else {
+                ctx.moveTo(posX - halfLength, posY)
+                ctx.lineTo(posX + halfLength, posY)
+            }
+            ctx.stroke()
+            ctx.setLineDash([])
+        }
+        ctx.restore()
     }
 
     // 修改 clearImageCache 方法
@@ -931,6 +980,10 @@ export class DrawStampUtils {
         this.drawCodeUtils.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.primaryColor)
         // 绘制税号文字内容，边框的圆形文字
         this.drawTaxNumberUtils.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY, this.drawStampConfigs.primaryColor)
+    // 绘制自定义线条
+    if (this.drawStampConfigs.lineList && this.drawStampConfigs.lineList.length > 0) {
+        this.drawLines(offscreenCtx, this.drawStampConfigs.lineList, centerX, centerY)
+    }
         offscreenCtx.restore()
         // 将离屏 canvas 的内容绘制到主 canvas
         ctx.save()
