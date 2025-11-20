@@ -6,9 +6,47 @@
         <div class="hero-content">
           <h1 class="hero-title">最好的在线电子印章制作工具 - DrawStamp</h1>
           <p class="hero-subtitle">DrawStamp 是现代企业和个人使用的专业解决方案！我们的印章设计工具将帮助您为任何场合创建独特的印章产品！</p>
-          <router-link to="/maker" class="cta-button">
-            <span>开始制作印章</span>
-          </router-link>
+        </div>
+        <!-- 主内容区域：三栏布局 -->
+        <div class="main-workspace">
+          <!-- 左侧：元素列表 -->
+          <ElementList
+            v-if="isDrawStampUtilsReady"
+            :drawStampUtils="drawStampUtils"
+            @selectElement="handleSelectElement"
+            @update-config="handleElementListUpdate"
+            @refresh="handleElementListRefresh"
+          />
+
+          <!-- 中间：Canvas 绘制区域 -->
+          <div class="canvas-area">
+            <div class="canvas-header">
+              <div class="canvas-tabs">
+                <div class="canvas-tab active">
+                  <span>Canvas #0</span>
+                </div>
+              </div>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas ref="stampCanvas" width="600" height="600"></canvas>
+            </div>
+            <div class="canvas-footer">
+              <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
+                <span>💾</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 右侧：属性编辑器 -->
+          <PropertiesPanel
+            v-if="isDrawStampUtilsReady"
+            ref="propertiesPanelRef"
+            :drawStampUtils="drawStampUtils"
+            :selectedElement="selectedElement"
+            :elementType="selectedElementType"
+            :elementIndex="selectedElementIndex"
+            @updateDrawStamp="updateDrawStamp"
+          />
         </div>
       </section>
 
@@ -181,6 +219,198 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { DrawStampUtils } from '../DrawStampUtils'
+import { getSystemFonts } from '../utils/fontUtils'
+import { IDrawStampConfig } from '../DrawStampTypes'
+import ElementList from './editor/ElementList.vue'
+import PropertiesPanel from './editor/PropertiesPanel.vue'
+import { useStampStore } from '../stores/stampStore'
+
+const stampStore = useStampStore()
+
+// 添加一个标志来控制 EditorControls 的加载
+const isDrawStampUtilsReady = ref(false)
+const propertiesPanelRef = ref<InstanceType<typeof PropertiesPanel> | null>(null)
+
+// 选中的元素
+const selectedElement = ref<string>('')
+const selectedElementType = ref<string>('')
+const selectedElementIndex = ref<number>(-1)
+
+// 处理元素选择
+const handleSelectElement = (elementId: string, elementType: string, index: number) => {
+  selectedElement.value = elementId
+  selectedElementType.value = elementType
+  selectedElementIndex.value = index
+}
+
+// 处理元素列表配置更新
+const handleElementListUpdate = () => {
+  // 配置已通过 stampStore 更新，这里触发重新绘制
+  drawStamp()
+}
+
+// 处理元素列表刷新
+const handleElementListRefresh = () => {
+  // 刷新绘制
+  drawStamp()
+}
+
+const stampCanvas = ref<any | null>(null)
+const MM_PER_PIXEL = 10 // 毫米换算像素
+const isDraggable = ref(false) // 是否开启拖动
+
+// 绘制工具
+let drawStampUtils: DrawStampUtils
+
+// 获取所有文字路径（公司名称、编码和印章类型）
+let allTextPaths: any[] = []
+let companyTextPaths: any[] = []
+let codeTextPaths: any[] = []
+let stampTypeTextPaths: any[] = []
+let taxNumberTextPaths: any[] = []
+
+// 初始化绘制印章参数
+const initDrawStampUtils = () => {
+  drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
+  stampStore.setConfig(drawStampUtils.getDrawConfigs())
+}
+
+const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
+  // 使用drawstamputils进行绘制
+  drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
+
+  // 确保拖动设置与当前状态一致
+  drawStampUtils.setDraggable(isDraggable.value)
+  stampStore.setConfig(drawStampUtils.getDrawConfigs())
+
+  // 更新文字路径
+  companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+  codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
+  stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
+  taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
+  allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
+}
+
+// 保存印章为PNG
+const saveStampAsPNG = () => {
+  drawStampUtils.saveStampAsPNG()
+}
+
+// 更新印章绘制，从EditorControls组件中调用
+const updateDrawStamp = (newConfig: IDrawStampConfig, refreshSecurityPattern: boolean, refreshOld: boolean, refreshRoughEdge: boolean) => {
+  drawStampUtils.setDrawConfigs(newConfig)
+  drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
+}
+
+// 修改字体预览更新函数
+const updateFontPreview = (event: Event) => {
+  const element = event.target as HTMLElement;
+  const fontFamily = element.tagName === 'SELECT'
+    ? (element as HTMLSelectElement).value
+    : (element as HTMLInputElement).value;
+
+  element.style.setProperty('--current-font', fontFamily);
+
+  // 如果是select变化，同步更新input
+  if (element.tagName === 'SELECT') {
+    const input = element.parentElement?.querySelector('.font-input') as HTMLInputElement;
+    if (input) {
+      input.value = fontFamily;
+      input.style.setProperty('--current-font', fontFamily);
+    }
+  }
+
+  // 如果input变化，同步更新select
+  if (element.tagName === 'INPUT') {
+    const select = element.parentElement?.querySelector('.font-select') as HTMLSelectElement;
+    if (select) {
+      select.value = fontFamily;
+      select.style.setProperty('--current-font', fontFamily);
+    }
+  }
+}
+
+// 添加鼠标移动检测
+const handleMouseMove = (event: MouseEvent) => {
+  if (!drawStampUtils?.canvas) return
+
+  const rect = drawStampUtils.canvas.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+
+  // 检查是否悬停在文字上
+  let isOverText = false
+  for (const textPath of allTextPaths) {
+    if (x >= textPath.bounds.x &&
+        x <= textPath.bounds.x + textPath.bounds.width &&
+        y >= textPath.bounds.y &&
+        y <= textPath.bounds.y + textPath.bounds.height) {
+      isOverText = true
+      drawStampUtils.canvas.style.cursor = 'pointer'
+      return
+    }
+  }
+
+  if (!isOverText) {
+    drawStampUtils.canvas.style.cursor = 'default'
+  }
+}
+
+// 添加点击事件处理
+const handleCanvasClick = (event: MouseEvent) => {
+  if (!drawStampUtils?.canvas) return
+
+  const rect = drawStampUtils.canvas.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+
+  // 检查点击的文字
+  for (const textPath of allTextPaths) {
+    if (x >= textPath.bounds.x &&
+        x <= textPath.bounds.x + textPath.bounds.width &&
+        y >= textPath.bounds.y &&
+        y <= textPath.bounds.y + textPath.bounds.height) {
+      // 可以在这里添加点击文字的处理逻辑
+      return
+    }
+  }
+}
+
+// 在组件挂载时初始化
+onMounted(async () => {
+  initDrawStampUtils()
+  await getSystemFonts()
+
+  // 设置初始拖动状态
+  drawStampUtils.setDraggable(isDraggable.value)
+  if (stampCanvas.value) {
+    stampCanvas.value.style.cursor = isDraggable.value ? 'move' : 'default'
+  }
+
+  drawStamp()
+  // 初始化所有字体选择器的预览
+  document.querySelectorAll('.font-select, .font-input').forEach((element) => {
+    if (element instanceof HTMLElement) {
+      updateFontPreview({ target: element } as unknown as Event);
+    }
+  });
+  isDrawStampUtilsReady.value = true
+  
+  // 默认选中基础设置
+  await nextTick()
+  handleSelectElement('basic-settings', 'basic', 0)
+  
+  window.addEventListener('mousemove', handleMouseMove)
+  drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
+})
+
+// 在组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleMouseMove)
+  drawStampUtils?.canvas?.removeEventListener('click', handleCanvasClick)
+})
 </script>
 
 <style scoped>
@@ -193,13 +423,13 @@
 .hero-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 4rem 2rem;
+  padding: 2rem;
   text-align: center;
 }
 
 .hero-content {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 2rem;
 }
 
 .hero-title {
@@ -232,6 +462,103 @@
 .cta-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 主工作区：三栏布局 */
+.main-workspace {
+  display: flex;
+  gap: 12px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 2rem;
+  min-height: 600px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Canvas 区域 */
+.canvas-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.canvas-header {
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.canvas-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.canvas-tab {
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.canvas-tab.active {
+  color: #1890ff;
+  border-bottom-color: #1890ff;
+}
+
+.canvas-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.canvas-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.canvas-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e0e0e0;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.canvas-action-btn:hover {
+  background: #e6f7ff;
+  border-color: #1890ff;
+  transform: scale(1.1);
 }
 
 /* Container */
@@ -495,6 +822,15 @@
   .steps-container,
   .features-list {
     grid-template-columns: 1fr;
+  }
+
+  .main-workspace {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .canvas-area {
+    min-height: 400px;
   }
 }
 </style>
