@@ -55,20 +55,12 @@
         <div class="item-container">
           <h2 class="section-title">支持多种印章类型</h2>
           <div class="stamp-types-grid">
-            <div class="stamp-type-item">公司印章</div>
-            <div class="stamp-type-item">合同专用章</div>
-            <div class="stamp-type-item">财务专用章</div>
-            <div class="stamp-type-item">发票专用章</div>
-            <div class="stamp-type-item">银行印章</div>
-            <div class="stamp-type-item">医疗印章</div>
-            <div class="stamp-type-item">商务印章</div>
-            <div class="stamp-type-item">公证印章</div>
+            <div class="stamp-type-item">原型印章</div>
+            <div class="stamp-type-item">椭圆印章</div>
+            <div class="stamp-type-item">矩形印章</div>
             <div class="stamp-type-item">签名印章</div>
             <div class="stamp-type-item">日期印章</div>
             <div class="stamp-type-item">文字印章</div>
-            <div class="stamp-type-item">圆形印章</div>
-            <div class="stamp-type-item">方形印章</div>
-            <div class="stamp-type-item">矩形印章</div>
             <div class="stamp-type-item">中文印章</div>
           </div>
         </div>

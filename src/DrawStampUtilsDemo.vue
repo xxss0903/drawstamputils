@@ -180,7 +180,7 @@
 
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted } from 'vue'
+import { ref, onMounted, watch, onUnmounted, nextTick } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
 import { IDrawStampConfig } from './DrawStampTypes'
@@ -306,6 +306,8 @@ onMounted(async () => {
     }
   });
   isDrawStampUtilsReady.value = true
+  await nextTick()
+  handleSelectElement('basic-settings', 'basic', 0)
   window.addEventListener('mousemove', handleMouseMove)
   drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
 })
