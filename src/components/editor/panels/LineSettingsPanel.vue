@@ -14,7 +14,10 @@
       >
         <div class="line-header">
           <span>{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
-          <button class="small-button delete-button" @click="removeLine(index)">删除</button>
+          <div class="header-actions">
+            <button class="small-button" @click="copyLine(index)">复制</button>
+            <button class="small-button delete-button" @click="removeLine(index)">删除</button>
+          </div>
         </div>
 
         <label>
@@ -208,6 +211,20 @@ const removeLine = (index: number) => {
     config.lineList?.splice(index, 1)
   })
 }
+
+const copyLine = (index: number) => {
+  emit('update-config', (config) => {
+    if (!config.lineList || !config.lineList[index]) return
+    const original = config.lineList[index]
+    const clone: ILineConfig = {
+      ...original,
+      id: `line-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      positionY: original.positionY + (original.type === 'horizontal' ? 1 : 0),
+      positionX: original.positionX + (original.type === 'vertical' ? 1 : 0)
+    }
+    config.lineList.splice(index + 1, 0, clone)
+  })
+}
 </script>
 
 <style scoped>
@@ -225,6 +242,11 @@ const removeLine = (index: number) => {
   align-items: center;
   margin-bottom: 8px;
   font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
 }
 
 .dash-settings {

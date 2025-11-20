@@ -10,9 +10,12 @@
       <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
         <div class="stamp-type-header">
           <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
-          <button class="small-button delete-button" @click="removeStampType(index)">
-            {{ t('stamp.stampType.delete') }}
-          </button>
+          <div class="header-actions">
+            <button class="small-button" @click="copyStampType(index)">复制</button>
+            <button class="small-button delete-button" @click="removeStampType(index)">
+              {{ t('stamp.stampType.delete') }}
+            </button>
+          </div>
         </div>
         <label>
           {{ t('stamp.stampType.type') }}:
@@ -183,6 +186,15 @@ const removeStampType = (index: number) => {
   })
 }
 
+const copyStampType = (index: number) => {
+  emit('update-config', (config) => {
+    if (!config.stampTypeList || !config.stampTypeList[index]) return
+    const original = config.stampTypeList[index]
+    const clone = { ...original, positionY: original.positionY + 2 }
+    config.stampTypeList.splice(index + 1, 0, clone)
+  })
+}
+
 const addStampType = () => {
   emit('update-config', (config) => {
     if (!config.stampTypeList) {
@@ -210,6 +222,17 @@ const addStampType = () => {
 </script>
 
 <style scoped>
+.stamp-type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
 .range-container {
   display: flex;
   align-items: center;
