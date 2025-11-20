@@ -36,7 +36,7 @@ export class DrawRulerUtils {
         }
 
         ctx.fillStyle = 'black';
-        ctx.font = '10px Arial'; // 保持字体大小不变
+        ctx.font = '9px Arial'; // 稍微减小字体以适应较小的 ruler 宽度
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
 

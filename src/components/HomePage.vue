@@ -397,11 +397,11 @@ onMounted(async () => {
     }
   });
   isDrawStampUtilsReady.value = true
-  
+
   // 默认选中基础设置
   await nextTick()
   handleSelectElement('basic-settings', 'basic', 0)
-  
+
   window.addEventListener('mousemove', handleMouseMove)
   drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
 })
@@ -423,7 +423,7 @@ onUnmounted(() => {
 .hero-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 2rem;
+  padding-bottom: 2rem;
   text-align: center;
 }
 
@@ -467,10 +467,8 @@ onUnmounted(() => {
 /* 主工作区：三栏布局 */
 .main-workspace {
   display: flex;
-  gap: 12px;
   background: white;
   border-radius: 12px;
-  padding: 12px;
   margin-top: 2rem;
   min-height: 600px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
