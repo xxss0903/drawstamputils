@@ -166,14 +166,25 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: 15px;
+  column-count: 2;
+  column-gap: 12px;
+}
+
+@media (max-width: 1440px) {
+  .template-list {
+    column-count: 1;
+  }
 }
 
 .template-item {
   border: 1px solid #eee;
   border-radius: 8px;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  break-inside: avoid;
+  display: flex;
+  flex-direction: column;
 }
 
 .template-item:hover {

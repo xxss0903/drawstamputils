@@ -177,9 +177,6 @@ import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
 import { IDrawStampConfig } from './DrawStampTypes'
 import { useI18n } from 'vue-i18n'
-import stampTemplate1 from './assets/templates/stamp_template1.json'
-import stampTemplate2 from './assets/templates/stamp_template2.json'
-import rectangleTemplate from './assets/templates/rectangle_template.json'
 import TemplateDialog from './components/TemplateDialog.vue'
 import ElementList from './components/editor/ElementList.vue'
 import PropertiesPanel from './components/editor/PropertiesPanel.vue'
@@ -468,23 +465,21 @@ const loadSelectedTemplate = (template: Template) => {
   }
 }
 
-// 添加默认模板的类型定义和数据
-const defaultTemplates: Template[] = [
-  {
-    name: '印章1',
-    preview: '',
-    config: stampTemplate1 as unknown as IDrawStampConfig
-  },{
-    name: '印章2',
-    preview: '',
-    config: stampTemplate2 as unknown as IDrawStampConfig
-  },
-  {
-    name: '矩形印章',
-    preview: '',
-    config: rectangleTemplate as unknown as IDrawStampConfig
-  }
-]
+// 直接从 assets/templates 目录加载默认模板
+const templateModules = import.meta.glob('./assets/templates/*.json', {
+  eager: true
+}) as Record<string, { default: IDrawStampConfig; name?: string }>
+
+const formatTemplateName = (path: string, index: number) => {
+  const fileName = path.split('/').pop() || `template-${index + 1}`
+  return fileName.replace('.json', '')
+}
+
+const defaultTemplates: Template[] = Object.entries(templateModules).map(([path, module], index) => ({
+  name: module.name || formatTemplateName(path, index),
+  preview: '',
+  config: module.default
+}))
 
 // 添加新的响应式变量
 const showSecurityWarning = ref(localStorage.getItem('showSecurityWarning') !== 'false')
@@ -879,7 +874,6 @@ watch(isDraggable, (newValue) => {
   padding: 20px;
   flex-shrink: 0;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
-  max-height: 200px;
   display: flex;
   flex-direction: column;
 }
