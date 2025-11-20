@@ -6,15 +6,17 @@
 
       <section>
         <h2>联系方式</h2>
-        <div class="contact-info">
-          <div class="contact-item">
-            <h3>📧 邮箱</h3>
-            <p>由于隐私保护，我们暂不提供公开邮箱。您可以通过以下方式联系我们：</p>
-            <ul>
-              <li>在 GitHub 上提交 Issue 或 Pull Request</li>
-              <li>通过社交媒体平台联系我们</li>
-            </ul>
-          </div>
+          <div class="contact-info">
+            <div class="contact-item">
+              <h3>📧 邮箱</h3>
+              <p>最直接的方式是发送邮件，我们会在 1-2 个工作日内回复。</p>
+              <a
+                class="email-link"
+                href="mailto:xxss0903@gmail.com?subject=DrawStamp反馈&body=请在此填写您的问题...">
+                发送邮件
+              </a>
+              <p class="email-tip">请描述问题场景、浏览器环境以及复现步骤，方便我们快速定位。</p>
+            </div>
 
           <div class="contact-item">
             <h3>🐛 问题反馈</h3>
@@ -65,7 +67,7 @@
 
       <section>
         <h2>反馈表单</h2>
-        <p>您也可以填写以下表单向我们发送反馈（注意：此表单为演示用途，实际提交功能需要后端支持）：</p>
+        <p>您也可以填写以下表单，我们会生成一封邮件草稿并发送至官方邮箱。</p>
         <div class="feedback-form">
           <form @submit.prevent="handleSubmit">
             <div class="form-group">
@@ -73,7 +75,7 @@
               <input type="text" id="name" v-model="form.name" />
             </div>
             <div class="form-group">
-              <label for="email">邮箱（可选）</label>
+              <label for="email">邮箱（可选，便于我们回复）</label>
               <input type="email" id="email" v-model="form.email" />
             </div>
             <div class="form-group">
@@ -89,11 +91,11 @@
               <label for="message">消息内容</label>
               <textarea id="message" v-model="form.message" rows="5" required></textarea>
             </div>
-            <button type="submit" class="submit-btn">发送反馈</button>
+            <button type="submit" class="submit-btn">发送反馈邮件</button>
           </form>
           <div v-if="submitStatus" class="submit-status" :class="submitStatus">
-            <p v-if="submitStatus === 'success'">感谢您的反馈！我们会认真考虑您的建议。</p>
-            <p v-else-if="submitStatus === 'error'">提交失败，请稍后重试。</p>
+            <p v-if="submitStatus === 'success'">邮件客户端已打开，请确认内容后发送。</p>
+            <p v-else-if="submitStatus === 'error'">生成邮件失败，请直接发送。</p>
           </div>
         </div>
       </section>
@@ -123,19 +125,40 @@ const form = ref({
 
 const submitStatus = ref<'success' | 'error' | null>(null)
 
+const subjectLabels: Record<string, string> = {
+  question: '问题咨询',
+  bug: 'Bug 报告',
+  suggestion: '功能建议',
+  other: '其他'
+}
+
+const COMPANY_EMAIL = 'xxss0903@gmail.com'
+
 const handleSubmit = () => {
-  // 这里只是演示，实际需要后端支持
-  console.log('Form submitted:', form.value)
-  submitStatus.value = 'success'
-  setTimeout(() => {
-    submitStatus.value = null
-    form.value = {
-      name: '',
-      email: '',
-      subject: 'question',
-      message: ''
-    }
-  }, 3000)
+  if (!form.value.message.trim()) {
+    submitStatus.value = 'error'
+    return
+  }
+
+  const subjectText = subjectLabels[form.value.subject] || '用户反馈'
+  const subject = encodeURIComponent(`DrawStamp ${subjectText}`)
+  const bodyLines = [
+    `姓名：${form.value.name || '未填写'}`,
+    `联系邮箱：${form.value.email || '未填写'}`,
+    `主题：${subjectText}`,
+    '',
+    '反馈内容：',
+    form.value.message
+  ]
+  const body = encodeURIComponent(bodyLines.join('\n'))
+
+  try {
+    window.location.href = `mailto:${COMPANY_EMAIL}?subject=${subject}&body=${body}`
+    submitStatus.value = 'success'
+  } catch (error) {
+    console.error('生成邮件链接失败', error)
+    submitStatus.value = 'error'
+  }
 }
 </script>
 
