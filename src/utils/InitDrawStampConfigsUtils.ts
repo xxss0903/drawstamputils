@@ -98,7 +98,10 @@ export class InitDrawStampConfigsUtils {
         drawInnerCircle: true,
         innerCircleLineWidth: 1,
         innerCircleLineRadiusX: 20,
-        innerCircleLineRadiusY: 15
+        innerCircleLineRadiusY: 15,
+        lineStyle: 'solid',
+        dashLength: 2,
+        gapLength: 1
     }
     // 内圈圆
     private innerCircle: IInnerCircle = {

@@ -177,6 +177,9 @@ export type IInnerCircle = {
     innerCircleLineRadiusX: number // x轴半径
     innerCircleLineRadiusY: number // y轴半径
     color?: string // 颜色
+    lineStyle?: LineStyle // 线条样式
+    dashLength?: number // 虚线长度
+    gapLength?: number // 虚线间距
 }
 
 // 是否绘制标尺

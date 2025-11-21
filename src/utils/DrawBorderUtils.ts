@@ -1,12 +1,29 @@
 /**
  * 绘制椭圆边框
  */
-export function drawBasicBorder(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radiusX: number, radiusY: number, borderWidth: number, borderColor: string) {
+export function drawBasicBorder(
+    ctx: CanvasRenderingContext2D,
+    centerX: number,
+    centerY: number,
+    radiusX: number,
+    radiusY: number,
+    borderWidth: number,
+    borderColor: string,
+    lineStyle: 'solid' | 'dashed' | 'dotted' = 'solid',
+    dashPx: number = 10,
+    gapPx: number = 5
+) {
+    if (lineStyle === 'solid') {
+        ctx.setLineDash([]);
+    } else {
+        ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
+    }
     ctx.beginPath();
     ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = borderWidth;
     ctx.stroke();
+    ctx.setLineDash([]);
 }
 
 /**
@@ -19,7 +36,10 @@ export function drawRectangleBorder(
     width: number,
     height: number,
     borderWidth: number,
-    borderColor: string
+    borderColor: string,
+    lineStyle: 'solid' | 'dashed' | 'dotted' = 'solid',
+    dashPx: number = 10,
+    gapPx: number = 5
 ) {
     // 让描边完全限制在给定的宽高范围内
     const adjustedWidth = Math.max(width - borderWidth, 0);
@@ -27,6 +47,11 @@ export function drawRectangleBorder(
     const halfWidth = adjustedWidth / 2;
     const halfHeight = adjustedHeight / 2;
 
+    if (lineStyle === 'solid') {
+        ctx.setLineDash([]);
+    } else {
+        ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
+    }
     ctx.beginPath();
     ctx.rect(
         centerX - halfWidth,
@@ -37,5 +62,6 @@ export function drawRectangleBorder(
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = borderWidth;
     ctx.stroke();
+    ctx.setLineDash([]);
 }
 

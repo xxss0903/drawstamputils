@@ -1064,6 +1064,10 @@ export class DrawStampUtils {
         const rectWidth = this.drawStampConfigs.width * this.mmToPixel
         const rectHeight = this.drawStampConfigs.height * this.mmToPixel
 
+        const outBorderStyle = this.drawStampConfigs.outBorder.lineStyle || 'solid'
+        const outBorderDash = (this.drawStampConfigs.outBorder.dashLength ?? 2) * this.mmToPixel
+        const outBorderGap = (this.drawStampConfigs.outBorder.gapLength ?? 1) * this.mmToPixel
+
         if (this.drawStampConfigs.outBorder.drawInnerCircle) {
             // 在离屏 canvas 上绘制印章基本形状
             if (isRectangle) {
@@ -1075,11 +1079,25 @@ export class DrawStampUtils {
                     rectWidth,
                     rectHeight,
                     this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel,
-                    borderColor
+                    borderColor,
+                    outBorderStyle,
+                    outBorderDash,
+                    outBorderGap
                 )
             } else {
                 // 绘制椭圆边框
-                drawBasicBorder(offscreenCtx, centerX, centerY, radiusX, radiusY, this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel, borderColor);
+                drawBasicBorder(
+                    offscreenCtx,
+                    centerX,
+                    centerY,
+                    radiusX,
+                    radiusY,
+                    this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel,
+                    borderColor,
+                    outBorderStyle,
+                    outBorderDash,
+                    outBorderGap
+                );
             }
         }
         

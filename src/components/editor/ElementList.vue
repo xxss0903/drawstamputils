@@ -796,7 +796,10 @@ const addInnerCircle = () => {
       drawInnerCircle: true,
       innerCircleLineWidth: 0.5,
       innerCircleLineRadiusX: 16,
-      innerCircleLineRadiusY: 12
+      innerCircleLineRadiusY: 12,
+      lineStyle: 'solid',
+      dashLength: 2,
+      gapLength: 1
     })
     const newIndex = config.innerCircleList.length - 1
     nextTick(() => {

@@ -37,6 +37,38 @@
         />
       </label>
       <label>
+        边框线条样式:
+        <select :value="props.config.outBorder.lineStyle || 'solid'" @change="onBorderLineStyleChange">
+          <option value="solid">实线</option>
+          <option value="dashed">虚线</option>
+          <option value="dotted">点线</option>
+        </select>
+      </label>
+      <template v-if="(props.config.outBorder.lineStyle || 'solid') !== 'solid'">
+        <label>
+          虚线长度 (mm):
+          <input
+            type="number"
+            :value="props.config.outBorder.dashLength ?? 2"
+            min="0.1"
+            max="20"
+            step="0.1"
+            @input="onBorderDashInput"
+          />
+        </label>
+        <label>
+          虚线间距 (mm):
+          <input
+            type="number"
+            :value="props.config.outBorder.gapLength ?? 1"
+            min="0.1"
+            max="20"
+            step="0.1"
+            @input="onBorderGapInput"
+          />
+        </label>
+      </template>
+      <label>
         {{ t('stamp.basic.color') }}:
         <input type="color" :value="props.config.primaryColor" @input="onPrimaryColorInput" />
       </label>
@@ -115,6 +147,27 @@ const onBorderWidthInput = (event: Event) => {
   const value = Number((event.target as HTMLInputElement).value)
   emit('update-config', (config) => {
     config.borderWidth = value
+  })
+}
+
+const onBorderLineStyleChange = (event: Event) => {
+  const value = (event.target as HTMLSelectElement).value as 'solid' | 'dashed' | 'dotted'
+  emit('update-config', (config) => {
+    config.outBorder.lineStyle = value
+  })
+}
+
+const onBorderDashInput = (event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  emit('update-config', (config) => {
+    config.outBorder.dashLength = value
+  })
+}
+
+const onBorderGapInput = (event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  emit('update-config', (config) => {
+    config.outBorder.gapLength = value
   })
 }
 

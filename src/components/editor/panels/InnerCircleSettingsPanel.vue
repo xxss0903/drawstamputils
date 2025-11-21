@@ -59,6 +59,41 @@
             @input="updateInnerCircle(index, 'innerCircleLineRadiusY', parseNumber($event))"
           />
         </label>
+        <label>
+          线条样式:
+          <select
+            :value="innerCircle.lineStyle || 'solid'"
+            @change="updateInnerCircle(index, 'lineStyle', ($event.target as HTMLSelectElement).value as 'solid' | 'dashed' | 'dotted')"
+          >
+            <option value="solid">实线</option>
+            <option value="dashed">虚线</option>
+            <option value="dotted">点线</option>
+          </select>
+        </label>
+        <template v-if="(innerCircle.lineStyle || 'solid') !== 'solid'">
+          <label>
+            虚线长度 (mm):
+            <input
+              type="number"
+              :value="innerCircle.dashLength ?? 2"
+              min="0.1"
+              max="20"
+              step="0.1"
+              @input="updateInnerCircle(index, 'dashLength', parseNumber($event))"
+            />
+          </label>
+          <label>
+            虚线间距 (mm):
+            <input
+              type="number"
+              :value="innerCircle.gapLength ?? 1"
+              min="0.1"
+              max="20"
+              step="0.1"
+              @input="updateInnerCircle(index, 'gapLength', parseNumber($event))"
+            />
+          </label>
+        </template>
         </div>
         </transition>
       </div>
@@ -156,7 +191,10 @@ const addInnerCircle = () => {
       drawInnerCircle: true,
       innerCircleLineWidth: 0.5,
       innerCircleLineRadiusX: 16,
-      innerCircleLineRadiusY: 12
+      innerCircleLineRadiusY: 12,
+      lineStyle: 'solid',
+      dashLength: 2,
+      gapLength: 1
     })
   })
 }
