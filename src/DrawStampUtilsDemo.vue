@@ -61,6 +61,9 @@
           <button v-if="false" class="primary-button" @click="showTemplateDialog = true">
             < Templates
           </button>
+          <button class="primary-button" @click="resetStamp">
+            重置印章
+          </button>
           <button class="primary-button" @click="saveStampAsPNG">
             下载印章
           </button>
@@ -275,6 +278,33 @@ const cancelSave = () => {
 const confirmSave = () => {
   showLegalDialog.value = false
   drawStampUtils.saveStampAsPNG()
+}
+
+const resetStamp = () => {
+  const currentConfig = JSON.parse(JSON.stringify(drawStampUtils.getDrawConfigs())) as IDrawStampConfig
+  currentConfig.companyList = []
+  currentConfig.company.companyName = ''
+  currentConfig.stampTypeList = []
+  currentConfig.stampCode.code = ''
+  currentConfig.taxNumber.code = ''
+  currentConfig.imageList = []
+  currentConfig.lineList = []
+  currentConfig.innerCircleList = []
+  currentConfig.svgList = []
+  currentConfig.drawStar.drawStar = false
+  currentConfig.securityPattern.openSecurityPattern = false
+  currentConfig.roughEdge.drawRoughEdge = false
+  currentConfig.agingEffect.applyAging = false
+  currentConfig.agingEffect.agingEffectParams = []
+  currentConfig.openManualAging = false
+
+  drawStampUtils.setDrawConfigs(currentConfig)
+  stampStore.setConfig(currentConfig)
+  selectedElement.value = ''
+  selectedElementType.value = ''
+  selectedElementIndex.value = -1
+  drawStamp()
+  handleSelectElement('basic-settings', 'basic', 0)
 }
 
 // 添加系统字体列表

@@ -44,6 +44,9 @@
               <button class="canvas-action-btn" @click="saveCurrentAsTemplate" title="导出模板">
                 <span>📤</span>
               </button>
+              <button class="canvas-action-btn" @click="resetStamp" title="重置印章">
+                <span>♻️</span>
+              </button>
               <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
                 <span>💾</span>
               </button>
@@ -351,6 +354,34 @@ const loadTemplateFile = async (event: Event) => {
 // 保存图片
 const saveStampAsPNG = () => {
   drawStampUtils.saveStampAsPNG()
+}
+
+const resetStamp = () => {
+  if (!drawStampUtils) return
+  const blankConfig = JSON.parse(JSON.stringify(drawStampUtils.getDrawConfigs())) as IDrawStampConfig
+  blankConfig.companyList = []
+  blankConfig.company.companyName = ''
+  blankConfig.stampTypeList = []
+  blankConfig.stampCode.code = ''
+  blankConfig.taxNumber.code = ''
+  blankConfig.imageList = []
+  blankConfig.lineList = []
+  blankConfig.innerCircleList = []
+  blankConfig.svgList = []
+  blankConfig.drawStar.drawStar = false
+  blankConfig.securityPattern.openSecurityPattern = false
+  blankConfig.roughEdge.drawRoughEdge = false
+  blankConfig.agingEffect.applyAging = false
+  blankConfig.agingEffect.agingEffectParams = []
+  blankConfig.openManualAging = false
+
+  drawStampUtils.setDrawConfigs(blankConfig)
+  stampStore.setConfig(blankConfig)
+  selectedElement.value = ''
+  selectedElementType.value = ''
+  selectedElementIndex.value = -1
+  drawStamp()
+  handleSelectElement('basic-settings', 'basic', 0)
 }
 
 // 清理未启用的效果数组，减小模板文件大小
