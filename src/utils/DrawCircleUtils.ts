@@ -30,18 +30,35 @@ export class DrawCircleUtils {
         const lineStyle: LineStyle = circle.lineStyle || 'solid'
         const dashLength = circle.dashLength ?? 2
         const gapLength = circle.gapLength ?? 1
-        this.drawEllipse(
-            ctx,
-            centerX,
-            centerY,
-            innerCircleWidth * this.mmToPixel,
-            innerCircleHeight * this.mmToPixel,
-            circle.innerCircleLineWidth * this.mmToPixel,
-            borderColor,
-            lineStyle,
-            dashLength,
-            gapLength
-        )
+        const shape = circle.shape || 'ellipse'
+
+        if (shape === 'rectangle') {
+            this.drawRectangle(
+                ctx,
+                centerX,
+                centerY,
+                innerCircleWidth * 2 * this.mmToPixel,
+                innerCircleHeight * 2 * this.mmToPixel,
+                circle.innerCircleLineWidth * this.mmToPixel,
+                borderColor,
+                lineStyle,
+                dashLength,
+                gapLength
+            )
+        } else {
+            this.drawEllipse(
+                ctx,
+                centerX,
+                centerY,
+                innerCircleWidth * this.mmToPixel,
+                innerCircleHeight * this.mmToPixel,
+                circle.innerCircleLineWidth * this.mmToPixel,
+                borderColor,
+                lineStyle,
+                dashLength,
+                gapLength
+            )
+        }
     }
 
     drawEllipse(
@@ -67,6 +84,38 @@ export class DrawCircleUtils {
         ctx.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2)
         ctx.strokeStyle = borderColor
         ctx.lineWidth = borderWidth
+        ctx.stroke()
+        ctx.setLineDash([])
+    }
+
+    private drawRectangle(
+        ctx: CanvasRenderingContext2D,
+        centerX: number,
+        centerY: number,
+        width: number,
+        height: number,
+        borderWidth: number,
+        borderColor: string,
+        lineStyle: LineStyle,
+        dashLength: number,
+        gapLength: number
+    ) {
+        if (lineStyle === 'solid') {
+            ctx.setLineDash([])
+        } else {
+            const dash = Math.max(0.2, dashLength) * this.mmToPixel
+            const gap = Math.max(0.2, gapLength) * this.mmToPixel
+            ctx.setLineDash([dash, gap])
+        }
+        ctx.beginPath()
+        ctx.strokeStyle = borderColor
+        ctx.lineWidth = borderWidth
+        ctx.rect(
+            centerX - width / 2,
+            centerY - height / 2,
+            width,
+            height
+        )
         ctx.stroke()
         ctx.setLineDash([])
     }

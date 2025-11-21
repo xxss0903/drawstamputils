@@ -60,6 +60,16 @@
           />
         </label>
         <label>
+          形状:
+          <select
+            :value="innerCircle.shape || 'ellipse'"
+            @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle')"
+          >
+            <option value="ellipse">圆形/椭圆</option>
+            <option value="rectangle">矩形</option>
+          </select>
+        </label>
+        <label>
           线条样式:
           <select
             :value="innerCircle.lineStyle || 'solid'"

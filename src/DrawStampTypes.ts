@@ -180,6 +180,7 @@ export type IInnerCircle = {
     lineStyle?: LineStyle // 线条样式
     dashLength?: number // 虚线长度
     gapLength?: number // 虚线间距
+    shape?: 'ellipse' | 'rectangle' // 形状
 }
 
 // 是否绘制标尺
