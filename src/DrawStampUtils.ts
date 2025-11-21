@@ -415,6 +415,10 @@ export class DrawStampUtils {
                 }
             }
 
+            if (svg.color) {
+                this.applyColorToSvg(svgElement, svg.color)
+            }
+
             if (!svgElement.getAttribute('width')) {
                 svgElement.setAttribute('width', '100')
             }
@@ -443,6 +447,21 @@ export class DrawStampUtils {
             console.error('创建 SVG 位图失败:', error)
             return null
         }
+    }
+
+    private applyColorToSvg(element: Element, color: string) {
+        const tagName = element.tagName.toLowerCase()
+        const hasFill = element.hasAttribute('fill')
+        const hasStroke = element.hasAttribute('stroke')
+
+        if (!hasFill || tagName === 'svg' || tagName === 'g') {
+            element.setAttribute('fill', color)
+        }
+        if (!hasStroke && tagName !== 'image') {
+            element.setAttribute('stroke', color)
+        }
+
+        Array.from(element.children).forEach((child) => this.applyColorToSvg(child, color))
     }
 
     private scheduleSvgBitmapLoad(svg: ISvgShape) {
