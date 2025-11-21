@@ -123,13 +123,24 @@
           </div>
         </div>
         <div class="element-item"
-             v-if="drawStar.drawStar"
              :class="{ active: selectedElement === 'star' }"
              @click.stop="selectElement('star', 'star', 0)">
           <span class="element-icon">⭐</span>
           <span class="element-name">五角星</span>
+          <span class="element-type">{{ drawStar.drawStar ? '已启用' : '未启用' }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('star', 0)" title="删除">❌</button>
+          </div>
+        </div>
+        <div class="element-item"
+             v-for="(_, index) in innerCircleList"
+             :key="`circle-all-${index}`"
+             :class="{ active: selectedElement === `circle-${index}` }"
+             @click.stop="selectElement(`circle-${index}`, 'circle', index)">
+          <span class="element-icon">⭕</span>
+          <span class="element-name">内圈 {{ index + 1 }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('circle', index)" title="删除">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -278,11 +289,11 @@
       <!-- 图形元素 -->
       <div v-show="activeTab === 'figure'" class="element-category">
         <div class="element-item"
-             v-if="drawStar.drawStar"
              :class="{ active: selectedElement === 'star' }"
              @click.stop="selectElement('star', 'star', 0)">
           <span class="element-icon">⭐</span>
           <span class="element-name">五角星</span>
+          <span class="element-type">{{ drawStar.drawStar ? '已启用' : '未启用' }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('star', 0)" title="删除">❌</button>
           </div>
@@ -291,9 +302,12 @@
              v-for="(_, index) in innerCircleList"
              :key="`circle-${index}`"
              :class="{ active: selectedElement === `circle-${index}` }"
-             @click="selectElement(`circle-${index}`, 'circle', index)">
+             @click.stop="selectElement(`circle-${index}`, 'circle', index)">
           <span class="element-icon">⭕</span>
           <span class="element-name">内圈 {{ index + 1 }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('circle', index)" title="删除">❌</button>
+          </div>
         </div>
         <div class="element-item"
              v-for="imageInfo in visibleImages"
@@ -330,6 +344,10 @@
         <button class="add-image-button" @click="addImage">
           <span class="add-icon">➕</span>
           <span>添加图片</span>
+        </button>
+        <button class="add-image-button" @click="addInnerCircle">
+          <span class="add-icon">➕</span>
+          <span>添加内圈圆</span>
         </button>
       </div>
 
@@ -530,6 +548,11 @@ const deleteElement = (elementType: string, index: number) => {
         if (config.lineList.length === 0) {
           selectedElement.value = ''
         }
+      } else if (elementType === 'circle' && config.innerCircleList) {
+        config.innerCircleList.splice(index, 1)
+        if (config.innerCircleList.length === 0) {
+          selectedElement.value = ''
+        }
       }
     })
     
@@ -592,6 +615,28 @@ const addImage = () => {
         selectElement(`image-${newIndex}`, 'image', newIndex)
       })
     }
+  })
+  
+  emit('updateConfig')
+  emit('refresh')
+}
+
+// 添加内圈圆
+const addInnerCircle = () => {
+  stampStore.updateConfig((config) => {
+    if (!config.innerCircleList) {
+      config.innerCircleList = []
+    }
+    config.innerCircleList.push({
+      drawInnerCircle: true,
+      innerCircleLineWidth: 0.5,
+      innerCircleLineRadiusX: 16,
+      innerCircleLineRadiusY: 12
+    })
+    const newIndex = config.innerCircleList.length - 1
+    nextTick(() => {
+      selectElement(`circle-${newIndex}`, 'circle', newIndex)
+    })
   })
   
   emit('updateConfig')
@@ -704,7 +749,6 @@ const addImage = () => {
   padding: 2px 8px;
   background: #f0f0f0;
   border-radius: 4px;
-  display: none;
 }
 
 .element-actions {

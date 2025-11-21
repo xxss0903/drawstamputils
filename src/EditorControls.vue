@@ -106,6 +106,7 @@
           v-show="props.showAll || currentGroupName === 'innerCircle'"
           :expanded="props.showAll ? expandedGroups.innerCircle : true"
           :config="getDrawConfigs()"
+          :selected-index="props.selectedElementType === 'circle' ? props.selectedElementIndex ?? -1 : -1"
           @update:expanded="value => (expandedGroups.innerCircle = value)"
           @update-config="handleInnerCircleConfigUpdate"
         />

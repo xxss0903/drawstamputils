@@ -7,12 +7,25 @@
       </h3>
     </div>
     <div class="group-content" v-show="expanded">
-      <button @click="addInnerCircle">{{ t('stamp.innerCircle.addNew') }}</button>
       <div v-for="(innerCircle, index) in innerCircleList" :key="index" class="inner-circle-item">
         <div class="inner-circle-header">
-          <span>第 {{ index + 1 }} 行</span>
-          <button class="small-button delete-button" @click="removeInnerCircle(index)">删除</button>
+          <div class="header-left">
+            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? '收起' : '展开'">
+              <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
+            </button>
+            <span>第 {{ index + 1 }} 行</span>
+          </div>
+          <div class="header-actions">
+            <button class="action-btn" @click.stop="copyInnerCircle(index)">
+              复制
+            </button>
+            <button class="action-btn delete-btn" @click.stop="removeInnerCircle(index)">
+              删除
+            </button>
+          </div>
         </div>
+        <transition name="fade">
+        <div v-show="isItemExpanded(index)" class="inner-circle-body">
         <label>
           {{ t('stamp.innerCircle.lineWidth') }}:
           <input
@@ -46,13 +59,16 @@
             @input="updateInnerCircle(index, 'innerCircleLineRadiusY', parseNumber($event))"
           />
         </label>
+        </div>
+        </transition>
       </div>
+      <button class="add-button" @click="addInnerCircle">{{ t('stamp.innerCircle.addNew') }}</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, IInnerCircle } from '../../../DrawStampTypes'
 
@@ -61,6 +77,7 @@ const { t } = useI18n()
 const props = defineProps<{
   expanded: boolean
   config: IDrawStampConfig
+  selectedIndex?: number
 }>()
 
 const emit = defineEmits<{
@@ -69,9 +86,32 @@ const emit = defineEmits<{
 }>()
 
 const innerCircleList = computed(() => props.config.innerCircleList || [])
+const selectedIndex = computed(() => props.selectedIndex ?? -1)
+
+// 跟踪每个项的展开状态
+const expandedItems = ref<Record<number, boolean>>({})
+
+// 当 selectedIndex 变化时，自动展开对应的项
+watch(selectedIndex, (newIndex) => {
+  if (newIndex >= 0) {
+    expandedItems.value[newIndex] = true
+  }
+}, { immediate: true })
 
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
+}
+
+const toggleItem = (index: number) => {
+  expandedItems.value[index] = !expandedItems.value[index]
+}
+
+const isItemExpanded = (index: number) => {
+  // 如果该项被选中，自动展开；否则使用本地展开状态
+  if (selectedIndex.value === index) {
+    return true
+  }
+  return expandedItems.value[index] ?? false
 }
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
@@ -94,6 +134,19 @@ const removeInnerCircle = (index: number) => {
   })
 }
 
+const copyInnerCircle = (index: number) => {
+  emit('update-config', (config) => {
+    if (!config.innerCircleList || !config.innerCircleList[index]) return
+    const original = config.innerCircleList[index]
+    const clone: IInnerCircle = {
+      ...original,
+      innerCircleLineRadiusX: original.innerCircleLineRadiusX + 1, // 稍微偏移
+      innerCircleLineRadiusY: original.innerCircleLineRadiusY + 1
+    }
+    config.innerCircleList.splice(index + 1, 0, clone)
+  })
+}
+
 const addInnerCircle = () => {
   emit('update-config', (config) => {
     if (!config.innerCircleList) {
@@ -108,4 +161,136 @@ const addInnerCircle = () => {
   })
 }
 </script>
+
+<style scoped>
+.inner-circle-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.inner-circle-item:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.inner-circle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+  border-bottom: 1px solid #e8e8e8;
+  transition: background 0.2s;
+  gap: 12px;
+}
+
+.inner-circle-header:hover {
+  background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.expand-toggle-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  min-width: 24px;
+  height: 24px;
+}
+
+.expand-toggle-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.expand-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.expand-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-icon:not(.expanded) {
+  transform: rotate(-90deg);
+}
+
+.inner-circle-header span {
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.inner-circle-body {
+  padding: 16px;
+  background: #fff;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  min-width: 50px;
+}
+
+.action-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.delete-btn:hover {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+  background: #fff1f0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
 
