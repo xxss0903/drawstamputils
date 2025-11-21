@@ -111,11 +111,11 @@
             <div class="range-container">
               <input
                 type="range"
-                :value="company.startAngle"
-                min="-3.14"
-                max="3.14"
-                step="0.01"
-                @input="onNumberInput(index, 'startAngle', $event)"
+                :value="(company.startAngle * 180 / Math.PI)"
+                min="-360"
+                max="360"
+                step="1"
+                @input="onStartAngleInput(index, $event)"
               />
               <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
             </div>
@@ -296,6 +296,14 @@ const onNumberInput = (index: number, field: keyof ICompany, event: Event) => {
   const value = Number((event.target as HTMLInputElement).value)
   updateConfig((company) => {
     ;(company as any)[field] = value
+  }, index)
+}
+
+const onStartAngleInput = (index: number, event: Event) => {
+  const degrees = Number((event.target as HTMLInputElement).value)
+  const radians = degrees * Math.PI / 180
+  updateConfig((company) => {
+    company.startAngle = radians
   }, index)
 }
 
