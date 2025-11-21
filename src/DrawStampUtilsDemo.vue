@@ -297,6 +297,8 @@ const resetStamp = () => {
   currentConfig.agingEffect.applyAging = false
   currentConfig.agingEffect.agingEffectParams = []
   currentConfig.openManualAging = false
+  currentConfig.width = 40
+  currentConfig.height = 40
 
   drawStampUtils.setDrawConfigs(currentConfig)
   stampStore.setConfig(currentConfig)
