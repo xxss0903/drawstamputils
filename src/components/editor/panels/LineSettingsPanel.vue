@@ -12,13 +12,15 @@
         v-for="(line, index) in lineList"
         :key="line.id || index"
       >
-        <div class="line-header">
+        <div class="line-header" @click.stop="toggleItem(index)">
           <span>{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
           <div class="header-actions">
-            <button class="small-button" @click="copyLine(index)">复制</button>
-            <button class="small-button delete-button" @click="removeLine(index)">删除</button>
+            <button class="small-button" @click.stop="copyLine(index)">复制</button>
+            <button class="small-button delete-button" @click.stop="removeLine(index)">删除</button>
           </div>
         </div>
+        <transition name="fade">
+        <div v-show="isItemExpanded(index)" class="line-body">
 
         <label>
           方向:
@@ -135,6 +137,8 @@
             <span>{{ ((line.opacity ?? 1) * 100).toFixed(0) }}%</span>
           </div>
         </label>
+        </div>
+        </transition>
       </div>
 
       <div class="line-actions">
@@ -152,6 +156,7 @@ import type { IDrawStampConfig, ILineConfig, LineStyle } from '../../../DrawStam
 const props = defineProps<{
   expanded: boolean
   config: IDrawStampConfig
+  selectedIndex?: number
 }>()
 
 const emit = defineEmits<{
@@ -168,10 +173,17 @@ const maxLength = computed(() => {
   const height = props.config.height ?? 40
   return Math.max(width, height, 10)
 })
+const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
 }
+
+const toggleItem = (index: number) => {
+  // 点击 header 时不做任何操作，因为展开/折叠由 selectedIndex 控制
+}
+
+const isItemExpanded = (index: number) => selectedIndex.value === index
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
 
@@ -242,6 +254,19 @@ const copyLine = (index: number) => {
   align-items: center;
   margin-bottom: 8px;
   font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+  margin: -8px -8px 8px -8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.line-header:hover {
+  background-color: #f0f0f0;
+}
+
+.line-body {
+  margin-top: 8px;
 }
 
 .header-actions {
@@ -291,6 +316,16 @@ const copyLine = (index: number) => {
   text-align: right;
   font-size: 14px;
   color: #666;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
 

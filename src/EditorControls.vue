@@ -16,6 +16,7 @@
           :expanded="props.showAll ? expandedGroups.company : true"
           :config="getDrawConfigs()"
           :system-fonts="systemFonts"
+          :selected-index="props.selectedElementType === 'company' ? props.selectedElementIndex ?? -1 : -1"
           @update:expanded="value => (expandedGroups.company = value)"
           @update-config="handleCompanyConfigUpdate"
         />
@@ -25,6 +26,7 @@
           :expanded="props.showAll ? expandedGroups.stampType : true"
           :config="getDrawConfigs()"
           :system-fonts="systemFonts"
+          :selected-index="props.selectedElementType === 'stampType' ? props.selectedElementIndex ?? -1 : -1"
           @update:expanded="value => (expandedGroups.stampType = value)"
           @update-config="handleStampTypeConfigUpdate"
         />
@@ -51,6 +53,7 @@
           v-show="props.showAll || currentGroupName === 'images'"
           :expanded="props.showAll ? expandedGroups.images : true"
           :config="getDrawConfigs()"
+          :selected-index="props.selectedElementType === 'image' ? props.selectedElementIndex ?? -1 : -1"
           @update:expanded="value => (expandedGroups.images = value)"
           @update-config="handleImageListConfigUpdate"
         />
@@ -59,6 +62,7 @@
           v-show="props.showAll || currentGroupName === 'lines'"
           :expanded="props.showAll ? expandedGroups.lines : true"
           :config="getDrawConfigs()"
+          :selected-index="props.selectedElementType === 'line' ? props.selectedElementIndex ?? -1 : -1"
           @update:expanded="value => (expandedGroups.lines = value)"
           @update-config="handleLineConfigUpdate"
         />
@@ -136,6 +140,7 @@ import LineSettingsPanel from './components/editor/panels/LineSettingsPanel.vue'
   const props = defineProps<{
     drawStampUtils: DrawStampUtils
     selectedElementType?: string
+    selectedElementIndex?: number
     showAll?: boolean
     }>()
 

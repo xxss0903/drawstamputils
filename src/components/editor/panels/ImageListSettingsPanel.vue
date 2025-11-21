@@ -8,10 +8,14 @@
     </div>
     <div class="group-content" v-show="expanded">
       <div v-for="(image, index) in imageList" :key="index" class="image-item">
-        <div class="image-header">
+        <div class="image-header" @click.stop="toggleItem(index)">
           <span>{{ t('stamp.images.image', { index: index + 1 }) }}</span>
-          <button class="small-button delete-button" @click="removeImage(index)">删除</button>
+          <div class="header-actions">
+            <button class="small-button delete-button" @click.stop="removeImage(index)">删除</button>
+          </div>
         </div>
+        <transition name="fade">
+        <div v-show="isItemExpanded(index)" class="image-body">
         <div class="image-preview" v-if="image.imageUrl">
           <img :src="image.imageUrl" :alt="t('stamp.common.preview')" />
         </div>
@@ -91,6 +95,8 @@
           />
           {{ t('stamp.images.keepRatio') }}
         </label>
+        </div>
+        </transition>
       </div>
       <button class="add-button" @click="addImage">
         {{ t('stamp.common.addNew') }}
@@ -109,6 +115,7 @@ const { t } = useI18n()
 const props = defineProps<{
   expanded: boolean
   config: IDrawStampConfig
+  selectedIndex?: number
 }>()
 
 const emit = defineEmits<{
@@ -117,10 +124,17 @@ const emit = defineEmits<{
 }>()
 
 const imageList = computed(() => props.config.imageList || [])
+const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
 }
+
+const toggleItem = (index: number) => {
+  // 点击 header 时不做任何操作，因为展开/折叠由 selectedIndex 控制
+}
+
+const isItemExpanded = (index: number) => selectedIndex.value === index
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
 
@@ -192,6 +206,40 @@ const handleImageUpload = (event: Event, index: number) => {
   text-align: right;
   font-size: 14px;
   color: #666;
+}
+
+.image-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  margin: -8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.image-header:hover {
+  background-color: #f5f5f5;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.image-body {
+  margin-top: 8px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
 

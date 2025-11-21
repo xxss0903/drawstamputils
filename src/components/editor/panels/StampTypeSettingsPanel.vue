@@ -11,12 +11,14 @@
         <div class="stamp-type-header">
           <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
           <div class="header-actions">
-            <button class="small-button" @click="copyStampType(index)">复制</button>
-            <button class="small-button delete-button" @click="removeStampType(index)">
+            <button class="small-button" @click.stop="copyStampType(index)">复制</button>
+            <button class="small-button delete-button" @click.stop="removeStampType(index)">
               {{ t('stamp.stampType.delete') }}
             </button>
           </div>
         </div>
+        <transition name="fade">
+        <div v-show="isItemExpanded(index)" class="stamp-type-body">
         <label>
           {{ t('stamp.stampType.type') }}:
           <input
@@ -134,6 +136,8 @@
             <option value="vertical">竖直</option>
           </select>
         </label>
+        </div>
+        </transition>
       </div>
       <button class="add-button" @click="addStampType">
         {{ t('stamp.stampType.addNew') }}
@@ -153,6 +157,7 @@ const props = defineProps<{
   expanded: boolean
   config: IDrawStampConfig
   systemFonts: string[]
+  selectedIndex?: number
 }>()
 
 const emit = defineEmits<{
@@ -161,6 +166,7 @@ const emit = defineEmits<{
 }>()
 
 const stampTypeList = computed(() => props.config.stampTypeList || [])
+const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
@@ -194,6 +200,8 @@ const copyStampType = (index: number) => {
     config.stampTypeList.splice(index + 1, 0, clone)
   })
 }
+
+const isItemExpanded = (index: number) => selectedIndex.value === index
 
 const addStampType = () => {
   emit('update-config', (config) => {
@@ -233,6 +241,10 @@ const addStampType = () => {
   gap: 6px;
 }
 
+.stamp-type-body {
+  margin-top: 8px;
+}
+
 .range-container {
   display: flex;
   align-items: center;
@@ -248,5 +260,15 @@ const addStampType = () => {
   text-align: right;
   font-size: 14px;
   color: #666;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

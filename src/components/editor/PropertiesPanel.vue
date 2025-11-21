@@ -13,6 +13,7 @@
         ref="editorControlsRef"
         :drawStampUtils="drawStampUtils"
         :selected-element-type="elementType"
+        :selected-element-index="elementIndex"
         :show-all="showAll"
         @updateDrawStamp="handleUpdateDrawStamp"
       />

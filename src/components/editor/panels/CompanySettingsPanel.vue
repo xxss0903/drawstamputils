@@ -8,12 +8,16 @@
     </div>
     <div class="group-content" v-show="expanded">
       <div v-for="(company, index) in companyList" :key="index" class="company-item">
-        <div class="company-header">
+        <div class="company-header" @click.stop="toggleItem(index)">
           <span>{{ t('stamp.common.line', { index: index + 1 }) }}</span>
-          <button class="small-button delete-button" @click="removeCompany(index)">
-            {{ t('stamp.common.delete') }}
-          </button>
+          <div class="header-actions">
+            <button class="small-button delete-button" @click.stop="removeCompany(index)">
+              {{ t('stamp.common.delete') }}
+            </button>
+          </div>
         </div>
+        <transition name="fade">
+        <div v-show="isItemExpanded(index)" class="company-body">
         <label>
           {{ t('stamp.company.name') }}:
           <input type="text" :value="company.companyName" @input="onFieldInput(index, 'companyName', $event)" />
@@ -205,6 +209,8 @@
             <span class="help-text">正数向下，负数向上</span>
           </label>
         </template>
+        </div>
+        </transition>
       </div>
       <button class="add-button" @click="addCompany">{{ t('stamp.common.addNew') }}</button>
     </div>
@@ -222,6 +228,7 @@ const props = defineProps<{
   expanded: boolean
   config: IDrawStampConfig
   systemFonts: string[]
+  selectedIndex?: number
 }>()
 
 const emit = defineEmits<{
@@ -232,10 +239,17 @@ const emit = defineEmits<{
 const companyList = computed(() => props.config.companyList || [])
 const fonts = computed(() => props.systemFonts || [])
 const fontWeightOptions = [100, 200, 300, 400, 500, 600, 700, 800, 900]
+const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
 }
+
+const toggleItem = (index: number) => {
+  // 点击 header 时不做任何操作，因为展开/折叠由 selectedIndex 控制
+}
+
+const isItemExpanded = (index: number) => selectedIndex.value === index
 
 const updateConfig = (updater: (company: ICompany) => void, index: number) => {
   emit('update-config', (config) => {
@@ -349,3 +363,39 @@ const addCompany = () => {
   })
 }
 </script>
+
+<style scoped>
+.company-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  margin: -8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.company-header:hover {
+  background-color: #f5f5f5;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.company-body {
+  margin-top: 8px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
