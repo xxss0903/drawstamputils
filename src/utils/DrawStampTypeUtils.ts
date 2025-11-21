@@ -61,6 +61,7 @@ export class DrawStampTypeUtils {
         const fontWeight = stampType.fontWeight || 'normal'
         const lineSpacingPx = stampType.lineSpacing * this.mmToPixel
         const orientation = stampType.orientation || 'horizontal'
+        const rotationRad = ((stampType.rotation || 0) * Math.PI) / 180
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${stampType.fontFamily}`
@@ -85,11 +86,15 @@ export class DrawStampTypeUtils {
 
                 chars.forEach((char, charIndex) => {
                     const charY = startY + charIndex * (fontSize + letterSpacingPx) + fontSize / 2
+                    const relativeY = charY - baseY
 
                     ctx.save()
-                    ctx.translate(columnX, 0)
+                    ctx.translate(columnX, baseY)
+                    if (rotationRad !== 0) {
+                        ctx.rotate(rotationRad)
+                    }
                     ctx.scale(stampType.compression, 1)
-                    ctx.fillText(char, 0, charY)
+                    ctx.fillText(char, 0, relativeY)
                     ctx.restore()
 
                     const charWidth = ctx.measureText(char).width * stampType.compression
@@ -122,6 +127,9 @@ export class DrawStampTypeUtils {
 
                 ctx.save()
                 ctx.translate(centerX + offsetX, textY)
+                if (rotationRad !== 0) {
+                    ctx.rotate(rotationRad)
+                }
                 ctx.scale(stampType.compression, 1)
 
                 let currentX = -totalWidth / 2 // 从文本的左边缘开始

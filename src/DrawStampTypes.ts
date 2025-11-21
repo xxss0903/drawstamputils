@@ -167,6 +167,7 @@ export type IStampType = {
     lineSpacing: number // 新增：行间距
     color?: string // 颜色
     orientation?: 'horizontal' | 'vertical' // 文字方向
+    rotation?: number // 旋转角度
 }
 
 // 内圈圆

@@ -147,6 +147,20 @@
             <option value="vertical">竖直</option>
           </select>
         </label>
+        <label>
+          旋转角度 (°):
+          <div class="range-container">
+            <input
+              type="range"
+              :value="type.rotation || 0"
+              min="-180"
+              max="180"
+              step="1"
+              @input="updateStampType(index, 'rotation', parseNumber($event))"
+            />
+            <span>{{ (type.rotation || 0).toFixed(0) }}</span>
+          </div>
+        </label>
         </div>
         </transition>
       </div>
@@ -255,7 +269,8 @@ const addStampType = () => {
       fontWeight: 'normal',
       lineSpacing: 2,
       fontWidth: 3,
-      orientation: 'horizontal'
+      orientation: 'horizontal',
+      rotation: 0
     })
   })
 }

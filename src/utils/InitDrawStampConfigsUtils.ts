@@ -84,7 +84,8 @@ export class InitDrawStampConfigsUtils {
         positionY: -3,
         fontWeight: 'normal',
         lineSpacing: 2, // 新增：行间距
-        orientation: 'horizontal'
+        orientation: 'horizontal',
+        rotation: 0
     }
     // 做旧效果
     private agingEffect: IAgingEffect = {
@@ -136,7 +137,8 @@ export class InitDrawStampConfigsUtils {
             positionY: -3,
             fontWeight: 'normal',
             lineSpacing: 2, // 新增：行间距
-            orientation: 'horizontal'
+            orientation: 'horizontal',
+            rotation: 0
         }
     ]
     // 添加公司列表属性

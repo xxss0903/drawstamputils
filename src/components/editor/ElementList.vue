@@ -204,6 +204,16 @@
           <span class="element-name">防伪纹路</span>
           <span class="element-type">{{ securityPattern.openSecurityPattern ? '已启用' : '未启用' }}</span>
         </div>
+        <div class="line-action-buttons">
+          <button class="add-line-button" @click="addCompanyItem">
+            <span class="add-icon">➕</span>
+            <span>添加公司名称</span>
+          </button>
+          <button class="add-line-button" @click="addStampTypeItem">
+            <span class="add-icon">➕</span>
+            <span>添加印章类型</span>
+          </button>
+        </div>
       </div>
 
       <!-- 文字元素 -->
@@ -414,7 +424,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
-import { IDrawStampConfig, IDrawImage, ILineConfig, ISvgShape } from '../../DrawStampTypes'
+import { IDrawStampConfig, IDrawImage, ILineConfig, ISvgShape, ICompany, IStampType } from '../../DrawStampTypes'
 import { useStampStore } from '../../stores/stampStore'
 
 interface Props {
@@ -626,6 +636,121 @@ const addLine = (type: 'horizontal' | 'vertical') => {
     const newIndex = config.lineList.length - 1
     nextTick(() => {
       selectElement(`line-${newIndex}`, 'line', newIndex)
+    })
+  })
+
+  emit('updateConfig')
+  emit('refresh')
+}
+
+const createCompanyConfig = (cfg: IDrawStampConfig): ICompany => {
+  const list = cfg.companyList || []
+  const last = list[list.length - 1]
+  const currentShape = cfg.company?.shape || 'ellipse'
+
+  if (currentShape === 'rectangle') {
+    const usedPositions = new Set(list.map(c => c.rectangleTextPosition))
+    const availablePositions: Array<'top' | 'bottom' | 'left' | 'right' | 'center'> = ['top', 'bottom', 'left', 'right', 'center']
+    const nextPosition = availablePositions.find(pos => !usedPositions.has(pos)) || 'center'
+
+    return {
+      companyName: '新公司名称',
+      compression: 1,
+      borderOffset: 1,
+      textDistributionFactor: 3,
+      fontFamily: last?.fontFamily || 'SimSun',
+      fontHeight: last?.fontHeight || 4.2,
+      fontWeight: last?.fontWeight || 'normal',
+      shape: 'rectangle',
+      adjustEllipseText: false,
+      adjustEllipseTextFactor: 0.5,
+      startAngle: 0,
+      rotateDirection: 'counterclockwise',
+      rectangleTextDirection: last?.rectangleTextDirection || 'horizontal',
+      rectangleTextPosition: nextPosition,
+      rectangleTextAlignment: last?.rectangleTextAlignment || 'center',
+      rectangleVerticalAlignment: last?.rectangleVerticalAlignment || 'center',
+      rectangleLineSpacing: last?.rectangleLineSpacing || 0,
+      rectangleTextMargin: last?.rectangleTextMargin || 1,
+      rectanglePositionX: last?.rectanglePositionX || 0,
+      rectanglePositionY: last?.rectanglePositionY || 0
+    }
+  }
+
+  const nextBorderOffset = last ? last.borderOffset + last.fontHeight : 1
+  return {
+    companyName: '新公司名称',
+    compression: 1,
+    borderOffset: nextBorderOffset,
+    textDistributionFactor: 3,
+    fontFamily: last?.fontFamily || 'SimSun',
+    fontHeight: last?.fontHeight || 4.2,
+    fontWeight: last?.fontWeight || 'normal',
+    shape: 'ellipse',
+    adjustEllipseText: false,
+    adjustEllipseTextFactor: 0.5,
+    startAngle: last?.startAngle || 0,
+    rotateDirection: last?.rotateDirection || 'counterclockwise',
+    rectangleTextDirection: 'horizontal',
+    rectangleTextPosition: 'center',
+    rectangleTextAlignment: 'center',
+    rectangleVerticalAlignment: 'center',
+    rectangleLineSpacing: 0,
+    rectangleTextMargin: 1
+  }
+}
+
+const createStampTypeConfig = (cfg: IDrawStampConfig): IStampType => {
+  const list = cfg.stampTypeList || []
+  const last = list[list.length - 1]
+  let newPositionY = -3
+  if (last) {
+    newPositionY = last.positionY + last.fontHeight
+  }
+  return {
+    stampType: '新印章类型',
+    fontHeight: last?.fontHeight || 4.0,
+    fontFamily: last?.fontFamily || 'SimSun',
+    compression: last?.compression ?? 0.75,
+    letterSpacing: last?.letterSpacing ?? 0,
+    positionY: newPositionY,
+    positionX: last?.positionX ?? 0,
+    fontWeight: last?.fontWeight || 'normal',
+    lineSpacing: last?.lineSpacing ?? 2,
+    fontWidth: last?.fontWidth ?? 3,
+    orientation: last?.orientation || 'horizontal',
+    color: last?.color || cfg.primaryColor,
+    rotation: last?.rotation ?? 0
+  }
+}
+
+const addCompanyItem = () => {
+  stampStore.updateConfig((config) => {
+    if (!config.companyList) {
+      config.companyList = []
+    }
+    const newCompany = createCompanyConfig(config)
+    config.companyList.push(newCompany)
+    const newIndex = config.companyList.length - 1
+    nextTick(() => {
+      selectElement(`company-${newIndex}`, 'company', newIndex)
+    })
+  })
+
+  emit('updateConfig')
+  emit('refresh')
+}
+
+const addStampTypeItem = () => {
+  stampStore.updateConfig((config) => {
+    if (!config.stampTypeList) {
+      config.stampTypeList = []
+    }
+    const newType = createStampTypeConfig(config)
+    config.stampTypeList.push(newType)
+    const newIndex = config.stampTypeList.length - 1
+    nextTick(() => {
+      selectElement(`stampType-${newIndex}`, 'stampType', newIndex)
     })
   })
 
