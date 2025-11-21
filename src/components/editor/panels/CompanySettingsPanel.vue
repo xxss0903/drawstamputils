@@ -39,7 +39,7 @@
               @change="onFieldInput(index, 'fontFamily', $event)"
             >
               <option v-for="font in fonts" :key="font" :value="font" :style="{ fontFamily: font }">
-                {{ font }}
+                {{ getFontDisplayName(font) }}
               </option>
             </select>
             <input
@@ -229,6 +229,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ICompany, IDrawStampConfig } from '../../../DrawStampTypes'
+import { getFontDisplayName } from '../../../utils/fontUtils'
 
 const { t } = useI18n()
 

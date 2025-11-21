@@ -48,18 +48,22 @@
         <label>
           {{ t('stamp.stampType.font') }}:
           <div class="font-input-group">
+            <select
+              :value="type.fontFamily"
+              class="font-select"
+              @change="updateStampType(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
+            >
+              <option v-for="font in systemFonts" :key="font" :value="font" :style="{ fontFamily: font }">
+                {{ getFontDisplayName(font) }}
+              </option>
+            </select>
             <input
               type="text"
               :value="type.fontFamily"
-              list="stampTypeFontList"
               class="font-input"
               @input="updateStampType(index, 'fontFamily', ($event.target as HTMLInputElement).value)"
+              :placeholder="t('stamp.common.fontPlaceholder')"
             />
-            <datalist id="stampTypeFontList">
-              <option v-for="font in systemFonts" :key="font" :value="font">
-                {{ font }}
-              </option>
-            </datalist>
           </div>
         </label>
         <label>
@@ -157,6 +161,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, IStampType } from '../../../DrawStampTypes'
+import { getFontDisplayName } from '../../../utils/fontUtils'
 
 const { t } = useI18n()
 

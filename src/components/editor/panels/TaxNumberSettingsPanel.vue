@@ -29,7 +29,7 @@
               :value="font"
               :style="{ fontFamily: font }"
             >
-              {{ font }}
+              {{ getFontDisplayName(font) }}
             </option>
           </select>
           <input
@@ -100,6 +100,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, ITaxNumber } from '../../../DrawStampTypes'
+import { getFontDisplayName } from '../../../utils/fontUtils'
 
 const { t } = useI18n()
 
