@@ -41,7 +41,7 @@
             @click.stop
             ref="editInputRef"
           />
-          <span class="element-type">{{ company.shape === 'rectangle' ? '矩形' : '椭圆' }}</span>
+<!--          <span class="element-type">{{ company.shape === 'rectangle' ? '矩形' : '椭圆' }}</span>-->
           <div class="element-actions" @click.stop>
             <button class="action-btn edit-btn" @click="startEdit(`company-${index}`, 'company', index, company.companyName)" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('company', index)" title="清除">🗑️</button>
@@ -67,7 +67,7 @@
             @click.stop
             ref="editInputRef"
           />
-          <span class="element-type">类型</span>
+<!--          <span class="element-type">类型</span>-->
           <div class="element-actions" @click.stop>
             <button class="action-btn edit-btn" @click="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('stampType', index)" title="清除">🗑️</button>
@@ -91,7 +91,7 @@
             @click.stop
             ref="editInputRef"
           />
-          <span class="element-type">编码</span>
+<!--          <span class="element-type">编码</span>-->
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('code', 0)" title="清除">🗑️</button>
@@ -115,7 +115,7 @@
             @click.stop
             ref="editInputRef"
           />
-          <span class="element-type">税号</span>
+<!--          <span class="element-type">税号</span>-->
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')" title="编辑">✏️</button>
             <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" title="清除">🗑️</button>
@@ -462,7 +462,7 @@ const saveEdit = () => {
   if (editingElement.value && editingElementType.value !== '' && editingValue.value !== undefined) {
     const elementType = editingElementType.value
     const index = editingElementIndex.value
-    
+
     stampStore.updateConfig((config) => {
       if (elementType === 'company' && config.companyList && config.companyList[index]) {
         config.companyList[index].companyName = editingValue.value
@@ -474,10 +474,10 @@ const saveEdit = () => {
         config.taxNumber.code = editingValue.value
       }
     })
-    
+
     emit('updateConfig')
   }
-  
+
   cancelEdit()
 }
 
@@ -502,7 +502,7 @@ const clearText = (elementType: string, index: number) => {
       config.taxNumber.code = ''
     }
   })
-  
+
   emit('updateConfig')
   emit('refresh')
 }
@@ -555,7 +555,7 @@ const deleteElement = (elementType: string, index: number) => {
         }
       }
     })
-    
+
     emit('updateConfig')
     emit('refresh')
   }
@@ -616,7 +616,7 @@ const addImage = () => {
       })
     }
   })
-  
+
   emit('updateConfig')
   emit('refresh')
 }
@@ -638,7 +638,7 @@ const addInnerCircle = () => {
       selectElement(`circle-${newIndex}`, 'circle', newIndex)
     })
   })
-  
+
   emit('updateConfig')
   emit('refresh')
 }
