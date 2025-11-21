@@ -54,7 +54,7 @@ const handleUpdateDrawStamp = (
 }
 
 // 元素类型到设置组名称的映射
-const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 'code' | 'taxNumber' | 'star' | 'innerCircle' | 'images' | 'aging' | 'roughEdge' | 'security' | 'lines'> = {
+const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 'code' | 'taxNumber' | 'star' | 'innerCircle' | 'images' | 'svg' | 'aging' | 'roughEdge' | 'security' | 'lines'> = {
   'basic': 'basic',
   'company': 'company',
   'stampType': 'stampType',
@@ -63,6 +63,7 @@ const elementTypeToGroupMap: Record<string, 'basic' | 'company' | 'stampType' | 
   'star': 'star',
   'circle': 'innerCircle',
   'image': 'images',
+  'svg': 'svg',
   'aging': 'aging',
   'roughEdge': 'roughEdge',
   'security': 'security',

@@ -5,6 +5,7 @@ import {
   IDrawStampConfig,
   IDrawStar,
   ILineConfig,
+  ISvgShape,
   IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
@@ -48,6 +49,8 @@ export class DrawStampUtils {
     private drawStampConfigs: IDrawStampConfig
     // 添加图片缓存
     private imageCache: Map<string, ImageBitmap> = new Map();
+    private svgBitmapCache: Map<string, ImageBitmap> = new Map();
+    private pendingSvgLoads: Map<string, Promise<void>> = new Map();
     // 绘制内径圆的工具类
     private drawCircleUtils: DrawCircleUtils
     // 绘制svg的工具类
@@ -158,7 +161,11 @@ export class DrawStampUtils {
         if (!drawConfigs.lineList) {
             drawConfigs.lineList = []
         }
+        if (!drawConfigs.svgList) {
+            drawConfigs.svgList = []
+        }
         this.drawStampConfigs = drawConfigs
+        this.resetSvgCache()
     }
 
     private addCanvasListener() {
@@ -373,6 +380,136 @@ export class DrawStampUtils {
         }
         
         ctx.restore();
+    }
+
+    private resetSvgCache() {
+        this.svgBitmapCache.clear()
+        this.pendingSvgLoads.clear()
+    }
+
+    private getSvgCacheKey(svg: ISvgShape) {
+        return `${svg.id}-${svg.version ?? 0}-${svg.color || ''}`
+    }
+
+    private async createSvgBitmap(svg: ISvgShape): Promise<ImageBitmap | null> {
+        try {
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(svg.svgContent, 'image/svg+xml')
+            const svgElement = doc.documentElement
+            if (!svgElement) return null
+
+            const color = svg.color || this.drawStampConfigs.primaryColor || '#d40000'
+            const style = doc.createElement('style')
+            style.textContent = `* { fill: ${color} !important; stroke: ${color} !important; }`
+            svgElement.insertBefore(style, svgElement.firstChild)
+
+            if (!svgElement.getAttribute('viewBox')) {
+                const widthAttr = svgElement.getAttribute('width')
+                const heightAttr = svgElement.getAttribute('height')
+                if (widthAttr && heightAttr) {
+                    const widthValue = parseFloat(widthAttr)
+                    const heightValue = parseFloat(heightAttr)
+                    if (!Number.isNaN(widthValue) && !Number.isNaN(heightValue) && widthValue > 0 && heightValue > 0) {
+                        svgElement.setAttribute('viewBox', `0 0 ${widthValue} ${heightValue}`)
+                    }
+                }
+            }
+
+            if (!svgElement.getAttribute('width')) {
+                svgElement.setAttribute('width', '100')
+            }
+            if (!svgElement.getAttribute('height')) {
+                svgElement.setAttribute('height', '100')
+            }
+
+            const svgString = new XMLSerializer().serializeToString(svgElement)
+            const blob = new Blob([svgString], { type: 'image/svg+xml' })
+            const objectUrl = URL.createObjectURL(blob)
+            try {
+                const bitmap = await new Promise<ImageBitmap>((resolve, reject) => {
+                    const img = new Image()
+                    img.crossOrigin = 'anonymous'
+                    img.onload = () => {
+                        createImageBitmap(img).then(resolve).catch(reject)
+                    }
+                    img.onerror = (err) => reject(err)
+                    img.src = objectUrl
+                })
+                return bitmap
+            } finally {
+                URL.revokeObjectURL(objectUrl)
+            }
+        } catch (error) {
+            console.error('创建 SVG 位图失败:', error)
+            return null
+        }
+    }
+
+    private scheduleSvgBitmapLoad(svg: ISvgShape) {
+        if (!svg.svgContent) return
+        const cacheKey = this.getSvgCacheKey(svg)
+        if (this.pendingSvgLoads.has(cacheKey)) {
+            return
+        }
+        const loadPromise = this.createSvgBitmap(svg)
+            .then((bitmap) => {
+                if (bitmap) {
+                    this.svgBitmapCache.set(cacheKey, bitmap)
+                }
+            })
+            .catch((error) => {
+                console.error('加载 SVG 图片失败:', error)
+            })
+            .finally(() => {
+                this.pendingSvgLoads.delete(cacheKey)
+                this.refreshStamp()
+            })
+        this.pendingSvgLoads.set(cacheKey, loadPromise)
+    }
+
+    private drawSvgList(
+        ctx: CanvasRenderingContext2D,
+        svgList: ISvgShape[],
+        centerX: number,
+        centerY: number
+    ) {
+        if (!svgList || svgList.length === 0) {
+            return
+        }
+
+        svgList.forEach((svg) => {
+            if (!svg || !svg.svgContent) return
+            const cacheKey = this.getSvgCacheKey(svg)
+            const bitmap = this.svgBitmapCache.get(cacheKey)
+
+            if (!bitmap) {
+                this.scheduleSvgBitmapLoad(svg)
+                return
+            }
+
+            const scale = svg.scale ?? 1
+            const baseWidth = svg.width || 10
+            const baseHeight = svg.height || svg.width || 10
+            const targetWidth = Math.max(1, baseWidth * this.mmToPixel * scale)
+            let targetHeight = Math.max(1, baseHeight * this.mmToPixel * scale)
+
+            if (svg.keepAspectRatio && bitmap.width > 0 && bitmap.height > 0) {
+                const aspectRatio = bitmap.height / bitmap.width
+                targetHeight = targetWidth * aspectRatio
+            }
+
+            const posX = centerX + (svg.positionX || 0) * this.mmToPixel
+            const posY = centerY + (svg.positionY || 0) * this.mmToPixel
+            const rotation = ((svg.rotation || 0) * Math.PI) / 180
+
+            ctx.save()
+            ctx.translate(posX, posY)
+            if (rotation !== 0) {
+                ctx.rotate(rotation)
+            }
+            ctx.drawImage(bitmap, -targetWidth / 2, -targetHeight / 2, targetWidth, targetHeight)
+            ctx.restore()
+        })
     }
 
     private drawLines(
@@ -947,6 +1084,9 @@ export class DrawStampUtils {
         // 如果没有图片，绘制五角星或SVG
         if (this.drawStampConfigs.drawStar.drawStar) {
             this.drawSvgUtils.drawStarShape(offscreenCtx, this.drawStampConfigs.drawStar, centerX, centerY, this.drawStampConfigs.primaryColor)
+        }
+        if (this.drawStampConfigs.svgList && this.drawStampConfigs.svgList.length > 0) {
+            this.drawSvgList(offscreenCtx, this.drawStampConfigs.svgList, centerX, centerY)
         }
         // 绘制图片列表
         if (this.drawStampConfigs.imageList && this.drawStampConfigs.imageList.length > 0) {

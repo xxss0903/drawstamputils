@@ -13,6 +13,13 @@
         {{ tab.label }}
       </button>
     </div>
+    <input
+      ref="svgFileInput"
+      type="file"
+      accept=".svg"
+      style="display: none"
+      @change="handleSvgFileChange"
+    />
     <div class="panel-content">
       <!-- 全部元素 -->
       <div v-show="activeTab === 'all'" class="element-category">
@@ -163,6 +170,17 @@
           <span class="element-name">{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('line', index)" title="删除">❌</button>
+          </div>
+        </div>
+        <div class="element-item"
+             v-for="(svg, index) in svgList"
+             :key="`svg-all-${svg.id || index}`"
+             :class="{ active: selectedElement === `svg-${index}` }"
+             @click.stop="selectElement(`svg-${index}`, 'svg', index)">
+          <span class="element-icon">🧩</span>
+          <span class="element-name">{{ svg.name || `SVG ${index + 1}` }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('svg', index)" title="删除">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -331,6 +349,17 @@
             <button class="action-btn delete-btn" @click="deleteElement('line', index)" title="删除">❌</button>
           </div>
         </div>
+        <div class="element-item"
+             v-for="(svg, index) in svgList"
+             :key="`figure-svg-${svg.id || index}`"
+             :class="{ active: selectedElement === `svg-${index}` }"
+             @click.stop="selectElement(`svg-${index}`, 'svg', index)">
+          <span class="element-icon">🧩</span>
+          <span class="element-name">{{ svg.name || `SVG ${index + 1}` }}</span>
+          <div class="element-actions show-always" @click.stop>
+            <button class="action-btn delete-btn" @click="deleteElement('svg', index)" title="删除">❌</button>
+          </div>
+        </div>
         <div class="line-action-buttons">
           <button class="add-line-button" @click="addLine('horizontal')">
             <span class="add-icon">➕</span>
@@ -348,6 +377,10 @@
         <button class="add-image-button" @click="addInnerCircle">
           <span class="add-icon">➕</span>
           <span>添加内圈圆</span>
+        </button>
+        <button class="add-image-button" @click="triggerSvgUpload">
+          <span class="add-icon">➕</span>
+          <span>上传 SVG</span>
         </button>
       </div>
 
@@ -381,7 +414,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
-import { IDrawStampConfig, IDrawImage, ILineConfig } from '../../DrawStampTypes'
+import { IDrawStampConfig, IDrawImage, ILineConfig, ISvgShape } from '../../DrawStampTypes'
 import { useStampStore } from '../../stores/stampStore'
 
 interface Props {
@@ -405,6 +438,7 @@ const editingElementType = ref<string>('')
 const editingElementIndex = ref<number>(-1)
 const editingValue = ref<string>('')
 const editInputRef = ref<HTMLInputElement | null>(null)
+const svgFileInput = ref<HTMLInputElement | null>(null)
 
 const tabs = [
   { key: 'all' as const, label: '全部' },
@@ -434,6 +468,7 @@ const visibleImages = computed(() =>
     .map((image, index) => ({ image, index }))
     .filter((item) => item.image && item.image.imageUrl)
 )
+const svgList = computed(() => config.value.svgList || [])
 const agingEffect = computed(() => config.value.agingEffect || { applyAging: false })
 const roughEdge = computed(() => config.value.roughEdge || { drawRoughEdge: false })
 const securityPattern = computed(() => config.value.securityPattern || { openSecurityPattern: false })
@@ -548,6 +583,11 @@ const deleteElement = (elementType: string, index: number) => {
         if (config.lineList.length === 0) {
           selectedElement.value = ''
         }
+      } else if (elementType === 'svg' && config.svgList) {
+        config.svgList.splice(index, 1)
+        if (config.svgList.length === 0) {
+          selectedElement.value = ''
+        }
       } else if (elementType === 'circle' && config.innerCircleList) {
         config.innerCircleList.splice(index, 1)
         if (config.innerCircleList.length === 0) {
@@ -641,6 +681,55 @@ const addInnerCircle = () => {
 
   emit('updateConfig')
   emit('refresh')
+}
+
+const createSvgItem = (name: string, content: string, cfg: IDrawStampConfig): ISvgShape => ({
+  id: crypto?.randomUUID ? crypto.randomUUID() : `svg-${Date.now()}`,
+  name: name || `SVG ${cfg.svgList ? cfg.svgList.length + 1 : 1}`,
+  svgContent: content,
+  color: cfg.primaryColor || '#d40000',
+  width: 12,
+  height: 12,
+  positionX: 0,
+  positionY: 0,
+  rotation: 0,
+  scale: 1,
+  keepAspectRatio: true,
+  version: Date.now()
+})
+
+const addSvgFromContent = (name: string, content: string) => {
+  stampStore.updateConfig((config) => {
+    if (!config.svgList) {
+      config.svgList = []
+    }
+    config.svgList.push(createSvgItem(name, content, config))
+    const newIndex = config.svgList.length - 1
+    nextTick(() => {
+      selectElement(`svg-${newIndex}`, 'svg', newIndex)
+    })
+  })
+
+  emit('updateConfig')
+  emit('refresh')
+}
+
+const triggerSvgUpload = () => {
+  svgFileInput.value?.click()
+}
+
+const handleSvgFileChange = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (!input.files?.length) return
+  const file = input.files[0]
+  try {
+    const text = await file.text()
+    addSvgFromContent(file.name.replace(/\.svg$/i, ''), text)
+  } catch (error) {
+    console.error('读取 SVG 文件失败:', error)
+  } finally {
+    input.value = ''
+  }
 }
 </script>
 

@@ -58,6 +58,15 @@
           @update-config="handleImageListConfigUpdate"
         />
 
+        <SvgSettingsPanel
+          v-show="props.showAll || currentGroupName === 'svg'"
+          :expanded="props.showAll ? expandedGroups.svg : true"
+          :config="getDrawConfigs()"
+          :selected-index="props.selectedElementType === 'svg' ? props.selectedElementIndex ?? -1 : -1"
+          @update:expanded="value => (expandedGroups.svg = value)"
+          @update-config="handleSvgConfigUpdate"
+        />
+
         <LineSettingsPanel
           v-show="props.showAll || currentGroupName === 'lines'"
           :expanded="props.showAll ? expandedGroups.lines : true"
@@ -132,6 +141,7 @@ import RoughEdgeSettingsPanel from './components/editor/panels/RoughEdgeSettings
 import AgingEffectSettingsPanel from './components/editor/panels/AgingEffectSettingsPanel.vue'
 import InnerCircleSettingsPanel from './components/editor/panels/InnerCircleSettingsPanel.vue'
 import LineSettingsPanel from './components/editor/panels/LineSettingsPanel.vue'
+import SvgSettingsPanel from './components/editor/panels/SvgSettingsPanel.vue'
 
   const { t } = useI18n()
 
@@ -155,6 +165,7 @@ const elementTypeToGroupMap: Record<string, string> = {
     'star': 'star',
     'circle': 'innerCircle',
     'image': 'images',
+    'svg': 'svg',
     'aging': 'aging',
     'roughEdge': 'roughEdge',
     'security': 'security',
@@ -417,6 +428,17 @@ const handleImageListConfigUpdate = (updater: (config: IDrawStampConfig) => void
   drawStamp()
 }
 
+const handleSvgConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
+  stampStore.updateConfig((config) => {
+    if (!config.svgList) {
+      config.svgList = []
+    }
+    updater(config)
+  })
+  restoreDrawConfigs()
+  drawStamp()
+}
+
 const handleStarConfigUpdate = (updater: (config: IDrawStampConfig) => void) => {
   stampStore.updateConfig((config) => {
     updater(config)
@@ -655,6 +677,7 @@ type GroupKey =
   | 'aging'
   | 'innerCircle'
   | 'images'
+  | 'svg'
   | 'lines'
 
 const expandedGroups = reactive<Record<GroupKey, boolean>>({
@@ -669,6 +692,7 @@ const expandedGroups = reactive<Record<GroupKey, boolean>>({
     aging: false,
     innerCircle: false,
     images: false,
+    svg: false,
     lines: false
   })
 

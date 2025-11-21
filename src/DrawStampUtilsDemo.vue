@@ -461,6 +461,9 @@ const loadTemplateFile = async (event: Event) => {
       newConfig.company.startAngle = config.company.startAngle
       newConfig.company.rotateDirection = config.company.rotateDirection
     }
+    if (!newConfig.svgList) {
+      newConfig.svgList = []
+    }
 
     drawStampUtils.setDrawConfigs(newConfig)
     drawStamp()
@@ -558,6 +561,9 @@ const loadSelectedTemplate = (template: Template) => {
     newConfig.ruler.showDashLine = true
     newConfig.company.startAngle = template.config.company.startAngle
     newConfig.company.rotateDirection = template.config.company.rotateDirection
+    if (!newConfig.svgList) {
+      newConfig.svgList = []
+    }
 
     drawStampUtils.setDrawConfigs(newConfig)
     drawStamp()

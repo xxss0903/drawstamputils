@@ -328,6 +328,10 @@ const loadTemplateFile = async (event: Event) => {
       newConfig.company.rotateDirection = config.company.rotateDirection
     }
 
+    if (!newConfig.svgList) {
+      newConfig.svgList = []
+    }
+
     drawStampUtils.setDrawConfigs(newConfig)
     stampStore.setConfig(newConfig)
     drawStamp()

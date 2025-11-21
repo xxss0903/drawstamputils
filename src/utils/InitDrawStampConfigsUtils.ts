@@ -1,4 +1,4 @@
-import { IAgingEffect, ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, ILineConfig, IRoughEdge, ISecurityPattern, IShowRuler, IStampType, ITaxNumber } from "../DrawStampTypes";
+import { IAgingEffect, ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, ILineConfig, IRoughEdge, ISecurityPattern, IShowRuler, ISvgShape, IStampType, ITaxNumber } from "../DrawStampTypes";
 
 export class InitDrawStampConfigsUtils {
 
@@ -167,6 +167,8 @@ export class InitDrawStampConfigsUtils {
     private innerCircleList: IInnerCircle[] = [];
     // 图片列表
     private imageList: IDrawImage[] = [];
+    // SVG 列表
+    private svgList: ISvgShape[] = [];
     // 线条列表
     private lineList: ILineConfig[] = [];
     // 总的印章绘制参数
@@ -193,6 +195,7 @@ export class InitDrawStampConfigsUtils {
         companyList: this.companyList,
         innerCircleList: this.innerCircleList,
         imageList: this.imageList,
+        svgList: this.svgList,
         lineList: this.lineList,
         scale: 1,
         offsetX: 0,

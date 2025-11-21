@@ -107,6 +107,21 @@ export type IDrawImage = {
   rotation?: number // 旋转角度（度），0-360
 }
 
+export type ISvgShape = {
+  id: string
+  name: string
+  svgContent: string // 原始 SVG 文本
+  color: string
+  width: number // 目标宽度（毫米）
+  height: number // 目标高度（毫米）
+  positionX: number // 水平位置（毫米）
+  positionY: number // 垂直位置（毫米）
+  rotation: number // 旋转角度（度）
+  scale: number // 缩放比例
+  keepAspectRatio: boolean // 是否保持宽高比
+  version: number // 用于缓存版本
+}
+
 export type LineType = 'horizontal' | 'vertical'
 export type LineStyle = 'solid' | 'dashed' | 'dotted'
 
@@ -197,6 +212,7 @@ export type IDrawStampConfig = {
     companyList: ICompany[] // 新增：公司名称列表
     innerCircleList: IInnerCircle[] // 新增：内圈圆列表
     imageList: IDrawImage[] // 新增：图片列表配置
+    svgList: ISvgShape[] // 新增：SVG 图形列表
     lineList: ILineConfig[] // 新增：线条列表
     scale: number // 缩放比例
     offsetX: number // x轴偏移量
