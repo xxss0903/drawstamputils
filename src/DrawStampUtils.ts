@@ -974,8 +974,11 @@ export class DrawStampUtils {
         const y = startY / this.scale;
 
         const mmToPixel = this.mmToPixel;
-        const drawRadiusX = (this.drawStampConfigs.width - this.drawStampConfigs.outBorder.innerCircleLineWidth) / 2;
-        const drawRadiusY = (this.drawStampConfigs.height - this.drawStampConfigs.outBorder.innerCircleLineWidth) / 2;
+        const borderLineWidth = this.drawStampConfigs.outBorder.drawInnerCircle
+            ? this.drawStampConfigs.outBorder.innerCircleLineWidth
+            : 0;
+        const drawRadiusX = (this.drawStampConfigs.width - borderLineWidth) / 2;
+        const drawRadiusY = (this.drawStampConfigs.height - borderLineWidth) / 2;
         const offsetX = this.stampOffsetX * this.mmToPixel;
         const offsetY = this.stampOffsetY * this.mmToPixel;
         const centerX = x + offsetX;
@@ -1061,7 +1064,7 @@ export class DrawStampUtils {
         const rectWidth = this.drawStampConfigs.width * this.mmToPixel
         const rectHeight = this.drawStampConfigs.height * this.mmToPixel
 
-        if(this.drawStampConfigs.outBorder.drawInnerCircle) {
+        if (this.drawStampConfigs.outBorder.drawInnerCircle) {
             // 在离屏 canvas 上绘制印章基本形状
             if (isRectangle) {
                 // 绘制矩形边框
