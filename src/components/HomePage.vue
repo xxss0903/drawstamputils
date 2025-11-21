@@ -349,13 +349,40 @@ const saveStampAsPNG = () => {
   drawStampUtils.saveStampAsPNG()
 }
 
+// 清理未启用的效果数组，减小模板文件大小
+const cleanConfigForTemplate = (config: IDrawStampConfig): IDrawStampConfig => {
+  const cleanedConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
+  
+  // 如果做旧效果未开启，删除做旧参数数组
+  if (cleanedConfig.agingEffect && !cleanedConfig.agingEffect.applyAging) {
+    (cleanedConfig.agingEffect as any).agingEffectParams = undefined
+  }
+  
+  // 如果毛边效果未开启，删除毛边参数数组
+  if (cleanedConfig.roughEdge && !cleanedConfig.roughEdge.drawRoughEdge) {
+    (cleanedConfig.roughEdge as any).roughEdgeParams = undefined
+  }
+  
+  // 如果防伪纹路未开启，删除防伪纹路参数数组
+  if (cleanedConfig.securityPattern && !cleanedConfig.securityPattern.openSecurityPattern) {
+    (cleanedConfig.securityPattern as any).securityPatternParams = undefined
+  }
+  
+  return cleanedConfig
+}
+
 // 导出当前设置为模板
 const saveCurrentAsTemplate = () => {
   if (!drawStampUtils) return
 
   const currentConfig = drawStampUtils.getDrawConfigs()
-  // 使用紧凑格式（无缩进和换行）来减小文件大小
-  const jsonStr = JSON.stringify(currentConfig)
+  // 清理未启用的效果数组
+  const cleanedConfig = cleanConfigForTemplate(currentConfig)
+  // 使用紧凑格式（无缩进和换行）来减小文件大小，并排除 undefined 字段
+  const jsonStr = JSON.stringify(cleanedConfig, (_key, value) => {
+    // JSON.stringify 会自动排除 undefined 值，所以直接返回 value 即可
+    return value
+  })
   const blob = new Blob([jsonStr], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
