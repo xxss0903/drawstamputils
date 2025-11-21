@@ -369,6 +369,10 @@ const resetStamp = () => {
   blankConfig.innerCircleList = []
   blankConfig.svgList = []
   blankConfig.drawStar.drawStar = false
+  blankConfig.company.shape = 'ellipse'
+  if (blankConfig.companyList) {
+    blankConfig.companyList.forEach(company => company.shape = 'ellipse')
+  }
   blankConfig.securityPattern.openSecurityPattern = false
   blankConfig.roughEdge.drawRoughEdge = false
   blankConfig.agingEffect.applyAging = false

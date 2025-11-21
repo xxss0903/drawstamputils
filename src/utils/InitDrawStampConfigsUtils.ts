@@ -101,7 +101,8 @@ export class InitDrawStampConfigsUtils {
         innerCircleLineRadiusY: 15,
         lineStyle: 'solid',
         dashLength: 2,
-        gapLength: 1
+        gapLength: 1,
+        shape: 'ellipse'
     }
     // 内圈圆
     private innerCircle: IInnerCircle = {

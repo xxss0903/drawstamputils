@@ -1057,7 +1057,9 @@ export class DrawStampUtils {
         const tempCtx = tempCanvas.getContext('2d')
         if (!tempCtx) return
         // 检查是否有矩形印章
-        const hasRectangleStamp = this.drawStampConfigs.companyList.some(company => company.shape === 'rectangle')
+        const hasRectangleStamp =
+            this.drawStampConfigs.companyList.some(company => company.shape === 'rectangle') ||
+            this.drawStampConfigs.company?.shape === 'rectangle'
         const isRectangle = hasRectangleStamp
         
         // 矩形印章的尺寸（使用 width 和 height）
