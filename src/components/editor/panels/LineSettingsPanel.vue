@@ -12,11 +12,20 @@
         v-for="(line, index) in lineList"
         :key="line.id || index"
       >
-        <div class="line-header" @click.stop="toggleItem(index)">
-          <span>{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
+        <div class="line-header">
+          <div class="header-left">
+            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? '收起' : '展开'">
+              <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
+            </button>
+            <span>{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
+          </div>
           <div class="header-actions">
-            <button class="small-button" @click.stop="copyLine(index)">复制</button>
-            <button class="small-button delete-button" @click.stop="removeLine(index)">删除</button>
+            <button class="action-btn" @click.stop="copyLine(index)">
+              复制
+            </button>
+            <button class="action-btn delete-btn" @click.stop="removeLine(index)">
+              删除
+            </button>
           </div>
         </div>
         <transition name="fade">
@@ -150,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { IDrawStampConfig, ILineConfig, LineStyle } from '../../../DrawStampTypes'
 
 const props = defineProps<{
@@ -175,15 +184,31 @@ const maxLength = computed(() => {
 })
 const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
+// 跟踪每个项的展开状态
+const expandedItems = ref<Record<number, boolean>>({})
+
+// 当 selectedIndex 变化时，自动展开对应的项
+watch(selectedIndex, (newIndex) => {
+  if (newIndex >= 0) {
+    expandedItems.value[newIndex] = true
+  }
+}, { immediate: true })
+
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
 }
 
 const toggleItem = (index: number) => {
-  // 点击 header 时不做任何操作，因为展开/折叠由 selectedIndex 控制
+  expandedItems.value[index] = !expandedItems.value[index]
 }
 
-const isItemExpanded = (index: number) => selectedIndex.value === index
+const isItemExpanded = (index: number) => {
+  // 如果该项被选中，自动展开；否则使用本地展开状态
+  if (selectedIndex.value === index) {
+    return true
+  }
+  return expandedItems.value[index] ?? false
+}
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
 
@@ -242,36 +267,122 @@ const copyLine = (index: number) => {
 <style scoped>
 .line-item {
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 6px;
   margin-bottom: 12px;
-  background: #fafafa;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.line-item:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .line-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 8px;
-  margin: -8px -8px 8px -8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+  border-bottom: 1px solid #e8e8e8;
+  transition: background 0.2s;
+  gap: 12px;
 }
 
 .line-header:hover {
-  background-color: #f0f0f0;
+  background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.expand-toggle-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  min-width: 24px;
+  height: 24px;
+}
+
+.expand-toggle-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.expand-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.expand-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-icon:not(.expanded) {
+  transform: rotate(-90deg);
+}
+
+.line-header span {
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .line-body {
-  margin-top: 8px;
+  padding: 16px;
+  background: #fff;
 }
 
 .header-actions {
   display: flex;
+  flex-direction: column;
   gap: 6px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  min-width: 50px;
+}
+
+.action-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.delete-btn:hover {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+  background: #fff1f0;
 }
 
 .dash-settings {

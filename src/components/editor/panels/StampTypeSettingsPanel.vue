@@ -9,11 +9,18 @@
     <div class="group-content" v-show="expanded">
       <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
         <div class="stamp-type-header">
-          <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
+          <div class="header-left">
+            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? '收起' : '展开'">
+              <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
+            </button>
+            <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
+          </div>
           <div class="header-actions">
-            <button class="small-button" @click.stop="copyStampType(index)">复制</button>
-            <button class="small-button delete-button" @click.stop="removeStampType(index)">
-              {{ t('stamp.stampType.delete') }}
+            <button class="action-btn" @click.stop="copyStampType(index)">
+              复制
+            </button>
+            <button class="action-btn delete-btn" @click.stop="removeStampType(index)">
+              删除
             </button>
           </div>
         </div>
@@ -147,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, IStampType } from '../../../DrawStampTypes'
 
@@ -168,8 +175,22 @@ const emit = defineEmits<{
 const stampTypeList = computed(() => props.config.stampTypeList || [])
 const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
+// 跟踪每个项的展开状态
+const expandedItems = ref<Record<number, boolean>>({})
+
+// 当 selectedIndex 变化时，自动展开对应的项
+watch(selectedIndex, (newIndex) => {
+  if (newIndex >= 0) {
+    expandedItems.value[newIndex] = true
+  }
+}, { immediate: true })
+
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
+}
+
+const toggleItem = (index: number) => {
+  expandedItems.value[index] = !expandedItems.value[index]
 }
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
@@ -201,7 +222,13 @@ const copyStampType = (index: number) => {
   })
 }
 
-const isItemExpanded = (index: number) => selectedIndex.value === index
+const isItemExpanded = (index: number) => {
+  // 如果该项被选中，自动展开；否则使用本地展开状态
+  if (selectedIndex.value === index) {
+    return true
+  }
+  return expandedItems.value[index] ?? false
+}
 
 const addStampType = () => {
   emit('update-config', (config) => {
@@ -230,10 +257,124 @@ const addStampType = () => {
 </script>
 
 <style scoped>
+.stamp-type-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.stamp-type-item:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 .stamp-type-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+  border-bottom: 1px solid #e8e8e8;
+  transition: background 0.2s;
+  gap: 12px;
+}
+
+.stamp-type-header:hover {
+  background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.expand-toggle-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  min-width: 24px;
+  height: 24px;
+}
+
+.expand-toggle-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.expand-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.expand-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-icon:not(.expanded) {
+  transform: rotate(-90deg);
+}
+
+.stamp-type-header span {
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.stamp-type-body {
+  padding: 16px;
+  background: #fff;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  min-width: 50px;
+}
+
+.action-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.delete-btn:hover {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+  background: #fff1f0;
 }
 
 .header-actions {
