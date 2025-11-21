@@ -61,47 +61,37 @@
             </label>
             <label class="color-field">
               颜色:
-              <div class="color-inputs">
-                <input
-                  type="color"
-                  :value="item.color || '#d40000'"
-                  @input="event => updateColor(index, (event.target as HTMLInputElement).value)"
-                />
-                <input
-                  type="text"
-                  :value="item.color || '#d40000'"
-                  @input="event => updateColor(index, (event.target as HTMLInputElement).value)"
-                />
-              </div>
+              <input
+                class="color-picker"
+                type="color"
+                :value="item.color || primaryColor"
+                @input="event => updateColor(index, (event.target as HTMLInputElement).value)"
+              />
             </label>
             <label>
               宽度 (mm):
-              <div class="range-container">
-                <input
-                  type="range"
-                  min="1"
-                  max="80"
-                  step="0.5"
-                  :value="item.width"
-                  @input="event => updateField(index, 'width', parseNumber(event))"
-                />
-                <span>{{ (item.width || 0).toFixed(1) }}</span>
-              </div>
+              <input
+                class="number-input"
+                type="number"
+                min="1"
+                max="200"
+                step="0.1"
+                :value="item.width"
+                @input="event => updateField(index, 'width', parseNumber(event))"
+              />
             </label>
             <label>
               高度 (mm):
-              <div class="range-container">
-                <input
-                  type="range"
-                  min="1"
-                  max="80"
-                  step="0.5"
-                  :value="item.height"
-                  :disabled="item.keepAspectRatio"
-                  @input="event => updateField(index, 'height', parseNumber(event))"
-                />
-                <span>{{ (item.height || 0).toFixed(1) }}</span>
-              </div>
+              <input
+                class="number-input"
+                type="number"
+                min="1"
+                max="200"
+                step="0.1"
+                :value="item.height"
+                :disabled="item.keepAspectRatio"
+                @input="event => updateField(index, 'height', parseNumber(event))"
+              />
             </label>
             <label class="checkbox-field">
               <input
@@ -215,6 +205,7 @@ const triggerSvgUpload = () => {
 }
 
 const svgList = computed(() => props.config.svgList || [])
+const primaryColor = computed(() => props.config.primaryColor || '#d40000')
 const builtinSvgAssets = getSvgAssets()
 const selectedAssetKey = ref(builtinSvgAssets[0]?.key || '')
 
@@ -449,13 +440,27 @@ watch(
   margin-top: 10px;
 }
 
-.color-field .color-inputs {
-  display: flex;
-  gap: 8px;
+.color-picker {
+  width: 52px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 
-.color-inputs input[type="text"] {
-  flex: 1;
+.number-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.number-input:focus {
+  border-color: #1890ff;
+  outline: none;
 }
 
 .checkbox-field {
