@@ -31,6 +31,19 @@
               <canvas ref="stampCanvas" width="600" height="600"></canvas>
             </div>
             <div class="canvas-footer">
+              <input
+                ref="templateFileInput"
+                type="file"
+                accept=".json"
+                style="display: none"
+                @change="loadTemplateFile"
+              />
+              <button class="canvas-action-btn" @click="triggerTemplateFileLoad" title="导入模板">
+                <span>📥</span>
+              </button>
+              <button class="canvas-action-btn" @click="saveCurrentAsTemplate" title="导出模板">
+                <span>📤</span>
+              </button>
               <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
                 <span>💾</span>
               </button>
@@ -250,6 +263,7 @@ const handleElementListRefresh = () => {
 }
 
 const stampCanvas = ref<any | null>(null)
+const templateFileInput = ref<HTMLInputElement | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 const isDraggable = ref(false) // 是否开启拖动
 
@@ -285,9 +299,72 @@ const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean 
   allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
 }
 
-// 保存印章为PNG
+// 触发文件选择
+const triggerTemplateFileLoad = () => {
+  templateFileInput.value?.click()
+}
+
+// 加载模板文件
+const loadTemplateFile = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (!input.files?.length || !drawStampUtils) return
+
+  try {
+    const file = input.files[0]
+    const text = await file.text()
+    const config = JSON.parse(text) as IDrawStampConfig
+
+    // 设置新的配置
+    const newConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
+    newConfig.ruler.showRuler = true
+    newConfig.ruler.showFullRuler = true
+    newConfig.ruler.showSideRuler = true
+    newConfig.ruler.showCrossLine = true
+    newConfig.ruler.showCurrentPositionText = true
+    newConfig.ruler.showDashLine = true
+
+    if (config.company) {
+      newConfig.company.startAngle = config.company.startAngle
+      newConfig.company.rotateDirection = config.company.rotateDirection
+    }
+
+    drawStampUtils.setDrawConfigs(newConfig)
+    stampStore.setConfig(newConfig)
+    drawStamp()
+
+    // 更新编辑器控件
+    await nextTick()
+    propertiesPanelRef.value?.restoreDrawConfigs()
+  } catch (error) {
+    console.error('加载模板文件失败:', error)
+    alert('加载模板文件失败，请检查文件格式是否正确')
+  } finally {
+    // 清除文件选择，以便可以再次选择同一个文件
+    input.value = ''
+  }
+}
+
+// 保存图片
 const saveStampAsPNG = () => {
   drawStampUtils.saveStampAsPNG()
+}
+
+// 导出当前设置为模板
+const saveCurrentAsTemplate = () => {
+  if (!drawStampUtils) return
+
+  const currentConfig = drawStampUtils.getDrawConfigs()
+  // 使用紧凑格式（无缩进和换行）来减小文件大小
+  const jsonStr = JSON.stringify(currentConfig)
+  const blob = new Blob([jsonStr], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'stamp_template.json'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
 
 // 更新印章绘制，从EditorControls组件中调用
