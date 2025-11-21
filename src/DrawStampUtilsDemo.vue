@@ -100,12 +100,12 @@
             <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
               <span>💾</span>
             </button>
-            <button class="canvas-action-btn" title="帮助">
-              <span>❓</span>
-            </button>
-            <button class="canvas-action-btn" title="联系">
-              <span>✉️</span>
-            </button>
+<!--            <button class="canvas-action-btn" title="帮助">-->
+<!--              <span>❓</span>-->
+<!--            </button>-->
+<!--            <button class="canvas-action-btn" title="联系">-->
+<!--              <span>✉️</span>-->
+<!--            </button>-->
           </div>
         </div>
 
