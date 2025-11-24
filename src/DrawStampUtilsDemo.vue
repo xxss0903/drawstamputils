@@ -62,10 +62,10 @@
             < Templates
           </button>
           <button class="primary-button" @click="resetStamp">
-            重置印章
+            {{ t('stamp.resetStamp') }}
           </button>
           <button class="primary-button" @click="saveStampAsPNG">
-            下载印章
+            {{ t('stamp.downloadStamp') }}
           </button>
         </div>
       </div>
@@ -127,12 +127,12 @@
       <!-- 底部：模板选择列表 -->
       <div class="template-bar">
         <div class="template-bar-header">
-          <h4>📋 模板选择</h4>
+          <h4>📋 {{ t('stamp.template.select') }}</h4>
           <div class="template-bar-actions">
             <button class="load-template-btn" @click="triggerTemplateFileLoad" :disabled="isLoadingTemplate">
               <span v-if="!isLoadingTemplate">📂</span>
               <span v-else class="loading-spinner-small"></span>
-              {{ isLoadingTemplate ? '加载中...' : '加载模板文件' }}
+              {{ isLoadingTemplate ? t('stamp.template.loading') : t('stamp.template.loadFile') }}
             </button>
             <input
               type="file"
@@ -143,7 +143,7 @@
             />
             <button class="save-template-btn" @click="saveCurrentAsTemplate">
               <span>💾</span>
-              保存当前模板
+              {{ t('stamp.template.saveCurrent') }}
             </button>
           </div>
         </div>
@@ -160,7 +160,7 @@
               <img v-if="template.preview" :src="template.preview" :alt="template.name" />
               <div v-else class="template-placeholder">
                 <div class="loading-spinner"></div>
-                <span>生成预览中...</span>
+                <span>{{ t('stamp.template.generatingPreview') }}</span>
               </div>
             </div>
             <div class="template-name-small">{{ template.name }}</div>

@@ -37,16 +37,16 @@
         />
       </label>
       <label>
-        边框线条样式:
+        {{ t('stamp.basic.borderLineStyle') }}:
         <select :value="props.config.outBorder.lineStyle || 'solid'" @change="onBorderLineStyleChange">
-          <option value="solid">实线</option>
-          <option value="dashed">虚线</option>
-          <option value="dotted">点线</option>
+          <option value="solid">{{ t('stamp.basic.lineStyle.solid') }}</option>
+          <option value="dashed">{{ t('stamp.basic.lineStyle.dashed') }}</option>
+          <option value="dotted">{{ t('stamp.basic.lineStyle.dotted') }}</option>
         </select>
       </label>
       <template v-if="(props.config.outBorder.lineStyle || 'solid') !== 'solid'">
         <label>
-          虚线长度 (mm):
+          {{ t('stamp.basic.dashLength') }}:
           <input
             type="number"
             :value="props.config.outBorder.dashLength ?? 2"
@@ -57,7 +57,7 @@
           />
         </label>
         <label>
-          虚线间距 (mm):
+          {{ t('stamp.basic.gapLength') }}:
           <input
             type="number"
             :value="props.config.outBorder.gapLength ?? 1"
@@ -75,8 +75,8 @@
       <label>
         {{ t('stamp.basic.shape') }}:
         <select :value="props.config.company.shape" @change="onCompanyShapeChange">
-          <option value="ellipse">椭圆/圆形</option>
-          <option value="rectangle">矩形</option>
+          <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
+          <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
         </select>
       </label>
       <label class="checkbox-label">

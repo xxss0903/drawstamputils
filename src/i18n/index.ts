@@ -20,6 +20,8 @@ const messages = {
       save: '保存印章',
       saveTemplate: '保存模板',
       loadTemplate: '加载模板',
+      resetStamp: '重置印章',
+      downloadStamp: '下载印章',
       basic: {
         title: '印章基本设置',
         extractCircle: '提取圆形印章',
@@ -27,7 +29,19 @@ const messages = {
         height: '印章高度 (mm)',
         borderWidth: '圆形边框宽度 (mm)',
         color: '印章颜色',
-        shape: '印章形状'
+        shape: '印章形状',
+        borderLineStyle: '边框线条样式',
+        lineStyle: {
+          solid: '实线',
+          dashed: '虚线',
+          dotted: '点线'
+        },
+        dashLength: '虚线长度 (mm)',
+        gapLength: '虚线间距 (mm)',
+        shapeOptions: {
+          ellipse: '椭圆/圆形',
+          rectangle: '矩形'
+        }
       },
       company: {
         title: '公司名称列表设置',
@@ -94,11 +108,16 @@ const messages = {
       template: {
         title: '常用模板',
         save: '保存当前为模板',
+        saveCurrent: '保存当前模板',
         defaultTitle: '默认模板',
         preview: '预览',
         name: '模板名称',
         open: '打开模板',
-        load: '加载模板'
+        load: '加载模板',
+        loadFile: '加载模板文件',
+        loading: '加载中...',
+        generatingPreview: '生成预览中...',
+        select: '模板选择'
       },
       common: {
         line: '第 {index} 行',
@@ -528,13 +547,28 @@ const messages = {
       save: 'Save Stamp',
       saveTemplate: 'Save Template',
       loadTemplate: 'Load Template',
+      resetStamp: 'Reset Stamp',
+      downloadStamp: 'Download Stamp',
       basic: {
         title: 'Basic Stamp Settings',
         extractCircle: 'Extract Circle Stamp',
         width: 'Stamp Width (mm)',
         height: 'Stamp Height (mm)',
         borderWidth: 'Circle Border Width (mm)',
-        color: 'Stamp Color'
+        color: 'Stamp Color',
+        shape: 'Stamp Shape',
+        borderLineStyle: 'Border Line Style',
+        lineStyle: {
+          solid: 'Solid',
+          dashed: 'Dashed',
+          dotted: 'Dotted'
+        },
+        dashLength: 'Dash Length (mm)',
+        gapLength: 'Gap Length (mm)',
+        shapeOptions: {
+          ellipse: 'Ellipse/Circle',
+          rectangle: 'Rectangle'
+        }
       },
       company: {
         title: 'Company Name List Settings',
@@ -601,11 +635,16 @@ const messages = {
       template: {
         title: 'Common Templates',
         save: 'Save Current as Template',
+        saveCurrent: 'Save Current Template',
         defaultTitle: 'Default Templates',
         preview: 'Preview',
         name: 'Template Name',
         open: 'Open Template',
-        load: 'Load Template'
+        load: 'Load Template',
+        loadFile: 'Load Template File',
+        loading: 'Loading...',
+        generatingPreview: 'Generating Preview...',
+        select: 'Template Selection'
       },
       common: {
         line: 'Line {index}',
