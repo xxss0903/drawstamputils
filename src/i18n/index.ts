@@ -123,6 +123,8 @@ const messages = {
         line: '第 {index} 行',
         delete: '删除',
         addNew: '添加新行',
+        expand: '展开',
+        collapse: '收起',
         fontPlaceholder: '输入字体名称',
         fontWeightNormal: '正常',
         fontWeightBold: '粗体',
@@ -167,6 +169,7 @@ const messages = {
         height: '图片高度 (mm)',
         positionX: '水平位置 (mm)',
         positionY: '垂直位置 (mm)',
+        rotation: '旋转角度',
         keepRatio: '保持宽高比',
         preview: '预览'
       },
@@ -650,6 +653,8 @@ const messages = {
         line: 'Line {index}',
         delete: 'Delete',
         addNew: 'Add New',
+        expand: 'Expand',
+        collapse: 'Collapse',
         fontPlaceholder: 'Enter font name',
         fontWeightNormal: 'Normal',
         fontWeightBold: 'Bold',
@@ -694,6 +699,7 @@ const messages = {
         height: 'Image Height (mm)',
         positionX: 'Horizontal Position (mm)',
         positionY: 'Vertical Position (mm)',
+        rotation: 'Rotation Angle',
         keepRatio: 'Keep Aspect Ratio',
         preview: 'Preview'
       },

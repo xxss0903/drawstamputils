@@ -479,7 +479,6 @@ const lineList = computed(() => config.value.lineList || [])
 const visibleImages = computed(() =>
   (config.value.imageList || [])
     .map((image, index) => ({ image, index }))
-    .filter((item) => item.image && item.image.imageUrl)
 )
 const svgList = computed(() => config.value.svgList || [])
 const agingEffect = computed(() => config.value.agingEffect || { applyAging: false })

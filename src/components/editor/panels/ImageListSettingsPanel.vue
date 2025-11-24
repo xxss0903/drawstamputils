@@ -8,10 +8,15 @@
     </div>
     <div class="group-content" v-show="expanded">
       <div v-for="(image, index) in imageList" :key="index" class="image-item">
-        <div class="image-header" @click.stop="toggleItem(index)">
-          <span>{{ t('stamp.images.image', { index: index + 1 }) }}</span>
+        <div class="image-header">
+          <div class="header-left">
+            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? t('stamp.common.collapse') : t('stamp.common.expand')">
+              <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
+            </button>
+            <span>{{ t('stamp.images.image', { index: index + 1 }) }}</span>
+          </div>
           <div class="header-actions">
-            <button class="small-button delete-button" @click.stop="removeImage(index)">删除</button>
+            <button class="small-button delete-button" @click.stop="removeImage(index)">{{ t('stamp.common.delete') }}</button>
           </div>
         </div>
         <transition name="fade">
@@ -74,7 +79,7 @@
           </div>
         </label>
         <label>
-          旋转角度:
+          {{ t('stamp.images.rotation') }}:
           <div class="range-container">
             <input
               type="range"
@@ -106,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, IDrawImage } from '../../../DrawStampTypes'
 
@@ -126,15 +131,31 @@ const emit = defineEmits<{
 const imageList = computed(() => props.config.imageList || [])
 const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
+// 跟踪每个项的展开状态
+const expandedItems = ref<Record<number, boolean>>({})
+
+// 当 selectedIndex 变化时，自动展开对应的项
+watch(selectedIndex, (newIndex) => {
+  if (newIndex >= 0) {
+    expandedItems.value[newIndex] = true
+  }
+}, { immediate: true })
+
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
 }
 
 const toggleItem = (index: number) => {
-  // 点击 header 时不做任何操作，因为展开/折叠由 selectedIndex 控制
+  expandedItems.value[index] = !expandedItems.value[index]
 }
 
-const isItemExpanded = (index: number) => selectedIndex.value === index
+const isItemExpanded = (index: number) => {
+  // 如果该项被选中，自动展开；否则使用本地展开状态
+  if (selectedIndex.value === index) {
+    return true
+  }
+  return expandedItems.value[index] ?? false
+}
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
 
@@ -208,28 +229,93 @@ const handleImageUpload = (event: Event, index: number) => {
   color: #666;
 }
 
+.image-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.image-item:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 .image-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  padding: 8px;
-  margin: -8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+  border-bottom: 1px solid #e8e8e8;
+  transition: background 0.2s;
+  gap: 12px;
 }
 
 .image-header:hover {
-  background-color: #f5f5f5;
+  background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.expand-toggle-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  min-width: 24px;
+  height: 24px;
+}
+
+.expand-toggle-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.expand-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.expand-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-icon:not(.expanded) {
+  transform: rotate(-90deg);
+}
+
+.image-header span {
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .header-actions {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .image-body {
-  margin-top: 8px;
+  padding: 16px;
+  background: #fff;
 }
 
 .fade-enter-active,
