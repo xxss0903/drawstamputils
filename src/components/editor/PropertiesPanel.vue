@@ -1,10 +1,10 @@
 <template>
   <div class="properties-panel">
     <div class="panel-header">
-      <h3>属性设置</h3>
+      <h3>{{ t('common.properties.title') }}</h3>
       <label class="show-all-toggle">
         <input type="checkbox" v-model="showAll" />
-        <span>显示全部</span>
+        <span>{{ t('common.properties.showAll') }}</span>
       </label>
     </div>
     <div class="panel-content">
@@ -23,8 +23,11 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import EditorControls from '../../EditorControls.vue'
 import { IDrawStampConfig } from '../../DrawStampTypes'
+
+const { t } = useI18n()
 
 interface Props {
   drawStampUtils: any

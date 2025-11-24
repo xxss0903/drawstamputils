@@ -4,8 +4,8 @@
       <!-- Hero Section -->
       <section class="hero-section">
         <div class="hero-content">
-          <h1 class="hero-title">最好的在线电子印章制作工具 - DrawStamp</h1>
-          <p class="hero-subtitle">DrawStamp 是现代企业和个人使用的专业解决方案！我们的印章设计工具将帮助您为任何场合创建独特的印章产品！</p>
+          <h1 class="hero-title">{{ t('homepage.hero.title') }}</h1>
+          <p class="hero-subtitle">{{ t('homepage.hero.subtitle') }}</p>
         </div>
         <!-- 主内容区域：三栏布局 -->
         <div class="main-workspace">
@@ -38,16 +38,16 @@
                 style="display: none"
                 @change="loadTemplateFile"
               />
-              <button class="canvas-action-btn" @click="triggerTemplateFileLoad" title="导入模板">
+              <button class="canvas-action-btn" @click="triggerTemplateFileLoad" :title="t('homepage.canvas.importTemplate')">
                 <span>📥</span>
               </button>
-              <button class="canvas-action-btn" @click="saveCurrentAsTemplate" title="导出模板">
+              <button class="canvas-action-btn" @click="saveCurrentAsTemplate" :title="t('homepage.canvas.exportTemplate')">
                 <span>📤</span>
               </button>
-              <button class="canvas-action-btn" @click="resetStamp" title="重置印章">
+              <button class="canvas-action-btn" @click="resetStamp" :title="t('homepage.canvas.resetStamp')">
                 <span>♻️</span>
               </button>
-              <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
+              <button class="canvas-action-btn" @click="saveStampAsPNG" :title="t('homepage.canvas.download')">
                 <span>💾</span>
               </button>
             </div>
@@ -69,15 +69,15 @@
       <!-- Stamp Types Section -->
       <section class="stamp-types-section">
         <div class="item-container">
-          <h2 class="section-title">支持多种印章类型</h2>
+          <h2 class="section-title">{{ t('homepage.stampTypes.title') }}</h2>
           <div class="stamp-types-grid">
-            <div class="stamp-type-item">原型印章</div>
-            <div class="stamp-type-item">椭圆印章</div>
-            <div class="stamp-type-item">矩形印章</div>
-            <div class="stamp-type-item">签名印章</div>
-            <div class="stamp-type-item">日期印章</div>
-            <div class="stamp-type-item">文字印章</div>
-            <div class="stamp-type-item">中文印章</div>
+            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.circle') }}</div>
+            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.ellipse') }}</div>
+            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.rectangle') }}</div>
+            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.signature') }}</div>
+            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.date') }}</div>
+            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.text') }}</div>
+            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.chinese') }}</div>
           </div>
         </div>
       </section>
@@ -85,37 +85,37 @@
       <!-- Why Choose Us Section -->
       <section class="why-choose-section">
         <div class="item-container">
-          <h2 class="section-title">为什么选择 DrawStamp？</h2>
+          <h2 class="section-title">{{ t('homepage.whyChoose.title') }}</h2>
           <div class="features-grid">
             <div class="feature-item">
               <div class="feature-icon">🎨</div>
-              <h3>所有印章类型一站式服务</h3>
-              <p>支持各种类型的印章制作，满足不同需求</p>
+              <h3>{{ t('homepage.whyChoose.features.allInOne.title') }}</h3>
+              <p>{{ t('homepage.whyChoose.features.allInOne.description') }}</p>
             </div>
             <div class="feature-item">
               <div class="feature-icon">⏰</div>
-              <h3>24/7 随时制作</h3>
-              <p>不受时间限制，随时随地创建您的印章</p>
+              <h3>{{ t('homepage.whyChoose.features.available247.title') }}</h3>
+              <p>{{ t('homepage.whyChoose.features.available247.description') }}</p>
             </div>
             <div class="feature-item">
               <div class="feature-icon">📱</div>
-              <h3>多设备兼容</h3>
-              <p>支持电脑、平板和手机，随时随地使用</p>
+              <h3>{{ t('homepage.whyChoose.features.multiDevice.title') }}</h3>
+              <p>{{ t('homepage.whyChoose.features.multiDevice.description') }}</p>
             </div>
             <div class="feature-item">
               <div class="feature-icon">🌍</div>
-              <h3>全球可用</h3>
-              <p>无论您在世界任何角落，都可以使用我们的服务</p>
+              <h3>{{ t('homepage.whyChoose.features.global.title') }}</h3>
+              <p>{{ t('homepage.whyChoose.features.global.description') }}</p>
             </div>
             <div class="feature-item">
               <div class="feature-icon">💰</div>
-              <h3>完全免费</h3>
-              <p>无需设计师，无需等待，完全免费使用</p>
+              <h3>{{ t('homepage.whyChoose.features.free.title') }}</h3>
+              <p>{{ t('homepage.whyChoose.features.free.description') }}</p>
             </div>
             <div class="feature-item">
               <div class="feature-icon">💾</div>
-              <h3>随时下载</h3>
-              <p>下载您的设计结果，可无限次使用</p>
+              <h3>{{ t('homepage.whyChoose.features.download.title') }}</h3>
+              <p>{{ t('homepage.whyChoose.features.download.description') }}</p>
             </div>
           </div>
         </div>
@@ -124,31 +124,31 @@
       <!-- How It Works Section -->
       <section class="how-it-works-section">
         <div class="item-container">
-          <h2 class="section-title">只需几个步骤，即可完成您的印章！</h2>
+          <h2 class="section-title">{{ t('homepage.howItWorks.title') }}</h2>
           <div class="steps-container">
             <div class="step-item">
               <div class="step-number">1</div>
-              <h3>选择形状和尺寸</h3>
-              <p>选择圆形、矩形或三角形，设置您需要的尺寸</p>
+              <h3>{{ t('homepage.howItWorks.steps.step1.title') }}</h3>
+              <p>{{ t('homepage.howItWorks.steps.step1.description') }}</p>
             </div>
             <div class="step-item">
               <div class="step-number">2</div>
-              <h3>添加文本和内容</h3>
-              <p>输入公司名称、印章类型、编码、税号等信息</p>
+              <h3>{{ t('homepage.howItWorks.steps.step2.title') }}</h3>
+              <p>{{ t('homepage.howItWorks.steps.step2.description') }}</p>
             </div>
             <div class="step-item">
               <div class="step-number">3</div>
-              <h3>自定义设计</h3>
-              <p>调整字体、颜色、大小、位置等细节参数</p>
+              <h3>{{ t('homepage.howItWorks.steps.step3.title') }}</h3>
+              <p>{{ t('homepage.howItWorks.steps.step3.description') }}</p>
             </div>
             <div class="step-item">
               <div class="step-number">4</div>
-              <h3>下载使用</h3>
-              <p>以 PNG 格式下载，可直接使用或添加到文档中</p>
+              <h3>{{ t('homepage.howItWorks.steps.step4.title') }}</h3>
+              <p>{{ t('homepage.howItWorks.steps.step4.description') }}</p>
             </div>
           </div>
           <div class="cta-section">
-            <router-link to="/maker" class="cta-button-large">免费试用</router-link>
+            <router-link to="/maker" class="cta-button-large">{{ t('homepage.howItWorks.cta') }}</router-link>
           </div>
         </div>
       </section>
@@ -156,23 +156,23 @@
       <!-- Features Section -->
       <section class="features-section">
         <div class="item-container">
-          <h2 class="section-title">我们的印章制作工具让您能够快速：</h2>
+          <h2 class="section-title">{{ t('homepage.features.title') }}</h2>
           <div class="features-list">
             <div class="feature-card">
-              <h3>创建带 Logo 的印章</h3>
-              <p>支持上传自定义 Logo 或从图库中选择</p>
+              <h3>{{ t('homepage.features.items.logo.title') }}</h3>
+              <p>{{ t('homepage.features.items.logo.description') }}</p>
             </div>
             <div class="feature-card">
-              <h3>选择模板快速制作</h3>
-              <p>提供多种预设模板，只需输入数据即可</p>
+              <h3>{{ t('homepage.features.items.template.title') }}</h3>
+              <p>{{ t('homepage.features.items.template.description') }}</p>
             </div>
             <div class="feature-card">
-              <h3>多种格式下载</h3>
-              <p>支持 PNG、SVG 等格式，满足不同需求</p>
+              <h3>{{ t('homepage.features.items.formats.title') }}</h3>
+              <p>{{ t('homepage.features.items.formats.description') }}</p>
             </div>
             <div class="feature-card">
-              <h3>添加到文档</h3>
-              <p>可直接添加到 PDF 或 Word 文档中</p>
+              <h3>{{ t('homepage.features.items.documents.title') }}</h3>
+              <p>{{ t('homepage.features.items.documents.description') }}</p>
             </div>
           </div>
         </div>
@@ -181,31 +181,31 @@
       <!-- FAQ Section -->
       <section class="faq-section">
         <div class="item-container">
-          <h2 class="section-title">常见问题</h2>
+          <h2 class="section-title">{{ t('homepage.faq.title') }}</h2>
           <div class="faq-list">
             <div class="faq-item">
-              <h3>如何在线制作自己的印章？</h3>
-              <p>访问 DrawStamp，使用我们的图形编辑器即可创建。直观的界面简单易用。创建完成后，您可以下载设计文件。</p>
+              <h3>{{ t('homepage.faq.questions.q1.question') }}</h3>
+              <p>{{ t('homepage.faq.questions.q1.answer') }}</p>
             </div>
             <div class="faq-item">
-              <h3>制作印章需要多长时间？</h3>
-              <p>使用我们的在线工具，只需几分钟即可完成印章设计。整个过程简单快捷，无需等待。</p>
+              <h3>{{ t('homepage.faq.questions.q2.question') }}</h3>
+              <p>{{ t('homepage.faq.questions.q2.answer') }}</p>
             </div>
             <div class="faq-item">
-              <h3>可以自定义印章吗？</h3>
-              <p>当然可以！您可以完全自定义印章的所有元素，包括文本、字体、颜色、大小、位置等。</p>
+              <h3>{{ t('homepage.faq.questions.q3.question') }}</h3>
+              <p>{{ t('homepage.faq.questions.q3.answer') }}</p>
             </div>
             <div class="faq-item">
-              <h3>支持哪些文件格式？</h3>
-              <p>我们支持 PNG 格式下载，保证印章的清晰度和质量。所有处理都在本地完成，保护您的隐私。</p>
+              <h3>{{ t('homepage.faq.questions.q4.question') }}</h3>
+              <p>{{ t('homepage.faq.questions.q4.answer') }}</p>
             </div>
             <div class="faq-item">
-              <h3>可以在手机上使用吗？</h3>
-              <p>可以！DrawStamp 支持所有智能设备，包括电脑、平板和手机，只要有网络连接即可使用。</p>
+              <h3>{{ t('homepage.faq.questions.q5.question') }}</h3>
+              <p>{{ t('homepage.faq.questions.q5.answer') }}</p>
             </div>
             <div class="faq-item">
-              <h3>使用是免费的吗？</h3>
-              <p>是的，DrawStamp 完全免费使用。您可以随时创建、编辑和下载您的印章设计。</p>
+              <h3>{{ t('homepage.faq.questions.q6.question') }}</h3>
+              <p>{{ t('homepage.faq.questions.q6.answer') }}</p>
             </div>
           </div>
         </div>
@@ -228,12 +228,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { DrawStampUtils } from '../DrawStampUtils'
 import { getSystemFonts } from '../utils/fontUtils'
 import { IDrawStampConfig } from '../DrawStampTypes'
 import ElementList from './editor/ElementList.vue'
 import PropertiesPanel from './editor/PropertiesPanel.vue'
 import { useStampStore } from '../stores/stampStore'
+
+const { t } = useI18n()
 
 const stampStore = useStampStore()
 
@@ -343,8 +346,8 @@ const loadTemplateFile = async (event: Event) => {
     await nextTick()
     propertiesPanelRef.value?.restoreDrawConfigs()
   } catch (error) {
-    console.error('加载模板文件失败:', error)
-    alert('加载模板文件失败，请检查文件格式是否正确')
+    console.error(t('errors.loadTemplateFailed') + ':', error)
+    alert(t('errors.loadTemplateFailed'))
   } finally {
     // 清除文件选择，以便可以再次选择同一个文件
     input.value = ''

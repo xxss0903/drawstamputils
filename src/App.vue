@@ -25,15 +25,15 @@ const isHomePage = computed(() => route.path === '/')
           <span>DrawStamp</span>
         </router-link>
         <div class="nav-links">
-          <router-link to="/" class="nav-link">首页</router-link>
-          <router-link to="/maker" class="nav-link">印章制作</router-link>
-          <router-link to="/about" class="nav-link">关于我们</router-link>
-          <router-link to="/contact" class="nav-link">联系我们</router-link>
+          <router-link to="/" class="nav-link">{{ t('menu.home') }}</router-link>
+          <router-link to="/maker" class="nav-link">{{ t('navigation.maker') }}</router-link>
+          <router-link to="/about" class="nav-link">{{ t('navigation.about') }}</router-link>
+          <router-link to="/contact" class="nav-link">{{ t('navigation.contact') }}</router-link>
         </div>
         <div class="nav-right">
           <div class="language-switch">
-            <button @click="switchLanguage('zh')" :class="{ active: currentLanguage === 'zh' }">中文</button>
-            <button @click="switchLanguage('en')" :class="{ active: currentLanguage === 'en' }">English</button>
+            <button @click="switchLanguage('zh')" :class="{ active: currentLanguage === 'zh' }">{{ t('common.language.chinese') }}</button>
+            <button @click="switchLanguage('en')" :class="{ active: currentLanguage === 'en' }">{{ t('common.language.english') }}</button>
           </div>
         </div>
       </div>
@@ -49,31 +49,31 @@ const isHomePage = computed(() => route.path === '/')
       <div class="footer-content">
         <div class="footer-section">
           <h3>DrawStamp</h3>
-          <p>专业的在线电子印章制作工具</p>
+          <p>{{ t('navigation.footer.description') }}</p>
         </div>
         <div class="footer-section">
-          <h4>快速链接</h4>
+          <h4>{{ t('navigation.footer.quickLinks') }}</h4>
           <ul>
-            <li><router-link to="/">首页</router-link></li>
-            <li><router-link to="/maker">印章制作</router-link></li>
-            <li><router-link to="/about">关于我们</router-link></li>
-            <li><router-link to="/contact">联系我们</router-link></li>
+            <li><router-link to="/">{{ t('menu.home') }}</router-link></li>
+            <li><router-link to="/maker">{{ t('navigation.maker') }}</router-link></li>
+            <li><router-link to="/about">{{ t('navigation.about') }}</router-link></li>
+            <li><router-link to="/contact">{{ t('navigation.contact') }}</router-link></li>
           </ul>
         </div>
         <div class="footer-section">
-          <h4>法律信息</h4>
+          <h4>{{ t('navigation.footer.legalInfo') }}</h4>
           <ul>
-            <li><router-link to="/privacy">隐私政策</router-link></li>
-            <li><router-link to="/terms">服务条款</router-link></li>
+            <li><router-link to="/privacy">{{ t('navigation.footer.privacyPolicy') }}</router-link></li>
+            <li><router-link to="/terms">{{ t('navigation.footer.termsOfService') }}</router-link></li>
           </ul>
         </div>
         <div class="footer-section">
-          <h4>重要提示</h4>
-          <p class="footer-warning">⚠️ 本工具仅供学习和参考使用！严禁用于任何非法用途！</p>
+          <h4>{{ t('navigation.footer.importantNotice') }}</h4>
+          <p class="footer-warning">{{ t('navigation.footer.warning') }}</p>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; {{ new Date().getFullYear() }} DrawStamp. 保留所有权利。</p>
+        <p>&copy; {{ new Date().getFullYear() }} DrawStamp. {{ t('navigation.footer.allRightsReserved') }}</p>
       </div>
     </footer>
   </div>

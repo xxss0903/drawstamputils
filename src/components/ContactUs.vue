@@ -1,112 +1,112 @@
 <template>
   <div class="contact-us">
     <div class="page-container">
-      <h1>联系我们</h1>
-      <p class="intro">我们很乐意听到您的声音！如果您有任何问题、建议或反馈，请通过以下方式与我们联系。</p>
+      <h1>{{ t('contact.title') }}</h1>
+      <p class="intro">{{ t('contact.intro') }}</p>
 
       <section>
-        <h2>联系方式</h2>
+        <h2>{{ t('contact.methods.title') }}</h2>
           <div class="contact-info">
             <div class="contact-item">
-              <h3>📧 邮箱</h3>
-              <p>最直接的方式是发送邮件，我们会在 1-2 个工作日内回复。</p>
+              <h3>{{ t('contact.methods.email.title') }}</h3>
+              <p>{{ t('contact.methods.email.description') }}</p>
               <a
                 class="email-link"
                 href="mailto:xxss0903@gmail.com?subject=DrawStamp反馈&body=请在此填写您的问题...">
-                发送邮件
+                {{ t('contact.methods.email.sendEmail') }}
               </a>
-              <p class="email-tip">请描述问题场景、浏览器环境以及复现步骤，方便我们快速定位。</p>
+              <p class="email-tip">{{ t('contact.methods.email.tip') }}</p>
             </div>
 
           <div class="contact-item">
-            <h3>🐛 问题反馈</h3>
-            <p>如果您在使用过程中遇到任何问题或发现 bug，欢迎在项目仓库中提交 Issue。</p>
+            <h3>{{ t('contact.methods.bugReport.title') }}</h3>
+            <p>{{ t('contact.methods.bugReport.description') }}</p>
           </div>
 
           <div class="contact-item">
-            <h3>💡 功能建议</h3>
-            <p>我们欢迎您的功能建议和改进意见。您的反馈对我们非常重要！</p>
+            <h3>{{ t('contact.methods.suggestion.title') }}</h3>
+            <p>{{ t('contact.methods.suggestion.description') }}</p>
           </div>
 
           <div class="contact-item">
-            <h3>🤝 贡献代码</h3>
-            <p>DrawStamp 是一个开源项目，我们欢迎社区贡献。如果您想参与开发，请查看项目的 GitHub 仓库。</p>
+            <h3>{{ t('contact.methods.contribute.title') }}</h3>
+            <p>{{ t('contact.methods.contribute.description') }}</p>
           </div>
         </div>
       </section>
 
       <section>
-        <h2>常见问题</h2>
+        <h2>{{ t('contact.faq.title') }}</h2>
         <div class="faq">
           <div class="faq-item">
-            <h3>Q: 使用 DrawStamp 制作的印章可以用于商业用途吗？</h3>
-            <p>A: 可以，但请确保您有使用该印章的合法权利，并遵守相关法律法规。严禁用于任何非法用途。</p>
+            <h3>Q: {{ t('contact.faq.questions.q1.question') }}</h3>
+            <p>A: {{ t('contact.faq.questions.q1.answer') }}</p>
           </div>
 
           <div class="faq-item">
-            <h3>Q: 我的印章数据会被上传到服务器吗？</h3>
-            <p>A: 不会。所有处理都在您的浏览器本地完成，我们不会收集或存储您的印章数据。</p>
+            <h3>Q: {{ t('contact.faq.questions.q2.question') }}</h3>
+            <p>A: {{ t('contact.faq.questions.q2.answer') }}</p>
           </div>
 
           <div class="faq-item">
-            <h3>Q: 这个工具是免费的吗？</h3>
-            <p>A: 是的，DrawStamp 是完全免费使用的。</p>
+            <h3>Q: {{ t('contact.faq.questions.q3.question') }}</h3>
+            <p>A: {{ t('contact.faq.questions.q3.answer') }}</p>
           </div>
 
           <div class="faq-item">
-            <h3>Q: 如何保存我制作的印章？</h3>
-            <p>A: 点击"保存印章"按钮，印章会以 PNG 格式下载到您的设备。</p>
+            <h3>Q: {{ t('contact.faq.questions.q4.question') }}</h3>
+            <p>A: {{ t('contact.faq.questions.q4.answer') }}</p>
           </div>
 
           <div class="faq-item">
-            <h3>Q: 支持哪些浏览器？</h3>
-            <p>A: 支持所有现代浏览器，包括 Chrome、Firefox、Safari、Edge 等。</p>
+            <h3>Q: {{ t('contact.faq.questions.q5.question') }}</h3>
+            <p>A: {{ t('contact.faq.questions.q5.answer') }}</p>
           </div>
         </div>
       </section>
 
       <section>
-        <h2>反馈表单</h2>
-        <p>您也可以填写以下表单，我们会生成一封邮件草稿并发送至官方邮箱。</p>
+        <h2>{{ t('contact.form.title') }}</h2>
+        <p>{{ t('contact.form.description') }}</p>
         <div class="feedback-form">
           <form @submit.prevent="handleSubmit">
             <div class="form-group">
-              <label for="name">姓名（可选）</label>
+              <label for="name">{{ t('contact.form.name') }}</label>
               <input type="text" id="name" v-model="form.name" />
             </div>
             <div class="form-group">
-              <label for="email">邮箱（可选，便于我们回复）</label>
+              <label for="email">{{ t('contact.form.email') }}</label>
               <input type="email" id="email" v-model="form.email" />
             </div>
             <div class="form-group">
-              <label for="subject">主题</label>
+              <label for="subject">{{ t('contact.form.subject') }}</label>
               <select id="subject" v-model="form.subject">
-                <option value="question">问题咨询</option>
-                <option value="bug">Bug 报告</option>
-                <option value="suggestion">功能建议</option>
-                <option value="other">其他</option>
+                <option value="question">{{ t('contact.form.subjects.question') }}</option>
+                <option value="bug">{{ t('contact.form.subjects.bug') }}</option>
+                <option value="suggestion">{{ t('contact.form.subjects.suggestion') }}</option>
+                <option value="other">{{ t('contact.form.subjects.other') }}</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="message">消息内容</label>
+              <label for="message">{{ t('contact.form.message') }}</label>
               <textarea id="message" v-model="form.message" rows="5" required></textarea>
             </div>
-            <button type="submit" class="submit-btn">发送反馈邮件</button>
+            <button type="submit" class="submit-btn">{{ t('contact.form.submit') }}</button>
           </form>
           <div v-if="submitStatus" class="submit-status" :class="submitStatus">
-            <p v-if="submitStatus === 'success'">邮件客户端已打开，请确认内容后发送。</p>
-            <p v-else-if="submitStatus === 'error'">生成邮件失败，请直接发送。</p>
+            <p v-if="submitStatus === 'success'">{{ t('contact.form.status.success') }}</p>
+            <p v-else-if="submitStatus === 'error'">{{ t('contact.form.status.error') }}</p>
           </div>
         </div>
       </section>
 
       <section>
-        <h2>相关链接</h2>
+        <h2>{{ t('contact.links.title') }}</h2>
         <ul class="links">
-          <li><router-link to="/">首页</router-link></li>
-          <li><router-link to="/about">关于我们</router-link></li>
-          <li><router-link to="/privacy">隐私政策</router-link></li>
-          <li><router-link to="/terms">服务条款</router-link></li>
+          <li><router-link to="/">{{ t('menu.home') }}</router-link></li>
+          <li><router-link to="/about">{{ t('navigation.about') }}</router-link></li>
+          <li><router-link to="/privacy">{{ t('navigation.footer.privacyPolicy') }}</router-link></li>
+          <li><router-link to="/terms">{{ t('navigation.footer.termsOfService') }}</router-link></li>
         </ul>
       </section>
     </div>
@@ -114,7 +114,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const form = ref({
   name: '',
@@ -125,12 +128,12 @@ const form = ref({
 
 const submitStatus = ref<'success' | 'error' | null>(null)
 
-const subjectLabels: Record<string, string> = {
-  question: '问题咨询',
-  bug: 'Bug 报告',
-  suggestion: '功能建议',
-  other: '其他'
-}
+const subjectLabels = computed(() => ({
+  question: t('contact.form.subjects.question'),
+  bug: t('contact.form.subjects.bug'),
+  suggestion: t('contact.form.subjects.suggestion'),
+  other: t('contact.form.subjects.other')
+}))
 
 const COMPANY_EMAIL = 'xxss0903@gmail.com'
 
@@ -140,7 +143,7 @@ const handleSubmit = () => {
     return
   }
 
-  const subjectText = subjectLabels[form.value.subject] || '用户反馈'
+  const subjectText = subjectLabels.value[form.value.subject] || t('contact.form.subjects.other')
   const subject = encodeURIComponent(`DrawStamp ${subjectText}`)
   const bodyLines = [
     `姓名：${form.value.name || '未填写'}`,

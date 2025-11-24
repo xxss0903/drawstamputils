@@ -1,7 +1,7 @@
 <template>
   <div class="element-list-panel">
     <div class="panel-header">
-      <h3>元素列表</h3>
+      <h3>{{ t('elementList.title') }}</h3>
     </div>
     <div class="panel-tabs">
       <button
@@ -27,7 +27,7 @@
              :class="{ active: selectedElement === 'basic-settings' }"
              @click.stop="selectElement('basic-settings', 'basic', 0)">
           <span class="element-icon">⚙️</span>
-          <span class="element-name">印章基础设置</span>
+          <span class="element-name">{{ t('elementList.elements.basicSettings') }}</span>
         </div>
         <div class="element-item"
              v-for="(company, index) in companyList"
@@ -36,7 +36,7 @@
              @click.stop="selectElement(`company-${index}`, 'company', index)">
           <span class="element-icon">📝</span>
           <span class="element-name" v-if="editingElement !== `company-${index}`" @dblclick.stop="startEdit(`company-${index}`, 'company', index, company.companyName)">
-            {{ company.companyName || `公司名称 ${index + 1}` }}
+            {{ company.companyName || t('elementList.defaults.companyNameIndex', { index: index + 1 }) }}
           </span>
           <input
             v-else
@@ -50,9 +50,9 @@
           />
 <!--          <span class="element-type">{{ company.shape === 'rectangle' ? '矩形' : '椭圆' }}</span>-->
           <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit(`company-${index}`, 'company', index, company.companyName)" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('company', index)" title="清除">🗑️</button>
-            <button class="action-btn delete-btn" @click="deleteElement('company', index)" title="删除">❌</button>
+            <button class="action-btn edit-btn" @click="startEdit(`company-${index}`, 'company', index, company.companyName)" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('company', index)" :title="t('elementList.buttons.clear')">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('company', index)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -62,7 +62,7 @@
              @click.stop="selectElement(`stampType-${index}`, 'stampType', index)">
           <span class="element-icon">🏷️</span>
           <span class="element-name" v-if="editingElement !== `stampType-${index}`" @dblclick.stop="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)">
-            {{ type.stampType || `印章类型 ${index + 1}` }}
+            {{ type.stampType || t('elementList.defaults.stampTypeIndex', { index: index + 1 }) }}
           </span>
           <input
             v-else
@@ -76,9 +76,9 @@
           />
 <!--          <span class="element-type">类型</span>-->
           <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('stampType', index)" title="清除">🗑️</button>
-            <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" title="删除">❌</button>
+            <button class="action-btn edit-btn" @click="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('stampType', index)" :title="t('elementList.buttons.clear')">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -86,7 +86,7 @@
              @click.stop="selectElement('code', 'code', 0)">
           <span class="element-icon">🔢</span>
           <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code || '')">
-            {{ stampCode.code || '编码（未设置）' }}
+            {{ stampCode.code || t('elementList.elements.code') + '（' + t('elementList.status.notSet') + '）' }}
           </span>
           <input
             v-else
@@ -100,8 +100,8 @@
           />
 <!--          <span class="element-type">编码</span>-->
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('code', 0)" title="清除">🗑️</button>
+            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('code', 0)" :title="t('elementList.buttons.clear')">🗑️</button>
             <button class="action-btn delete-btn" @click="deleteElement('code', 0)" title="删除">❌</button>
           </div>
         </div>
@@ -110,7 +110,7 @@
              @click.stop="selectElement('taxNumber', 'taxNumber', 0)">
           <span class="element-icon">💼</span>
           <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')">
-            {{ taxNumber.code || '税号（未设置）' }}
+            {{ taxNumber.code || t('elementList.elements.taxNumber') + '（' + t('elementList.status.notSet') + '）' }}
           </span>
           <input
             v-else
@@ -124,8 +124,8 @@
           />
 <!--          <span class="element-type">税号</span>-->
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" title="清除">🗑️</button>
+            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" :title="t('elementList.buttons.clear')">🗑️</button>
             <button class="action-btn delete-btn" @click="deleteElement('taxNumber', 0)" title="删除">❌</button>
           </div>
         </div>
@@ -133,10 +133,10 @@
              :class="{ active: selectedElement === 'star' }"
              @click.stop="selectElement('star', 'star', 0)">
           <span class="element-icon">⭐</span>
-          <span class="element-name">五角星</span>
-          <span class="element-type">{{ drawStar.drawStar ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.star') }}</span>
+          <span class="element-type">{{ drawStar.drawStar ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn delete-btn" @click="deleteElement('star', 0)" title="删除">❌</button>
+            <button class="action-btn delete-btn" @click="deleteElement('star', 0)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -145,7 +145,7 @@
              :class="{ active: selectedElement === `circle-${index}` }"
              @click.stop="selectElement(`circle-${index}`, 'circle', index)">
           <span class="element-icon">⭕</span>
-          <span class="element-name">内圈 {{ index + 1 }}</span>
+          <span class="element-name">{{ t('elementList.defaults.innerCircleIndex', { index: index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('circle', index)" title="删除">❌</button>
           </div>
@@ -156,7 +156,7 @@
              :class="{ active: selectedElement === `image-${imageInfo.index}` }"
              @click.stop="selectElement(`image-${imageInfo.index}`, 'image', imageInfo.index)">
           <span class="element-icon">🖼️</span>
-          <span class="element-name">图片 {{ imageInfo.index + 1 }}</span>
+          <span class="element-name">{{ t('elementList.defaults.imageIndex', { index: imageInfo.index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('image', imageInfo.index)" title="删除">❌</button>
           </div>
@@ -167,7 +167,7 @@
              :class="{ active: selectedElement === `line-${index}` }"
              @click.stop="selectElement(`line-${index}`, 'line', index)">
           <span class="element-icon">{{ line.type === 'vertical' ? '↕️' : '↔️' }}</span>
-          <span class="element-name">{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
+          <span class="element-name">{{ line.type === 'vertical' ? t('elementList.defaults.verticalLineIndex', { index: index + 1 }) : t('elementList.defaults.horizontalLineIndex', { index: index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('line', index)" title="删除">❌</button>
           </div>
@@ -178,7 +178,7 @@
              :class="{ active: selectedElement === `svg-${index}` }"
              @click.stop="selectElement(`svg-${index}`, 'svg', index)">
           <span class="element-icon">🧩</span>
-          <span class="element-name">{{ svg.name || `SVG ${index + 1}` }}</span>
+          <span class="element-name">{{ svg.name || t('elementList.defaults.svgIndex', { index: index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('svg', index)" title="删除">❌</button>
           </div>
@@ -187,31 +187,31 @@
              :class="{ active: selectedElement === 'aging' }"
              @click.stop="selectElement('aging', 'aging', 0)">
           <span class="element-icon">🕰️</span>
-          <span class="element-name">做旧效果</span>
-          <span class="element-type">{{ agingEffect.applyAging ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.agingEffect') }}</span>
+          <span class="element-type">{{ agingEffect.applyAging ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
         </div>
         <div class="element-item"
              :class="{ active: selectedElement === 'roughEdge' }"
              @click.stop="selectElement('roughEdge', 'roughEdge', 0)">
           <span class="element-icon">🌊</span>
-          <span class="element-name">毛边效果</span>
-          <span class="element-type">{{ roughEdge.drawRoughEdge ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.roughEdge') }}</span>
+          <span class="element-type">{{ roughEdge.drawRoughEdge ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
         </div>
         <div class="element-item"
              :class="{ active: selectedElement === 'security' }"
              @click.stop="selectElement('security', 'security', 0)">
           <span class="element-icon">🔒</span>
-          <span class="element-name">防伪纹路</span>
-          <span class="element-type">{{ securityPattern.openSecurityPattern ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.securityPattern') }}</span>
+          <span class="element-type">{{ securityPattern.openSecurityPattern ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
         </div>
         <div class="line-action-buttons">
           <button class="add-line-button" @click="addCompanyItem">
             <span class="add-icon">➕</span>
-            <span>添加公司名称</span>
+            <span>{{ t('elementList.buttons.addCompany') }}</span>
           </button>
           <button class="add-line-button" @click="addStampTypeItem">
             <span class="add-icon">➕</span>
-            <span>添加印章类型</span>
+            <span>{{ t('elementList.buttons.addStampType') }}</span>
           </button>
         </div>
       </div>
@@ -225,7 +225,7 @@
              @click.stop="selectElement(`company-${index}`, 'company', index)">
           <span class="element-icon">📝</span>
           <span class="element-name" v-if="editingElement !== `company-${index}`" @dblclick.stop="startEdit(`company-${index}`, 'company', index, company.companyName)">
-            {{ company.companyName || `公司名称 ${index + 1}` }}
+            {{ company.companyName || t('elementList.defaults.companyNameIndex', { index: index + 1 }) }}
           </span>
           <input
             v-else
@@ -238,9 +238,9 @@
             ref="editInputRef"
           />
           <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit(`company-${index}`, 'company', index, company.companyName)" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('company', index)" title="清除">🗑️</button>
-            <button class="action-btn delete-btn" @click="deleteElement('company', index)" title="删除">❌</button>
+            <button class="action-btn edit-btn" @click="startEdit(`company-${index}`, 'company', index, company.companyName)" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('company', index)" :title="t('elementList.buttons.clear')">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('company', index)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -250,7 +250,7 @@
              @click.stop="selectElement(`stampType-${index}`, 'stampType', index)">
           <span class="element-icon">🏷️</span>
           <span class="element-name" v-if="editingElement !== `stampType-${index}`" @dblclick.stop="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)">
-            {{ type.stampType || `印章类型 ${index + 1}` }}
+            {{ type.stampType || t('elementList.defaults.stampTypeIndex', { index: index + 1 }) }}
           </span>
           <input
             v-else
@@ -263,9 +263,9 @@
             ref="editInputRef"
           />
           <div class="element-actions" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('stampType', index)" title="清除">🗑️</button>
-            <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" title="删除">❌</button>
+            <button class="action-btn edit-btn" @click="startEdit(`stampType-${index}`, 'stampType', index, type.stampType)" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('stampType', index)" :title="t('elementList.buttons.clear')">🗑️</button>
+            <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -273,7 +273,7 @@
              @click.stop="selectElement('code', 'code', 0)">
           <span class="element-icon">🔢</span>
           <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code || '')">
-            {{ stampCode.code || '编码（未设置）' }}
+            {{ stampCode.code || t('elementList.elements.code') + '（' + t('elementList.status.notSet') + '）' }}
           </span>
           <input
             v-else
@@ -286,8 +286,8 @@
             ref="editInputRef"
           />
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('code', 0)" title="清除">🗑️</button>
+            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('code', 0)" :title="t('elementList.buttons.clear')">🗑️</button>
           </div>
         </div>
         <div class="element-item"
@@ -295,7 +295,7 @@
              @click.stop="selectElement('taxNumber', 'taxNumber', 0)">
           <span class="element-icon">💼</span>
           <span class="element-name" v-if="editingElement !== 'taxNumber'" @dblclick.stop="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')">
-            {{ taxNumber.code || '税号（未设置）' }}
+            {{ taxNumber.code || t('elementList.elements.taxNumber') + '（' + t('elementList.status.notSet') + '）' }}
           </span>
           <input
             v-else
@@ -308,8 +308,8 @@
             ref="editInputRef"
           />
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')" title="编辑">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" title="清除">🗑️</button>
+            <button class="action-btn edit-btn" @click="startEdit('taxNumber', 'taxNumber', 0, taxNumber.code || '')" :title="t('elementList.buttons.edit')">✏️</button>
+            <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" :title="t('elementList.buttons.clear')">🗑️</button>
           </div>
         </div>
       </div>
@@ -320,10 +320,10 @@
              :class="{ active: selectedElement === 'star' }"
              @click.stop="selectElement('star', 'star', 0)">
           <span class="element-icon">⭐</span>
-          <span class="element-name">五角星</span>
-          <span class="element-type">{{ drawStar.drawStar ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.star') }}</span>
+          <span class="element-type">{{ drawStar.drawStar ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn delete-btn" @click="deleteElement('star', 0)" title="删除">❌</button>
+            <button class="action-btn delete-btn" @click="deleteElement('star', 0)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -332,7 +332,7 @@
              :class="{ active: selectedElement === `circle-${index}` }"
              @click.stop="selectElement(`circle-${index}`, 'circle', index)">
           <span class="element-icon">⭕</span>
-          <span class="element-name">内圈 {{ index + 1 }}</span>
+          <span class="element-name">{{ t('elementList.defaults.innerCircleIndex', { index: index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('circle', index)" title="删除">❌</button>
           </div>
@@ -343,7 +343,7 @@
              :class="{ active: selectedElement === `image-${imageInfo.index}` }"
              @click.stop="selectElement(`image-${imageInfo.index}`, 'image', imageInfo.index)">
           <span class="element-icon">🖼️</span>
-          <span class="element-name">图片 {{ imageInfo.index + 1 }}</span>
+          <span class="element-name">{{ t('elementList.defaults.imageIndex', { index: imageInfo.index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('image', imageInfo.index)" title="删除">❌</button>
           </div>
@@ -354,7 +354,7 @@
              :class="{ active: selectedElement === `line-${index}` }"
              @click.stop="selectElement(`line-${index}`, 'line', index)">
           <span class="element-icon">{{ line.type === 'vertical' ? '↕️' : '↔️' }}</span>
-          <span class="element-name">{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
+          <span class="element-name">{{ line.type === 'vertical' ? t('elementList.defaults.verticalLineIndex', { index: index + 1 }) : t('elementList.defaults.horizontalLineIndex', { index: index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('line', index)" title="删除">❌</button>
           </div>
@@ -365,7 +365,7 @@
              :class="{ active: selectedElement === `svg-${index}` }"
              @click.stop="selectElement(`svg-${index}`, 'svg', index)">
           <span class="element-icon">🧩</span>
-          <span class="element-name">{{ svg.name || `SVG ${index + 1}` }}</span>
+          <span class="element-name">{{ svg.name || t('elementList.defaults.svgIndex', { index: index + 1 }) }}</span>
           <div class="element-actions show-always" @click.stop>
             <button class="action-btn delete-btn" @click="deleteElement('svg', index)" title="删除">❌</button>
           </div>
@@ -373,24 +373,24 @@
         <div class="line-action-buttons">
           <button class="add-line-button" @click="addLine('horizontal')">
             <span class="add-icon">➕</span>
-            <span>添加横线</span>
+            <span>{{ t('elementList.buttons.addHorizontalLine') }}</span>
           </button>
           <button class="add-line-button" @click="addLine('vertical')">
             <span class="add-icon">➕</span>
-            <span>添加竖线</span>
+            <span>{{ t('elementList.buttons.addVerticalLine') }}</span>
           </button>
         </div>
         <button class="add-image-button" @click="addImage">
           <span class="add-icon">➕</span>
-          <span>添加图片</span>
+          <span>{{ t('elementList.buttons.addImage') }}</span>
         </button>
         <button class="add-image-button" @click="addInnerCircle">
           <span class="add-icon">➕</span>
-          <span>添加内圈圆</span>
+          <span>{{ t('elementList.buttons.addInnerCircle') }}</span>
         </button>
         <button class="add-image-button" @click="triggerSvgUpload">
           <span class="add-icon">➕</span>
-          <span>上传 SVG</span>
+          <span>{{ t('elementList.buttons.uploadSvg') }}</span>
         </button>
       </div>
 
@@ -400,22 +400,22 @@
              :class="{ active: selectedElement === 'aging' }"
              @click.stop="selectElement('aging', 'aging', 0)">
           <span class="element-icon">🕰️</span>
-          <span class="element-name">做旧效果</span>
-          <span class="element-type">{{ agingEffect.applyAging ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.agingEffect') }}</span>
+          <span class="element-type">{{ agingEffect.applyAging ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
         </div>
         <div class="element-item"
              :class="{ active: selectedElement === 'roughEdge' }"
              @click.stop="selectElement('roughEdge', 'roughEdge', 0)">
           <span class="element-icon">🌊</span>
-          <span class="element-name">毛边效果</span>
-          <span class="element-type">{{ roughEdge.drawRoughEdge ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.roughEdge') }}</span>
+          <span class="element-type">{{ roughEdge.drawRoughEdge ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
         </div>
         <div class="element-item"
              :class="{ active: selectedElement === 'security' }"
              @click.stop="selectElement('security', 'security', 0)">
           <span class="element-icon">🔒</span>
-          <span class="element-name">防伪纹路</span>
-          <span class="element-type">{{ securityPattern.openSecurityPattern ? '已启用' : '未启用' }}</span>
+          <span class="element-name">{{ t('elementList.elements.securityPattern') }}</span>
+          <span class="element-type">{{ securityPattern.openSecurityPattern ? t('elementList.status.enabled') : t('elementList.status.disabled') }}</span>
         </div>
       </div>
     </div>
@@ -424,8 +424,11 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { IDrawStampConfig, IDrawImage, ILineConfig, ISvgShape, ICompany, IStampType } from '../../DrawStampTypes'
 import { useStampStore } from '../../stores/stampStore'
+
+const { t } = useI18n()
 
 interface Props {
   drawStampUtils?: any
@@ -450,12 +453,12 @@ const editingValue = ref<string>('')
 const editInputRef = ref<HTMLInputElement | null>(null)
 const svgFileInput = ref<HTMLInputElement | null>(null)
 
-const tabs = [
-  { key: 'all' as const, label: '全部' },
-  { key: 'text' as const, label: '文字' },
-  { key: 'figure' as const, label: '图形' },
-  { key: 'effect' as const, label: '效果' }
-]
+const tabs = computed(() => [
+  { key: 'all' as const, label: t('elementList.tabs.all') },
+  { key: 'text' as const, label: t('elementList.tabs.text') },
+  { key: 'figure' as const, label: t('elementList.tabs.figure') },
+  { key: 'effect' as const, label: t('elementList.tabs.effect') }
+])
 
 const stampStore = useStampStore()
 
@@ -554,7 +557,7 @@ const clearText = (elementType: string, index: number) => {
 
 // 删除元素
 const deleteElement = (elementType: string, index: number) => {
-  if (confirm('确定要删除这个元素吗？')) {
+  if (confirm(t('elementList.confirm.deleteElement'))) {
     stampStore.updateConfig((config) => {
       if (elementType === 'company' && config.companyList) {
         config.companyList.splice(index, 1)
@@ -654,7 +657,7 @@ const createCompanyConfig = (cfg: IDrawStampConfig): ICompany => {
     const nextPosition = availablePositions.find(pos => !usedPositions.has(pos)) || 'center'
 
     return {
-      companyName: '新公司名称',
+      companyName: t('elementList.defaults.newCompanyName'),
       compression: 1,
       borderOffset: 1,
       textDistributionFactor: 3,
@@ -708,7 +711,7 @@ const createStampTypeConfig = (cfg: IDrawStampConfig): IStampType => {
     newPositionY = last.positionY + last.fontHeight
   }
   return {
-    stampType: '新印章类型',
+    stampType: t('elementList.defaults.newStampType'),
     fontHeight: last?.fontHeight || 4.0,
     fontFamily: last?.fontFamily || 'SimSun',
     compression: last?.compression ?? 0.75,
@@ -854,7 +857,7 @@ const handleSvgFileChange = async (event: Event) => {
     const text = await file.text()
     addSvgFromContent(file.name.replace(/\.svg$/i, ''), text)
   } catch (error) {
-    console.error('读取 SVG 文件失败:', error)
+    console.error(t('errors.readSvgFailed') + ':', error)
   } finally {
     input.value = ''
   }

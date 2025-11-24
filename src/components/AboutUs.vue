@@ -1,78 +1,81 @@
 <template>
   <div class="about-us">
     <div class="page-container">
-      <h1>关于我们</h1>
+      <h1>{{ t('about.title') }}</h1>
 
       <section>
-        <h2>什么是 DrawStamp？</h2>
-        <p>DrawStamp 是一个专业的在线电子印章制作工具，旨在为用户提供简单、便捷的印章设计和制作服务。我们致力于通过先进的技术和友好的用户界面，让每个人都能轻松创建高质量的电子印章。</p>
+        <h2>{{ t('about.whatIs.title') }}</h2>
+        <p>{{ t('about.whatIs.description') }}</p>
       </section>
 
       <section>
-        <h2>我们的使命</h2>
-        <p>我们的使命是提供安全、可靠、易用的电子印章制作工具，同时确保用户了解并遵守相关法律法规。我们相信技术应该服务于合法和正当的目的。</p>
+        <h2>{{ t('about.mission.title') }}</h2>
+        <p>{{ t('about.mission.description') }}</p>
       </section>
 
       <section>
-        <h2>主要功能</h2>
+        <h2>{{ t('about.features.title') }}</h2>
         <ul>
-          <li><strong>自定义设计：</strong>支持多种印章样式和元素的自定义，包括公司名称、印章类型、编码、税号等</li>
-          <li><strong>模板系统：</strong>提供多种预设模板，快速创建专业印章</li>
-          <li><strong>高级效果：</strong>支持防伪纹路、做旧效果、毛边效果等多种视觉效果</li>
-          <li><strong>本地处理：</strong>所有处理都在您的浏览器本地完成，保护您的隐私和数据安全</li>
-          <li><strong>多语言支持：</strong>支持中文和英文界面</li>
+          <li><strong>{{ t('about.features.items.customDesign') }}</strong></li>
+          <li><strong>{{ t('about.features.items.templateSystem') }}</strong></li>
+          <li><strong>{{ t('about.features.items.advancedEffects') }}</strong></li>
+          <li><strong>{{ t('about.features.items.localProcessing') }}</strong></li>
+          <li><strong>{{ t('about.features.items.multilingual') }}</strong></li>
         </ul>
       </section>
 
       <section>
-        <h2>技术特点</h2>
-        <p>DrawStamp 基于现代 Web 技术构建：</p>
+        <h2>{{ t('about.technology.title') }}</h2>
+        <p>{{ t('about.technology.description') }}</p>
         <ul>
-          <li>使用 Vue 3 框架，提供流畅的用户体验</li>
-          <li>TypeScript 开发，确保代码质量和可维护性</li>
-          <li>Canvas API 实现高质量的印章渲染</li>
-          <li>响应式设计，支持各种设备访问</li>
+          <li>{{ t('about.technology.items.vue') }}</li>
+          <li>{{ t('about.technology.items.typescript') }}</li>
+          <li>{{ t('about.technology.items.canvas') }}</li>
+          <li>{{ t('about.technology.items.responsive') }}</li>
         </ul>
       </section>
 
       <section>
-        <h2>使用说明</h2>
-        <p>使用 DrawStamp 非常简单：</p>
+        <h2>{{ t('about.usage.title') }}</h2>
+        <p>{{ t('about.usage.description') }}</p>
         <ol>
-          <li>在左侧控制面板中设置印章的基本参数（尺寸、颜色等）</li>
-          <li>添加公司名称、印章类型、编码等信息</li>
-          <li>根据需要调整字体、大小、位置等细节</li>
-          <li>预览效果，满意后保存为 PNG 图片</li>
+          <li>{{ t('about.usage.steps.step1') }}</li>
+          <li>{{ t('about.usage.steps.step2') }}</li>
+          <li>{{ t('about.usage.steps.step3') }}</li>
+          <li>{{ t('about.usage.steps.step4') }}</li>
         </ol>
       </section>
 
       <section>
-        <h2>重要提示</h2>
+        <h2>{{ t('about.warning.title') }}</h2>
         <div class="warning-box">
-          <p><strong>⚠️ 安全警告</strong></p>
-          <p>本工具仅供学习和参考使用！严禁用于任何非法用途！</p>
+          <p><strong>{{ t('about.warning.securityWarning') }}</strong></p>
+          <p>{{ t('about.warning.notice') }}</p>
           <ul>
-            <li>使用本工具生成的任何图片请勿用于任何非法用途</li>
-            <li>因违法使用本工具造成的任何法律责任和损失，需自行承担</li>
-            <li>请遵守相关法律法规，合法使用本工具</li>
+            <li>{{ t('about.warning.items.item1') }}</li>
+            <li>{{ t('about.warning.items.item2') }}</li>
+            <li>{{ t('about.warning.items.item3') }}</li>
           </ul>
         </div>
       </section>
 
       <section>
-        <h2>开源项目</h2>
-        <p>DrawStamp 是一个开源项目，欢迎贡献代码和建议。我们的目标是创建一个透明、可信赖的工具。</p>
+        <h2>{{ t('about.openSource.title') }}</h2>
+        <p>{{ t('about.openSource.description') }}</p>
       </section>
 
       <section>
-        <h2>联系我们</h2>
-        <p>如果您有任何问题、建议或反馈，请通过我们的 <router-link to="/contact">联系我们</router-link> 页面与我们取得联系。我们非常重视您的意见！</p>
+        <h2>{{ t('about.contact.title') }}</h2>
+        <p>{{ t('about.contact.description', { link: '' }) }} <router-link to="/contact">{{ t('about.contact.linkText') }}</router-link>。</p>
       </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

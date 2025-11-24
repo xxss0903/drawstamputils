@@ -158,8 +158,8 @@ const loadTemplateFile = async (event: Event) => {
       emit('update') // 通知父组件更新
     }
   } catch (error) {
-    console.error('加载模板失败:', error)
-    alert(t('stamp.template.loadError'))
+    console.error(t('errors.loadTemplateError') + ':', error)
+    alert(t('errors.loadTemplateError'))
   }
 
   // 清除文件选择
