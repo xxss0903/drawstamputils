@@ -148,7 +148,8 @@ export type IDrawStar = {
     imageWidth: number // 五角星直径
     imageHeight: number // 五角星直径
     starDiameter: number // 五角星直径
-    starPositionY: number // 五角星位置
+    starPositionY: number // 五角星垂直位置
+    starPositionX?: number // 五角星水平位置
     scaleToSmallStar: boolean // 是否缩放为小五角星
     color?: string // 颜色
 }

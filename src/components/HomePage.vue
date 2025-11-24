@@ -372,6 +372,7 @@ const resetStamp = () => {
   blankConfig.innerCircleList = []
   blankConfig.svgList = []
   blankConfig.drawStar.drawStar = false
+  blankConfig.drawStar.starPositionX = 0
   blankConfig.company.shape = 'ellipse'
   if (blankConfig.companyList) {
     blankConfig.companyList.forEach(company => company.shape = 'ellipse')

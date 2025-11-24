@@ -74,6 +74,7 @@ const messages = {
         title: '五角星设置',
         enable: '绘制五角星',
         diameter: '五角星直径 (mm)',
+        horizontalPosition: '水平位置 (mm)',
         verticalPosition: '垂直位置 (mm)'
       },
       security: {
@@ -604,6 +605,7 @@ const messages = {
         title: 'Star Settings',
         enable: 'Draw Star',
         diameter: 'Star Diameter (mm)',
+        horizontalPosition: 'Horizontal Position (mm)',
         verticalPosition: 'Vertical Position (mm)'
       },
       security: {

@@ -18,6 +18,7 @@ export class InitDrawStampConfigsUtils {
         drawStar: false,
         starDiameter: 14,
         starPositionY: 0,
+        starPositionX: 0,
         scaleToSmallStar: false
     }
     // 防伪纹路

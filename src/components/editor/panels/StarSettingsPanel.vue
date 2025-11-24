@@ -18,23 +18,45 @@
       <div v-if="config.drawStar.drawStar">
         <label>
           {{ t('stamp.star.diameter') }}:
-          <input
-            type="number"
-            :value="config.drawStar.starDiameter"
-            step="0.1"
-            @input="updateStar('starDiameter', parseNumber($event))"
-          />
+          <div class="range-container">
+            <input
+              type="range"
+              :value="config.drawStar.starDiameter ?? 0"
+              min="1"
+              max="50"
+              step="0.1"
+              @input="updateStar('starDiameter', parseNumber($event))"
+            />
+            <span>{{ (config.drawStar.starDiameter ?? 0).toFixed(1) }} mm</span>
+          </div>
+        </label>
+        <label>
+          {{ t('stamp.star.horizontalPosition') }}:
+          <div class="range-container">
+            <input
+              type="range"
+              :value="config.drawStar.starPositionX ?? 0"
+              min="-20"
+              max="20"
+              step="0.1"
+              @input="updateStar('starPositionX', parseNumber($event))"
+            />
+            <span>{{ (config.drawStar.starPositionX ?? 0).toFixed(1) }} mm</span>
+          </div>
         </label>
         <label>
           {{ t('stamp.star.verticalPosition') }}:
-          <input
-            type="number"
-            :value="config.drawStar.starPositionY"
-            min="-10"
-            max="10"
-            step="0.1"
-            @input="updateStar('starPositionY', parseNumber($event))"
-          />
+          <div class="range-container">
+            <input
+              type="range"
+              :value="config.drawStar.starPositionY ?? 0"
+              min="-10"
+              max="10"
+              step="0.1"
+              @input="updateStar('starPositionY', parseNumber($event))"
+            />
+            <span>{{ (config.drawStar.starPositionY ?? 0).toFixed(1) }} mm</span>
+          </div>
         </label>
       </div>
     </div>
@@ -72,4 +94,23 @@ const updateStar = <K extends keyof IDrawStar>(
   })
 }
 </script>
+
+<style scoped>
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-container input[type='range'] {
+  flex: 1;
+}
+
+.range-container span {
+  min-width: 60px;
+  text-align: right;
+  font-size: 14px;
+  color: #666;
+}
+</style>
 

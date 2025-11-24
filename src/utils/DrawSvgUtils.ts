@@ -137,12 +137,13 @@ export class DrawSvgUtils {
         color: string
     ) {
         try {
+            const offsetX = (starConfig.starPositionX ?? 0) * this.mmToPixel;
             if (starConfig.svgPath.startsWith('<svg')) {
                 // 如果是SVG内容字符串
                 await this.drawSVGContent(
                     ctx,
                     starConfig.svgPath,
-                    centerX,
+                    centerX + offsetX,
                     centerY + starConfig.starPositionY * this.mmToPixel,
                     starConfig.starDiameter * this.mmToPixel / 40
                 );
@@ -151,7 +152,7 @@ export class DrawSvgUtils {
                 await this.loadAndDrawSVG(
                     ctx,
                     starConfig.svgPath,
-                    centerX,
+                    centerX + offsetX,
                     centerY + starConfig.starPositionY * this.mmToPixel,
                     starConfig.starDiameter * this.mmToPixel / 40
                 );
@@ -159,7 +160,7 @@ export class DrawSvgUtils {
                 // 如果是SVG路径数据
                 ctx.save();
                 ctx.translate(
-                    centerX,
+                    centerX + offsetX,
                     centerY + starConfig.starPositionY * this.mmToPixel
                 );
                 ctx.scale(
