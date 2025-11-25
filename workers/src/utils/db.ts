@@ -1,6 +1,6 @@
 // 数据库操作工具函数
 
-import type { User, Template } from '../types';
+import type { User, Template, PublicTemplate } from '../types';
 
 /**
  * 创建用户
@@ -142,5 +142,158 @@ export async function deleteTemplate(db: D1Database, id: string): Promise<boolea
   ).bind(id).run();
 
   return result.success;
+}
+
+/**
+ * 创建公共模板
+ */
+export async function createPublicTemplate(
+  db: D1Database,
+  userId: string | null,
+  name: string,
+  description: string | undefined,
+  r2Key: string,
+  fileSize: number,
+  isSystem: boolean = false
+): Promise<PublicTemplate> {
+  const id = crypto.randomUUID();
+  const now = Date.now();
+
+  await db.prepare(
+    `INSERT INTO public_templates (id, user_id, name, description, r2_key, file_size, is_system, view_count, collect_count, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)`
+  ).bind(id, userId, name, description || null, r2Key, fileSize, isSystem ? 1 : 0, now, now).run();
+
+  return {
+    id,
+    user_id: userId,
+    name,
+    description,
+    r2_key: r2Key,
+    file_size: fileSize,
+    is_system: isSystem,
+    view_count: 0,
+    collect_count: 0,
+    created_at: now,
+    updated_at: now,
+  };
+}
+
+/**
+ * 获取公共模板列表
+ */
+export async function getPublicTemplates(
+  db: D1Database,
+  limit: number = 50,
+  offset: number = 0,
+  orderBy: 'created_at' | 'collect_count' | 'view_count' = 'created_at'
+): Promise<PublicTemplate[]> {
+  const orderByMap: Record<string, string> = {
+    'created_at': 'created_at DESC',
+    'collect_count': 'collect_count DESC',
+    'view_count': 'view_count DESC',
+  };
+
+  const result = await db.prepare(
+    `SELECT * FROM public_templates ORDER BY ${orderByMap[orderBy]} LIMIT ? OFFSET ?`
+  ).bind(limit, offset).all<PublicTemplate>();
+
+  return result.results || [];
+}
+
+/**
+ * 根据 ID 获取公共模板
+ */
+export async function getPublicTemplateById(db: D1Database, id: string): Promise<PublicTemplate | null> {
+  const result = await db.prepare(
+    `SELECT * FROM public_templates WHERE id = ?`
+  ).bind(id).first<PublicTemplate>();
+
+  return result || null;
+}
+
+/**
+ * 增加公共模板查看次数
+ */
+export async function incrementPublicTemplateViewCount(db: D1Database, id: string): Promise<boolean> {
+  const result = await db.prepare(
+    `UPDATE public_templates SET view_count = view_count + 1 WHERE id = ?`
+  ).bind(id).run();
+
+  return result.success;
+}
+
+/**
+ * 收藏模板
+ */
+export async function collectTemplate(db: D1Database, userId: string, templateId: string): Promise<boolean> {
+  const id = crypto.randomUUID();
+  const now = Date.now();
+
+  try {
+    // 插入收藏记录
+    await db.prepare(
+      `INSERT INTO template_collections (id, user_id, template_id, created_at)
+       VALUES (?, ?, ?, ?)`
+    ).bind(id, userId, templateId, now).run();
+
+    // 增加模板收藏数
+    await db.prepare(
+      `UPDATE public_templates SET collect_count = collect_count + 1 WHERE id = ?`
+    ).bind(templateId).run();
+
+    return true;
+  } catch (error) {
+    // 如果已收藏，返回 false
+    return false;
+  }
+}
+
+/**
+ * 取消收藏模板
+ */
+export async function uncollectTemplate(db: D1Database, userId: string, templateId: string): Promise<boolean> {
+  try {
+    // 删除收藏记录
+    const deleteResult = await db.prepare(
+      `DELETE FROM template_collections WHERE user_id = ? AND template_id = ?`
+    ).bind(userId, templateId).run();
+
+    if (deleteResult.success) {
+      // 减少模板收藏数
+      await db.prepare(
+        `UPDATE public_templates SET collect_count = collect_count - 1 WHERE id = ? AND collect_count > 0`
+      ).bind(templateId).run();
+    }
+
+    return deleteResult.success;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * 检查用户是否已收藏模板
+ */
+export async function isTemplateCollected(db: D1Database, userId: string, templateId: string): Promise<boolean> {
+  const result = await db.prepare(
+    `SELECT id FROM template_collections WHERE user_id = ? AND template_id = ?`
+  ).bind(userId, templateId).first();
+
+  return result !== null;
+}
+
+/**
+ * 获取用户收藏的模板列表
+ */
+export async function getUserCollections(db: D1Database, userId: string): Promise<PublicTemplate[]> {
+  const result = await db.prepare(
+    `SELECT pt.* FROM public_templates pt
+     INNER JOIN template_collections tc ON pt.id = tc.template_id
+     WHERE tc.user_id = ?
+     ORDER BY tc.created_at DESC`
+  ).bind(userId).all<PublicTemplate>();
+
+  return result.results || [];
 }
 

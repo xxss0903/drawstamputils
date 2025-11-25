@@ -7,7 +7,9 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:migrate": "wrangler d1 migrations apply sealmaker-db",
-    "db:create": "wrangler d1 create sealmaker-db"
+    "db:create": "wrangler d1 create sealmaker-db",
+    "init:templates": "node scripts/init-from-r2.js",
+    "list:files": "node scripts/list-r2-files.js"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20240125.0"

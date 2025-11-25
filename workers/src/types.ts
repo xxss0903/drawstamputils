@@ -67,6 +67,42 @@ export interface TemplateResponse {
   download_url?: string;
 }
 
+// 公共模板相关类型
+export interface PublicTemplate {
+  id: string;
+  user_id: string | null;
+  name: string;
+  description?: string;
+  r2_key: string;
+  file_size: number;
+  is_system: boolean;
+  view_count: number;
+  collect_count: number;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface PublicTemplateResponse {
+  id: string;
+  user_id: string | null;
+  name: string;
+  description?: string;
+  file_size: number;
+  is_system: boolean;
+  view_count: number;
+  collect_count: number;
+  created_at: number;
+  updated_at: number;
+  is_collected?: boolean; // 当前用户是否已收藏
+  author_email?: string; // 分享者邮箱（如果有）
+}
+
+export interface ShareTemplateRequest {
+  template_id: string;
+  name?: string; // 可选，如果不提供则使用原模板名称
+  description?: string;
+}
+
 // JWT Payload
 export interface JWTPayload {
   userId: string;
