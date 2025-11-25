@@ -23,8 +23,8 @@
       >
         <div class="template-preview-wrapper">
           <img
-            v-if="template.preview_url"
-            :src="template.preview_url"
+            v-if="template.localPreviewUrl || template.preview_url"
+            :src="template.localPreviewUrl || template.preview_url"
             :alt="template.name"
             loading="lazy"
           />
@@ -148,7 +148,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { templateApi, publicTemplateApi, type Template } from '../utils/api'
@@ -160,10 +160,13 @@ const router = useRouter()
 const userStore = useUserStore()
 userStore.initAuth?.()
 
-const templates = ref<Template[]>([])
+type TemplateWithPreview = Template & { localPreviewUrl?: string }
+
+const templates = ref<TemplateWithPreview[]>([])
 const loading = ref(false)
 const error = ref('')
 const sharedTemplateIds = ref<Set<string>>(new Set())
+const previewObjectUrls = new Map<string, string>()
 const showUploadDialog = ref(false)
 const uploading = ref(false)
 const uploadError = ref('')
@@ -187,19 +190,52 @@ onMounted(() => {
   loadTemplates()
 })
 
+onUnmounted(() => {
+  previewObjectUrls.forEach(url => URL.revokeObjectURL(url))
+  previewObjectUrls.clear()
+})
+
 const loadTemplates = async () => {
   loading.value = true
   error.value = ''
   try {
     const response = await templateApi.getTemplates()
     if (response.success && response.data) {
-      templates.value = response.data
+      const templateData = response.data as TemplateWithPreview[]
+      await Promise.all(templateData.map(resolveTemplatePreview))
+      templates.value = templateData
       await loadSharedTemplates()
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('templateManage.loadError')
   } finally {
     loading.value = false
+  }
+}
+
+const resolveTemplatePreview = async (template: TemplateWithPreview) => {
+  if (!template.preview_url) return
+  if (previewObjectUrls.has(template.preview_url)) {
+    template.localPreviewUrl = previewObjectUrls.get(template.preview_url)!
+    return
+  }
+
+  try {
+    const token = localStorage.getItem('auth_token')
+    const response = await fetch(template.preview_url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      console.warn('加载预览图失败', template.preview_url)
+      return
+    }
+    const blob = await response.blob()
+    const objectUrl = URL.createObjectURL(blob)
+    previewObjectUrls.set(template.preview_url, objectUrl)
+    template.localPreviewUrl = objectUrl
+  } catch (error) {
+    console.error('获取预览图失败', error)
   }
 }
 
