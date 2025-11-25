@@ -71,13 +71,14 @@
         <div class="item-container">
           <h2 class="section-title">{{ t('homepage.stampTypes.title') }}</h2>
           <div class="stamp-types-grid">
-            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.circle') }}</div>
-            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.ellipse') }}</div>
-            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.rectangle') }}</div>
-            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.signature') }}</div>
-            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.date') }}</div>
-            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.text') }}</div>
-            <div class="stamp-type-item">{{ t('homepage.stampTypes.types.chinese') }}</div>
+            <button
+              v-for="option in templateOptions"
+              :key="option.key"
+              class="stamp-type-item"
+              @click="selectTemplate(option.templateName)"
+            >
+              {{ t(`homepage.stampTypes.types.${option.labelKey}`) }}
+            </button>
           </div>
         </div>
       </section>
@@ -229,16 +230,74 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { DrawStampUtils } from '../DrawStampUtils'
 import { getSystemFonts } from '../utils/fontUtils'
 import { IDrawStampConfig } from '../DrawStampTypes'
 import ElementList from './editor/ElementList.vue'
 import PropertiesPanel from './editor/PropertiesPanel.vue'
 import { useStampStore } from '../stores/stampStore'
+import { templateApi, type Template } from '../utils/api'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const stampStore = useStampStore()
+const templateMap = ref<Record<string, Template>>({})
+const templateOptions = [
+  { key: 'circle', labelKey: 'circle', templateName: '原型印章' },
+  { key: 'ellipse', labelKey: 'ellipse', templateName: '心形印章' },
+  { key: 'rectangle', labelKey: 'rectangle', templateName: '矩形印章' },
+  { key: 'signature', labelKey: 'signature', templateName: '指纹印章' },
+  { key: 'date', labelKey: 'date', templateName: '检验日期' },
+  { key: 'text', labelKey: 'text', templateName: '作废印章' },
+  { key: 'chinese', labelKey: 'chinese', templateName: '受控印章' },
+]
+
+const preloadTemplates = async () => {
+  if (Object.keys(templateMap.value).length > 0) {
+    return
+  }
+
+  try {
+    const response = await templateApi.getTemplates()
+    if (response.success && response.data) {
+      response.data.forEach(template => {
+        templateMap.value[template.name] = template
+      })
+    }
+  } catch (error) {
+    console.error('Failed to preload templates', error)
+  }
+}
+
+const selectTemplate = async (templateName: string) => {
+  if (!templateName) {
+    router.push('/maker')
+    return
+  }
+
+  if (!templateMap.value[templateName]) {
+    await preloadTemplates()
+  }
+
+  const templateMeta = templateMap.value[templateName]
+  if (!templateMeta) {
+    router.push('/maker')
+    return
+  }
+
+  try {
+    const detail = await templateApi.getTemplate(templateMeta.id)
+    if (detail.success && detail.data?.content) {
+      localStorage.setItem('stamp_config', detail.data.content)
+    }
+    router.push('/maker')
+  } catch (error) {
+    console.error('Failed to load template', templateName, error)
+    alert(t('templateManage.loadError'))
+  }
+}
 
 // 添加一个标志来控制 EditorControls 的加载
 const isDrawStampUtilsReady = ref(false)
