@@ -1,0 +1,20 @@
+{
+  "name": "sealmaker-workers",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers API for SealMaker",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 migrations apply sealmaker-db",
+    "db:create": "wrangler d1 create sealmaker-db"
+  },
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20240125.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0",
+    "typescript": "^5.5.3"
+  }
+}
+

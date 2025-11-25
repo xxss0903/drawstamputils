@@ -1,0 +1,28 @@
+name = "sealmaker-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 数据库绑定
+[[d1_databases]]
+binding = "DB"
+database_name = "sealmaker-db"
+database_id = "22a79f9d-2653-4324-a2ad-2c0f95258802" # 需要在 Cloudflare Dashboard 创建数据库后填入
+
+# R2 存储桶绑定
+[[r2_buckets]]
+binding = "TEMPLATES_BUCKET"
+bucket_name = "sealmaker-templates"
+
+# 环境变量
+[vars]
+JWT_SECRET = "xxss0903" # 需要在部署时设置
+JWT_EXPIRES_IN = "7d"
+
+# 生产环境配置
+[env.production]
+vars = { JWT_SECRET = "" }
+
+# 开发环境配置
+[env.development]
+vars = { JWT_SECRET = "dev-secret-key-change-in-production" }
+
