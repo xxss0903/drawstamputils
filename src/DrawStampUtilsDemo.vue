@@ -182,7 +182,12 @@
             :title="getTemplateDisplayName(template) + (template.description ? ' - ' + template.description : '')"
           >
             <div class="template-preview-small">
-              <div class="template-placeholder public-template-placeholder">
+              <img
+                v-if="template.preview"
+                :src="template.preview"
+                :alt="getTemplateDisplayName(template)"
+              />
+              <div v-else class="template-placeholder public-template-placeholder">
                 {{ getTemplateDisplayName(template).charAt(0) }}
               </div>
               <div v-if="template.is_system" class="template-badge-small">系统</div>
@@ -771,8 +776,13 @@ const updateDrawStamp = (newConfig: IDrawStampConfig, refreshSecurityPattern: bo
 // 添加模板弹窗控制
 const showTemplateDialog = ref(false)
 
+type PublicTemplateItem = PublicTemplate & {
+  displayName?: string
+  preview?: string
+}
+
 // 公共模板相关
-const publicTemplates = ref<PublicTemplate[]>([])
+const publicTemplates = ref<PublicTemplateItem[]>([])
 const loadingPublicTemplates = ref(false)
 const selectedPublicTemplateId = ref<string | null>(null)
 
@@ -793,12 +803,38 @@ const parseTemplateName = (config: any): string | null => {
 }
 
 // 获取模板显示名称（优先使用解析出的名称）
-const getTemplateDisplayName = (template: PublicTemplate & { displayName?: string }): string => {
+const getTemplateDisplayName = (template: PublicTemplateItem): string => {
   return template.displayName || template.name
 }
 
 // 模板名称缓存
 const templateNameCache = new Map<string, string>()
+const templatePreviewCache = new Map<string, string>()
+const templateConfigCache = new Map<string, IDrawStampConfig>()
+
+const generateTemplatePreview = async (config: IDrawStampConfig): Promise<string> => {
+  const tempCanvas = document.createElement('canvas')
+  tempCanvas.width = 500
+  tempCanvas.height = 500
+  const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
+
+  const previewConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
+  if (previewConfig.ruler) {
+    previewConfig.ruler.showRuler = false
+    previewConfig.ruler.showFullRuler = false
+    previewConfig.ruler.showSideRuler = false
+    previewConfig.ruler.showCrossLine = false
+    previewConfig.ruler.showCurrentPositionText = false
+    previewConfig.ruler.showDashLine = false
+  }
+
+  tempDrawStampUtils.setDrawConfigs(previewConfig)
+  tempDrawStampUtils.refreshStamp()
+
+  await new Promise((resolve) => setTimeout(resolve, 100))
+
+  return tempCanvas.toDataURL('image/png')
+}
 
 // 加载公共模板列表
 const loadPublicTemplates = async () => {
@@ -808,33 +844,61 @@ const loadPublicTemplates = async () => {
   try {
     const response = await publicTemplateApi.getPublicTemplates(10, 0, 'collect_count')
     if (response.success && response.data) {
-      // 为每个模板尝试解析配置中的名称（并行加载）
-      const templatesWithParsedNames = await Promise.all(
+      const templatesWithParsedData = await Promise.all(
         response.data.map(async (template) => {
-          // 如果缓存中有名称，直接使用
-          if (templateNameCache.has(template.id)) {
-            return { ...template, displayName: templateNameCache.get(template.id)! }
+          const cachedName = templateNameCache.get(template.id)
+          const cachedPreview = templatePreviewCache.get(template.id)
+          const cachedConfig = templateConfigCache.get(template.id)
+
+          if (cachedName && cachedPreview) {
+            return { ...template, displayName: cachedName, preview: cachedPreview }
           }
-          
-          try {
-            // 获取模板详情以解析配置
-            const detailResponse = await publicTemplateApi.getPublicTemplate(template.id)
-            if (detailResponse.success && detailResponse.data?.content) {
-              const config = JSON.parse(detailResponse.data.content)
-              const parsedName = parseTemplateName(config)
-              if (parsedName) {
-                // 缓存解析出的名称
-                templateNameCache.set(template.id, parsedName)
-                return { ...template, displayName: parsedName }
+
+          let config: IDrawStampConfig | null = cachedConfig || null
+
+          if (!config) {
+            try {
+              const detailResponse = await publicTemplateApi.getPublicTemplate(template.id)
+              if (detailResponse.success && detailResponse.data?.content) {
+                config = JSON.parse(detailResponse.data.content) as IDrawStampConfig
+                templateConfigCache.set(template.id, config)
+              }
+            } catch (err) {
+              console.error(`获取模板 ${template.id} 详情失败:`, err)
+            }
+          }
+
+          if (config) {
+            const parsedName = parseTemplateName(config)
+            if (parsedName) {
+              templateNameCache.set(template.id, parsedName)
+            }
+
+            let preview = cachedPreview
+            if (!preview) {
+              try {
+                preview = await generateTemplatePreview(config)
+                templatePreviewCache.set(template.id, preview)
+              } catch (err) {
+                console.error(`生成模板 ${template.id} 预览失败:`, err)
               }
             }
-          } catch (err) {
-            console.error(`解析模板 ${template.id} 名称失败:`, err)
+
+            return {
+              ...template,
+              displayName: parsedName || cachedName,
+              preview: preview || cachedPreview,
+            }
           }
-          return template
+
+          return {
+            ...template,
+            displayName: cachedName,
+            preview: cachedPreview,
+          }
         })
       )
-      publicTemplates.value = templatesWithParsedNames
+      publicTemplates.value = templatesWithParsedData
     }
   } catch (err) {
     console.error('加载公共模板失败:', err)
@@ -844,26 +908,31 @@ const loadPublicTemplates = async () => {
 }
 
 // 加载公共模板
-const loadPublicTemplate = async (template: PublicTemplate) => {
+const loadPublicTemplate = async (template: PublicTemplateItem) => {
   selectedPublicTemplateId.value = template.id
   loadingPublicTemplates.value = true
   
   try {
-    const response = await publicTemplateApi.getPublicTemplate(template.id)
-    if (response.success && response.data && response.data.content) {
-      const config = JSON.parse(response.data.content) as IDrawStampConfig
-      
-      // 从配置中解析模板名称
+    let config: IDrawStampConfig | null = templateConfigCache.get(template.id) || null
+
+    if (!config) {
+      const response = await publicTemplateApi.getPublicTemplate(template.id)
+      if (response.success && response.data && response.data.content) {
+        config = JSON.parse(response.data.content) as IDrawStampConfig
+        templateConfigCache.set(template.id, config)
+      }
+    }
+
+    if (config) {
       const parsedName = parseTemplateName(config)
-      const templateName = parsedName || (template as any).displayName || template.name
-      
-      // 创建一个兼容的 Template 对象
+      const templateName = parsedName || getTemplateDisplayName(template)
+
       const templateObj: Template = {
         name: templateName,
-        preview: '',
-        config: config,
+        preview: template.preview || '',
+        config,
       }
-      
+
       loadSelectedTemplate(templateObj)
       selectedPublicTemplateId.value = template.id
     }
@@ -882,30 +951,7 @@ const loadTemplatesFromStorage = async () => {
   // 生成默认模板的预览图
   for (const template of defaultTemplates) {
     try {
-      // 临时创建一个 canvas 生成预览图
-      const tempCanvas = document.createElement('canvas')
-      tempCanvas.width = 500
-      tempCanvas.height = 500
-      const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
-
-      // 复制配置并关闭标尺
-      const previewConfig = JSON.parse(JSON.stringify(template.config)) as IDrawStampConfig
-      previewConfig.ruler.showRuler = false
-      previewConfig.ruler.showFullRuler = false
-      previewConfig.ruler.showSideRuler = false
-      previewConfig.ruler.showCrossLine = false
-      previewConfig.ruler.showCurrentPositionText = false
-      previewConfig.ruler.showDashLine = false
-
-      // 设置模板配置
-      tempDrawStampUtils.setDrawConfigs(previewConfig)
-      tempDrawStampUtils.refreshStamp()
-
-      // 等待绘制完成
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // 生成预览图
-      template.preview = tempCanvas.toDataURL('image/png')
+      template.preview = await generateTemplatePreview(template.config)
     } catch (error) {
       console.error('生成模板预览失败:', error)
     }
