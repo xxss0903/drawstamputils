@@ -26,8 +26,15 @@ export function handleCors(request: Request, options: CorsOptions = {}): Respons
     const headers = new Headers();
 
     // 设置允许的来源
-    if (opts.origin === '*' || (origin && isOriginAllowed(origin, opts.origin))) {
-      headers.set('Access-Control-Allow-Origin', origin || '*');
+    // 如果使用 credentials，不能使用通配符，必须指定具体 origin
+    if (origin && (opts.origin === '*' || isOriginAllowed(origin, opts.origin))) {
+      headers.set('Access-Control-Allow-Origin', origin);
+      headers.set('Access-Control-Allow-Credentials', 'true');
+    } else if (opts.origin === '*') {
+      headers.set('Access-Control-Allow-Origin', '*');
+    } else if (opts.origin && typeof opts.origin === 'string') {
+      headers.set('Access-Control-Allow-Origin', opts.origin);
+      headers.set('Access-Control-Allow-Credentials', 'true');
     }
 
     if (opts.methods) {
@@ -41,8 +48,6 @@ export function handleCors(request: Request, options: CorsOptions = {}): Respons
     if (opts.maxAge) {
       headers.set('Access-Control-Max-Age', opts.maxAge.toString());
     }
-
-    headers.set('Access-Control-Allow-Credentials', 'true');
 
     return new Response(null, { status: 204, headers });
   }
@@ -58,11 +63,16 @@ export function addCorsHeaders(response: Response, request: Request, options: Co
   const origin = request.headers.get('Origin');
   const newResponse = new Response(response.body, response);
 
-  if (opts.origin === '*' || (origin && isOriginAllowed(origin, opts.origin))) {
-    newResponse.headers.set('Access-Control-Allow-Origin', origin || '*');
+  // 如果使用 credentials，不能使用通配符，必须指定具体 origin
+  if (origin && (opts.origin === '*' || isOriginAllowed(origin, opts.origin))) {
+    newResponse.headers.set('Access-Control-Allow-Origin', origin);
+    newResponse.headers.set('Access-Control-Allow-Credentials', 'true');
+  } else if (opts.origin === '*') {
+    newResponse.headers.set('Access-Control-Allow-Origin', '*');
+  } else if (opts.origin && typeof opts.origin === 'string') {
+    newResponse.headers.set('Access-Control-Allow-Origin', opts.origin);
+    newResponse.headers.set('Access-Control-Allow-Credentials', 'true');
   }
-
-  newResponse.headers.set('Access-Control-Allow-Credentials', 'true');
 
   return newResponse;
 }
