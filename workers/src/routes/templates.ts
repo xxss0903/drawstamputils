@@ -11,6 +11,7 @@ import {
   deleteTemplate,
   getPublicTemplateBySourceTemplateId,
   deletePublicTemplate,
+  getUserTemplateCount,
 } from '../utils/db';
 import type { Env, TemplateResponse, ApiResponse, UpdateTemplateRequest } from '../types';
 
@@ -170,6 +171,22 @@ export async function handleCreateTemplate(request: Request, env: Env, auth: { u
   }
 
   try {
+    // 限制每个用户最多保存 5 个模板
+    const templateCount = await getUserTemplateCount(env.DB, auth.userId);
+    if (templateCount >= 5) {
+      const response: ApiResponse = {
+        success: false,
+        error: '模板数量已达到上限（最多 5 个）',
+      };
+      return addCorsHeaders(
+        new Response(JSON.stringify(response), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
     const formData = await request.formData();
     const name = formData.get('name') as string;
     const description = formData.get('description') as string | null;

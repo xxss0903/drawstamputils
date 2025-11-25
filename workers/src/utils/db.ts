@@ -87,6 +87,14 @@ export async function getUserTemplates(db: D1Database, userId: string): Promise<
   return result.results || [];
 }
 
+export async function getUserTemplateCount(db: D1Database, userId: string): Promise<number> {
+  const result = await db.prepare(
+    `SELECT COUNT(*) as count FROM templates WHERE user_id = ?`
+  ).bind(userId).first<{ count: number }>();
+
+  return result?.count || 0;
+}
+
 /**
  * 根据 ID 获取模板
  */
@@ -220,6 +228,14 @@ export async function getPublicTemplateBySourceTemplateId(db: D1Database, templa
   ).bind(templateId).first<PublicTemplate>();
 
   return result || null;
+}
+
+export async function getUserSharedPublicTemplateCount(db: D1Database, userId: string): Promise<number> {
+  const result = await db.prepare(
+    `SELECT COUNT(*) as count FROM public_templates WHERE user_id = ?`
+  ).bind(userId).first<{ count: number }>();
+
+  return result?.count || 0;
 }
 
 /**

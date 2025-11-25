@@ -13,6 +13,7 @@ import {
   isTemplateCollected,
   getUserCollections,
   getTemplateById,
+  getUserSharedPublicTemplateCount,
 } from '../utils/db';
 import { findUserById } from '../utils/db';
 import type { Env, PublicTemplateResponse, ApiResponse, ShareTemplateRequest } from '../types';
@@ -215,6 +216,21 @@ export async function handleShareTemplate(request: Request, env: Env, auth: { us
 
   try {
     const body: ShareTemplateRequest = await request.json();
+
+    const sharedCount = await getUserSharedPublicTemplateCount(env.DB, auth.userId);
+    if (sharedCount >= 5) {
+      const response: ApiResponse = {
+        success: false,
+        error: '分享数量已达到上限（最多 5 个）',
+      };
+      return addCorsHeaders(
+        new Response(JSON.stringify(response), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
 
     // 获取用户的模板
     const userTemplate = await getTemplateById(env.DB, body.template_id);
