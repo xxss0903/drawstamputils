@@ -192,7 +192,7 @@
               </div>
               <div v-if="template.is_system" class="template-badge-small">系统</div>
             </div>
-            <div class="template-name-small">{{ getTemplateDisplayName(template) }}</div>
+            <div class="template-name-small">{{ template.name }}</div>
           </div>
 
           <!-- 加载更多提示 -->
