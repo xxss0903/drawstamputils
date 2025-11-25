@@ -40,6 +40,7 @@ export interface Template {
   name: string;
   description?: string;
   r2_key: string;
+  preview_r2_key?: string | null;
   file_size: number;
   created_at: number;
   updated_at: number;
@@ -65,6 +66,7 @@ export interface TemplateResponse {
   created_at: number;
   updated_at: number;
   download_url?: string;
+  preview_url?: string;
 }
 
 // 公共模板相关类型
@@ -75,6 +77,7 @@ export interface PublicTemplate {
   name: string;
   description?: string;
   r2_key: string;
+  preview_r2_key?: string | null;
   file_size: number;
   is_system: boolean;
   view_count: number;
@@ -97,6 +100,7 @@ export interface PublicTemplateResponse {
   updated_at: number;
   is_collected?: boolean; // 当前用户是否已收藏
   author_email?: string; // 分享者邮箱（如果有）
+  preview_url?: string;
 }
 
 export interface ShareTemplateRequest {

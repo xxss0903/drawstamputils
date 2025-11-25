@@ -15,6 +15,13 @@ import {
 } from '../utils/db';
 import type { Env, TemplateResponse, ApiResponse, UpdateTemplateRequest } from '../types';
 
+const buildTemplatePreviewUrl = (request: Request, templateId: string) => {
+  const base = new URL(request.url);
+  base.pathname = `/api/templates/${templateId}/preview`;
+  base.search = '';
+  return base.toString();
+};
+
 /**
  * 获取用户模板列表
  */
@@ -38,6 +45,7 @@ export async function handleGetTemplates(request: Request, env: Env, auth: { use
         file_size: t.file_size,
         created_at: t.created_at,
         updated_at: t.updated_at,
+        preview_url: t.preview_r2_key ? buildTemplatePreviewUrl(request, t.id) : undefined,
       })),
     };
 
@@ -135,6 +143,7 @@ export async function handleGetTemplate(request: Request, env: Env, auth: { user
         created_at: template.created_at,
         updated_at: template.updated_at,
         content: fileContent,
+        preview_url: template.preview_r2_key ? buildTemplatePreviewUrl(request, template.id) : undefined,
       },
     };
 
@@ -152,6 +161,77 @@ export async function handleGetTemplate(request: Request, env: Env, auth: { user
     };
     return addCorsHeaders(
       new Response(JSON.stringify(response), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      request
+    );
+  }
+}
+
+export async function handleGetTemplatePreview(request: Request, env: Env, auth: { userId: string }, templateId: string): Promise<Response> {
+  const corsResponse = handleCors(request);
+  if (corsResponse) {
+    return corsResponse;
+  }
+
+  try {
+    const template = await getTemplateById(env.DB, templateId);
+
+    if (!template) {
+      return addCorsHeaders(
+        new Response(JSON.stringify({ success: false, error: '模板不存在' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    if (template.user_id !== auth.userId) {
+      return addCorsHeaders(
+        new Response(JSON.stringify({ success: false, error: '无权访问此模板' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    if (!template.preview_r2_key) {
+      return addCorsHeaders(
+        new Response(JSON.stringify({ success: false, error: '预览图不存在' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    const r2Object = await env.TEMPLATES_BUCKET.get(template.preview_r2_key);
+    if (!r2Object || !r2Object.body) {
+      return addCorsHeaders(
+        new Response(JSON.stringify({ success: false, error: '预览图不存在' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    return addCorsHeaders(
+      new Response(r2Object.body, {
+        status: 200,
+        headers: {
+          'Content-Type': r2Object.httpMetadata?.contentType || 'image/png',
+          'Cache-Control': 'public, max-age=31536000',
+        },
+      }),
+      request
+    );
+  } catch (error) {
+    return addCorsHeaders(
+      new Response(JSON.stringify({ success: false, error: '获取预览图失败' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       }),
@@ -191,11 +271,12 @@ export async function handleCreateTemplate(request: Request, env: Env, auth: { u
     const name = formData.get('name') as string;
     const description = formData.get('description') as string | null;
     const file = formData.get('file') as File;
+    const previewFile = formData.get('preview') as File;
 
-    if (!name || !file) {
+    if (!name || !file || !previewFile) {
       const response: ApiResponse = {
         success: false,
-        error: '模板名称和文件都是必填项',
+        error: '模板名称、文件和预览图都是必填项',
       };
       return addCorsHeaders(
         new Response(JSON.stringify(response), {
@@ -254,13 +335,51 @@ export async function handleCreateTemplate(request: Request, env: Env, auth: { u
       );
     }
 
+    // 验证预览图类型
+    if (!previewFile.type.startsWith('image/')) {
+      const response: ApiResponse = {
+        success: false,
+        error: '预览图必须是图片文件',
+      };
+      return addCorsHeaders(
+        new Response(JSON.stringify(response), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    // 验证预览图大小（最大 2MB）
+    const previewSizeValidation = validateFileSize(previewFile.size, 2 * 1024 * 1024);
+    if (!previewSizeValidation.valid) {
+      const response: ApiResponse = {
+        success: false,
+        error: previewSizeValidation.error,
+      };
+      return addCorsHeaders(
+        new Response(JSON.stringify(response), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
     // 生成 R2 存储键
     const r2Key = `${auth.userId}/${crypto.randomUUID()}.json`;
+    const previewExtension = previewFile.name.includes('.') ? previewFile.name.split('.').pop() : 'png';
+    const previewR2Key = `${auth.userId}/previews/${crypto.randomUUID()}.${previewExtension}`;
 
     // 上传到 R2
     await env.TEMPLATES_BUCKET.put(r2Key, file, {
       httpMetadata: {
         contentType: 'application/json',
+      },
+    });
+    await env.TEMPLATES_BUCKET.put(previewR2Key, previewFile, {
+      httpMetadata: {
+        contentType: previewFile.type || 'image/png',
       },
     });
 
@@ -271,6 +390,7 @@ export async function handleCreateTemplate(request: Request, env: Env, auth: { u
       name,
       description || undefined,
       r2Key,
+      previewR2Key,
       file.size
     );
 
@@ -284,6 +404,7 @@ export async function handleCreateTemplate(request: Request, env: Env, auth: { u
         file_size: template.file_size,
         created_at: template.created_at,
         updated_at: template.updated_at,
+        preview_url: template.preview_r2_key ? buildTemplatePreviewUrl(request, template.id) : undefined,
       },
     };
 
@@ -480,6 +601,9 @@ export async function handleDeleteTemplate(
 
     // 从 R2 删除文件
     await env.TEMPLATES_BUCKET.delete(template.r2_key);
+    if (template.preview_r2_key) {
+      await env.TEMPLATES_BUCKET.delete(template.preview_r2_key);
+    }
 
     // 如果模板已分享，删除公共模板及其文件
     const sharedTemplate = await getPublicTemplateBySourceTemplateId(env.DB, templateId);
@@ -488,6 +612,13 @@ export async function handleDeleteTemplate(
         await env.TEMPLATES_BUCKET.delete(sharedTemplate.r2_key);
       } catch (err) {
         console.error('删除共享模板文件失败:', err);
+      }
+      if (sharedTemplate.preview_r2_key) {
+        try {
+          await env.TEMPLATES_BUCKET.delete(sharedTemplate.preview_r2_key);
+        } catch (err) {
+          console.error('删除共享模板预览失败:', err);
+        }
       }
 
       const sharedDeleted = await deletePublicTemplate(env.DB, sharedTemplate.id);

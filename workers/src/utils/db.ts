@@ -54,15 +54,16 @@ export async function createTemplate(
   name: string,
   description: string | undefined,
   r2Key: string,
+  previewR2Key: string | null,
   fileSize: number
 ): Promise<Template> {
   const id = crypto.randomUUID();
   const now = Date.now();
 
   await db.prepare(
-    `INSERT INTO templates (id, user_id, name, description, r2_key, file_size, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(id, userId, name, description || null, r2Key, fileSize, now, now).run();
+    `INSERT INTO templates (id, user_id, name, description, r2_key, preview_r2_key, file_size, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(id, userId, name, description || null, r2Key, previewR2Key, fileSize, now, now).run();
 
   return {
     id,
@@ -70,6 +71,7 @@ export async function createTemplate(
     name,
     description,
     r2_key: r2Key,
+    preview_r2_key: previewR2Key,
     file_size: fileSize,
     created_at: now,
     updated_at: now,
@@ -161,6 +163,7 @@ export async function createPublicTemplate(
   name: string,
   description: string | undefined,
   r2Key: string,
+  previewR2Key: string | null,
   fileSize: number,
   isSystem: boolean = false,
   sourceTemplateId: string | null = null
@@ -169,9 +172,9 @@ export async function createPublicTemplate(
   const now = Date.now();
 
   await db.prepare(
-    `INSERT INTO public_templates (id, user_id, name, description, r2_key, file_size, is_system, view_count, collect_count, source_template_id, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`
-  ).bind(id, userId, name, description || null, r2Key, fileSize, isSystem ? 1 : 0, sourceTemplateId, now, now).run();
+    `INSERT INTO public_templates (id, user_id, name, description, r2_key, preview_r2_key, file_size, is_system, view_count, collect_count, source_template_id, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?)`
+  ).bind(id, userId, name, description || null, r2Key, previewR2Key, fileSize, isSystem ? 1 : 0, sourceTemplateId, now, now).run();
 
   return {
     id,
@@ -180,6 +183,7 @@ export async function createPublicTemplate(
     name,
     description,
     r2_key: r2Key,
+    preview_r2_key: previewR2Key,
     file_size: fileSize,
     is_system: isSystem,
     view_count: 0,

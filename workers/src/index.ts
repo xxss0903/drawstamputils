@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 // Workers 入口文件
 
 import { handleRegister, handleLogin, handleGetMe } from './routes/auth';
@@ -7,6 +8,7 @@ import {
   handleCreateTemplate,
   handleUpdateTemplate,
   handleDeleteTemplate,
+  handleGetTemplatePreview,
 } from './routes/templates';
 import {
   handleGetPublicTemplates,
@@ -15,6 +17,7 @@ import {
   handleCollectTemplate,
   handleUncollectTemplate,
   handleGetCollections,
+  handleGetPublicTemplatePreview,
 } from './routes/publicTemplates';
 import { handleInitPublicTemplates, handleListR2Files } from './routes/admin';
 import { verifyAuth } from './middleware/auth';
@@ -22,7 +25,7 @@ import { handleCors, addCorsHeaders } from './middleware/cors';
 import type { Env } from './types';
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: any): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname;
 
@@ -94,6 +97,25 @@ export default {
         return handleCreateTemplate(request, env, auth);
       }
 
+      const templatePreviewMatch = path.match(/^\/api\/templates\/([^/]+)\/preview$/);
+      if (templatePreviewMatch && request.method === 'GET') {
+        const templateId = templatePreviewMatch[1];
+        const auth = await verifyAuth(request, env);
+        if (!auth) {
+          return addCorsHeaders(
+            new Response(
+              JSON.stringify({ success: false, error: '未授权访问' }),
+              {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' },
+              }
+            ),
+            request
+          );
+        }
+        return handleGetTemplatePreview(request, env, auth, templateId);
+      }
+
       // 模板详情、更新、删除路由
       const templateMatch = path.match(/^\/api\/templates\/([^/]+)$/);
       if (templateMatch) {
@@ -130,6 +152,12 @@ export default {
       if (path === '/api/public-templates' && request.method === 'GET') {
         const auth = await verifyAuth(request, env); // 可选认证
         return handleGetPublicTemplates(request, env, auth);
+      }
+
+      const publicTemplatePreviewMatch = path.match(/^\/api\/public-templates\/([^/]+)\/preview$/);
+      if (publicTemplatePreviewMatch && request.method === 'GET') {
+        const templateId = publicTemplatePreviewMatch[1];
+        return handleGetPublicTemplatePreview(request, env, templateId);
       }
 
       if (path === '/api/public-templates/share' && request.method === 'POST') {

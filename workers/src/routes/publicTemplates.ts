@@ -18,6 +18,13 @@ import {
 import { findUserById } from '../utils/db';
 import type { Env, PublicTemplateResponse, ApiResponse, ShareTemplateRequest } from '../types';
 
+const buildPublicTemplatePreviewUrl = (request: Request, templateId: string) => {
+  const base = new URL(request.url);
+  base.pathname = `/api/public-templates/${templateId}/preview`;
+  base.search = '';
+  return base.toString();
+};
+
 /**
  * 获取公共模板列表
  */
@@ -51,6 +58,7 @@ export async function handleGetPublicTemplates(request: Request, env: Env, auth:
           created_at: template.created_at,
           updated_at: template.updated_at,
           is_collected: false,
+          preview_url: template.preview_r2_key ? buildPublicTemplatePreviewUrl(request, template.id) : undefined,
         };
 
         if (auth) {
@@ -163,6 +171,7 @@ export async function handleGetPublicTemplate(
       updated_at: template.updated_at,
       content: fileContent,
       is_collected: false,
+      preview_url: template.preview_r2_key ? buildPublicTemplatePreviewUrl(request, template.id) : undefined,
     };
 
     // 如果用户已登录，检查是否已收藏
@@ -197,6 +206,66 @@ export async function handleGetPublicTemplate(
     };
     return addCorsHeaders(
       new Response(JSON.stringify(response), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      request
+    );
+  }
+}
+
+export async function handleGetPublicTemplatePreview(request: Request, env: Env, templateId: string): Promise<Response> {
+  const corsResponse = handleCors(request);
+  if (corsResponse) {
+    return corsResponse;
+  }
+
+  try {
+    const template = await getPublicTemplateById(env.DB, templateId);
+    if (!template) {
+      return addCorsHeaders(
+        new Response(JSON.stringify({ success: false, error: '模板不存在' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    if (!template.preview_r2_key) {
+      return addCorsHeaders(
+        new Response(JSON.stringify({ success: false, error: '预览图不存在' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    const r2Object = await env.TEMPLATES_BUCKET.get(template.preview_r2_key);
+    if (!r2Object || !r2Object.body) {
+      return addCorsHeaders(
+        new Response(JSON.stringify({ success: false, error: '预览图不存在' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    return addCorsHeaders(
+      new Response(r2Object.body, {
+        status: 200,
+        headers: {
+          'Content-Type': r2Object.httpMetadata?.contentType || 'image/png',
+          'Cache-Control': 'public, max-age=31536000',
+        },
+      }),
+      request
+    );
+  } catch (error) {
+    return addCorsHeaders(
+      new Response(JSON.stringify({ success: false, error: '获取预览图失败' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       }),
@@ -299,6 +368,22 @@ export async function handleShareTemplate(request: Request, env: Env, auth: { us
     const fileContent = await sourceObject.text();
     const publicR2Key = `public/${crypto.randomUUID()}.json`;
 
+    let publicPreviewR2Key: string | null = null;
+    if (userTemplate.preview_r2_key) {
+      try {
+        const previewObject = await env.TEMPLATES_BUCKET.get(userTemplate.preview_r2_key);
+        if (previewObject && previewObject.body) {
+          const ext = userTemplate.preview_r2_key.split('.').pop() || 'png';
+          publicPreviewR2Key = `public/previews/${crypto.randomUUID()}.${ext}`;
+          await env.TEMPLATES_BUCKET.put(publicPreviewR2Key, previewObject.body, {
+            httpMetadata: previewObject.httpMetadata,
+          });
+        }
+      } catch (error) {
+        console.error('复制预览图失败:', error);
+      }
+    }
+
     // 上传到 R2
     await env.TEMPLATES_BUCKET.put(publicR2Key, fileContent, {
       httpMetadata: {
@@ -313,6 +398,7 @@ export async function handleShareTemplate(request: Request, env: Env, auth: { us
       body.name || userTemplate.name,
       body.description || userTemplate.description,
       publicR2Key,
+      publicPreviewR2Key,
       userTemplate.file_size,
       false,
       body.template_id
@@ -332,6 +418,7 @@ export async function handleShareTemplate(request: Request, env: Env, auth: { us
         collect_count: publicTemplate.collect_count,
         created_at: publicTemplate.created_at,
         updated_at: publicTemplate.updated_at,
+        preview_url: publicTemplate.preview_r2_key ? buildPublicTemplatePreviewUrl(request, publicTemplate.id) : undefined,
       },
     };
 
@@ -498,6 +585,7 @@ export async function handleGetCollections(request: Request, env: Env, auth: { u
       created_at: template.created_at,
       updated_at: template.updated_at,
       is_collected: true, // 收藏列表中的都是已收藏的
+      preview_url: template.preview_r2_key ? buildPublicTemplatePreviewUrl(request, template.id) : undefined,
     }));
 
     const response: ApiResponse<PublicTemplateResponse[]> = {

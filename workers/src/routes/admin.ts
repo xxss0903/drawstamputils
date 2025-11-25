@@ -160,6 +160,7 @@ export async function handleInitPublicTemplates(request: Request, env: Env): Pro
           templateName,
           templateDescription,
           publicR2Key,
+          null,
           obj.size,
           true // 标记为系统模板
         );
