@@ -9,6 +9,8 @@ import {
   getTemplateById,
   updateTemplate,
   deleteTemplate,
+  getPublicTemplateBySourceTemplateId,
+  deletePublicTemplate,
 } from '../utils/db';
 import type { Env, TemplateResponse, ApiResponse, UpdateTemplateRequest } from '../types';
 
@@ -461,6 +463,21 @@ export async function handleDeleteTemplate(
 
     // 从 R2 删除文件
     await env.TEMPLATES_BUCKET.delete(template.r2_key);
+
+    // 如果模板已分享，删除公共模板及其文件
+    const sharedTemplate = await getPublicTemplateBySourceTemplateId(env.DB, templateId);
+    if (sharedTemplate) {
+      try {
+        await env.TEMPLATES_BUCKET.delete(sharedTemplate.r2_key);
+      } catch (err) {
+        console.error('删除共享模板文件失败:', err);
+      }
+
+      const sharedDeleted = await deletePublicTemplate(env.DB, sharedTemplate.id);
+      if (!sharedDeleted) {
+        console.warn(`删除共享模板记录失败: ${sharedTemplate.id}`);
+      }
+    }
 
     // 从数据库删除记录
     const success = await deleteTemplate(env.DB, templateId);

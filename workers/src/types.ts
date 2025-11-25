@@ -71,6 +71,7 @@ export interface TemplateResponse {
 export interface PublicTemplate {
   id: string;
   user_id: string | null;
+  source_template_id?: string | null;
   name: string;
   description?: string;
   r2_key: string;
@@ -85,6 +86,7 @@ export interface PublicTemplate {
 export interface PublicTemplateResponse {
   id: string;
   user_id: string | null;
+  source_template_id?: string | null;
   name: string;
   description?: string;
   file_size: number;

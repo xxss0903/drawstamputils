@@ -154,19 +154,21 @@ export async function createPublicTemplate(
   description: string | undefined,
   r2Key: string,
   fileSize: number,
-  isSystem: boolean = false
+  isSystem: boolean = false,
+  sourceTemplateId: string | null = null
 ): Promise<PublicTemplate> {
   const id = crypto.randomUUID();
   const now = Date.now();
 
   await db.prepare(
-    `INSERT INTO public_templates (id, user_id, name, description, r2_key, file_size, is_system, view_count, collect_count, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)`
-  ).bind(id, userId, name, description || null, r2Key, fileSize, isSystem ? 1 : 0, now, now).run();
+    `INSERT INTO public_templates (id, user_id, name, description, r2_key, file_size, is_system, view_count, collect_count, source_template_id, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`
+  ).bind(id, userId, name, description || null, r2Key, fileSize, isSystem ? 1 : 0, sourceTemplateId, now, now).run();
 
   return {
     id,
     user_id: userId,
+    source_template_id: sourceTemplateId,
     name,
     description,
     r2_key: r2Key,
@@ -210,6 +212,25 @@ export async function getPublicTemplateById(db: D1Database, id: string): Promise
   ).bind(id).first<PublicTemplate>();
 
   return result || null;
+}
+
+export async function getPublicTemplateBySourceTemplateId(db: D1Database, templateId: string): Promise<PublicTemplate | null> {
+  const result = await db.prepare(
+    `SELECT * FROM public_templates WHERE source_template_id = ?`
+  ).bind(templateId).first<PublicTemplate>();
+
+  return result || null;
+}
+
+/**
+ * 删除公共模板
+ */
+export async function deletePublicTemplate(db: D1Database, id: string): Promise<boolean> {
+  const result = await db.prepare(
+    `DELETE FROM public_templates WHERE id = ?`
+  ).bind(id).run();
+
+  return result.success;
 }
 
 /**

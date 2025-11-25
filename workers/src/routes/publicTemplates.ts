@@ -6,6 +6,7 @@ import {
   createPublicTemplate,
   getPublicTemplates,
   getPublicTemplateById,
+  getPublicTemplateBySourceTemplateId,
   incrementPublicTemplateViewCount,
   collectTemplate,
   uncollectTemplate,
@@ -39,6 +40,7 @@ export async function handleGetPublicTemplates(request: Request, env: Env, auth:
         const response: PublicTemplateResponse = {
           id: template.id,
           user_id: template.user_id,
+          source_template_id: template.source_template_id,
           name: template.name,
           description: template.description,
           file_size: template.file_size,
@@ -149,6 +151,7 @@ export async function handleGetPublicTemplate(
     const templateResponse: PublicTemplateResponse & { content: string } = {
       id: template.id,
       user_id: template.user_id,
+      source_template_id: template.source_template_id,
       name: template.name,
       description: template.description,
       file_size: template.file_size,
@@ -215,6 +218,22 @@ export async function handleShareTemplate(request: Request, env: Env, auth: { us
 
     // 获取用户的模板
     const userTemplate = await getTemplateById(env.DB, body.template_id);
+    // 检查是否已经分享过
+    const existingPublicTemplate = await getPublicTemplateBySourceTemplateId(env.DB, body.template_id);
+    if (existingPublicTemplate) {
+      const response: ApiResponse = {
+        success: false,
+        error: '该模板已分享至公共模板',
+      };
+      return addCorsHeaders(
+        new Response(JSON.stringify(response), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
 
     if (!userTemplate) {
       const response: ApiResponse = {
@@ -279,7 +298,8 @@ export async function handleShareTemplate(request: Request, env: Env, auth: { us
       body.description || userTemplate.description,
       publicR2Key,
       userTemplate.file_size,
-      false
+      false,
+      body.template_id
     );
 
     const response: ApiResponse<PublicTemplateResponse> = {
@@ -287,6 +307,7 @@ export async function handleShareTemplate(request: Request, env: Env, auth: { us
       data: {
         id: publicTemplate.id,
         user_id: publicTemplate.user_id,
+        source_template_id: publicTemplate.source_template_id,
         name: publicTemplate.name,
         description: publicTemplate.description,
         file_size: publicTemplate.file_size,
@@ -451,6 +472,7 @@ export async function handleGetCollections(request: Request, env: Env, auth: { u
     const templatesWithCollectionStatus: PublicTemplateResponse[] = templates.map((template) => ({
       id: template.id,
       user_id: template.user_id,
+      source_template_id: template.source_template_id,
       name: template.name,
       description: template.description,
       file_size: template.file_size,
