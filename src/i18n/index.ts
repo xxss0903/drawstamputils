@@ -550,11 +550,13 @@ const messages = {
     },
     templateManage: {
       title: '我的模板',
+      subtitle: '管理和复用你的专属印章模板',
       upload: '上传模板',
       uploadTitle: '上传新模板',
       editTitle: '编辑模板',
       name: '模板名称',
       description: '模板描述',
+      noDescription: '暂无描述，点击编辑添加更多信息',
       file: '模板文件',
       loading: '加载中...',
       empty: '暂无模板，点击上传按钮创建第一个模板',
@@ -573,7 +575,9 @@ const messages = {
       deleteConfirm: '确定要删除这个模板吗？',
       shareConfirm: '确定要将此模板分享到公共模板吗？',
       shareSuccess: '分享成功！',
-      shareError: '分享失败'
+      shareError: '分享失败',
+      sharedBadge: '已分享',
+      sharedTooltip: '此模板已分享至公共模板'
     },
     publicTemplates: {
       title: '公共模板',
@@ -1142,11 +1146,13 @@ const messages = {
     },
     templateManage: {
       title: 'My Templates',
+      subtitle: 'Organize and reuse your favorite stamp templates',
       upload: 'Upload Template',
       uploadTitle: 'Upload New Template',
       editTitle: 'Edit Template',
       name: 'Template Name',
       description: 'Template Description',
+      noDescription: 'No description yet. Click edit to add more details.',
       file: 'Template File',
       loading: 'Loading...',
       empty: 'No templates yet, click upload to create your first template',
@@ -1165,7 +1171,9 @@ const messages = {
       deleteConfirm: 'Are you sure you want to delete this template?',
       shareConfirm: 'Are you sure you want to share this template to public templates?',
       shareSuccess: 'Share successful!',
-      shareError: 'Share failed'
+      shareError: 'Share failed',
+      sharedBadge: 'Shared',
+      sharedTooltip: 'This template has already been shared'
     },
     publicTemplates: {
       title: 'Public Templates',

@@ -47,6 +47,7 @@ export interface Template {
 export interface PublicTemplate {
   id: string
   user_id: string | null
+  source_template_id?: string | null
   name: string
   description?: string
   file_size: number

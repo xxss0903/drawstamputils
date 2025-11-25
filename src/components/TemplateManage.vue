@@ -1,7 +1,10 @@
 <template>
   <div class="template-manage">
     <div class="manage-header">
-      <h1>{{ t('templateManage.title') }}</h1>
+      <div>
+        <p class="sub-title">{{ t('templateManage.subtitle') }}</p>
+        <h1>{{ t('templateManage.title') }}</h1>
+      </div>
       <button class="upload-btn" @click="showUploadDialog = true">
         {{ t('templateManage.upload') }}
       </button>
@@ -18,22 +21,47 @@
         :key="template.id"
         class="template-item"
       >
-        <div class="template-info">
-          <h3>{{ template.name }}</h3>
-          <p v-if="template.description" class="description">{{ template.description }}</p>
-          <div class="meta">
-            <span>{{ formatDate(template.created_at) }}</span>
-            <span>{{ formatFileSize(template.file_size) }}</span>
+        <div class="template-card-header">
+          <div class="template-title">
+            <h3>{{ template.name }}</h3>
+            <span v-if="isTemplateShared(template.id)" class="badge badge-shared">
+              {{ t('templateManage.sharedBadge') }}
+            </span>
           </div>
+          <span class="template-size">{{ formatFileSize(template.file_size) }}</span>
         </div>
+
+        <p v-if="template.description" class="description">
+          {{ template.description }}
+        </p>
+        <p v-else class="description muted">
+          {{ t('templateManage.noDescription') }}
+        </p>
+
+        <div class="template-meta">
+          <span class="meta-chip">
+            <span class="icon">📅</span>
+            {{ formatDate(template.created_at) }}
+          </span>
+          <span class="meta-chip">
+            <span class="icon">📦</span>
+            {{ formatFileSize(template.file_size) }}
+          </span>
+        </div>
+
         <div class="template-actions">
           <button @click="loadTemplate(template.id)" class="btn btn-primary">
             {{ t('templateManage.load') }}
           </button>
-          <button @click="shareTemplate(template)" class="btn btn-share">
-            {{ t('templateManage.share') }}
+          <button
+            @click="shareTemplate(template)"
+            class="btn btn-share"
+            :disabled="isTemplateShared(template.id)"
+            :title="isTemplateShared(template.id) ? t('templateManage.sharedTooltip') : ''"
+          >
+            {{ isTemplateShared(template.id) ? t('templateManage.sharedBadge') : t('templateManage.share') }}
           </button>
-          <button @click="editTemplate(template)" class="btn btn-secondary">
+          <button @click="editTemplate(template)" class="btn btn-outline">
             {{ t('templateManage.edit') }}
           </button>
           <button @click="deleteTemplate(template.id)" class="btn btn-danger">
@@ -109,13 +137,17 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { templateApi, publicTemplateApi, type Template } from '../utils/api'
 import type { IDrawStampConfig } from '../DrawStampTypes'
+import { useUserStore } from '../stores/userStore'
 
 const { t } = useI18n()
 const router = useRouter()
+const userStore = useUserStore()
+userStore.initAuth?.()
 
 const templates = ref<Template[]>([])
 const loading = ref(false)
 const error = ref('')
+const sharedTemplateIds = ref<Set<string>>(new Set())
 const showUploadDialog = ref(false)
 const uploading = ref(false)
 const uploadError = ref('')
@@ -145,11 +177,29 @@ const loadTemplates = async () => {
     const response = await templateApi.getTemplates()
     if (response.success && response.data) {
       templates.value = response.data
+      await loadSharedTemplates()
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('templateManage.loadError')
   } finally {
     loading.value = false
+  }
+}
+
+const loadSharedTemplates = async () => {
+  const currentUser = userStore.user?.value
+  if (!currentUser) return
+
+  try {
+    const response = await publicTemplateApi.getPublicTemplates(200, 0, 'created_at')
+    if (response.success && response.data) {
+      const sharedIds = response.data
+        .filter(template => template.user_id === currentUser.id && template.source_template_id)
+        .map(template => template.source_template_id as string)
+      sharedTemplateIds.value = new Set(sharedIds)
+    }
+  } catch (error) {
+    console.error('Failed to load shared templates', error)
   }
 }
 
@@ -241,6 +291,11 @@ const loadTemplate = async (id: string) => {
 }
 
 const shareTemplate = async (template: Template) => {
+  if (isTemplateShared(template.id)) {
+    alert(t('templateManage.sharedTooltip'))
+    return
+  }
+
   if (!confirm(t('templateManage.shareConfirm'))) return
 
   try {
@@ -251,11 +306,14 @@ const shareTemplate = async (template: Template) => {
     )
     if (response.success) {
       alert(t('templateManage.shareSuccess'))
+      await loadSharedTemplates()
     }
   } catch (err) {
     alert(err instanceof Error ? err.message : t('templateManage.shareError'))
   }
 }
+
+const isTemplateShared = (templateId: string) => sharedTemplateIds.value.has(templateId)
 
 const formatDate = (timestamp: number) => {
   return new Date(timestamp).toLocaleDateString('zh-CN')
@@ -278,29 +336,41 @@ const formatFileSize = (bytes: number) => {
 .manage-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .manage-header h1 {
   margin: 0;
-  color: #333;
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.sub-title {
+  margin: 0 0 0.25rem 0;
+  color: #64748b;
+  font-size: 0.95rem;
 }
 
 .upload-btn {
   padding: 0.75rem 1.5rem;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 999px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .upload-btn:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(99, 102, 241, 0.35);
 }
 
 .loading,
@@ -308,99 +378,157 @@ const formatFileSize = (bytes: number) => {
 .empty {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: #64748b;
 }
 
 .error {
-  color: #c33;
+  color: #dc2626;
 }
 
 .template-list {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
 .template-item {
   background: white;
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.template-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 30px rgba(15, 23, 42, 0.12);
+}
+
+.template-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
 }
 
-.template-info {
-  flex: 1;
+.template-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-.template-info h3 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
+.template-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.template-size {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-shared {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
 }
 
 .description {
-  color: #666;
-  margin: 0.5rem 0;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin: 0;
+  color: #475467;
+  line-height: 1.5;
 }
 
-.meta {
+.description.muted {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.template-meta {
   display: flex;
-  gap: 1rem;
-  font-size: 0.9rem;
-  color: #999;
-  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.meta-chip {
+  background: #eef2ff;
+  color: #4f46e5;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .template-actions {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .btn {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.3rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 999px;
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background: #0ea5e9;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #545b62;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #c82333;
+  background: #0284c7;
 }
 
 .btn-share {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
 }
 
 .btn-share:hover {
-  background-color: #218838;
+  filter: brightness(0.95);
+}
+
+.btn-outline {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475467;
+}
+
+.btn-outline:hover {
+  background: #f8fafc;
+  color: #111827;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
 }
 
 .btn:disabled {
@@ -414,7 +542,7 @@ const formatFileSize = (bytes: number) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(15, 23, 42, 0.65);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -423,17 +551,19 @@ const formatFileSize = (bytes: number) => {
 
 .dialog {
   background: white;
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 2rem;
   width: 90%;
-  max-width: 500px;
+  max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.25);
 }
 
 .dialog h2 {
   margin: 0 0 1.5rem 0;
-  color: #333;
+  color: #111827;
+  font-size: 1.5rem;
 }
 
 .form-group {
@@ -443,16 +573,16 @@ const formatFileSize = (bytes: number) => {
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: #334155;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
 }
@@ -460,38 +590,37 @@ const formatFileSize = (bytes: number) => {
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .error-message {
   padding: 0.75rem;
-  background-color: #fee;
-  color: #c33;
-  border-radius: 4px;
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-radius: 8px;
   margin-bottom: 1rem;
 }
 
 .dialog-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   justify-content: flex-end;
   margin-top: 1.5rem;
 }
 
 @media (max-width: 768px) {
-  .template-item {
-    flex-direction: column;
-    align-items: flex-start;
+  .template-manage {
+    padding: 1.25rem;
   }
 
   .template-actions {
-    width: 100%;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
 
   .btn {
-    flex: 1;
-    min-width: 80px;
+    width: 100%;
+    text-align: center;
   }
 }
 </style>
