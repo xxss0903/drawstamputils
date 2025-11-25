@@ -44,6 +44,22 @@ export interface Template {
   content?: string
 }
 
+export interface PublicTemplate {
+  id: string
+  user_id: string | null
+  name: string
+  description?: string
+  file_size: number
+  is_system: boolean
+  view_count: number
+  collect_count: number
+  created_at: number
+  updated_at: number
+  is_collected?: boolean
+  author_email?: string
+  content?: string
+}
+
 // 通用请求函数
 async function request<T>(
   endpoint: string,
@@ -176,6 +192,63 @@ export const templateApi = {
   deleteTemplate: async (id: string): Promise<ApiResponse> => {
     return request(`/api/templates/${id}`, {
       method: 'DELETE',
+    })
+  },
+}
+
+// 公共模板相关 API
+export const publicTemplateApi = {
+  // 获取公共模板列表
+  getPublicTemplates: async (
+    limit: number = 50,
+    offset: number = 0,
+    orderBy: 'created_at' | 'collect_count' | 'view_count' = 'created_at'
+  ): Promise<ApiResponse<PublicTemplate[]>> => {
+    return request<PublicTemplate[]>(
+      `/api/public-templates?limit=${limit}&offset=${offset}&orderBy=${orderBy}`,
+      {
+        method: 'GET',
+      }
+    )
+  },
+
+  // 获取公共模板详情
+  getPublicTemplate: async (id: string): Promise<ApiResponse<PublicTemplate & { content: string }>> => {
+    return request<PublicTemplate & { content: string }>(`/api/public-templates/${id}`, {
+      method: 'GET',
+    })
+  },
+
+  // 分享模板到公共模板
+  shareTemplate: async (
+    templateId: string,
+    name?: string,
+    description?: string
+  ): Promise<ApiResponse<PublicTemplate>> => {
+    return request<PublicTemplate>('/api/public-templates/share', {
+      method: 'POST',
+      body: JSON.stringify({ template_id: templateId, name, description }),
+    })
+  },
+
+  // 收藏模板
+  collectTemplate: async (templateId: string): Promise<ApiResponse> => {
+    return request(`/api/public-templates/${templateId}/collect`, {
+      method: 'POST',
+    })
+  },
+
+  // 取消收藏模板
+  uncollectTemplate: async (templateId: string): Promise<ApiResponse> => {
+    return request(`/api/public-templates/${templateId}/uncollect`, {
+      method: 'POST',
+    })
+  },
+
+  // 获取用户收藏的模板列表
+  getCollections: async (): Promise<ApiResponse<PublicTemplate[]>> => {
+    return request<PublicTemplate[]>('/api/collections', {
+      method: 'GET',
     })
   },
 }

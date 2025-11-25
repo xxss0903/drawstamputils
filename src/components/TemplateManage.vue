@@ -30,6 +30,9 @@
           <button @click="loadTemplate(template.id)" class="btn btn-primary">
             {{ t('templateManage.load') }}
           </button>
+          <button @click="shareTemplate(template)" class="btn btn-share">
+            {{ t('templateManage.share') }}
+          </button>
           <button @click="editTemplate(template)" class="btn btn-secondary">
             {{ t('templateManage.edit') }}
           </button>
@@ -104,7 +107,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { templateApi, type Template } from '../utils/api'
+import { templateApi, publicTemplateApi, type Template } from '../utils/api'
 import type { IDrawStampConfig } from '../DrawStampTypes'
 
 const { t } = useI18n()
@@ -234,6 +237,23 @@ const loadTemplate = async (id: string) => {
     }
   } catch (err) {
     alert(err instanceof Error ? err.message : t('templateManage.loadError'))
+  }
+}
+
+const shareTemplate = async (template: Template) => {
+  if (!confirm(t('templateManage.shareConfirm'))) return
+
+  try {
+    const response = await publicTemplateApi.shareTemplate(
+      template.id,
+      template.name,
+      template.description
+    )
+    if (response.success) {
+      alert(t('templateManage.shareSuccess'))
+    }
+  } catch (err) {
+    alert(err instanceof Error ? err.message : t('templateManage.shareError'))
   }
 }
 
@@ -372,6 +392,15 @@ const formatFileSize = (bytes: number) => {
 
 .btn-danger:hover {
   background-color: #c82333;
+}
+
+.btn-share {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-share:hover {
+  background-color: #218838;
 }
 
 .btn:disabled {

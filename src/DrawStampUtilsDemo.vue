@@ -148,9 +148,10 @@
           </div>
         </div>
         <div class="template-list-horizontal">
+          <!-- 默认模板 -->
           <div
             v-for="(template, index) in defaultTemplates"
-            :key="index"
+            :key="'default-' + index"
             class="template-item-horizontal"
             :class="{ 'active': currentTemplateIndex === (-1 - index) }"
             @click="loadSelectedTemplate(template)"
@@ -164,6 +165,35 @@
               </div>
             </div>
             <div class="template-name-small">{{ template.name }}</div>
+          </div>
+
+          <!-- 分隔线 -->
+          <div v-if="publicTemplates.length > 0" class="template-divider">
+            <span>{{ t('stamp.template.publicTemplates') }}</span>
+          </div>
+
+          <!-- 公共模板 -->
+          <div
+            v-for="template in publicTemplates"
+            :key="'public-' + template.id"
+            class="template-item-horizontal public-template-item"
+            :class="{ 'active': selectedPublicTemplateId === template.id }"
+            @click="loadPublicTemplate(template)"
+            :title="getTemplateDisplayName(template) + (template.description ? ' - ' + template.description : '')"
+          >
+            <div class="template-preview-small">
+              <div class="template-placeholder public-template-placeholder">
+                {{ getTemplateDisplayName(template).charAt(0) }}
+              </div>
+              <div v-if="template.is_system" class="template-badge-small">系统</div>
+            </div>
+            <div class="template-name-small">{{ getTemplateDisplayName(template) }}</div>
+          </div>
+
+          <!-- 加载更多提示 -->
+          <div v-if="loadingPublicTemplates" class="template-loading">
+            <div class="loading-spinner"></div>
+            <span>{{ t('stamp.template.loadingPublicTemplates') }}</span>
           </div>
         </div>
       </div>
@@ -192,6 +222,7 @@ import TemplateDialog from './components/TemplateDialog.vue'
 import ElementList from './components/editor/ElementList.vue'
 import PropertiesPanel from './components/editor/PropertiesPanel.vue'
 import { useStampStore } from './stores/stampStore'
+import { publicTemplateApi, type PublicTemplate } from './utils/api'
 
 const { t } = useI18n()
 // 添加一个标志来控制 EditorControls 的加载
@@ -373,6 +404,8 @@ onMounted(async () => {
       
       // 加载模板列表
       await loadTemplatesFromStorage()
+      // 加载公共模板
+      await loadPublicTemplates()
       
       // 初始化所有字体选择器的预览
       await nextTick()
@@ -416,6 +449,8 @@ onMounted(async () => {
   drawStamp()
   // 加载模板列表，这里是预览的模板列表
   await loadTemplatesFromStorage()
+  // 加载公共模板
+  await loadPublicTemplates()
   // 初始化所有字体选择器的预览
   document.querySelectorAll('.font-select, .font-input').forEach((element) => {
     if (element instanceof HTMLElement) {
@@ -653,6 +688,11 @@ const loadSelectedTemplate = (template: Template) => {
   try {
     // 关闭模板弹窗
     showTemplateDialog.value = false
+    
+    // 清除公共模板选中状态（如果不是公共模板）
+    if (!selectedPublicTemplateId.value) {
+      selectedPublicTemplateId.value = null
+    }
 
     isDrawStampUtilsReady.value = false
     // 绘制印章
@@ -730,6 +770,111 @@ const updateDrawStamp = (newConfig: IDrawStampConfig, refreshSecurityPattern: bo
 
 // 添加模板弹窗控制
 const showTemplateDialog = ref(false)
+
+// 公共模板相关
+const publicTemplates = ref<PublicTemplate[]>([])
+const loadingPublicTemplates = ref(false)
+const selectedPublicTemplateId = ref<string | null>(null)
+
+// 从模板配置中解析名称
+const parseTemplateName = (config: any): string | null => {
+  // 尝试从配置中获取名称
+  if (config.name) {
+    return config.name
+  }
+  // 如果配置中有公司名称，可以使用公司名称作为模板名称
+  if (config.company?.companyName) {
+    return config.company.companyName
+  }
+  if (config.companyList && config.companyList.length > 0 && config.companyList[0]?.companyName) {
+    return config.companyList[0].companyName
+  }
+  return null
+}
+
+// 获取模板显示名称（优先使用解析出的名称）
+const getTemplateDisplayName = (template: PublicTemplate & { displayName?: string }): string => {
+  return template.displayName || template.name
+}
+
+// 模板名称缓存
+const templateNameCache = new Map<string, string>()
+
+// 加载公共模板列表
+const loadPublicTemplates = async () => {
+  if (loadingPublicTemplates.value || publicTemplates.value.length > 0) return
+  
+  loadingPublicTemplates.value = true
+  try {
+    const response = await publicTemplateApi.getPublicTemplates(10, 0, 'collect_count')
+    if (response.success && response.data) {
+      // 为每个模板尝试解析配置中的名称（并行加载）
+      const templatesWithParsedNames = await Promise.all(
+        response.data.map(async (template) => {
+          // 如果缓存中有名称，直接使用
+          if (templateNameCache.has(template.id)) {
+            return { ...template, displayName: templateNameCache.get(template.id)! }
+          }
+          
+          try {
+            // 获取模板详情以解析配置
+            const detailResponse = await publicTemplateApi.getPublicTemplate(template.id)
+            if (detailResponse.success && detailResponse.data?.content) {
+              const config = JSON.parse(detailResponse.data.content)
+              const parsedName = parseTemplateName(config)
+              if (parsedName) {
+                // 缓存解析出的名称
+                templateNameCache.set(template.id, parsedName)
+                return { ...template, displayName: parsedName }
+              }
+            }
+          } catch (err) {
+            console.error(`解析模板 ${template.id} 名称失败:`, err)
+          }
+          return template
+        })
+      )
+      publicTemplates.value = templatesWithParsedNames
+    }
+  } catch (err) {
+    console.error('加载公共模板失败:', err)
+  } finally {
+    loadingPublicTemplates.value = false
+  }
+}
+
+// 加载公共模板
+const loadPublicTemplate = async (template: PublicTemplate) => {
+  selectedPublicTemplateId.value = template.id
+  loadingPublicTemplates.value = true
+  
+  try {
+    const response = await publicTemplateApi.getPublicTemplate(template.id)
+    if (response.success && response.data && response.data.content) {
+      const config = JSON.parse(response.data.content) as IDrawStampConfig
+      
+      // 从配置中解析模板名称
+      const parsedName = parseTemplateName(config)
+      const templateName = parsedName || (template as any).displayName || template.name
+      
+      // 创建一个兼容的 Template 对象
+      const templateObj: Template = {
+        name: templateName,
+        preview: '',
+        config: config,
+      }
+      
+      loadSelectedTemplate(templateObj)
+      selectedPublicTemplateId.value = template.id
+    }
+  } catch (err) {
+    console.error('加载公共模板失败:', err)
+    alert(err instanceof Error ? err.message : t('stamp.template.loadPublicTemplateError'))
+    selectedPublicTemplateId.value = null
+  } finally {
+    loadingPublicTemplates.value = false
+  }
+}
 
 
 // 从本地存储加载模板列表
@@ -1299,6 +1444,65 @@ watch(isDraggable, (newValue) => {
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+}
+
+.template-divider {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  margin: 16px 0 8px 0;
+  padding: 8px 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.template-divider span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  background: white;
+  padding: 0 12px;
+  margin-top: -20px;
+}
+
+.public-template-item {
+  position: relative;
+}
+
+.public-template-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  border-radius: 6px;
+}
+
+.template-badge-small {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #28a745;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  z-index: 1;
+}
+
+.template-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #666;
+  font-size: 14px;
+  gap: 8px;
 }
 
 .canvas-wrapper {

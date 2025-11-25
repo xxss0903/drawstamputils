@@ -25,6 +25,44 @@
               </div>
             </div>
           </div>
+
+          <!-- 公共模板 -->
+          <div class="template-category">
+            <h4>{{ t('stamp.template.publicTemplates') }}</h4>
+            <div v-if="loadingPublicTemplates" class="loading-text">
+              {{ t('stamp.template.loadingPublicTemplates') }}
+            </div>
+            <div v-else-if="publicTemplatesError" class="error-text">
+              {{ publicTemplatesError }}
+            </div>
+            <div v-else-if="publicTemplates.length === 0" class="empty-text">
+              {{ t('stamp.template.noPublicTemplates') }}
+            </div>
+            <div v-else class="template-grid">
+              <div v-for="template in publicTemplates" 
+                   :key="'public-' + template.id" 
+                   class="template-item public-template-item"
+                   :class="{ 'active': selectedPublicTemplateId === template.id }"
+                   @click="onSelectPublicTemplate(template)">
+                <div class="template-badge" v-if="template.is_system">
+                  {{ t('publicTemplates.systemTemplate') }}
+                </div>
+                <div class="template-preview">
+                  <div class="template-placeholder">
+                    {{ template.name.charAt(0) }}
+                  </div>
+                </div>
+                <div class="template-info">
+                  <span class="template-name">{{ template.name }}</span>
+                  <span v-if="template.description" class="template-description">{{ template.description }}</span>
+                  <div class="template-stats">
+                    <span>👁️ {{ template.view_count }}</span>
+                    <span>⭐ {{ template.collect_count }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="template-dialog-footer">
@@ -49,12 +87,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { IDrawStampConfig } from '../DrawStampTypes'
+import { publicTemplateApi, type PublicTemplate } from '../utils/api'
 
 const { t } = useI18n()
 const templateFileInput = ref<HTMLInputElement | null>(null)
+
+const publicTemplates = ref<PublicTemplate[]>([])
+const loadingPublicTemplates = ref(false)
+const publicTemplatesError = ref('')
+const selectedPublicTemplateId = ref<string | null>(null)
 
 interface Template {
   name: string
@@ -83,8 +127,65 @@ const onClose = () => {
 }
 
 const onSelectTemplate = (template: Template) => {
+  selectedPublicTemplateId.value = null
   emit('select', template)
 }
+
+const onSelectPublicTemplate = async (template: PublicTemplate) => {
+  selectedPublicTemplateId.value = template.id
+  loadingPublicTemplates.value = true
+  
+  try {
+    const response = await publicTemplateApi.getPublicTemplate(template.id)
+    if (response.success && response.data && response.data.content) {
+      const config = JSON.parse(response.data.content) as IDrawStampConfig
+      
+      // 创建一个兼容的 Template 对象
+      const templateObj: Template = {
+        name: template.name,
+        preview: '',
+        config: config,
+      }
+      
+      emit('select', templateObj)
+    }
+  } catch (err) {
+    console.error('加载公共模板失败:', err)
+    alert(err instanceof Error ? err.message : t('stamp.template.loadPublicTemplateError'))
+    selectedPublicTemplateId.value = null
+  } finally {
+    loadingPublicTemplates.value = false
+  }
+}
+
+const loadPublicTemplates = async () => {
+  loadingPublicTemplates.value = true
+  publicTemplatesError.value = ''
+  
+  try {
+    const response = await publicTemplateApi.getPublicTemplates(20, 0, 'collect_count')
+    if (response.success && response.data) {
+      publicTemplates.value = response.data
+    }
+  } catch (err) {
+    publicTemplatesError.value = err instanceof Error ? err.message : t('stamp.template.loadPublicTemplatesError')
+  } finally {
+    loadingPublicTemplates.value = false
+  }
+}
+
+// 当对话框显示时加载公共模板
+watch(() => props.show, (newVal) => {
+  if (newVal && publicTemplates.value.length === 0) {
+    loadPublicTemplates()
+  }
+})
+
+onMounted(() => {
+  if (props.show) {
+    loadPublicTemplates()
+  }
+})
 
 // 清理未启用的效果数组，减小模板文件大小
 const cleanConfigForTemplate = (config: IDrawStampConfig): IDrawStampConfig => {
@@ -234,6 +335,65 @@ const loadTemplateFile = async (event: Event) => {
 .template-item.active {
   border-color: #1890ff;
   background-color: #e6f7ff;
+}
+
+.public-template-item {
+  position: relative;
+}
+
+.template-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #28a745;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  z-index: 1;
+}
+
+.template-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+.template-description {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 4px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.loading-text,
+.error-text,
+.empty-text {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.error-text {
+  color: #c33;
 }
 
 .template-preview {

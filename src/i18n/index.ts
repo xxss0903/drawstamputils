@@ -111,6 +111,7 @@ const messages = {
         save: '保存当前为模板',
         saveCurrent: '保存当前模板',
         defaultTitle: '默认模板',
+        publicTemplates: '公共模板',
         preview: '预览',
         name: '模板名称',
         open: '打开模板',
@@ -118,7 +119,11 @@ const messages = {
         loadFile: '加载模板文件',
         loading: '加载中...',
         generatingPreview: '生成预览中...',
-        select: '模板选择'
+        select: '模板选择',
+        loadingPublicTemplates: '加载公共模板中...',
+        noPublicTemplates: '暂无公共模板',
+        loadPublicTemplatesError: '加载公共模板列表失败',
+        loadPublicTemplateError: '加载公共模板失败'
       },
       common: {
         line: '第 {index} 行',
@@ -556,6 +561,7 @@ const messages = {
       load: '加载',
       edit: '编辑',
       delete: '删除',
+      share: '分享',
       cancel: '取消',
       save: '保存',
       uploading: '上传中...',
@@ -564,7 +570,27 @@ const messages = {
       uploadError: '上传模板失败',
       updateError: '更新模板失败',
       deleteError: '删除模板失败',
-      deleteConfirm: '确定要删除这个模板吗？'
+      deleteConfirm: '确定要删除这个模板吗？',
+      shareConfirm: '确定要将此模板分享到公共模板吗？',
+      shareSuccess: '分享成功！',
+      shareError: '分享失败'
+    },
+    publicTemplates: {
+      title: '公共模板',
+      all: '全部模板',
+      myCollections: '我的收藏',
+      systemTemplate: '系统模板',
+      loading: '加载中...',
+      empty: '暂无公共模板',
+      loadError: '加载模板失败',
+      collectError: '收藏操作失败',
+      load: '加载',
+      collect: '收藏',
+      uncollect: '取消收藏',
+      by: '分享者',
+      sortByDate: '按时间排序',
+      sortByCollect: '按收藏数排序',
+      sortByView: '按查看数排序'
     }
   },
   en: {
@@ -677,6 +703,7 @@ const messages = {
         save: 'Save Current as Template',
         saveCurrent: 'Save Current Template',
         defaultTitle: 'Default Templates',
+        publicTemplates: 'Public Templates',
         preview: 'Preview',
         name: 'Template Name',
         open: 'Open Template',
@@ -684,7 +711,11 @@ const messages = {
         loadFile: 'Load Template File',
         loading: 'Loading...',
         generatingPreview: 'Generating Preview...',
-        select: 'Template Selection'
+        select: 'Template Selection',
+        loadingPublicTemplates: 'Loading public templates...',
+        noPublicTemplates: 'No public templates',
+        loadPublicTemplatesError: 'Failed to load public templates list',
+        loadPublicTemplateError: 'Failed to load public template'
       },
       common: {
         line: 'Line {index}',
@@ -1122,6 +1153,7 @@ const messages = {
       load: 'Load',
       edit: 'Edit',
       delete: 'Delete',
+      share: 'Share',
       cancel: 'Cancel',
       save: 'Save',
       uploading: 'Uploading...',
@@ -1130,7 +1162,27 @@ const messages = {
       uploadError: 'Failed to upload template',
       updateError: 'Failed to update template',
       deleteError: 'Failed to delete template',
-      deleteConfirm: 'Are you sure you want to delete this template?'
+      deleteConfirm: 'Are you sure you want to delete this template?',
+      shareConfirm: 'Are you sure you want to share this template to public templates?',
+      shareSuccess: 'Share successful!',
+      shareError: 'Share failed'
+    },
+    publicTemplates: {
+      title: 'Public Templates',
+      all: 'All Templates',
+      myCollections: 'My Collections',
+      systemTemplate: 'System Template',
+      loading: 'Loading...',
+      empty: 'No public templates',
+      loadError: 'Failed to load templates',
+      collectError: 'Collection operation failed',
+      load: 'Load',
+      collect: 'Collect',
+      uncollect: 'Uncollect',
+      by: 'By',
+      sortByDate: 'Sort by Date',
+      sortByCollect: 'Sort by Collections',
+      sortByView: 'Sort by Views'
     }
   }
 }

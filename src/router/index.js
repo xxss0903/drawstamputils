@@ -6,6 +6,7 @@ import TermsOfService from '../components/TermsOfService.vue'
 import AboutUs from '../components/AboutUs.vue'
 import ContactUs from '../components/ContactUs.vue'
 import TemplateManage from '../components/TemplateManage.vue'
+import PublicTemplates from '../components/PublicTemplates.vue'
 
 const routes = [
   {
@@ -25,6 +26,12 @@ const routes = [
     name: 'Templates',
     component: TemplateManage,
     meta: { title: '我的模板 - DrawStamp', requiresAuth: true }
+  },
+  {
+    path: '/public-templates',
+    name: 'PublicTemplates',
+    component: PublicTemplates,
+    meta: { title: '公共模板 - DrawStamp' }
   },
   {
     path: '/privacy',
