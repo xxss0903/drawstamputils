@@ -1,5 +1,7 @@
 <template>
-  <div class="template-manage">
+  <div class="contact-us">
+    <div class="page-container">
+    <div class="template-manage">
     <div class="manage-header">
       <div>
         <p class="sub-title">{{ t('templateManage.subtitle') }}</p>
@@ -144,6 +146,8 @@
         </form>
       </div>
     </div>
+  </div>
+  </div>
   </div>
 </template>
 
@@ -455,31 +459,31 @@ const formatFileSize = (bytes: number) => {
 
 .template-list {
   display: grid;
-  gap: 1.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 
 .template-item {
   background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 12px;
+  padding: 1rem;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.9rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .template-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 30px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 18px rgba(15, 23, 42, 0.12);
 }
 
 .template-preview-wrapper {
   width: 100%;
   aspect-ratio: 4 / 3;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -500,7 +504,7 @@ const formatFileSize = (bytes: number) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: #94a3b8;
 }
 
@@ -549,6 +553,7 @@ const formatFileSize = (bytes: number) => {
   margin: 0;
   color: #475467;
   line-height: 1.5;
+  height: 50px;
 }
 
 .description.muted {
@@ -574,13 +579,13 @@ const formatFileSize = (bytes: number) => {
 }
 
 .template-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
 }
 
 .btn {
-  padding: 0.6rem 1.3rem;
+  padding: 0.55rem 1rem;
   border: none;
   border-radius: 999px;
   font-size: 0.9rem;
