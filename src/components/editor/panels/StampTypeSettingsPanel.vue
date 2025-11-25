@@ -197,9 +197,14 @@ const selectedIndex = computed(() => props.selectedIndex ?? -1)
 // 跟踪每个项的展开状态
 const expandedItems = ref<Record<number, boolean>>({})
 
-// 当 selectedIndex 变化时，自动展开对应的项
+// 当 selectedIndex 变化时，自动展开对应的项，并关闭其他项
 watch(selectedIndex, (newIndex) => {
   if (newIndex >= 0) {
+    // 关闭所有其他项
+    Object.keys(expandedItems.value).forEach(key => {
+      expandedItems.value[Number(key)] = false
+    })
+    // 展开当前选中的项
     expandedItems.value[newIndex] = true
   }
 }, { immediate: true })
@@ -209,7 +214,17 @@ const toggleExpanded = () => {
 }
 
 const toggleItem = (index: number) => {
-  expandedItems.value[index] = !expandedItems.value[index]
+  // 如果当前项已展开，则关闭它；否则先关闭所有其他项，再展开当前项
+  if (expandedItems.value[index]) {
+    expandedItems.value[index] = false
+  } else {
+    // 关闭所有其他项
+    Object.keys(expandedItems.value).forEach(key => {
+      expandedItems.value[Number(key)] = false
+    })
+    // 展开当前项
+    expandedItems.value[index] = true
+  }
 }
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
