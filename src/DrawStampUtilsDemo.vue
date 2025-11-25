@@ -334,7 +334,13 @@ onMounted(async () => {
       
       // 初始化绘制工具
       initDrawStampUtils()
-      drawStamp()
+      await loadSystemFonts()
+
+      // 设置初始拖动状态
+      drawStampUtils.setDraggable(isDraggable.value)
+      if (stampCanvas.value) {
+        stampCanvas.value.style.cursor = isDraggable.value ? 'move' : 'default'
+      }
       
       // 设置配置
       const newConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
@@ -358,9 +364,38 @@ onMounted(async () => {
       stampStore.setConfig(newConfig)
       drawStamp()
       
-      // 更新编辑器控件
+      // 更新文字路径
+      companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
+      codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
+      stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
+      taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
+      allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
+      
+      // 加载模板列表
+      await loadTemplatesFromStorage()
+      
+      // 初始化所有字体选择器的预览
+      await nextTick()
+      document.querySelectorAll('.font-select, .font-input').forEach((element) => {
+        if (element instanceof HTMLElement) {
+          updateFontPreview({ target: element } as unknown as Event);
+        }
+      });
+      
+      // 标记为就绪
+      isDrawStampUtilsReady.value = true
+      
+      // 选中基础设置，这样属性面板会显示
+      await nextTick()
+      handleSelectElement('basic-settings', 'basic', 0)
+      
+      // 恢复编辑器控件的配置
       await nextTick()
       propertiesPanelRef.value?.restoreDrawConfigs()
+      
+      // 添加事件监听器
+      window.addEventListener('mousemove', handleMouseMove)
+      drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
       
       return
     } catch (error) {
