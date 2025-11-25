@@ -4,10 +4,21 @@
     <div class="template-manage">
     <div class="manage-header">
       <div>
-        <p class="sub-title">{{ t('templateManage.subtitle') }}</p>
+        <!-- <p class="sub-title">{{ t('templateManage.subtitle') }}</p> -->
         <h1>{{ t('templateManage.title') }}</h1>
+        <div class="limit-info">
+          <span v-if="isVip" class="vip-text">{{ t('templateManage.vipUnlimited') }}</span>
+          <span v-else class="limit-text">
+            {{ t('templateManage.remaining', { count: remainingSlots }) }}
+          </span>
+        </div>
       </div>
-      <button class="upload-btn" @click="showUploadDialog = true">
+      <button
+        class="upload-btn"
+        :disabled="!canUploadMore"
+        @click="openUploadDialog"
+        :title="!canUploadMore ? t('templateManage.needVip') : ''"
+      >
         {{ t('templateManage.upload') }}
       </button>
     </div>
@@ -57,10 +68,10 @@
             <span class="icon">📅</span>
             {{ formatDate(template.created_at) }}
           </span>
-          <span class="meta-chip">
+          <!-- <span class="meta-chip">
             <span class="icon">📦</span>
             {{ formatFileSize(template.file_size) }}
-          </span>
+          </span> -->
         </div>
 
         <div class="template-actions">
@@ -70,10 +81,13 @@
           <button
             @click="shareTemplate(template)"
             class="btn btn-share"
-            :disabled="isTemplateShared(template.id)"
+            :disabled="isTemplateShared(template.id) || isSharingTemplate(template.id)"
             :title="isTemplateShared(template.id) ? t('templateManage.sharedTooltip') : ''"
           >
-            {{ isTemplateShared(template.id) ? t('templateManage.sharedBadge') : t('templateManage.share') }}
+            <span v-if="isSharingTemplate(template.id)">...</span>
+            <span v-else>
+              {{ isTemplateShared(template.id) ? t('templateManage.sharedBadge') : t('templateManage.share') }}
+            </span>
           </button>
           <button @click="editTemplate(template)" class="btn btn-outline">
             {{ t('templateManage.edit') }}
@@ -152,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { templateApi, publicTemplateApi, type Template } from '../utils/api'
@@ -170,6 +184,7 @@ const templates = ref<TemplateWithPreview[]>([])
 const loading = ref(false)
 const error = ref('')
 const sharedTemplateIds = ref<Set<string>>(new Set())
+const sharingTemplateIds = ref<Set<string>>(new Set())
 const previewObjectUrls = new Map<string, string>()
 const showUploadDialog = ref(false)
 const uploading = ref(false)
@@ -189,6 +204,14 @@ const editForm = ref({
   name: '',
   description: '',
 })
+
+const MAX_TEMPLATES = 5
+const isVip = computed(() => Boolean((userStore.user?.value as any)?.is_vip))
+const remainingSlots = computed(() => {
+  if (isVip.value) return Infinity
+  return Math.max(0, MAX_TEMPLATES - templates.value.length)
+})
+const canUploadMore = computed(() => isVip.value || remainingSlots.value > 0)
 
 onMounted(() => {
   loadTemplates()
@@ -278,6 +301,14 @@ const handlePreviewSelect = (event: Event) => {
   }
 }
 
+const openUploadDialog = () => {
+  if (!canUploadMore.value) {
+    alert(t('templateManage.needVip'))
+    return
+  }
+  showUploadDialog.value = true
+}
+
 const handleUpload = async () => {
   if (!uploadForm.value.file || !uploadForm.value.preview) {
     uploadError.value = t('templateManage.previewRequired')
@@ -363,7 +394,7 @@ const loadTemplate = async (id: string) => {
 }
 
 const shareTemplate = async (template: Template) => {
-  if (isTemplateShared(template.id)) {
+  if (isTemplateShared(template.id) || isSharingTemplate(template.id)) {
     alert(t('templateManage.sharedTooltip'))
     return
   }
@@ -371,6 +402,7 @@ const shareTemplate = async (template: Template) => {
   if (!confirm(t('templateManage.shareConfirm'))) return
 
   try {
+    sharingTemplateIds.value.add(template.id)
     const response = await publicTemplateApi.shareTemplate(
       template.id,
       template.name,
@@ -382,10 +414,13 @@ const shareTemplate = async (template: Template) => {
     }
   } catch (err) {
     alert(err instanceof Error ? err.message : t('templateManage.shareError'))
+  } finally {
+    sharingTemplateIds.value.delete(template.id)
   }
 }
 
 const isTemplateShared = (templateId: string) => sharedTemplateIds.value.has(templateId)
+const isSharingTemplate = (templateId: string) => sharingTemplateIds.value.has(templateId)
 
 const formatDate = (timestamp: number) => {
   return new Date(timestamp).toLocaleDateString('zh-CN')
@@ -412,6 +447,21 @@ const formatFileSize = (bytes: number) => {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.limit-info {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #475467;
+}
+
+.limit-text {
+  font-weight: 500;
+}
+
+.vip-text {
+  color: #2563eb;
+  font-weight: 600;
 }
 
 .manage-header h1 {
@@ -443,6 +493,13 @@ const formatFileSize = (bytes: number) => {
 .upload-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 15px 25px rgba(99, 102, 241, 0.35);
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .loading,
@@ -495,7 +552,7 @@ const formatFileSize = (bytes: number) => {
 .template-preview-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .preview-placeholder {
