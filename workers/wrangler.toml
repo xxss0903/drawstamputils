@@ -20,9 +20,9 @@ JWT_EXPIRES_IN = "7d"
 
 # 生产环境配置
 [env.production]
-vars = { JWT_SECRET = "" }
+vars = { JWT_SECRET = "xxss0903", JWT_EXPIRES_IN = "7d" }
 
 # 开发环境配置
 [env.development]
-vars = { JWT_SECRET = "dev-secret-key-change-in-production" }
+vars = { JWT_SECRET = "dev-secret-key-change-in-production", JWT_EXPIRES_IN = "7d" }
 

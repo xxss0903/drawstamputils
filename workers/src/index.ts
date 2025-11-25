@@ -27,7 +27,10 @@ import type { Env } from './types';
 export default {
   async fetch(request: Request, env: Env, ctx: any): Promise<Response> {
     const url = new URL(request.url);
-    const path = url.pathname;
+    let path = url.pathname;
+    if (path.length > 1 && path.endsWith('/')) {
+      path = path.replace(/\/+$/, '');
+    }
 
     // 处理 CORS 预检请求
     if (request.method === 'OPTIONS') {
