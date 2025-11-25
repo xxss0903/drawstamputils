@@ -49,9 +49,10 @@
                 </div>
                 <div class="template-preview">
                   <img
-                    v-if="template.preview"
-                    :src="template.preview"
+                    v-if="template.preview_url"
+                    :src="template.preview_url"
                     :alt="template.name"
+                    loading="lazy"
                   />
                   <div v-else class="template-placeholder">
                     {{ template.name.charAt(0) }}
@@ -95,20 +96,15 @@
 import { ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { IDrawStampConfig } from '../DrawStampTypes'
-import { DrawStampUtils } from '../DrawStampUtils'
 import { publicTemplateApi, type PublicTemplate } from '../utils/api'
 
 const { t } = useI18n()
 const templateFileInput = ref<HTMLInputElement | null>(null)
 
-type PublicTemplateWithPreview = PublicTemplate & { preview?: string }
-
-const publicTemplates = ref<PublicTemplateWithPreview[]>([])
+const publicTemplates = ref<PublicTemplate[]>([])
 const loadingPublicTemplates = ref(false)
 const publicTemplatesError = ref('')
 const selectedPublicTemplateId = ref<string | null>(null)
-const templatePreviewCache = new Map<string, string>()
-const templateConfigCache = new Map<string, IDrawStampConfig>()
 
 interface Template {
   name: string
@@ -141,26 +137,18 @@ const onSelectTemplate = (template: Template) => {
   emit('select', template)
 }
 
-const onSelectPublicTemplate = async (template: PublicTemplateWithPreview) => {
+const onSelectPublicTemplate = async (template: PublicTemplate) => {
   selectedPublicTemplateId.value = template.id
   loadingPublicTemplates.value = true
   
   try {
-    let config: IDrawStampConfig | null = templateConfigCache.get(template.id) || null
+    const response = await publicTemplateApi.getPublicTemplate(template.id)
+    if (response.success && response.data && response.data.content) {
+      const config = JSON.parse(response.data.content) as IDrawStampConfig
 
-    if (!config) {
-      const response = await publicTemplateApi.getPublicTemplate(template.id)
-      if (response.success && response.data && response.data.content) {
-        config = JSON.parse(response.data.content) as IDrawStampConfig
-        templateConfigCache.set(template.id, config)
-      }
-    }
-
-    if (config) {
-      // 创建一个兼容的 Template 对象
       const templateObj: Template = {
         name: template.name,
-        preview: template.preview || '',
+        preview: template.preview_url || '',
         config,
       }
       
@@ -175,30 +163,6 @@ const onSelectPublicTemplate = async (template: PublicTemplateWithPreview) => {
   }
 }
 
-const generateTemplatePreview = async (config: IDrawStampConfig): Promise<string> => {
-  const tempCanvas = document.createElement('canvas')
-  tempCanvas.width = 500
-  tempCanvas.height = 500
-  const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
-
-  const previewConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
-  if (previewConfig.ruler) {
-    previewConfig.ruler.showRuler = false
-    previewConfig.ruler.showFullRuler = false
-    previewConfig.ruler.showSideRuler = false
-    previewConfig.ruler.showCrossLine = false
-    previewConfig.ruler.showCurrentPositionText = false
-    previewConfig.ruler.showDashLine = false
-  }
-
-  tempDrawStampUtils.setDrawConfigs(previewConfig)
-  tempDrawStampUtils.refreshStamp()
-
-  await new Promise((resolve) => setTimeout(resolve, 100))
-
-  return tempCanvas.toDataURL('image/png')
-}
-
 const loadPublicTemplates = async () => {
   loadingPublicTemplates.value = true
   publicTemplatesError.value = ''
@@ -206,44 +170,7 @@ const loadPublicTemplates = async () => {
   try {
     const response = await publicTemplateApi.getPublicTemplates(20, 0, 'collect_count')
     if (response.success && response.data) {
-      const templatesWithPreview = await Promise.all(
-        response.data.map(async (template) => {
-          const cachedPreview = templatePreviewCache.get(template.id)
-          const cachedConfig = templateConfigCache.get(template.id)
-
-          if (cachedPreview) {
-            return { ...template, preview: cachedPreview }
-          }
-
-          let config: IDrawStampConfig | null = cachedConfig || null
-
-          if (!config) {
-            try {
-              const detailResponse = await publicTemplateApi.getPublicTemplate(template.id)
-              if (detailResponse.success && detailResponse.data?.content) {
-                config = JSON.parse(detailResponse.data.content) as IDrawStampConfig
-                templateConfigCache.set(template.id, config)
-              }
-            } catch (err) {
-              console.error(`获取公共模板 ${template.id} 详情失败:`, err)
-            }
-          }
-
-          if (config) {
-            try {
-              const preview = await generateTemplatePreview(config)
-              templatePreviewCache.set(template.id, preview)
-              return { ...template, preview }
-            } catch (err) {
-              console.error(`生成公共模板 ${template.id} 预览失败:`, err)
-            }
-          }
-
-          return template
-        })
-      )
-
-      publicTemplates.value = templatesWithPreview
+      publicTemplates.value = response.data
     }
   } catch (err) {
     publicTemplatesError.value = err instanceof Error ? err.message : t('stamp.template.loadPublicTemplatesError')

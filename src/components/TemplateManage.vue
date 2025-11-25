@@ -21,6 +21,18 @@
         :key="template.id"
         class="template-item"
       >
+        <div class="template-preview-wrapper">
+          <img
+            v-if="template.preview_url"
+            :src="template.preview_url"
+            :alt="template.name"
+            loading="lazy"
+          />
+          <div v-else class="preview-placeholder">
+            <span>{{ template.name.charAt(0) }}</span>
+          </div>
+        </div>
+
         <div class="template-card-header">
           <div class="template-title">
             <h3>{{ template.name }}</h3>
@@ -86,7 +98,11 @@
           </div>
           <div class="form-group">
             <label>{{ t('templateManage.file') }}</label>
-            <input type="file" @change="handleFileSelect" accept=".json" required />
+            <input type="file" @change="handleTemplateFileSelect" accept=".json" required />
+          </div>
+          <div class="form-group">
+            <label>{{ t('templateManage.previewImage') }}</label>
+            <input type="file" @change="handlePreviewSelect" accept="image/*" required />
           </div>
           <div v-if="uploadError" class="error-message">{{ uploadError }}</div>
           <div class="dialog-actions">
@@ -159,6 +175,7 @@ const uploadForm = ref({
   name: '',
   description: '',
   file: null as File | null,
+  preview: null as File | null,
 })
 
 const editForm = ref({
@@ -203,7 +220,7 @@ const loadSharedTemplates = async () => {
   }
 }
 
-const handleFileSelect = (event: Event) => {
+const handleTemplateFileSelect = (event: Event) => {
   const input = event.target as HTMLInputElement
   if (input.files && input.files[0]) {
     uploadForm.value.file = input.files[0]
@@ -214,8 +231,18 @@ const handleFileSelect = (event: Event) => {
   }
 }
 
+const handlePreviewSelect = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    uploadForm.value.preview = input.files[0]
+  }
+}
+
 const handleUpload = async () => {
-  if (!uploadForm.value.file) return
+  if (!uploadForm.value.file || !uploadForm.value.preview) {
+    uploadError.value = t('templateManage.previewRequired')
+    return
+  }
 
   uploading.value = true
   uploadError.value = ''
@@ -223,11 +250,12 @@ const handleUpload = async () => {
     const response = await templateApi.uploadTemplate(
       uploadForm.value.name,
       uploadForm.value.description || undefined,
-      uploadForm.value.file
+      uploadForm.value.file,
+      uploadForm.value.preview
     )
     if (response.success) {
       showUploadDialog.value = false
-      uploadForm.value = { name: '', description: '', file: null }
+      uploadForm.value = { name: '', description: '', file: null, preview: null }
       loadTemplates()
     }
   } catch (err) {
@@ -410,6 +438,34 @@ const formatFileSize = (bytes: number) => {
 .template-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 30px rgba(15, 23, 42, 0.12);
+}
+
+.template-preview-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.template-preview-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #94a3b8;
 }
 
 .template-card-header {

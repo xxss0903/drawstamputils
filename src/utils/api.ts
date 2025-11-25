@@ -42,6 +42,7 @@ export interface Template {
   created_at: number
   updated_at: number
   content?: string
+  preview_url?: string
 }
 
 export interface PublicTemplate {
@@ -59,6 +60,7 @@ export interface PublicTemplate {
   is_collected?: boolean
   author_email?: string
   content?: string
+  preview_url?: string
 }
 
 // 通用请求函数
@@ -145,7 +147,8 @@ export const templateApi = {
   uploadTemplate: async (
     name: string,
     description: string | undefined,
-    file: File
+    file: File,
+    preview: File
   ): Promise<ApiResponse<Template>> => {
     const formData = new FormData()
     formData.append('name', name)
@@ -153,6 +156,7 @@ export const templateApi = {
       formData.append('description', description)
     }
     formData.append('file', file)
+    formData.append('preview', preview)
 
     const token = localStorage.getItem('auth_token')
     const headers: HeadersInit = {}

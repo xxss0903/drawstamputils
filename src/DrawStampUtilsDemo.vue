@@ -748,17 +748,24 @@ const loadSelectedTemplate = (template: Template) => {
 const templateModules = import.meta.glob('./assets/templates/*.json', {
   eager: true
 }) as Record<string, { default: IDrawStampConfig; name?: string }>
+const templatePreviewModules = import.meta.glob('./assets/templates/*.png', {
+  eager: true
+}) as Record<string, { default: string }>
 
 const formatTemplateName = (path: string, index: number) => {
   const fileName = path.split('/').pop() || `template-${index + 1}`
   return fileName.replace('.json', '')
 }
 
-const defaultTemplates: Template[] = Object.entries(templateModules).map(([path, module], index) => ({
-  name: module.name || formatTemplateName(path, index),
-  preview: '',
-  config: module.default
-}))
+const defaultTemplates: Template[] = Object.entries(templateModules).map(([path, module], index) => {
+  const previewPath = path.replace('.json', '.png')
+  const previewModule = templatePreviewModules[previewPath]
+  return {
+    name: module.name || formatTemplateName(path, index),
+    preview: previewModule?.default || '',
+    config: module.default
+  }
+})
 
 // 添加新的响应式变量
 const showSecurityWarning = ref(localStorage.getItem('showSecurityWarning') !== 'false')
@@ -951,7 +958,9 @@ const loadTemplatesFromStorage = async () => {
   // 生成默认模板的预览图
   for (const template of defaultTemplates) {
     try {
-      template.preview = await generateTemplatePreview(template.config)
+      if (!template.preview) {
+        template.preview = await generateTemplatePreview(template.config)
+      }
     } catch (error) {
       console.error('生成模板预览失败:', error)
     }

@@ -39,6 +39,17 @@
         :key="template.id"
         class="template-card"
       >
+        <div class="preview-wrapper">
+          <img
+            v-if="template.preview_url"
+            :src="template.preview_url"
+            :alt="template.name"
+            loading="lazy"
+          />
+          <div v-else class="preview-placeholder">
+            {{ template.name.charAt(0) }}
+          </div>
+        </div>
         <div class="template-badge" v-if="template.is_system">
           {{ t('publicTemplates.systemTemplate') }}
         </div>
@@ -248,7 +259,35 @@ const formatFileSize = (bytes: number) => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
   transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
+.preview-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.preview-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 2rem;
+}
+
 
 .template-card:hover {
   transform: translateY(-2px);
