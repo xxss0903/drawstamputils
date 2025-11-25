@@ -5,6 +5,7 @@ import PrivacyPolicy from '../components/PrivacyPolicy.vue'
 import TermsOfService from '../components/TermsOfService.vue'
 import AboutUs from '../components/AboutUs.vue'
 import ContactUs from '../components/ContactUs.vue'
+import TemplateManage from '../components/TemplateManage.vue'
 
 const routes = [
   {
@@ -18,6 +19,12 @@ const routes = [
     name: 'Maker',
     component: DrawStampUtilsDemo,
     meta: { title: '印章制作工具 - DrawStamp' }
+  },
+  {
+    path: '/templates',
+    name: 'Templates',
+    component: TemplateManage,
+    meta: { title: '我的模板 - DrawStamp', requiresAuth: true }
   },
   {
     path: '/privacy',
@@ -50,10 +57,21 @@ const router = createRouter({
   routes
 })
 
-// 设置页面标题
+// 设置页面标题和路由守卫
 router.beforeEach((to, from, next) => {
   const title = to.meta?.title || 'DrawStamp'
   document.title = typeof title === 'string' ? title : 'DrawStamp'
+  
+  // 检查是否需要认证
+  if (to.meta?.requiresAuth) {
+    const token = localStorage.getItem('auth_token')
+    if (!token) {
+      // 未登录，重定向到首页
+      next({ path: '/', replace: true })
+      return
+    }
+  }
+  
   next()
 })
 

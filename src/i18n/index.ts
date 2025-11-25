@@ -530,6 +530,41 @@ const messages = {
       loadTemplateFailed: '加载模板文件失败，请检查文件格式是否正确',
       loadTemplateError: '加载模板失败',
       readSvgFailed: '读取 SVG 文件失败'
+    },
+    auth: {
+      login: '登录',
+      register: '注册',
+      logout: '退出登录',
+      email: '邮箱',
+      password: '密码',
+      emailPlaceholder: '请输入邮箱',
+      passwordPlaceholder: '请输入密码（至少6位）',
+      loading: '处理中...',
+      error: '操作失败，请稍后重试',
+      success: '操作成功'
+    },
+    templateManage: {
+      title: '我的模板',
+      upload: '上传模板',
+      uploadTitle: '上传新模板',
+      editTitle: '编辑模板',
+      name: '模板名称',
+      description: '模板描述',
+      file: '模板文件',
+      loading: '加载中...',
+      empty: '暂无模板，点击上传按钮创建第一个模板',
+      load: '加载',
+      edit: '编辑',
+      delete: '删除',
+      cancel: '取消',
+      save: '保存',
+      uploading: '上传中...',
+      updating: '更新中...',
+      loadError: '加载模板列表失败',
+      uploadError: '上传模板失败',
+      updateError: '更新模板失败',
+      deleteError: '删除模板失败',
+      deleteConfirm: '确定要删除这个模板吗？'
     }
   },
   en: {
@@ -1061,6 +1096,41 @@ const messages = {
       loadTemplateFailed: 'Failed to load template file, please check if the file format is correct',
       loadTemplateError: 'Failed to load template',
       readSvgFailed: 'Failed to read SVG file'
+    },
+    auth: {
+      login: 'Login',
+      register: 'Register',
+      logout: 'Logout',
+      email: 'Email',
+      password: 'Password',
+      emailPlaceholder: 'Please enter your email',
+      passwordPlaceholder: 'Please enter password (at least 6 characters)',
+      loading: 'Processing...',
+      error: 'Operation failed, please try again later',
+      success: 'Operation successful'
+    },
+    templateManage: {
+      title: 'My Templates',
+      upload: 'Upload Template',
+      uploadTitle: 'Upload New Template',
+      editTitle: 'Edit Template',
+      name: 'Template Name',
+      description: 'Template Description',
+      file: 'Template File',
+      loading: 'Loading...',
+      empty: 'No templates yet, click upload to create your first template',
+      load: 'Load',
+      edit: 'Edit',
+      delete: 'Delete',
+      cancel: 'Cancel',
+      save: 'Save',
+      uploading: 'Uploading...',
+      updating: 'Updating...',
+      loadError: 'Failed to load template list',
+      uploadError: 'Failed to upload template',
+      updateError: 'Failed to update template',
+      deleteError: 'Failed to delete template',
+      deleteConfirm: 'Are you sure you want to delete this template?'
     }
   }
 }

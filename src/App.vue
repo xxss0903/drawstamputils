@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from './stores/userStore'
+import AuthDialog from './components/AuthDialog.vue'
 
 const { locale, t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 const currentLanguage = ref(locale.value)
+const showAuthDialog = ref(false)
+
+onMounted(() => {
+  userStore.initAuth()
+})
 
 const switchLanguage = (lang: string) => {
   locale.value = lang
@@ -14,6 +22,21 @@ const switchLanguage = (lang: string) => {
 }
 
 const isHomePage = computed(() => route.path === '/')
+
+const handleLogin = () => {
+  showAuthDialog.value = true
+}
+
+const handleLogout = () => {
+  userStore.clearAuth()
+  if (route.path === '/templates') {
+    router.push('/')
+  }
+}
+
+const handleAuthSuccess = () => {
+  // 登录成功后的处理
+}
 </script>
 
 <template>
@@ -31,6 +54,16 @@ const isHomePage = computed(() => route.path === '/')
           <router-link to="/contact" class="nav-link">{{ t('navigation.contact') }}</router-link>
         </div>
         <div class="nav-right">
+          <div class="user-actions">
+            <template v-if="userStore.isAuthenticated.value">
+              <router-link to="/templates" class="nav-link">{{ t('templateManage.title') }}</router-link>
+              <span class="user-email">{{ userStore.user.value?.email }}</span>
+              <button @click="handleLogout" class="logout-btn">{{ t('auth.logout') }}</button>
+            </template>
+            <template v-else>
+              <button @click="handleLogin" class="login-btn">{{ t('auth.login') }}</button>
+            </template>
+          </div>
           <div class="language-switch">
             <button @click="switchLanguage('zh')" :class="{ active: currentLanguage === 'zh' }">{{ t('common.language.chinese') }}</button>
             <button @click="switchLanguage('en')" :class="{ active: currentLanguage === 'en' }">{{ t('common.language.english') }}</button>
@@ -43,6 +76,9 @@ const isHomePage = computed(() => route.path === '/')
     <main class="main-content">
       <router-view />
     </main>
+
+    <!-- 登录/注册对话框 -->
+    <AuthDialog :show="showAuthDialog" @close="showAuthDialog = false" @success="handleAuthSuccess" />
 
     <!-- 页脚 -->
     <footer class="footer">
@@ -141,6 +177,45 @@ const isHomePage = computed(() => route.path === '/')
 .nav-right {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-email {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.login-btn,
+.logout-btn {
+  padding: 6px 12px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background: white;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.login-btn:hover {
+  background: #007bff;
+  color: white;
+}
+
+.logout-btn {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.logout-btn:hover {
+  background: #dc3545;
+  color: white;
 }
 
 .language-switch {

@@ -324,6 +324,51 @@ const loadSystemFonts = async () => {
 
 // 在组件挂载时加载字体
 onMounted(async () => {
+  // 检查是否有从模板管理页面传递的配置
+  const savedConfig = localStorage.getItem('stamp_config')
+  if (savedConfig) {
+    try {
+      const config = JSON.parse(savedConfig) as IDrawStampConfig
+      // 清除 localStorage
+      localStorage.removeItem('stamp_config')
+      
+      // 初始化绘制工具
+      initDrawStampUtils()
+      drawStamp()
+      
+      // 设置配置
+      const newConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
+      newConfig.ruler.showRuler = true
+      newConfig.ruler.showFullRuler = true
+      newConfig.ruler.showSideRuler = true
+      newConfig.ruler.showCrossLine = true
+      newConfig.ruler.showCurrentPositionText = true
+      newConfig.ruler.showDashLine = true
+      
+      if (config.company) {
+        newConfig.company.startAngle = config.company.startAngle
+        newConfig.company.rotateDirection = config.company.rotateDirection
+      }
+      
+      if (!newConfig.svgList) {
+        newConfig.svgList = []
+      }
+      
+      drawStampUtils.setDrawConfigs(newConfig)
+      stampStore.setConfig(newConfig)
+      drawStamp()
+      
+      // 更新编辑器控件
+      await nextTick()
+      propertiesPanelRef.value?.restoreDrawConfigs()
+      
+      return
+    } catch (error) {
+      console.error('Failed to load saved config:', error)
+    }
+  }
+  
+  // 正常初始化流程
   initDrawStampUtils()
   await loadSystemFonts()
 
