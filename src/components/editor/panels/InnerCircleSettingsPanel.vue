@@ -60,6 +60,28 @@
           />
         </label>
         <label>
+          {{ t('stamp.innerCircle.positionX') }}:
+          <input
+            type="number"
+            :value="innerCircle.offsetX ?? 0"
+            min="-50"
+            max="50"
+            step="0.1"
+            @input="updateInnerCircle(index, 'offsetX', parseNumber($event))"
+          />
+        </label>
+        <label>
+          {{ t('stamp.innerCircle.positionY') }}:
+          <input
+            type="number"
+            :value="innerCircle.offsetY ?? 0"
+            min="-50"
+            max="50"
+            step="0.1"
+            @input="updateInnerCircle(index, 'offsetY', parseNumber($event))"
+          />
+        </label>
+        <label>
           形状:
           <select
             :value="innerCircle.shape || 'ellipse'"
@@ -108,7 +130,17 @@
         </div>
         </transition>
       </div>
-      <button class="add-button" @click="addInnerCircle">{{ t('stamp.innerCircle.addNew') }}</button>
+      <div class="add-buttons">
+        <button class="add-button" @click="addInnerCircle('ellipse')">
+          {{ t('stamp.innerCircle.addEllipse') }}
+        </button>
+        <button class="add-button" @click="addInnerCircle('rectangle')">
+          {{ t('stamp.innerCircle.addRectangle') }}
+        </button>
+        <button class="add-button" @click="addInnerCircle('rhombus')">
+          {{ t('stamp.innerCircle.addRhombus') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -193,7 +225,7 @@ const copyInnerCircle = (index: number) => {
   })
 }
 
-const addInnerCircle = () => {
+const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus') => {
   emit('update-config', (config) => {
     if (!config.innerCircleList) {
       config.innerCircleList = []
@@ -206,7 +238,9 @@ const addInnerCircle = () => {
       lineStyle: 'solid',
       dashLength: 2,
       gapLength: 1,
-      shape: config.company.shape || 'ellipse'
+      shape: shape || config.company.shape || 'ellipse',
+      offsetX: 0,
+      offsetY: 0
     })
   })
 }
@@ -336,6 +370,29 @@ const addInnerCircle = () => {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
+}
+
+.add-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.add-button {
+  border: 1px dashed #1890ff;
+  background: #e6f7ff;
+  color: #1890ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.add-button:hover {
+  background: #bae7ff;
+  border-color: #40a9ff;
+  color: #096dd9;
 }
 
 .fade-enter-from,

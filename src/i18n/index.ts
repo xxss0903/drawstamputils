@@ -185,7 +185,12 @@ const messages = {
         title: '内圈圆形设置',
         lineWidth: '内圈圆线宽 (mm)',
         radiusX: '内圈圆半径X (mm)',
-        radiusY: '内圈圆半径Y (mm)'
+        radiusY: '内圈圆半径Y (mm)',
+        positionX: '水平偏移 (mm)',
+        positionY: '垂直偏移 (mm)',
+        addEllipse: '添加圆形/椭圆内圈',
+        addRectangle: '添加矩形内圈',
+        addRhombus: '添加菱形内圈'
       },
       outBorder: {
         enable: '显示外圈边框',
@@ -229,7 +234,7 @@ const messages = {
         addHorizontalLine: '添加横线',
         addVerticalLine: '添加竖线',
         addImage: '添加图片',
-        addInnerCircle: '添加内圈圆',
+        addInnerCircle: '添加内圈',
         uploadSvg: '上传 SVG',
         edit: '编辑',
         clear: '清除',
@@ -787,7 +792,12 @@ const messages = {
         title: 'Inner Circle Settings',
         lineWidth: 'Circle Line Width (mm)',
         radiusX: 'Circle Radius X (mm)',
-        radiusY: 'Circle Radius Y (mm)'
+        radiusY: 'Circle Radius Y (mm)',
+        positionX: 'Offset X (mm)',
+        positionY: 'Offset Y (mm)',
+        addEllipse: 'Add Ellipse Circle',
+        addRectangle: 'Add Rectangle Circle',
+        addRhombus: 'Add Rhombus Circle'
       },
       outBorder: {
         enable: 'Show Outer Border',

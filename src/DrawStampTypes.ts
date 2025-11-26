@@ -182,6 +182,8 @@ export type IInnerCircle = {
     dashLength?: number // 虚线长度
     gapLength?: number // 虚线间距
     shape?: 'ellipse' | 'rectangle' | 'rhombus' // 形状
+    offsetX?: number // 水平偏移 (mm)
+    offsetY?: number // 垂直偏移 (mm)
 }
 
 // 是否绘制标尺

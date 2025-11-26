@@ -31,12 +31,14 @@ export class DrawCircleUtils {
         const dashLength = circle.dashLength ?? 2
         const gapLength = circle.gapLength ?? 1
         const shape = circle.shape || 'ellipse'
+        const offsetX = (circle.offsetX ?? 0) * this.mmToPixel
+        const offsetY = (circle.offsetY ?? 0) * this.mmToPixel
 
         if (shape === 'rectangle') {
             this.drawRectangle(
                 ctx,
-                centerX,
-                centerY,
+                centerX + offsetX,
+                centerY + offsetY,
                 innerCircleWidth * 2 * this.mmToPixel,
                 innerCircleHeight * 2 * this.mmToPixel,
                 circle.innerCircleLineWidth * this.mmToPixel,
@@ -48,8 +50,8 @@ export class DrawCircleUtils {
         } else if (shape === 'rhombus') {
             this.drawRhombus(
                 ctx,
-                centerX,
-                centerY,
+                centerX + offsetX,
+                centerY + offsetY,
                 innerCircleWidth * 2 * this.mmToPixel,
                 innerCircleHeight * 2 * this.mmToPixel,
                 circle.innerCircleLineWidth * this.mmToPixel,
@@ -61,8 +63,8 @@ export class DrawCircleUtils {
         } else {
             this.drawEllipse(
                 ctx,
-                centerX,
-                centerY,
+                centerX + offsetX,
+                centerY + offsetY,
                 innerCircleWidth * this.mmToPixel,
                 innerCircleHeight * this.mmToPixel,
                 circle.innerCircleLineWidth * this.mmToPixel,
