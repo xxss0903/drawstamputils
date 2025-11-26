@@ -367,7 +367,7 @@ const addCompany = () => {
     // 根据印章形状设置不同的默认值
     let newCompany: ICompany
     
-    if (currentShape === 'rectangle') {
+    if (currentShape === 'rectangle' || currentShape === 'rhombus') {
       // 矩形印章：根据已有公司的位置来分配新位置
       const usedPositions = new Set(list.map(c => c.rectangleTextPosition))
       const availablePositions: Array<'top' | 'bottom' | 'left' | 'right' | 'center'> = 
@@ -382,7 +382,7 @@ const addCompany = () => {
         fontFamily: last?.fontFamily || 'SimSun',
         fontHeight: last?.fontHeight || 4.2,
         fontWeight: last?.fontWeight || 'normal',
-        shape: 'rectangle',
+        shape: currentShape,
         adjustEllipseText: false,
         adjustEllipseTextFactor: 0.5,
         startAngle: 0,

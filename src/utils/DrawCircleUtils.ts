@@ -45,6 +45,19 @@ export class DrawCircleUtils {
                 dashLength,
                 gapLength
             )
+        } else if (shape === 'rhombus') {
+            this.drawRhombus(
+                ctx,
+                centerX,
+                centerY,
+                innerCircleWidth * 2 * this.mmToPixel,
+                innerCircleHeight * 2 * this.mmToPixel,
+                circle.innerCircleLineWidth * this.mmToPixel,
+                borderColor,
+                lineStyle,
+                dashLength,
+                gapLength
+            )
         } else {
             this.drawEllipse(
                 ctx,
@@ -116,6 +129,39 @@ export class DrawCircleUtils {
             width,
             height
         )
+        ctx.stroke()
+        ctx.setLineDash([])
+    }
+
+    private drawRhombus(
+        ctx: CanvasRenderingContext2D,
+        centerX: number,
+        centerY: number,
+        width: number,
+        height: number,
+        borderWidth: number,
+        borderColor: string,
+        lineStyle: LineStyle,
+        dashLength: number,
+        gapLength: number
+    ) {
+        const halfWidth = width / 2
+        const halfHeight = height / 2
+        if (lineStyle === 'solid') {
+            ctx.setLineDash([])
+        } else {
+            const dash = Math.max(0.2, dashLength) * this.mmToPixel
+            const gap = Math.max(0.2, gapLength) * this.mmToPixel
+            ctx.setLineDash([dash, gap])
+        }
+        ctx.beginPath()
+        ctx.moveTo(centerX, centerY - halfHeight)
+        ctx.lineTo(centerX + halfWidth, centerY)
+        ctx.lineTo(centerX, centerY + halfHeight)
+        ctx.lineTo(centerX - halfWidth, centerY)
+        ctx.closePath()
+        ctx.strokeStyle = borderColor
+        ctx.lineWidth = borderWidth
         ctx.stroke()
         ctx.setLineDash([])
     }

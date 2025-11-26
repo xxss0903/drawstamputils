@@ -66,7 +66,7 @@ export class DrawCompanyUtils {
         this.clearTextPaths()
         
         // 根据印章形状选择绘制方式
-        if (company.shape === 'rectangle') {
+        if (company.shape === 'rectangle' || company.shape === 'rhombus') {
             this.drawRectangleText(ctx, company, centerX, centerY, radiusX, radiusY, color)
         } else {
             this.drawEllipseText(ctx, company, centerX, centerY, radiusX, radiusY, color)

@@ -65,3 +65,38 @@ export function drawRectangleBorder(
     ctx.setLineDash([]);
 }
 
+export function drawRhombusBorder(
+    ctx: CanvasRenderingContext2D,
+    centerX: number,
+    centerY: number,
+    width: number,
+    height: number,
+    borderWidth: number,
+    borderColor: string,
+    lineStyle: 'solid' | 'dashed' | 'dotted' = 'solid',
+    dashPx: number = 10,
+    gapPx: number = 5
+) {
+    const adjustedWidth = Math.max(width - borderWidth, 0);
+    const adjustedHeight = Math.max(height - borderWidth, 0);
+    const halfWidth = adjustedWidth / 2;
+    const halfHeight = adjustedHeight / 2;
+
+    if (lineStyle === 'solid') {
+        ctx.setLineDash([]);
+    } else {
+        ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - halfHeight);
+    ctx.lineTo(centerX + halfWidth, centerY);
+    ctx.lineTo(centerX, centerY + halfHeight);
+    ctx.lineTo(centerX - halfWidth, centerY);
+    ctx.closePath();
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = borderWidth;
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+

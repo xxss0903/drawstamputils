@@ -63,10 +63,11 @@
           形状:
           <select
             :value="innerCircle.shape || 'ellipse'"
-            @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle')"
+            @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus')"
           >
-            <option value="ellipse">圆形/椭圆</option>
-            <option value="rectangle">矩形</option>
+            <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
+            <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
+            <option value="rhombus">{{ t('stamp.basic.shapeOptions.rhombus') }}</option>
           </select>
         </label>
         <label>
@@ -204,7 +205,8 @@ const addInnerCircle = () => {
       innerCircleLineRadiusY: 12,
       lineStyle: 'solid',
       dashLength: 2,
-      gapLength: 1
+      gapLength: 1,
+      shape: config.company.shape || 'ellipse'
     })
   })
 }

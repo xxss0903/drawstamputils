@@ -77,6 +77,7 @@
         <select :value="props.config.company.shape" @change="onCompanyShapeChange">
           <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
           <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
+          <option value="rhombus">{{ t('stamp.basic.shapeOptions.rhombus') }}</option>
         </select>
       </label>
       <label class="checkbox-label">
@@ -179,14 +180,18 @@ const onPrimaryColorInput = (event: Event) => {
 }
 
 const onCompanyShapeChange = (event: Event) => {
-  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle'
+  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus'
   emit('update-config', (config) => {
-    console.log("company shape", value)
     config.company.shape = value
     // 同时更新 companyList 中所有公司的形状，因为绘制逻辑检查的是 companyList
     if (config.companyList && config.companyList.length > 0) {
       config.companyList.forEach(company => {
         company.shape = value
+      })
+    }
+    if (config.innerCircleList) {
+      config.innerCircleList.forEach(circle => {
+        circle.shape = value
       })
     }
   })

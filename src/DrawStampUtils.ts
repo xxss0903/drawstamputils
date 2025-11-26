@@ -9,7 +9,7 @@ import {
   IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
-import { drawBasicBorder, drawRectangleBorder } from "./utils/DrawBorderUtils.ts";
+import { drawBasicBorder, drawRectangleBorder, drawRhombusBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
 import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
 import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
@@ -1060,7 +1060,11 @@ export class DrawStampUtils {
         const hasRectangleStamp =
             this.drawStampConfigs.companyList.some(company => company.shape === 'rectangle') ||
             this.drawStampConfigs.company?.shape === 'rectangle'
-        const isRectangle = hasRectangleStamp
+        const hasRhombusStamp =
+            this.drawStampConfigs.companyList.some(company => company.shape === 'rhombus') ||
+            this.drawStampConfigs.company?.shape === 'rhombus'
+        const stampShape = hasRhombusStamp ? 'rhombus' : hasRectangleStamp ? 'rectangle' : 'ellipse'
+        const isEllipseShape = stampShape === 'ellipse'
         
         // 矩形印章的尺寸（使用 width 和 height）
         const rectWidth = this.drawStampConfigs.width * this.mmToPixel
@@ -1072,9 +1076,22 @@ export class DrawStampUtils {
 
         if (this.drawStampConfigs.outBorder.drawInnerCircle) {
             // 在离屏 canvas 上绘制印章基本形状
-            if (isRectangle) {
+            if (stampShape === 'rectangle') {
                 // 绘制矩形边框
                 drawRectangleBorder(
+                    offscreenCtx,
+                    centerX,
+                    centerY,
+                    rectWidth,
+                    rectHeight,
+                    this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel,
+                    borderColor,
+                    outBorderStyle,
+                    outBorderDash,
+                    outBorderGap
+                )
+            } else if (stampShape === 'rhombus') {
+                drawRhombusBorder(
                     offscreenCtx,
                     centerX,
                     centerY,
@@ -1106,7 +1123,7 @@ export class DrawStampUtils {
         // 创建裁剪区域，确保所有内容（文字、图片、五角星等）都被限制在印章形状内
         offscreenCtx.save()
         offscreenCtx.beginPath()
-        if (isRectangle) {
+        if (stampShape === 'rectangle') {
             // 矩形裁剪区域
             offscreenCtx.rect(
                 centerX - rectWidth / 2,
@@ -1114,6 +1131,12 @@ export class DrawStampUtils {
                 rectWidth,
                 rectHeight
             )
+        } else if (stampShape === 'rhombus') {
+            offscreenCtx.moveTo(centerX, centerY - rectHeight / 2)
+            offscreenCtx.lineTo(centerX + rectWidth / 2, centerY)
+            offscreenCtx.lineTo(centerX, centerY + rectHeight / 2)
+            offscreenCtx.lineTo(centerX - rectWidth / 2, centerY)
+            offscreenCtx.closePath()
         } else {
             // 椭圆裁剪区域
             offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
@@ -1136,7 +1159,7 @@ export class DrawStampUtils {
         }
         // 绘制公司文字内容（支持椭圆和矩形）
         // 对于矩形印章，传递宽度和高度；对于椭圆印章，传递半径
-        if (isRectangle) {
+        if (stampShape === 'rectangle' || stampShape === 'rhombus') {
             this.drawCompanyUtils.drawCompanyList(
                 offscreenCtx,
                 this.drawStampConfigs.companyList,
@@ -1171,7 +1194,7 @@ export class DrawStampUtils {
         ctx.save()
         // 添加毛边效果
 
-        if (!isRectangle && this.drawStampConfigs.roughEdge.drawRoughEdge) {
+        if (isEllipseShape && this.drawStampConfigs.roughEdge.drawRoughEdge) {
             this.addRoughEdge(
                 offscreenCtx,
                 centerX,
@@ -1182,7 +1205,7 @@ export class DrawStampUtils {
                 refreshRoughEdge
             );
         }
-        if (!isRectangle && this.drawStampConfigs.securityPattern.openSecurityPattern) {
+        if (isEllipseShape && this.drawStampConfigs.securityPattern.openSecurityPattern) {
             this.drawSecurityPatternUtils.drawSecurityPattern(
                 offscreenCtx,
                 this.drawStampConfigs.securityPattern,
@@ -1199,7 +1222,7 @@ export class DrawStampUtils {
         ctx.drawImage(offscreenCanvas, 0, 0)
         ctx.restore()
         // 添加做旧效果
-        if (!isRectangle && this.drawStampConfigs.agingEffect.applyAging) {
+        if (isEllipseShape && this.drawStampConfigs.agingEffect.applyAging) {
             this.addAgingEffect(ctx, this.canvas.width, this.canvas.height, refreshOld)
         }
     }

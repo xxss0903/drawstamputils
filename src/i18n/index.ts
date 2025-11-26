@@ -40,7 +40,8 @@ const messages = {
         gapLength: '虚线间距 (mm)',
         shapeOptions: {
           ellipse: '椭圆/圆形',
-          rectangle: '矩形'
+          rectangle: '矩形',
+          rhombus: '菱形'
         }
       },
       company: {
@@ -641,7 +642,8 @@ const messages = {
         gapLength: 'Gap Length (mm)',
         shapeOptions: {
           ellipse: 'Ellipse/Circle',
-          rectangle: 'Rectangle'
+          rectangle: 'Rectangle',
+          rhombus: 'Rhombus'
         }
       },
       company: {
