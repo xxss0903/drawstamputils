@@ -190,7 +190,9 @@ const expandedItems = ref<Record<number, boolean>>({})
 // 当 selectedIndex 变化时，自动展开对应的项
 watch(selectedIndex, (newIndex) => {
   if (newIndex >= 0) {
-    expandedItems.value[newIndex] = true
+    expandedItems.value = { [newIndex]: true }
+  } else {
+    expandedItems.value = {}
   }
 }, { immediate: true })
 
@@ -199,14 +201,15 @@ const toggleExpanded = () => {
 }
 
 const toggleItem = (index: number) => {
-  expandedItems.value[index] = !expandedItems.value[index]
+  const current = expandedItems.value[index]
+  if (current) {
+    expandedItems.value = {}
+  } else {
+    expandedItems.value = { [index]: true }
+  }
 }
 
 const isItemExpanded = (index: number) => {
-  // 如果该项被选中，自动展开；否则使用本地展开状态
-  if (selectedIndex.value === index) {
-    return true
-  }
   return expandedItems.value[index] ?? false
 }
 
