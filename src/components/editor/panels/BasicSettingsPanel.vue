@@ -175,7 +175,15 @@ const onBorderGapInput = (event: Event) => {
 const onPrimaryColorInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value
   emit('update-config', (config) => {
+    const previousColor = config.primaryColor
     config.primaryColor = value
+    if (config.svgList && config.svgList.length > 0) {
+      config.svgList.forEach((svg) => {
+        if (!svg.color || svg.color === previousColor) {
+          svg.color = value
+        }
+      })
+    }
   })
 }
 
