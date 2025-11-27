@@ -305,21 +305,25 @@ const copySvg = (index: number) => {
 const expandedItems = ref<Record<number, boolean>>({})
 
 const isItemExpanded = (index: number) => {
-  if (props.selectedIndex !== undefined && props.selectedIndex === index) {
-    return true
-  }
   return expandedItems.value[index] ?? false
 }
 
 const toggleItem = (index: number) => {
-  expandedItems.value[index] = !isItemExpanded(index)
+  const current = expandedItems.value[index]
+  if (current) {
+    expandedItems.value = {}
+  } else {
+    expandedItems.value = { [index]: true }
+  }
 }
 
 watch(
   () => props.selectedIndex,
   (value) => {
     if (value !== undefined && value >= 0) {
-      expandedItems.value[value] = true
+      expandedItems.value = { [value]: true }
+    } else {
+      expandedItems.value = {}
     }
   }
 )
