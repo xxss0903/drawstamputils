@@ -184,6 +184,33 @@ const onPrimaryColorInput = (event: Event) => {
         }
       })
     }
+    if (config.company && (!config.company.color || config.company.color === previousColor)) {
+      config.company.color = value
+    }
+    if (config.stampCode && (!config.stampCode.color || config.stampCode.color === previousColor)) {
+      config.stampCode.color = value
+    }
+    if (config.companyList && config.companyList.length > 0) {
+      config.companyList.forEach((company) => {
+        if (!company.color || company.color === previousColor) {
+          company.color = value
+        }
+      })
+    }
+    if (config.stampTypeList && config.stampTypeList.length > 0) {
+      config.stampTypeList.forEach((type) => {
+        if (!type.color || type.color === previousColor) {
+          type.color = value
+        }
+      })
+    }
+    if (config.innerCircleList && config.innerCircleList.length > 0) {
+      config.innerCircleList.forEach((circle) => {
+        if (!circle.color || circle.color === previousColor) {
+          circle.color = value
+        }
+      })
+    }
   })
 }
 

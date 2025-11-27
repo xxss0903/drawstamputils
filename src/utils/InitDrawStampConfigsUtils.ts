@@ -73,6 +73,7 @@ export class InitDrawStampConfigsUtils {
         fontWidth: 1.2,
         textDistributionFactor: 50,
         fontWeight: 'normal',
+        color: this.primaryColor,
     }
     private stampType: IStampType = {
         stampType: '印章类型',
@@ -86,7 +87,8 @@ export class InitDrawStampConfigsUtils {
         fontWeight: 'normal',
         lineSpacing: 2, // 新增：行间距
         orientation: 'horizontal',
-        rotation: 0
+        rotation: 0,
+        color: this.primaryColor,
     }
     // 做旧效果
     private agingEffect: IAgingEffect = {
@@ -143,7 +145,8 @@ export class InitDrawStampConfigsUtils {
             fontWeight: 'normal',
             lineSpacing: 2, // 新增：行间距
             orientation: 'horizontal',
-            rotation: 0
+            rotation: 0,
+            color: this.primaryColor,
         }
     ]
     // 添加公司列表属性

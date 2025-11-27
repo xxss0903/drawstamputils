@@ -36,7 +36,7 @@ export class DrawCodeUtils {
         centerY: number,
         radiusX: number,
         radiusY: number,
-        primaryColor: string
+        color: string
     ) {
         const fontSize = code.fontHeight * this.mmToPixel
         const text = code.code
@@ -44,7 +44,7 @@ export class DrawCodeUtils {
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${code.fontFamily}`
-        ctx.fillStyle = primaryColor
+        ctx.fillStyle = color
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
 

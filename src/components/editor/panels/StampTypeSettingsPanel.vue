@@ -110,6 +110,14 @@
           <span>{{ type.letterSpacing.toFixed(2) }}</span>
         </label>
         <label>
+          {{ t('stamp.stampType.color') }}:
+          <input
+            type="color"
+            :value="type.color || primaryColor"
+            @input="onColorInput(index, $event)"
+          />
+        </label>
+        <label>
           水平位置 X (mm):
           <div class="range-container">
             <input
@@ -192,6 +200,7 @@ const emit = defineEmits<{
 }>()
 
 const stampTypeList = computed(() => props.config.stampTypeList || [])
+const primaryColor = computed(() => props.config.primaryColor || '#d40000')
 const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
 // 跟踪每个项的展开状态
@@ -228,6 +237,11 @@ const toggleItem = (index: number) => {
 }
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
+
+const onColorInput = (index: number, event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  updateStampType(index, 'color', value)
+}
 
 const updateStampType = <K extends keyof IStampType>(
   index: number,
@@ -285,7 +299,8 @@ const addStampType = () => {
       lineSpacing: 2,
       fontWidth: 3,
       orientation: 'horizontal',
-      rotation: 0
+      rotation: 0,
+      color: config.primaryColor || '#d40000'
     })
   })
 }

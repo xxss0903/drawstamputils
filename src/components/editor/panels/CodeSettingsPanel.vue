@@ -70,6 +70,14 @@
         </select>
       </label>
       <label>
+        {{ t('stamp.code.color') }}:
+        <input
+          type="color"
+          :value="config.stampCode.color || primaryColor"
+          @input="onColorInput"
+        />
+      </label>
+      <label>
         <span>{{ t('stamp.common.compression', { value: config.stampCode.compression.toFixed(2) }) }}</span>
         <input
           type="range"
@@ -107,6 +115,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, ICode } from '../../../DrawStampTypes'
 import { getFontDisplayName } from '../../../utils/fontUtils'
@@ -128,6 +137,8 @@ const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
 }
 
+const primaryColor = computed(() => props.config.primaryColor || '#d40000')
+
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
 
 const updateCode = <K extends keyof ICode>(
@@ -137,6 +148,11 @@ const updateCode = <K extends keyof ICode>(
   emit('update-config', (config) => {
     config.stampCode[key] = value
   })
+}
+
+const onColorInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  updateCode('color', value)
 }
 </script>
 

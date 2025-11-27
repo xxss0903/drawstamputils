@@ -60,6 +60,14 @@
           />
         </label>
         <label>
+          {{ t('stamp.innerCircle.color') }}:
+          <input
+            type="color"
+            :value="innerCircle.color || primaryColor"
+            @input="updateInnerCircle(index, 'color', ($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label>
           {{ t('stamp.innerCircle.positionX') }}:
           <input
             type="number"
@@ -164,6 +172,7 @@ const emit = defineEmits<{
 }>()
 
 const innerCircleList = computed(() => props.config.innerCircleList || [])
+const primaryColor = computed(() => props.config.primaryColor || '#d40000')
 const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
 // 跟踪每个项的展开状态
@@ -239,6 +248,7 @@ const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus') => {
       dashLength: 2,
       gapLength: 1,
       shape: shape || config.company.shape || 'ellipse',
+      color: config.primaryColor || '#d40000',
       offsetX: 0,
       offsetY: 0
     })

@@ -95,6 +95,14 @@
           <span>{{ company.textDistributionFactor.toFixed(2) }}</span>
         </label>
         <label>
+          {{ t('stamp.company.color') }}:
+          <input
+            type="color"
+            :value="company.color || primaryColor"
+            @input="onColorInput(index, $event)"
+          />
+        </label>
+        <label>
           {{ t('stamp.company.margin') }}:
           <input
             type="number"
@@ -246,6 +254,7 @@ const emit = defineEmits<{
 }>()
 
 const companyList = computed(() => props.config.companyList || [])
+const primaryColor = computed(() => props.config.primaryColor || '#d40000')
 const fonts = computed(() => props.systemFonts || [])
 const fontWeightOptions = [100, 200, 300, 400, 500, 600, 700, 800, 900]
 const selectedIndex = computed(() => props.selectedIndex ?? -1)
@@ -322,6 +331,13 @@ const onStartAngleInput = (index: number, event: Event) => {
   }, index)
 }
 
+const onColorInput = (index: number, event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  updateConfig((company) => {
+    company.color = value
+  }, index)
+}
+
 const onFontWeightChange = (index: number, event: Event) => {
   const target = event.target as HTMLSelectElement
   const value = target.value === 'normal' || target.value === 'bold' ? target.value : Number(target.value)
@@ -382,6 +398,7 @@ const addCompany = () => {
         fontFamily: last?.fontFamily || 'SimSun',
         fontHeight: last?.fontHeight || 4.2,
         fontWeight: last?.fontWeight || 'normal',
+        color: config.primaryColor || '#d40000',
         shape: currentShape,
         adjustEllipseText: false,
         adjustEllipseTextFactor: 0.5,
@@ -407,6 +424,7 @@ const addCompany = () => {
         fontFamily: last?.fontFamily || 'SimSun',
         fontHeight: last?.fontHeight || 4.2,
         fontWeight: last?.fontWeight || 'normal',
+        color: config.primaryColor || '#d40000',
         shape: 'ellipse',
         adjustEllipseText: false,
         adjustEllipseTextFactor: 0.5,

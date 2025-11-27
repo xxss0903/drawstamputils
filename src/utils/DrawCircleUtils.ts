@@ -19,7 +19,8 @@ export class DrawCircleUtils {
     drawCircleList(ctx: CanvasRenderingContext2D, circleList: IInnerCircle[], centerX: number, centerY: number, borderColor: string) {
         circleList.forEach((circle) => {
             if (circle.drawInnerCircle) {
-                this.drawCircle(ctx, centerX, centerY, borderColor, circle)
+                const circleColor = circle.color || borderColor
+                this.drawCircle(ctx, centerX, centerY, circleColor, circle)
             }
         })
     }

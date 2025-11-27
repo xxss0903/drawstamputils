@@ -65,7 +65,7 @@ export class DrawStampTypeUtils {
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${stampType.fontFamily}`
-        ctx.fillStyle = primaryColor
+        ctx.fillStyle = stampType.color || primaryColor
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
 
