@@ -28,6 +28,16 @@ const messages = {
       needLoginForImport: '导入模板需要登录，请先注册登录',
       needLoginForExport: '导出模板需要登录，请先注册登录',
       remainingSaves: '今日剩余 {count}/{limit} 次',
+      exportFormat: {
+        title: '选择导出格式',
+        description: '请选择您要导出的图片格式：',
+        pngDesc: '支持透明背景，适合打印',
+        jpegDesc: '文件较小，适合网络分享',
+        svgDesc: '矢量格式，可无损缩放',
+        quality: '图片质量',
+        cancel: '取消',
+        export: '导出'
+      },
       basic: {
         title: '印章基本设置',
         extractCircle: '提取圆形印章',
@@ -648,6 +658,16 @@ const messages = {
       needLoginForImport: 'Importing templates requires login. Please register and login first',
       needLoginForExport: 'Exporting templates requires login. Please register and login first',
       remainingSaves: 'Remaining {count}/{limit} today',
+      exportFormat: {
+        title: 'Select Export Format',
+        description: 'Please select the image format you want to export:',
+        pngDesc: 'Supports transparent background, suitable for printing',
+        jpegDesc: 'Smaller file size, suitable for web sharing',
+        svgDesc: 'Vector format, can be scaled without loss',
+        quality: 'Image Quality',
+        cancel: 'Cancel',
+        export: 'Export'
+      },
       basic: {
         title: 'Basic Stamp Settings',
         extractCircle: 'Extract Circle Stamp',

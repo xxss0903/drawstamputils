@@ -873,7 +873,7 @@ export class DrawStampUtils {
      * 将印章保存为PNG图片
      * @param outputSize 输出图片的尺寸
      */
-    saveStampAsPNG() {
+    saveStampAsPNG(format: 'png' | 'jpeg' | 'svg' = 'png', quality: number = 0.92) {
         // 图像与边框的间距
         let imagePadding = 1
         let maxStampSize = Math.max(this.drawStampConfigs.width, this.drawStampConfigs.height)
@@ -927,13 +927,45 @@ export class DrawStampUtils {
                 this.addAgingEffect(saveCtx, stampWidth, stampHeight, false)
             }
 
-            // 将的 canvas 转为 PNG 数据 URL
-            const dataURL = saveCanvas.toDataURL('image/png')
+            let dataURL: string
+            let filename: string
+            let mimeType: string
+
+            if (format === 'svg') {
+                // 对于 SVG，将 canvas 转换为 base64 图片嵌入到 SVG 中
+                const pngDataURL = saveCanvas.toDataURL('image/png')
+                dataURL = `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="${stampWidth}" height="${stampHeight}">
+  <image href="${pngDataURL}" width="${stampWidth}" height="${stampHeight}"/>
+</svg>`)}`
+                filename = 'mystamp.svg'
+                mimeType = 'image/svg+xml'
+            } else if (format === 'jpeg') {
+                // JPEG 格式，需要白色背景
+                const tempCanvas = document.createElement('canvas')
+                tempCanvas.width = stampWidth
+                tempCanvas.height = stampHeight
+                const tempCtx = tempCanvas.getContext('2d')
+                if (tempCtx) {
+                    tempCtx.fillStyle = '#FFFFFF'
+                    tempCtx.fillRect(0, 0, stampWidth, stampHeight)
+                    tempCtx.drawImage(saveCanvas, 0, 0)
+                    dataURL = tempCanvas.toDataURL('image/jpeg', quality)
+                } else {
+                    dataURL = saveCanvas.toDataURL('image/jpeg', quality)
+                }
+                filename = 'mystamp.jpg'
+                mimeType = 'image/jpeg'
+            } else {
+                // PNG 格式（默认）
+                dataURL = saveCanvas.toDataURL('image/png')
+                filename = 'mystamp.png'
+                mimeType = 'image/png'
+            }
 
             // 创建一个临时的 <a> 元素来触发下载
             const link = document.createElement('a')
             link.href = dataURL
-            link.download = 'mystamp.png'
+            link.download = filename
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)

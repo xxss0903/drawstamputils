@@ -1,17 +1,38 @@
 <template>
-  <!-- 添加法律提示弹窗 -->
-  <div v-if="showLegalDialog" class="legal-dialog-overlay">
+  <!-- 格式选择对话框 -->
+  <div v-if="showFormatDialog" class="legal-dialog-overlay" @click.self="closeFormatDialog">
     <div class="legal-dialog">
-      <h3>⚠️ {{ t('legal.title') }}</h3>
+      <h3>{{ t('stamp.exportFormat.title') }}</h3>
       <div class="legal-content">
-        <p><strong>{{ t('legal.warning') }}</strong></p>
-        <p>
-            <span style="white-space: pre-line">{{ t('legal.securityItems') }}</span>
-          </p>
+        <p>{{ t('stamp.exportFormat.description') }}</p>
+        <div class="format-options">
+          <button 
+            v-for="format in exportFormats" 
+            :key="format.value"
+            class="format-button"
+            :class="{ 'active': selectedFormat === format.value }"
+            @click="selectedFormat = format.value"
+          >
+            <span class="format-icon">{{ format.icon }}</span>
+            <span class="format-name">{{ format.name }}</span>
+            <span class="format-desc">{{ format.desc }}</span>
+          </button>
+        </div>
+        <div v-if="selectedFormat === 'jpeg'" class="quality-setting">
+          <label>{{ t('stamp.exportFormat.quality') }}: {{ jpegQuality }}%</label>
+          <input 
+            type="range" 
+            v-model.number="jpegQuality" 
+            min="10" 
+            max="100" 
+            step="5"
+            class="quality-slider"
+          />
+        </div>
       </div>
       <div class="dialog-buttons">
-        <button @click="cancelSave" class="cancel-button">{{ t('legal.cancel') }}</button>
-        <button @click="confirmSave" class="confirm-button">{{ t('legal.confirm') }}</button>
+        <button @click="closeFormatDialog" class="cancel-button">{{ t('stamp.exportFormat.cancel') }}</button>
+        <button @click="confirmExport" class="confirm-button">{{ t('stamp.exportFormat.export') }}</button>
       </div>
     </div>
   </div>
@@ -274,7 +295,7 @@
 
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, watch, onUnmounted, nextTick, computed } from 'vue'
 import {DrawStampUtils} from './DrawStampUtils'
 import { getSystemFonts } from './utils/fontUtils'
 import { IDrawStampConfig } from './DrawStampTypes'
@@ -320,8 +341,17 @@ const handleElementListRefresh = () => {
 const stampCanvas = ref<any | null>(null)
 const MM_PER_PIXEL = 10 // 毫米换算像素
 
-const showLegalDialog = ref(false) // 是否显示法律提示弹窗
+const showFormatDialog = ref(false) // 是否显示格式选择对话框
+const selectedFormat = ref<'png' | 'jpeg' | 'svg'>('png') // 选中的导出格式
+const jpegQuality = ref(92) // JPEG 质量（0-100）
 const isDraggable = ref(false) // 是否开启拖动
+
+// 导出格式选项
+const exportFormats = computed(() => [
+  { value: 'png' as const, name: 'PNG', icon: '🖼️', desc: t('stamp.exportFormat.pngDesc') },
+  { value: 'jpeg' as const, name: 'JPEG', icon: '📷', desc: t('stamp.exportFormat.jpegDesc') },
+  { value: 'svg' as const, name: 'SVG', icon: '📐', desc: t('stamp.exportFormat.svgDesc') }
+])
 
 // 保存模板相关
 const showSaveTemplateDialog = ref(false)
@@ -366,14 +396,23 @@ const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean 
   allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
 }
 
-// 保存印章为PNG
+// 打开格式选择对话框
 const saveStampAsPNG = () => {
-  showLegalDialog.value = true
+  // 检查是否可以保存
+  const { canSave, message } = canSaveStamp()
+  if (!canSave) {
+    alert(message || t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT }))
+    return
+  }
+  
+  showFormatDialog.value = true
+  selectedFormat.value = 'png'
+  jpegQuality.value = 92
 }
 
-// 取消保存
-const cancelSave = () => {
-  showLegalDialog.value = false
+// 关闭格式选择对话框
+const closeFormatDialog = () => {
+  showFormatDialog.value = false
 }
 
 
@@ -446,24 +485,20 @@ const getDownloadButtonTitle = (): string => {
   return t('stamp.downloadStamp') + ` (${t('stamp.remainingSaves', { count: remaining, limit: DAILY_SAVE_LIMIT })})`
 }
 
-// 确认保存
-const confirmSave = () => {
-  // 检查是否可以保存
-  const { canSave, message } = canSaveStamp()
-  if (!canSave) {
-    showLegalDialog.value = false
-    alert(message || t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT }))
-    return
-  }
-  
-  showLegalDialog.value = false
+// 确认导出
+const confirmExport = () => {
+  closeFormatDialog()
   
   // 如果是未登录用户，增加保存次数
   if (!userStore.isAuthenticated.value) {
     incrementTodaySaveCount()
   }
   
-  drawStampUtils.saveStampAsPNG()
+  // 计算 JPEG 质量（0-1）
+  const quality = selectedFormat.value === 'jpeg' ? jpegQuality.value / 100 : 0.92
+  
+  // 调用保存方法，传入格式和质量
+  drawStampUtils.saveStampAsPNG(selectedFormat.value, quality)
 }
 
 const resetStamp = () => {
