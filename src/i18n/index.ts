@@ -18,7 +18,7 @@ const messages = {
     },
     stamp: {
       save: '保存印章',
-      saveTemplate: '保存模板',
+      saveTemplate: '保存到我的模板',
       loadTemplate: '加载模板',
       resetStamp: '重置印章',
       downloadStamp: '下载印章',
@@ -118,7 +118,7 @@ const messages = {
       template: {
         title: '常用模板',
         save: '保存当前为模板',
-        saveCurrent: '保存当前模板',
+        saveCurrent: '导出模板',
         defaultTitle: '默认模板',
         publicTemplates: '公共模板',
         preview: '预览',
@@ -638,7 +638,7 @@ const messages = {
     },
     stamp: {
       save: 'Save Stamp',
-      saveTemplate: 'Save Template',
+      saveTemplate: 'Save to My Templates',
       loadTemplate: 'Load Template',
       resetStamp: 'Reset Stamp',
       downloadStamp: 'Download Stamp',
@@ -738,7 +738,7 @@ const messages = {
       template: {
         title: 'Common Templates',
         save: 'Save Current as Template',
-        saveCurrent: 'Save Current Template',
+        saveCurrent: 'Export Template',
         defaultTitle: 'Default Templates',
         publicTemplates: 'Public Templates',
         preview: 'Preview',
