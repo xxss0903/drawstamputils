@@ -25,6 +25,8 @@ const messages = {
       dailyLimitReached: '未登录用户每天最多下载 {limit} 次印章，请注册登录后无限制使用',
       needLoginForTemplate: '保存模板需要登录，请先注册登录',
       needLoginForDownload: '下载印章需要登录，请先注册登录',
+      needLoginForImport: '导入模板需要登录，请先注册登录',
+      needLoginForExport: '导出模板需要登录，请先注册登录',
       remainingSaves: '今日剩余 {count}/{limit} 次',
       basic: {
         title: '印章基本设置',
@@ -643,6 +645,8 @@ const messages = {
       dailyLimitReached: 'Guest users can download up to {limit} stamps per day. Please register and login for unlimited access',
       needLoginForTemplate: 'Saving templates requires login. Please register and login first',
       needLoginForDownload: 'Downloading stamps requires login. Please register and login first',
+      needLoginForImport: 'Importing templates requires login. Please register and login first',
+      needLoginForExport: 'Exporting templates requires login. Please register and login first',
       remainingSaves: 'Remaining {count}/{limit} today',
       basic: {
         title: 'Basic Stamp Settings',

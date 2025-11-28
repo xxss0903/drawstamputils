@@ -238,11 +238,13 @@ import ElementList from './editor/ElementList.vue'
 import PropertiesPanel from './editor/PropertiesPanel.vue'
 import { useStampStore } from '../stores/stampStore'
 import { templateApi, type Template } from '../utils/api'
+import { useUserStore } from '../stores/userStore'
 
 const { t } = useI18n()
 const router = useRouter()
 
 const stampStore = useStampStore()
+const userStore = useUserStore()
 const templateMap = ref<Record<string, Template>>({})
 const templateOptions = [
   { key: 'circle', labelKey: 'circle', templateName: '原型印章' },
@@ -366,11 +368,26 @@ const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean 
 
 // 触发文件选择
 const triggerTemplateFileLoad = () => {
+  // 检查登录状态，未登录用户无法导入模板
+  if (!userStore.isAuthenticated.value) {
+    alert(t('stamp.needLoginForImport'))
+    return
+  }
   templateFileInput.value?.click()
 }
 
 // 加载模板文件
 const loadTemplateFile = async (event: Event) => {
+  // 检查登录状态，未登录用户无法导入模板
+  if (!userStore.isAuthenticated.value) {
+    alert(t('stamp.needLoginForImport'))
+    const input = event.target as HTMLInputElement
+    if (input) {
+      input.value = '' // 清空文件选择
+    }
+    return
+  }
+  
   const input = event.target as HTMLInputElement
   if (!input.files?.length || !drawStampUtils) return
 
@@ -413,8 +430,68 @@ const loadTemplateFile = async (event: Event) => {
   }
 }
 
+// 每日保存次数管理
+const DAILY_SAVE_LIMIT = 3
+const SAVE_COUNT_KEY = 'stamp_daily_save_count'
+const SAVE_DATE_KEY = 'stamp_daily_save_date'
+
+// 获取今日保存次数
+const getTodaySaveCount = (): number => {
+  const today = new Date().toDateString()
+  const savedDate = localStorage.getItem(SAVE_DATE_KEY)
+  const savedCount = localStorage.getItem(SAVE_COUNT_KEY)
+  
+  // 如果是新的一天，重置计数
+  if (savedDate !== today) {
+    localStorage.setItem(SAVE_DATE_KEY, today)
+    localStorage.setItem(SAVE_COUNT_KEY, '0')
+    return 0
+  }
+  
+  return parseInt(savedCount || '0', 10)
+}
+
+// 增加今日保存次数
+const incrementTodaySaveCount = (): void => {
+  const today = new Date().toDateString()
+  const currentCount = getTodaySaveCount()
+  localStorage.setItem(SAVE_DATE_KEY, today)
+  localStorage.setItem(SAVE_COUNT_KEY, String(currentCount + 1))
+}
+
+// 检查是否可以保存（未登录用户每天最多3次）
+const canSaveStamp = (): { canSave: boolean; message?: string } => {
+  // 已登录用户无限制
+  if (userStore.isAuthenticated.value) {
+    return { canSave: true }
+  }
+  
+  // 未登录用户检查每日限制
+  const todayCount = getTodaySaveCount()
+  if (todayCount >= DAILY_SAVE_LIMIT) {
+    return {
+      canSave: false,
+      message: t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT })
+    }
+  }
+  
+  return { canSave: true }
+}
+
 // 保存图片
 const saveStampAsPNG = () => {
+  // 检查是否可以保存
+  const { canSave, message } = canSaveStamp()
+  if (!canSave) {
+    alert(message || t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT }))
+    return
+  }
+  
+  // 如果是未登录用户，增加保存次数
+  if (!userStore.isAuthenticated.value) {
+    incrementTodaySaveCount()
+  }
+  
   drawStampUtils.saveStampAsPNG()
 }
 
@@ -477,6 +554,12 @@ const cleanConfigForTemplate = (config: IDrawStampConfig): IDrawStampConfig => {
 
 // 导出当前设置为模板
 const saveCurrentAsTemplate = () => {
+  // 检查登录状态，未登录用户无法导出模板
+  if (!userStore.isAuthenticated.value) {
+    alert(t('stamp.needLoginForExport'))
+    return
+  }
+  
   if (!drawStampUtils) return
 
   const currentConfig = drawStampUtils.getDrawConfigs()
