@@ -873,7 +873,12 @@ export class DrawStampUtils {
      * 将印章保存为PNG图片
      * @param outputSize 输出图片的尺寸
      */
-    saveStampAsPNG(format: 'png' | 'jpeg' | 'svg' = 'png', quality: number = 0.92) {
+    saveStampAsPNG(
+        format: 'png' | 'jpeg' | 'svg' = 'png',
+        quality: number = 0.92,
+        targetWidth?: number,
+        targetHeight?: number
+    ) {
         // 图像与边框的间距
         let imagePadding = 1
         let maxStampSize = Math.max(this.drawStampConfigs.width, this.drawStampConfigs.height)
@@ -927,39 +932,51 @@ export class DrawStampUtils {
                 this.addAgingEffect(saveCtx, stampWidth, stampHeight, false)
             }
 
+            // 如果需要自定义导出尺寸，创建缩放后的画布
+            let outputCanvas = saveCanvas
+            const exportWidth = targetWidth && targetWidth > 0 ? targetWidth : stampWidth
+            const exportHeight = targetHeight && targetHeight > 0 ? targetHeight : stampHeight
+            if (exportWidth !== stampWidth || exportHeight !== stampHeight) {
+                const scaledCanvas = document.createElement('canvas')
+                scaledCanvas.width = exportWidth
+                scaledCanvas.height = exportHeight
+                const scaledCtx = scaledCanvas.getContext('2d')
+                if (scaledCtx) {
+                    scaledCtx.drawImage(saveCanvas, 0, 0, exportWidth, exportHeight)
+                    outputCanvas = scaledCanvas
+                }
+            }
+
             let dataURL: string
             let filename: string
-            let mimeType: string
 
             if (format === 'svg') {
-                // 对于 SVG，将 canvas 转换为 base64 图片嵌入到 SVG 中
-                const pngDataURL = saveCanvas.toDataURL('image/png')
-                dataURL = `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="${stampWidth}" height="${stampHeight}">
-  <image href="${pngDataURL}" width="${stampWidth}" height="${stampHeight}"/>
-</svg>`)}`
+                // 对于 SVG，将 PNG 数据嵌入到 SVG 中
+                const pngDataURL = outputCanvas.toDataURL('image/png')
+                const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${outputCanvas.width}" height="${outputCanvas.height}">
+  <image href="${pngDataURL}" width="${outputCanvas.width}" height="${outputCanvas.height}"/>
+</svg>`
+                dataURL = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgContent)))}`
                 filename = 'mystamp.svg'
-                mimeType = 'image/svg+xml'
             } else if (format === 'jpeg') {
                 // JPEG 格式，需要白色背景
                 const tempCanvas = document.createElement('canvas')
-                tempCanvas.width = stampWidth
-                tempCanvas.height = stampHeight
+                tempCanvas.width = outputCanvas.width
+                tempCanvas.height = outputCanvas.height
                 const tempCtx = tempCanvas.getContext('2d')
                 if (tempCtx) {
                     tempCtx.fillStyle = '#FFFFFF'
-                    tempCtx.fillRect(0, 0, stampWidth, stampHeight)
-                    tempCtx.drawImage(saveCanvas, 0, 0)
+                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+                    tempCtx.drawImage(outputCanvas, 0, 0, tempCanvas.width, tempCanvas.height)
                     dataURL = tempCanvas.toDataURL('image/jpeg', quality)
                 } else {
-                    dataURL = saveCanvas.toDataURL('image/jpeg', quality)
+                    dataURL = outputCanvas.toDataURL('image/jpeg', quality)
                 }
                 filename = 'mystamp.jpg'
-                mimeType = 'image/jpeg'
             } else {
                 // PNG 格式（默认）
-                dataURL = saveCanvas.toDataURL('image/png')
+                dataURL = outputCanvas.toDataURL('image/png')
                 filename = 'mystamp.png'
-                mimeType = 'image/png'
             }
 
             // 创建一个临时的 <a> 元素来触发下载
@@ -979,6 +996,12 @@ export class DrawStampUtils {
             this.drawStampConfigs.ruler.showCurrentPositionText = true
             this.refreshStamp()
         }, 50)
+    }
+
+    getExportBaseSize(padding: number = 1) {
+        const width = (this.drawStampConfigs.width + padding * 2) * this.mmToPixel
+        const height = (this.drawStampConfigs.height + padding * 2) * this.mmToPixel
+        return { width, height }
     }
 
     /**

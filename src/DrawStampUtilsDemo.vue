@@ -29,6 +29,62 @@
             class="quality-slider"
           />
         </div>
+        <div class="size-setting">
+          <div class="size-setting-header">
+            <label>{{ t('stamp.exportFormat.sizeTitle') }}</label>
+            <button class="size-reset" type="button" @click="resetExportSize">
+              {{ t('stamp.exportFormat.resetSize') }}
+            </button>
+          </div>
+
+          <div class="ratio-setting">
+            <label>{{ t('stamp.exportFormat.ratioTitle') }}</label>
+            <div class="ratio-options">
+              <button
+                v-for="option in ratioOptions"
+                :key="option.value"
+                type="button"
+                class="ratio-button"
+                :class="{ active: selectedRatio === option.value }"
+                @click="applyRatio(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+            <p class="ratio-hint">{{ t('stamp.exportFormat.ratioHint') }}</p>
+          </div>
+
+          <div class="size-inputs">
+            <div class="size-field">
+              <span>{{ t('stamp.exportFormat.width') }} (px)</span>
+              <input
+                type="number"
+                v-model.number="exportWidth"
+                :min="MIN_EXPORT_SIZE"
+                :max="MAX_EXPORT_SIZE"
+                @input="handleWidthInput"
+                @change="handleWidthInput"
+              />
+            </div>
+            <div class="size-field">
+              <span>{{ t('stamp.exportFormat.height') }} (px)</span>
+              <input
+                type="number"
+                v-model.number="exportHeight"
+                :min="MIN_EXPORT_SIZE"
+                :max="MAX_EXPORT_SIZE"
+                @input="handleHeightInput"
+                @change="handleHeightInput"
+              />
+            </div>
+          </div>
+          <p class="size-hint">
+            {{ t('stamp.exportFormat.sizeHint', { width: Math.round(defaultExportWidth) || 0, height: Math.round(defaultExportHeight) || 0 }) }}
+          </p>
+          <p class="size-hint">
+            {{ t('stamp.exportFormat.sizeLimit', { min: MIN_EXPORT_SIZE, max: MAX_EXPORT_SIZE }) }}
+          </p>
+        </div>
       </div>
       <div class="dialog-buttons">
         <button @click="closeFormatDialog" class="cancel-button">{{ t('stamp.exportFormat.cancel') }}</button>
@@ -344,6 +400,13 @@ const MM_PER_PIXEL = 10 // 毫米换算像素
 const showFormatDialog = ref(false) // 是否显示格式选择对话框
 const selectedFormat = ref<'png' | 'jpeg' | 'svg'>('png') // 选中的导出格式
 const jpegQuality = ref(92) // JPEG 质量（0-100）
+const MIN_EXPORT_SIZE = 100
+const MAX_EXPORT_SIZE = 4096
+const defaultExportWidth = ref(0)
+const defaultExportHeight = ref(0)
+const exportWidth = ref(0)
+const exportHeight = ref(0)
+const selectedRatio = ref<'original' | 'square' | '4:3' | '16:9' | 'custom'>('original')
 const isDraggable = ref(false) // 是否开启拖动
 
 // 导出格式选项
@@ -352,6 +415,64 @@ const exportFormats = computed(() => [
   { value: 'jpeg' as const, name: 'JPEG', icon: '📷', desc: t('stamp.exportFormat.jpegDesc') },
   { value: 'svg' as const, name: 'SVG', icon: '📐', desc: t('stamp.exportFormat.svgDesc') }
 ])
+
+const ratioOptions = computed(() => [
+  { value: 'original' as const, label: t('stamp.exportFormat.ratioOriginal') },
+  { value: 'square' as const, label: t('stamp.exportFormat.ratioSquare') },
+  { value: '4:3' as const, label: '4 : 3' },
+  { value: '16:9' as const, label: '16 : 9' },
+  { value: 'custom' as const, label: t('stamp.exportFormat.ratioCustom') }
+])
+
+const getRatioValue = (ratio: 'original' | 'square' | '4:3' | '16:9'): number => {
+  if (ratio === 'square') return 1
+  if (ratio === '4:3') return 4 / 3
+  if (ratio === '16:9') return 16 / 9
+  const baseWidth = Math.max(defaultExportWidth.value || MIN_EXPORT_SIZE, MIN_EXPORT_SIZE)
+  const baseHeight = Math.max(defaultExportHeight.value || MIN_EXPORT_SIZE, MIN_EXPORT_SIZE)
+  return baseWidth / baseHeight
+}
+
+const clampExportSize = (value: number, fallback: number) => {
+  if (!value || Number.isNaN(value)) return fallback
+  return Math.min(Math.max(value, MIN_EXPORT_SIZE), MAX_EXPORT_SIZE)
+}
+
+const applyRatio = (ratio: 'original' | 'square' | '4:3' | '16:9' | 'custom') => {
+  selectedRatio.value = ratio
+  if (ratio === 'custom') {
+    return
+  }
+  const baseWidth = clampExportSize(defaultExportWidth.value, MIN_EXPORT_SIZE)
+  const ratioValue = getRatioValue(ratio)
+  exportWidth.value = Math.round(baseWidth)
+  exportHeight.value = Math.round(baseWidth / ratioValue)
+  exportHeight.value = clampExportSize(exportHeight.value, MIN_EXPORT_SIZE)
+}
+
+const resetExportSize = () => {
+  applyRatio('original')
+}
+
+const handleWidthInput = () => {
+  const fallback = Math.round(defaultExportWidth.value) || MIN_EXPORT_SIZE
+  exportWidth.value = clampExportSize(exportWidth.value, fallback)
+  if (selectedRatio.value !== 'custom') {
+    const ratioValue = getRatioValue(selectedRatio.value)
+    exportHeight.value = Math.round(exportWidth.value / ratioValue)
+    exportHeight.value = clampExportSize(exportHeight.value, Math.round(defaultExportHeight.value) || MIN_EXPORT_SIZE)
+  }
+}
+
+const handleHeightInput = () => {
+  const fallback = Math.round(defaultExportHeight.value) || MIN_EXPORT_SIZE
+  exportHeight.value = clampExportSize(exportHeight.value, fallback)
+  if (selectedRatio.value !== 'custom') {
+    const ratioValue = getRatioValue(selectedRatio.value)
+    exportWidth.value = Math.round(exportHeight.value * ratioValue)
+    exportWidth.value = clampExportSize(exportWidth.value, Math.round(defaultExportWidth.value) || MIN_EXPORT_SIZE)
+  }
+}
 
 // 保存模板相关
 const showSaveTemplateDialog = ref(false)
@@ -404,6 +525,11 @@ const saveStampAsPNG = () => {
     alert(message || t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT }))
     return
   }
+
+  const baseSize = drawStampUtils.getExportBaseSize()
+  defaultExportWidth.value = Math.round(baseSize.width)
+  defaultExportHeight.value = Math.round(baseSize.height)
+  resetExportSize()
   
   showFormatDialog.value = true
   selectedFormat.value = 'png'
@@ -496,9 +622,11 @@ const confirmExport = () => {
   
   // 计算 JPEG 质量（0-1）
   const quality = selectedFormat.value === 'jpeg' ? jpegQuality.value / 100 : 0.92
+  const width = clampExportSize(exportWidth.value, Math.round(defaultExportWidth.value) || MIN_EXPORT_SIZE)
+  const height = clampExportSize(exportHeight.value, Math.round(defaultExportHeight.value) || MIN_EXPORT_SIZE)
   
   // 调用保存方法，传入格式和质量
-  drawStampUtils.saveStampAsPNG(selectedFormat.value, quality)
+  drawStampUtils.saveStampAsPNG(selectedFormat.value, quality, Math.round(width), Math.round(height))
 }
 
 const resetStamp = () => {
