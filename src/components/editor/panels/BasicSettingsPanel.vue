@@ -13,7 +13,7 @@
       </label>
       <label>
         {{ t('stamp.basic.width') }}:
-        <input type="number" :value="props.config.width" min="1" max="50" step="1" @input="onWidthInput" />
+        <input type="number" :value="props.config.width" min="1" max="50" step="0.1" @input="onWidthInput" />
       </label>
       <label>
         {{ t('stamp.basic.height') }}:
@@ -22,7 +22,7 @@
           :value="props.config.height"
           min="1"
           max="50"
-          step="1"
+          step="0.1"
           @input="onHeightInput"
         />
       </label>

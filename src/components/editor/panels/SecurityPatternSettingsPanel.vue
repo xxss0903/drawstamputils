@@ -23,7 +23,7 @@
           :value="config.securityPattern.securityPatternCount"
           min="1"
           max="100"
-          step="1"
+          step="0.1"
           @input="updateSecurityPattern('securityPatternCount', parseNumber($event))"
         />
       </label>

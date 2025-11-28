@@ -163,7 +163,7 @@
               :value="type.rotation || 0"
               min="-180"
               max="180"
-              step="1"
+              step="0.1"
               @input="updateStampType(index, 'rotation', parseNumber($event))"
             />
             <span>{{ (type.rotation || 0).toFixed(0) }}</span>

@@ -30,7 +30,7 @@
           :value="config.agingEffect.agingIntensity"
           min="0"
           max="100"
-          step="1"
+          step="0.1"
           @input="updateAgingIntensity"
         />
         <span>{{ config.agingEffect.agingIntensity }}%</span>

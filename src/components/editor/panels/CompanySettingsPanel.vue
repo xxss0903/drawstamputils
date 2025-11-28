@@ -115,7 +115,24 @@
         </label>
         <template v-if="company.shape === 'ellipse'">
           <label>
-            {{ t('stamp.company.startAngle') }}:
+            <div class="angle-label-row">
+              <span class="angle-label-text">{{ t('stamp.company.startAngle') }}:</span>
+              <div class="angle-controls">
+                <button 
+                  class="angle-btn" 
+                  type="button"
+                  @click.stop="adjustStartAngle(index, -1)"
+                  title="减少1度"
+                >-</button>
+                <span class="angle-value">{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
+                <button 
+                  class="angle-btn" 
+                  type="button"
+                  @click.stop="adjustStartAngle(index, 1)"
+                  title="增加1度"
+                >+</button>
+              </div>
+            </div>
             <div class="range-container">
               <input
                 type="range"
@@ -125,7 +142,6 @@
                 step="1"
                 @input="onStartAngleInput(index, $event)"
               />
-              <span>{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
             </div>
           </label>
           <label>
@@ -331,6 +347,14 @@ const onStartAngleInput = (index: number, event: Event) => {
   }, index)
 }
 
+const adjustStartAngle = (index: number, delta: number) => {
+  updateConfig((company) => {
+    const currentDegrees = company.startAngle * 180 / Math.PI
+    const newDegrees = Math.max(-360, Math.min(360, currentDegrees + delta))
+    company.startAngle = newDegrees * Math.PI / 180
+  }, index)
+}
+
 const onColorInput = (index: number, event: Event) => {
   const value = (event.target as HTMLInputElement).value
   updateConfig((company) => {
@@ -376,20 +400,20 @@ const addCompany = () => {
     }
     const list = config.companyList
     const last = list[list.length - 1]
-    
+
     // 获取当前印章的形状
     const currentShape = config.company.shape || 'ellipse'
-    
+
     // 根据印章形状设置不同的默认值
     let newCompany: ICompany
-    
+
     if (currentShape === 'rectangle' || currentShape === 'rhombus') {
       // 矩形印章：根据已有公司的位置来分配新位置
       const usedPositions = new Set(list.map(c => c.rectangleTextPosition))
-      const availablePositions: Array<'top' | 'bottom' | 'left' | 'right' | 'center'> = 
+      const availablePositions: Array<'top' | 'bottom' | 'left' | 'right' | 'center'> =
         ['top', 'bottom', 'left', 'right', 'center']
       const nextPosition = availablePositions.find(pos => !usedPositions.has(pos)) || 'center'
-      
+
       newCompany = {
         companyName: '新公司名称',
         compression: 1,
@@ -438,7 +462,7 @@ const addCompany = () => {
         rectangleTextMargin: 1
       }
     }
-    
+
     list.push(newCompany)
   })
 }
@@ -573,5 +597,84 @@ const addCompany = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-container input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.range-container span {
+  min-width: 50px;
+  text-align: right;
+  font-size: 14px;
+  color: #666;
+}
+
+.angle-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.angle-label-text {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #262626;
+}
+
+.angle-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.angle-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.angle-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.angle-btn:active {
+  background: #bae7ff;
+}
+
+.angle-value {
+  text-align: center;
+  font-size: 14px;
+  color: #262626;
+  font-weight: 500;
+  padding: 0 4px;
 }
 </style>

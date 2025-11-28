@@ -136,7 +136,7 @@
                   type="range"
                   min="-180"
                   max="180"
-                  step="1"
+                  step="0.1"
                   :value="item.rotation"
                   @input="event => updateField(index, 'rotation', parseNumber(event))"
                 />

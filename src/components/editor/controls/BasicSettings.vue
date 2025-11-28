@@ -18,7 +18,7 @@
           v-model.number="state.drawStampWidth.value"
           min="1"
           max="50"
-          step="1"
+          step="0.1"
         />
       </label>
       <label>
@@ -28,7 +28,7 @@
           v-model.number="state.drawStampHeight.value"
           min="1"
           max="50"
-          step="1"
+          step="0.1"
         />
       </label>
       <label>

@@ -110,7 +110,7 @@ button:focus-visible {
 .editor-controls {
   height: 100%;
   width: 100%;
-  padding: 16px;
+  padding: 6px;
   background-color: white;
   overflow-y: auto;
   box-sizing: border-box;

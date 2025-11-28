@@ -86,7 +86,7 @@
               :value="image.rotation || 0"
               min="0"
               max="360"
-              step="1"
+              step="0.1"
               @input="updateImage(index, 'rotation', parseNumber($event))"
             />
             <span>{{ (image.rotation || 0).toFixed(0) }}°</span>
