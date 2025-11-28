@@ -312,6 +312,16 @@
             <button class="action-btn clear-btn" @click="clearText('taxNumber', 0)" :title="t('elementList.buttons.clear')">🗑️</button>
           </div>
         </div>
+        <div class="line-action-buttons">
+          <button class="add-line-button" @click="addCompanyItem">
+            <span class="add-icon">➕</span>
+            <span>{{ t('elementList.buttons.addCompany') }}</span>
+          </button>
+          <button class="add-line-button" @click="addStampTypeItem">
+            <span class="add-icon">➕</span>
+            <span>{{ t('elementList.buttons.addStampType') }}</span>
+          </button>
+        </div>
       </div>
 
       <!-- 图形元素 -->
