@@ -23,8 +23,8 @@ export class DrawSecurityPatternUtils {
 
         const angleRangeRad = (securityPattern.securityPatternAngleRange * Math.PI) / 180
 
-        // 如果需要刷新或者参数数组为空,则重新生成参数
-        if (forceRefresh || securityPattern.securityPatternParams.length === 0) {
+        // 如果需要刷新或者参数数组为空或未定义,则重新生成参数
+        if (forceRefresh || !securityPattern.securityPatternParams || securityPattern.securityPatternParams.length === 0) {
             securityPattern.securityPatternParams = []
             for (let i = 0; i < securityPattern.securityPatternCount; i++) {
                 const angle = Math.random() * Math.PI * 2

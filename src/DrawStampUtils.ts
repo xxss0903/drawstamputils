@@ -741,8 +741,8 @@ export class DrawStampUtils {
         ctx.fillStyle = 'white';
         ctx.globalCompositeOperation = 'destination-out';
 
-        // 如果需要刷新或者参数数组为空,则重新生成参数
-        if (forceRefresh || this.drawStampConfigs.roughEdge.roughEdgeParams.length === 0) {
+        // 如果需要刷新或者参数数组为空或未定义,则重新生成参数
+        if (forceRefresh || !this.drawStampConfigs.roughEdge.roughEdgeParams || this.drawStampConfigs.roughEdge.roughEdgeParams.length === 0) {
             this.drawStampConfigs.roughEdge.roughEdgeParams = [];
             for (let i = 0; i < points; i++) {
                 const angle = (i / points) * Math.PI * 2;
