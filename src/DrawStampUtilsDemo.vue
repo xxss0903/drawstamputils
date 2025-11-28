@@ -67,8 +67,17 @@
           <button class="primary-button" @click="resetStamp">
             {{ t('stamp.resetStamp') }}
           </button>
-          <button class="primary-button" @click="saveStampAsPNG">
+          <button 
+            class="primary-button" 
+            :class="{ 'disabled': !userStore.isAuthenticated && getRemainingSaveCount() === 0 }"
+            @click="saveStampAsPNG" 
+            :title="getDownloadButtonTitle()"
+            :disabled="!userStore.isAuthenticated && getRemainingSaveCount() === 0"
+          >
             {{ t('stamp.downloadStamp') }}
+            <span v-if="!userStore.isAuthenticated && getRemainingSaveCount() >= 0" class="save-count-badge">
+              ({{ getRemainingSaveCount() }}/{{ DAILY_SAVE_LIMIT }})
+            </span>
           </button>
         </div>
       </div>
@@ -103,8 +112,16 @@
             <button v-if="false" class="canvas-action-btn" title="效果">
               <span>✨</span>
             </button>
-            <button class="canvas-action-btn" @click="saveStampAsPNG" title="下载">
+            <button 
+              class="canvas-action-btn" 
+              @click="saveStampAsPNG" 
+              :title="getDownloadButtonTitle()"
+              :disabled="!userStore.isAuthenticated && getRemainingSaveCount() === 0"
+            >
               <span>💾</span>
+              <span v-if="!userStore.isAuthenticated && getRemainingSaveCount() >= 0" class="save-count-small">
+                {{ getRemainingSaveCount() }}/{{ DAILY_SAVE_LIMIT }}
+              </span>
             </button>
 <!--            <button class="canvas-action-btn" title="帮助">-->
 <!--              <span>❓</span>-->
@@ -360,9 +377,92 @@ const cancelSave = () => {
 }
 
 
+// 每日保存次数管理
+const DAILY_SAVE_LIMIT = 3
+const SAVE_COUNT_KEY = 'stamp_daily_save_count'
+const SAVE_DATE_KEY = 'stamp_daily_save_date'
+
+// 获取今日保存次数
+const getTodaySaveCount = (): number => {
+  const today = new Date().toDateString()
+  const savedDate = localStorage.getItem(SAVE_DATE_KEY)
+  const savedCount = localStorage.getItem(SAVE_COUNT_KEY)
+  
+  // 如果是新的一天，重置计数
+  if (savedDate !== today) {
+    localStorage.setItem(SAVE_DATE_KEY, today)
+    localStorage.setItem(SAVE_COUNT_KEY, '0')
+    return 0
+  }
+  
+  return parseInt(savedCount || '0', 10)
+}
+
+// 增加今日保存次数
+const incrementTodaySaveCount = (): void => {
+  const today = new Date().toDateString()
+  const currentCount = getTodaySaveCount()
+  localStorage.setItem(SAVE_DATE_KEY, today)
+  localStorage.setItem(SAVE_COUNT_KEY, String(currentCount + 1))
+}
+
+// 检查是否可以保存（未登录用户每天最多3次）
+const canSaveStamp = (): { canSave: boolean; message?: string } => {
+  // 已登录用户无限制
+  if (userStore.isAuthenticated.value) {
+    return { canSave: true }
+  }
+  
+  // 未登录用户检查每日限制
+  const todayCount = getTodaySaveCount()
+  if (todayCount >= DAILY_SAVE_LIMIT) {
+    return {
+      canSave: false,
+      message: t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT })
+    }
+  }
+  
+  return { canSave: true }
+}
+
+// 获取剩余保存次数
+const getRemainingSaveCount = (): number => {
+  if (userStore.isAuthenticated.value) {
+    return -1 // 已登录用户无限制，返回-1表示不显示
+  }
+  const todayCount = getTodaySaveCount()
+  return Math.max(0, DAILY_SAVE_LIMIT - todayCount)
+}
+
+// 获取下载按钮标题
+const getDownloadButtonTitle = (): string => {
+  if (userStore.isAuthenticated.value) {
+    return t('stamp.downloadStamp')
+  }
+  const remaining = getRemainingSaveCount()
+  if (remaining === 0) {
+    return t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT })
+  }
+  return t('stamp.downloadStamp') + ` (${t('stamp.remainingSaves', { count: remaining, limit: DAILY_SAVE_LIMIT })})`
+}
+
 // 确认保存
 const confirmSave = () => {
+  // 检查是否可以保存
+  const { canSave, message } = canSaveStamp()
+  if (!canSave) {
+    showLegalDialog.value = false
+    alert(message || t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT }))
+    return
+  }
+  
   showLegalDialog.value = false
+  
+  // 如果是未登录用户，增加保存次数
+  if (!userStore.isAuthenticated.value) {
+    incrementTodaySaveCount()
+  }
+  
   drawStampUtils.saveStampAsPNG()
 }
 
@@ -402,8 +502,8 @@ const resetStamp = () => {
 
 // 打开保存模板对话框
 const openSaveTemplateDialog = () => {
-  if (!userStore.isAuthenticated) {
-    alert(t('templateManage.needLogin'))
+  if (!userStore.isAuthenticated.value) {
+    alert(t('stamp.needLoginForTemplate'))
     return
   }
   saveTemplateForm.value = {
@@ -427,7 +527,7 @@ const handleSaveTemplate = async () => {
     return
   }
 
-  if (!userStore.isAuthenticated) {
+  if (!userStore.isAuthenticated.value) {
     saveTemplateError.value = t('templateManage.needLogin')
     return
   }
@@ -1851,5 +1951,30 @@ input:checked + .slider:before {
   color: #ff4d4f;
   font-size: 12px;
   margin-top: 8px;
+}
+
+.save-count-badge {
+  font-size: 12px;
+  margin-left: 4px;
+  color: #666;
+  font-weight: normal;
+}
+
+.save-count-small {
+  font-size: 10px;
+  margin-left: 2px;
+  color: #666;
+  font-weight: normal;
+}
+
+.primary-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.canvas-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

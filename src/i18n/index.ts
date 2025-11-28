@@ -22,6 +22,10 @@ const messages = {
       loadTemplate: '加载模板',
       resetStamp: '重置印章',
       downloadStamp: '下载印章',
+      dailyLimitReached: '未登录用户每天最多下载 {limit} 次印章，请注册登录后无限制使用',
+      needLoginForTemplate: '保存模板需要登录，请先注册登录',
+      needLoginForDownload: '下载印章需要登录，请先注册登录',
+      remainingSaves: '今日剩余 {count}/{limit} 次',
       basic: {
         title: '印章基本设置',
         extractCircle: '提取圆形印章',
@@ -636,6 +640,10 @@ const messages = {
       loadTemplate: 'Load Template',
       resetStamp: 'Reset Stamp',
       downloadStamp: 'Download Stamp',
+      dailyLimitReached: 'Guest users can download up to {limit} stamps per day. Please register and login for unlimited access',
+      needLoginForTemplate: 'Saving templates requires login. Please register and login first',
+      needLoginForDownload: 'Downloading stamps requires login. Please register and login first',
+      remainingSaves: 'Remaining {count}/{limit} today',
       basic: {
         title: 'Basic Stamp Settings',
         extractCircle: 'Extract Circle Stamp',
