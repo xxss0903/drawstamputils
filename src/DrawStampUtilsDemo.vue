@@ -61,6 +61,9 @@
           <button v-if="false" class="primary-button" @click="showTemplateDialog = true">
             < Templates
           </button>
+          <button class="primary-button" @click="openSaveTemplateDialog">
+            {{ t('stamp.saveTemplate') }}
+          </button>
           <button class="primary-button" @click="resetStamp">
             {{ t('stamp.resetStamp') }}
           </button>
@@ -213,6 +216,42 @@
         @save="saveCurrentAsTemplate"
         @select="loadSelectedTemplate"
       />
+      
+      <!-- 保存模板对话框 -->
+      <div v-if="showSaveTemplateDialog" class="legal-dialog-overlay" @click.self="closeSaveTemplateDialog">
+        <div class="legal-dialog">
+          <h3>{{ t('stamp.saveTemplate') }}</h3>
+          <div class="legal-content">
+            <div class="form-group">
+              <label>{{ t('template.name') }}:</label>
+              <input 
+                type="text" 
+                v-model="saveTemplateForm.name" 
+                :placeholder="t('template.name')"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label>{{ t('template.description') }}:</label>
+              <textarea 
+                v-model="saveTemplateForm.description" 
+                :placeholder="t('template.description')"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+            <div v-if="saveTemplateError" class="error-message">
+              {{ saveTemplateError }}
+            </div>
+          </div>
+          <div class="dialog-buttons">
+            <button @click="closeSaveTemplateDialog" class="cancel-button">{{ t('legal.cancel') }}</button>
+            <button @click="handleSaveTemplate" class="confirm-button" :disabled="savingTemplate">
+              {{ savingTemplate ? t('template.loading') : t('legal.confirm') }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -227,7 +266,8 @@ import TemplateDialog from './components/TemplateDialog.vue'
 import ElementList from './components/editor/ElementList.vue'
 import PropertiesPanel from './components/editor/PropertiesPanel.vue'
 import { useStampStore } from './stores/stampStore'
-import { publicTemplateApi, type PublicTemplate } from './utils/api'
+import { publicTemplateApi, templateApi, type PublicTemplate } from './utils/api'
+import { useUserStore } from './stores/userStore'
 
 const { t } = useI18n()
 // 添加一个标志来控制 EditorControls 的加载
@@ -265,6 +305,16 @@ const MM_PER_PIXEL = 10 // 毫米换算像素
 
 const showLegalDialog = ref(false) // 是否显示法律提示弹窗
 const isDraggable = ref(false) // 是否开启拖动
+
+// 保存模板相关
+const showSaveTemplateDialog = ref(false)
+const savingTemplate = ref(false)
+const saveTemplateError = ref('')
+const saveTemplateForm = ref({
+  name: '',
+  description: ''
+})
+const userStore = useUserStore()
 
 
 // 绘制工具
@@ -348,6 +398,76 @@ const resetStamp = () => {
   selectedElementIndex.value = -1
   drawStamp()
   handleSelectElement('basic-settings', 'basic', 0)
+}
+
+// 打开保存模板对话框
+const openSaveTemplateDialog = () => {
+  if (!userStore.isAuthenticated) {
+    alert(t('templateManage.needLogin'))
+    return
+  }
+  saveTemplateForm.value = {
+    name: '',
+    description: ''
+  }
+  saveTemplateError.value = ''
+  showSaveTemplateDialog.value = true
+}
+
+// 关闭保存模板对话框
+const closeSaveTemplateDialog = () => {
+  showSaveTemplateDialog.value = false
+  saveTemplateError.value = ''
+}
+
+// 保存模板
+const handleSaveTemplate = async () => {
+  if (!saveTemplateForm.value.name.trim()) {
+    saveTemplateError.value = t('templateManage.nameRequired')
+    return
+  }
+
+  if (!userStore.isAuthenticated) {
+    saveTemplateError.value = t('templateManage.needLogin')
+    return
+  }
+
+  savingTemplate.value = true
+  saveTemplateError.value = ''
+
+  try {
+    // 获取当前配置
+    const currentConfig = drawStampUtils.getDrawConfigs()
+    const cleanedConfig = cleanConfigForTemplate(currentConfig)
+    
+    // 生成JSON文件
+    const jsonBlob = new Blob([JSON.stringify(cleanedConfig, null, 2)], { type: 'application/json' })
+    const jsonFile = new File([jsonBlob], `${saveTemplateForm.value.name}.json`, { type: 'application/json' })
+    
+    // 生成预览图片
+    const previewDataUrl = await generateTemplatePreview(cleanedConfig)
+    const previewBlob = await fetch(previewDataUrl).then(res => res.blob())
+    const previewFile = new File([previewBlob], `${saveTemplateForm.value.name}.png`, { type: 'image/png' })
+    
+    // 上传模板
+    const response = await templateApi.uploadTemplate(
+      saveTemplateForm.value.name,
+      saveTemplateForm.value.description.trim() || undefined,
+      jsonFile,
+      previewFile
+    )
+    
+    if (response.success) {
+      closeSaveTemplateDialog()
+      alert(t('templateManage.uploadSuccess'))
+    } else {
+      saveTemplateError.value = response.error || t('templateManage.uploadError')
+    }
+  } catch (err) {
+    saveTemplateError.value = err instanceof Error ? err.message : t('templateManage.uploadError')
+  } finally {
+    savingTemplate.value = false
+  }
 }
 
 // 添加系统字体列表
@@ -1691,5 +1811,45 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+/* 表单样式 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #262626;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #1890ff;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.error-message {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 8px;
 }
 </style>

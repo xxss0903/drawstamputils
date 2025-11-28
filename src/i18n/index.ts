@@ -592,7 +592,10 @@ const messages = {
       shareSuccess: '分享成功！',
       shareError: '分享失败',
       sharedBadge: '已分享',
-      sharedTooltip: '此模板已分享至公共模板'
+      sharedTooltip: '此模板已分享至公共模板',
+      needLogin: '请先登录',
+      nameRequired: '请输入模板名称',
+      uploadSuccess: '保存成功！'
     },
     publicTemplates: {
       title: '公共模板',
@@ -1203,7 +1206,10 @@ const messages = {
       shareSuccess: 'Share successful!',
       shareError: 'Share failed',
       sharedBadge: 'Shared',
-      sharedTooltip: 'This template has already been shared'
+      sharedTooltip: 'This template has already been shared',
+      needLogin: 'Please login first',
+      nameRequired: 'Please enter template name',
+      uploadSuccess: 'Saved successfully!'
     },
     publicTemplates: {
       title: 'Public Templates',
