@@ -1050,15 +1050,16 @@ onUnmounted(() => {
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding-bottom: 2rem;
   text-align: center;
 }
 
 .hero-content {
-  max-width: 800px;
-  margin: 0 auto 2rem;
+  padding: 2rem 0;
+    /* max-width: 800px; */
+    margin: 0 auto 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .hero-title {
