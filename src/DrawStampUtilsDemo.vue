@@ -6,8 +6,8 @@
       <div class="legal-content">
         <p>{{ t('stamp.exportFormat.description') }}</p>
         <div class="format-options">
-          <button 
-            v-for="format in exportFormats" 
+          <button
+            v-for="format in exportFormats"
             :key="format.value"
             class="format-button"
             :class="{ 'active': selectedFormat === format.value }"
@@ -20,11 +20,11 @@
         </div>
         <div v-if="selectedFormat === 'jpeg'" class="quality-setting">
           <label>{{ t('stamp.exportFormat.quality') }}: {{ jpegQuality }}%</label>
-          <input 
-            type="range" 
-            v-model.number="jpegQuality" 
-            min="10" 
-            max="100" 
+          <input
+            type="range"
+            v-model.number="jpegQuality"
+            min="10"
+            max="100"
             step="5"
             class="quality-slider"
           />
@@ -112,42 +112,114 @@
         </div>
       </div>
 
-      <StampToolbar
-        :remaining-saves="userStore.isAuthenticated.value ? -1 : getRemainingSaveCount()"
-        :total-saves="DAILY_SAVE_LIMIT"
-        :download-disabled="!userStore.isAuthenticated.value && getRemainingSaveCount() === 0"
-        @save-template="openSaveTemplateDialog"
-        @reset="resetStamp"
-        @download="saveStampAsPNG"
-      />
+      <!-- 顶部工具栏 -->
+      <div class="top-toolbar">
+        <div class="toolbar-left">
+          <span v-if="false" class="app-title">DrawStamp - 印章制作工具</span>
+        </div>
+        <div v-if="false" class="toolbar-center">
+          <button class="tool-icon" title="添加文字">
+            <span>A+</span>
+          </button>
+          <button class="tool-icon" title="文字选项">
+            <span>A</span>
+          </button>
+          <button class="tool-icon" title="放大">
+            <span>🔍+</span>
+          </button>
+          <button class="tool-icon" title="缩小">
+            <span>🔍-</span>
+          </button>
+          <button class="tool-icon" title="新建">
+            <span>📄+</span>
+          </button>
+        </div>
+        <div class="toolbar-right">
+          <button v-if="false" class="primary-button" @click="showTemplateDialog = true">
+            < Templates
+          </button>
+          <button class="primary-button" @click="openSaveTemplateDialog">
+            {{ t('stamp.saveTemplate') }}
+          </button>
+          <button class="primary-button" @click="resetStamp">
+            {{ t('stamp.resetStamp') }}
+          </button>
+          <button
+            class="primary-button"
+            :class="{ 'disabled': !userStore.isAuthenticated && getRemainingSaveCount() === 0 }"
+            @click="saveStampAsPNG"
+            :title="getDownloadButtonTitle()"
+            :disabled="!userStore.isAuthenticated && getRemainingSaveCount() === 0"
+          >
+            {{ t('stamp.downloadStamp') }}
+            <span v-if="!userStore.isAuthenticated && getRemainingSaveCount() >= 0" class="save-count-badge">
+              ({{ getRemainingSaveCount() }}/{{ DAILY_SAVE_LIMIT }})
+            </span>
+          </button>
+        </div>
+      </div>
 
       <!-- 主内容区域：三栏布局 -->
-      <StampWorkspace
-        :is-ready="isDrawStampUtilsReady"
-        :drawStampUtils="drawStampUtils"
-        :selected-element="selectedElement"
-        :selected-element-type="selectedElementType"
-        :selected-element-index="selectedElementIndex"
-        :canvas-ref="stampCanvas"
-        :properties-panel-ref="propertiesPanelRef"
-        :download-disabled="!userStore.isAuthenticated.value && getRemainingSaveCount() === 0"
-        :download-title="getDownloadButtonTitle()"
-        :download-badge="!userStore.isAuthenticated.value ? `${getRemainingSaveCount()}/${DAILY_SAVE_LIMIT}` : ''"
-        @select-element="handleSelectElement"
-        @update-config="handleElementListUpdate"
-        @refresh="handleElementListRefresh"
-        @update-draw-stamp="updateDrawStamp"
-        @download="saveStampAsPNG"
-      >
-        <template #canvas-footer-left>
-          <button v-if="false" class="canvas-action-btn" title="可见性">
-            <span>👁️</span>
-          </button>
-          <button v-if="false" class="canvas-action-btn" title="效果">
-            <span>✨</span>
-          </button>
-        </template>
-      </StampWorkspace>
+      <div class="main-workspace">
+        <!-- 左侧：元素列表 -->
+        <ElementList
+          v-if="isDrawStampUtilsReady"
+          :drawStampUtils="drawStampUtils"
+          @selectElement="handleSelectElement"
+          @update-config="handleElementListUpdate"
+          @refresh="handleElementListRefresh"
+        />
+
+        <!-- 中间：Canvas 绘制区域 -->
+        <div class="canvas-area">
+          <div class="canvas-header">
+            <div class="canvas-tabs">
+              <div class="canvas-tab active">
+                <span>Canvas #0</span>
+              </div>
+            </div>
+          </div>
+          <div class="canvas-wrapper">
+            <canvas ref="stampCanvas" width="600" height="600"></canvas>
+          </div>
+          <div class="canvas-footer">
+            <button v-if="false" class="canvas-action-btn" title="可见性">
+              <span>👁️</span>
+            </button>
+            <button v-if="false" class="canvas-action-btn" title="效果">
+              <span>✨</span>
+            </button>
+            <button
+              class="canvas-action-btn"
+              @click="saveStampAsPNG"
+              :title="getDownloadButtonTitle()"
+              :disabled="!userStore.isAuthenticated && getRemainingSaveCount() === 0"
+            >
+              <span>💾</span>
+              <span v-if="!userStore.isAuthenticated && getRemainingSaveCount() >= 0" class="save-count-small">
+                {{ getRemainingSaveCount() }}/{{ DAILY_SAVE_LIMIT }}
+              </span>
+            </button>
+            <!--            <button class="canvas-action-btn" title="帮助">-->
+            <!--              <span>❓</span>-->
+            <!--            </button>-->
+            <!--            <button class="canvas-action-btn" title="联系">-->
+            <!--              <span>✉️</span>-->
+            <!--            </button>-->
+          </div>
+        </div>
+
+        <!-- 右侧：属性编辑器 -->
+        <PropertiesPanel
+          v-if="isDrawStampUtilsReady"
+          ref="propertiesPanelRef"
+          :drawStampUtils="drawStampUtils"
+          :selectedElement="selectedElement"
+          :elementType="selectedElementType"
+          :elementIndex="selectedElementIndex"
+          @updateDrawStamp="updateDrawStamp"
+        />
+      </div>
 
       <!-- 底部：模板选择列表 -->
       <div class="template-bar">
@@ -238,7 +310,7 @@
         @save="saveCurrentAsTemplate"
         @select="loadSelectedTemplate"
       />
-      
+
       <!-- 保存模板对话框 -->
       <div v-if="showSaveTemplateDialog" class="legal-dialog-overlay" @click.self="closeSaveTemplateDialog">
         <div class="legal-dialog">
@@ -246,17 +318,17 @@
           <div class="legal-content">
             <div class="form-group">
               <label>{{ t('template.name') }}:</label>
-              <input 
-                type="text" 
-                v-model="saveTemplateForm.name" 
+              <input
+                type="text"
+                v-model="saveTemplateForm.name"
                 :placeholder="t('template.name')"
                 class="form-input"
               />
             </div>
             <div class="form-group">
               <label>{{ t('template.description') }}:</label>
-              <textarea 
-                v-model="saveTemplateForm.description" 
+              <textarea
+                v-model="saveTemplateForm.description"
                 :placeholder="t('template.description')"
                 class="form-textarea"
                 rows="3"
@@ -422,12 +494,12 @@ const initDrawStampUtils = () => {
 }
 
 
-  // 获取所有文字路径（公司名称、编码和印章类型）
-  let allTextPaths: any[] = []
-  let companyTextPaths: any[] = []
-  let codeTextPaths: any[] = []
-  let stampTypeTextPaths: any[] = []
-  let taxNumberTextPaths: any[] = []
+// 获取所有文字路径（公司名称、编码和印章类型）
+let allTextPaths: any[] = []
+let companyTextPaths: any[] = []
+let codeTextPaths: any[] = []
+let stampTypeTextPaths: any[] = []
+let taxNumberTextPaths: any[] = []
 
 const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
   // 使用drawstamputils进行绘制
@@ -458,7 +530,7 @@ const saveStampAsPNG = () => {
   defaultExportWidth.value = Math.round(baseSize.width)
   defaultExportHeight.value = Math.round(baseSize.height)
   resetExportSize()
-  
+
   showFormatDialog.value = true
   selectedFormat.value = 'png'
   jpegQuality.value = 92
@@ -480,14 +552,14 @@ const getTodaySaveCount = (): number => {
   const today = new Date().toDateString()
   const savedDate = localStorage.getItem(SAVE_DATE_KEY)
   const savedCount = localStorage.getItem(SAVE_COUNT_KEY)
-  
+
   // 如果是新的一天，重置计数
   if (savedDate !== today) {
     localStorage.setItem(SAVE_DATE_KEY, today)
     localStorage.setItem(SAVE_COUNT_KEY, '0')
     return 0
   }
-  
+
   return parseInt(savedCount || '0', 10)
 }
 
@@ -505,7 +577,7 @@ const canSaveStamp = (): { canSave: boolean; message?: string } => {
   if (userStore.isAuthenticated.value) {
     return { canSave: true }
   }
-  
+
   // 未登录用户检查每日限制
   const todayCount = getTodaySaveCount()
   if (todayCount >= DAILY_SAVE_LIMIT) {
@@ -514,7 +586,7 @@ const canSaveStamp = (): { canSave: boolean; message?: string } => {
       message: t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT })
     }
   }
-  
+
   return { canSave: true }
 }
 
@@ -542,17 +614,17 @@ const getDownloadButtonTitle = (): string => {
 // 确认导出
 const confirmExport = () => {
   closeFormatDialog()
-  
+
   // 如果是未登录用户，增加保存次数
   if (!userStore.isAuthenticated.value) {
     incrementTodaySaveCount()
   }
-  
+
   // 计算 JPEG 质量（0-1）
   const quality = selectedFormat.value === 'jpeg' ? jpegQuality.value / 100 : 0.92
   const width = clampExportSize(exportWidth.value, Math.round(defaultExportWidth.value) || MIN_EXPORT_SIZE)
   const height = clampExportSize(exportHeight.value, Math.round(defaultExportHeight.value) || MIN_EXPORT_SIZE)
-  
+
   // 调用保存方法，传入格式和质量
   drawStampUtils.saveStampAsPNG(selectedFormat.value, quality, Math.round(width), Math.round(height))
 }
@@ -630,16 +702,16 @@ const handleSaveTemplate = async () => {
     // 获取当前配置
     const currentConfig = drawStampUtils.getDrawConfigs()
     const cleanedConfig = cleanConfigForTemplate(currentConfig)
-    
+
     // 生成JSON文件
     const jsonBlob = new Blob([JSON.stringify(cleanedConfig, null, 2)], { type: 'application/json' })
     const jsonFile = new File([jsonBlob], `${saveTemplateForm.value.name}.json`, { type: 'application/json' })
-    
+
     // 生成预览图片
     const previewDataUrl = await generateTemplatePreview(cleanedConfig)
     const previewBlob = await fetch(previewDataUrl).then(res => res.blob())
     const previewFile = new File([previewBlob], `${saveTemplateForm.value.name}.png`, { type: 'image/png' })
-    
+
     // 上传模板
     const response = await templateApi.uploadTemplate(
       saveTemplateForm.value.name,
@@ -647,7 +719,7 @@ const handleSaveTemplate = async () => {
       jsonFile,
       previewFile
     )
-    
+
     if (response.success) {
       closeSaveTemplateDialog()
       alert(t('templateManage.uploadSuccess'))
@@ -678,7 +750,7 @@ onMounted(async () => {
       const config = JSON.parse(savedConfig) as IDrawStampConfig
       // 清除 localStorage
       localStorage.removeItem('stamp_config')
-      
+
       // 初始化绘制工具
       initDrawStampUtils()
       await loadSystemFonts()
@@ -688,7 +760,7 @@ onMounted(async () => {
       if (stampCanvas.value) {
         stampCanvas.value.style.cursor = isDraggable.value ? 'move' : 'default'
       }
-      
+
       // 设置配置
       const newConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
       newConfig.ruler.showRuler = true
@@ -697,32 +769,32 @@ onMounted(async () => {
       newConfig.ruler.showCrossLine = true
       newConfig.ruler.showCurrentPositionText = true
       newConfig.ruler.showDashLine = true
-      
+
       if (config.company) {
         newConfig.company.startAngle = config.company.startAngle
         newConfig.company.rotateDirection = config.company.rotateDirection
       }
-      
+
       if (!newConfig.svgList) {
         newConfig.svgList = []
       }
-      
+
       drawStampUtils.setDrawConfigs(newConfig)
       stampStore.setConfig(newConfig)
       drawStamp()
-      
+
       // 更新文字路径
       companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
       codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
       stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
       taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
       allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
-      
+
       // 加载模板列表
       await loadTemplatesFromStorage()
       // 加载公共模板
       await loadPublicTemplates()
-      
+
       // 初始化所有字体选择器的预览
       await nextTick()
       document.querySelectorAll('.font-select, .font-input').forEach((element) => {
@@ -730,28 +802,28 @@ onMounted(async () => {
           updateFontPreview({ target: element } as unknown as Event);
         }
       });
-      
+
       // 标记为就绪
       isDrawStampUtilsReady.value = true
-      
+
       // 选中基础设置，这样属性面板会显示
       await nextTick()
       handleSelectElement('basic-settings', 'basic', 0)
-      
+
       // 恢复编辑器控件的配置
       await nextTick()
       propertiesPanelRef.value?.restoreDrawConfigs()
-      
+
       // 添加事件监听器
       window.addEventListener('mousemove', handleMouseMove)
       drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
-      
+
       return
     } catch (error) {
       console.error('Failed to load saved config:', error)
     }
   }
-  
+
   // 正常初始化流程
   initDrawStampUtils()
   await loadSystemFonts()
@@ -905,7 +977,7 @@ const loadTemplateFile = async (event: Event) => {
     }
     return
   }
-  
+
   const input = event.target as HTMLInputElement
   if (!input.files?.length) return
 
@@ -973,22 +1045,22 @@ const loadTemplateFile = async (event: Event) => {
 // 清理未启用的效果数组，减小模板文件大小
 const cleanConfigForTemplate = (config: IDrawStampConfig): IDrawStampConfig => {
   const cleanedConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
-  
+
   // 如果做旧效果未开启，删除做旧参数数组
   if (cleanedConfig.agingEffect && !cleanedConfig.agingEffect.applyAging) {
     (cleanedConfig.agingEffect as any).agingEffectParams = undefined
   }
-  
+
   // 如果毛边效果未开启，删除毛边参数数组
   if (cleanedConfig.roughEdge && !cleanedConfig.roughEdge.drawRoughEdge) {
     (cleanedConfig.roughEdge as any).roughEdgeParams = undefined
   }
-  
+
   // 如果防伪纹路未开启，删除防伪纹路参数数组
   if (cleanedConfig.securityPattern && !cleanedConfig.securityPattern.openSecurityPattern) {
     (cleanedConfig.securityPattern as any).securityPatternParams = undefined
   }
-  
+
   return cleanedConfig
 }
 
@@ -999,7 +1071,7 @@ const saveCurrentAsTemplate = async () => {
     alert(t('stamp.needLoginForExport'))
     return
   }
-  
+
   // 保存到本地存储（如果需要保存自定义模板，可以在这里实现）
   const currentConfig = drawStampUtils.getDrawConfigs()
   // 清理未启用的效果数组
@@ -1025,7 +1097,7 @@ const loadSelectedTemplate = (template: Template) => {
   try {
     // 关闭模板弹窗
     showTemplateDialog.value = false
-    
+
     // 清除公共模板选中状态（如果不是公共模板）
     if (!selectedPublicTemplateId.value) {
       selectedPublicTemplateId.value = null
@@ -1178,7 +1250,7 @@ const generateTemplatePreview = async (config: IDrawStampConfig): Promise<string
 // 加载公共模板列表
 const loadPublicTemplates = async () => {
   if (loadingPublicTemplates.value || publicTemplates.value.length > 0) return
-  
+
   loadingPublicTemplates.value = true
   try {
     const response = await publicTemplateApi.getPublicTemplates(10, 0, 'collect_count')
@@ -1250,7 +1322,7 @@ const loadPublicTemplates = async () => {
 const loadPublicTemplate = async (template: PublicTemplateItem) => {
   selectedPublicTemplateId.value = template.id
   loadingPublicTemplates.value = true
-  
+
   try {
     let config: IDrawStampConfig | null = templateConfigCache.get(template.id) || null
 
@@ -1318,9 +1390,9 @@ const handleMouseMove = (event: MouseEvent) => {
   let isOverText = false
   for (const textPath of allTextPaths) {
     if (x >= textPath.bounds.x &&
-        x <= textPath.bounds.x + textPath.bounds.width &&
-        y >= textPath.bounds.y &&
-        y <= textPath.bounds.y + textPath.bounds.height) {
+      x <= textPath.bounds.x + textPath.bounds.width &&
+      y >= textPath.bounds.y &&
+      y <= textPath.bounds.y + textPath.bounds.height) {
 
       isOverText = true
       showTooltip.value = true
@@ -1352,9 +1424,9 @@ const handleCanvasClick = (event: MouseEvent) => {
   // 检查点击的文字
   for (const textPath of allTextPaths) {
     if (x >= textPath.bounds.x &&
-        x <= textPath.bounds.x + textPath.bounds.width &&
-        y >= textPath.bounds.y &&
-        y <= textPath.bounds.y + textPath.bounds.height) {
+      x <= textPath.bounds.x + textPath.bounds.width &&
+      y >= textPath.bounds.y &&
+      y <= textPath.bounds.y + textPath.bounds.height) {
 
       // 打印文字信息
       console.log('点击的文字:', textPath.text)
