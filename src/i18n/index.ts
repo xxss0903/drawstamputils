@@ -497,7 +497,7 @@ const messages = {
       methods: {
         title: '联系方式',
         qqGroup: {
-          title: '💬 QQ群',
+          title: '💬 QQ群 644574395',
           description: '加入我们的QQ群，与其他用户交流，获取最新资讯和技术支持。',
           joinGroup: '加入QQ群 644574395',
           tip: '点击上方链接即可加入QQ群，与开发者和其他用户实时交流。'
