@@ -113,7 +113,7 @@
       </div>
 
       <!-- 顶部工具栏 -->
-      <div class="top-toolbar">
+      <div v-if="false" class="top-toolbar">
         <div class="toolbar-left">
           <span v-if="false" class="app-title">DrawStamp - 印章制作工具</span>
         </div>
@@ -159,65 +159,11 @@
         </div>
       </div>
 
-      <!-- 主内容区域：三栏布局 -->
+      <!-- 主内容区域：使用 StampWorkspace 组件封装三栏编辑区 -->
       <div class="main-workspace">
-        <!-- 左侧：元素列表 -->
-        <ElementList
-          v-if="isDrawStampUtilsReady"
-          :drawStampUtils="drawStampUtils"
+        <StampWorkspace
+          v-model="stampConfig"
           @selectElement="handleSelectElement"
-          @update-config="handleElementListUpdate"
-          @refresh="handleElementListRefresh"
-        />
-
-        <!-- 中间：Canvas 绘制区域 -->
-        <div class="canvas-area">
-          <div class="canvas-header">
-            <div class="canvas-tabs">
-              <div class="canvas-tab active">
-                <span>Canvas #0</span>
-              </div>
-            </div>
-          </div>
-          <div class="canvas-wrapper">
-            <canvas ref="stampCanvas" width="600" height="600"></canvas>
-          </div>
-          <div class="canvas-footer">
-            <button v-if="false" class="canvas-action-btn" title="可见性">
-              <span>👁️</span>
-            </button>
-            <button v-if="false" class="canvas-action-btn" title="效果">
-              <span>✨</span>
-            </button>
-            <button
-              class="canvas-action-btn"
-              @click="saveStampAsPNG"
-              :title="getDownloadButtonTitle()"
-              :disabled="!userStore.isAuthenticated && getRemainingSaveCount() === 0"
-            >
-              <span>💾</span>
-              <span v-if="!userStore.isAuthenticated && getRemainingSaveCount() >= 0" class="save-count-small">
-                {{ getRemainingSaveCount() }}/{{ DAILY_SAVE_LIMIT }}
-              </span>
-            </button>
-            <!--            <button class="canvas-action-btn" title="帮助">-->
-            <!--              <span>❓</span>-->
-            <!--            </button>-->
-            <!--            <button class="canvas-action-btn" title="联系">-->
-            <!--              <span>✉️</span>-->
-            <!--            </button>-->
-          </div>
-        </div>
-
-        <!-- 右侧：属性编辑器 -->
-        <PropertiesPanel
-          v-if="isDrawStampUtilsReady"
-          ref="propertiesPanelRef"
-          :drawStampUtils="drawStampUtils"
-          :selectedElement="selectedElement"
-          :elementType="selectedElementType"
-          :elementIndex="selectedElementIndex"
-          @updateDrawStamp="updateDrawStamp"
         />
       </div>
 
@@ -305,7 +251,7 @@
         :show="showTemplateDialog"
         :templates="defaultTemplates"
         :currentIndex="currentTemplateIndex"
-        :drawStampUtils="drawStampUtils"
+        :drawStampUtils="templateDialogDrawStampUtils"
         @close="showTemplateDialog = false"
         @save="saveCurrentAsTemplate"
         @select="loadSelectedTemplate"
@@ -351,52 +297,41 @@
 
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted, nextTick, computed } from 'vue'
-import {DrawStampUtils} from './DrawStampUtils'
-import { getSystemFonts } from './utils/fontUtils'
+import { ref, onMounted, watch, computed } from 'vue'
 import { IDrawStampConfig } from './DrawStampTypes'
 import { useI18n } from 'vue-i18n'
 import TemplateDialog from './components/TemplateDialog.vue'
-import ElementList from './components/editor/ElementList.vue'
-import PropertiesPanel from './components/editor/PropertiesPanel.vue'
-import { useStampStore } from './stores/stampStore'
+import StampWorkspace from './components/editor/StampWorkspace.vue'
 import { publicTemplateApi, templateApi, type PublicTemplate } from './utils/api'
 import { useUserStore } from './stores/userStore'
 
 const { t } = useI18n()
-// 添加一个标志来控制 EditorControls 的加载
-const isDrawStampUtilsReady = ref(false)
-
-const propertiesPanelRef = ref<InstanceType<typeof PropertiesPanel> | null>(null)
-
-const stampStore = useStampStore()
+// 当前印章配置，由 StampWorkspace 维护并通过 v-model 同步
+const stampConfig = ref<IDrawStampConfig | null>(null)
 
 // 选中的元素
 const selectedElement = ref<string>('')
 const selectedElementType = ref<string>('')
 const selectedElementIndex = ref<number>(-1)
 
-// 处理元素选择
-const handleSelectElement = (elementId: string, elementType: string, index: number) => {
-  selectedElement.value = elementId
-  selectedElementType.value = elementType
-  selectedElementIndex.value = index
+// 处理元素选择（与 StampWorkspace 的事件 payload 兼容）
+const handleSelectElement = (payloadOrId: string | { id: string; type: string; index: number }, elementType?: string, index?: number) => {
+  if (typeof payloadOrId === 'object') {
+    selectedElement.value = payloadOrId.id
+    selectedElementType.value = payloadOrId.type
+    selectedElementIndex.value = payloadOrId.index
+  } else {
+    selectedElement.value = payloadOrId
+    selectedElementType.value = elementType || ''
+    selectedElementIndex.value = index ?? -1
+  }
 }
 
-// 处理元素列表配置更新
-const handleElementListUpdate = () => {
-  // 配置已通过 stampStore 更新，这里触发重新绘制
-  drawStamp()
-}
+// 处理元素列表配置更新（占位，保留与旧接口兼容）
+const handleElementListUpdate = () => {}
 
-// 处理元素列表刷新
-const handleElementListRefresh = () => {
-  // 刷新绘制
-  drawStamp()
-}
-const stampCanvas = ref<any | null>(null)
-const MM_PER_PIXEL = 10 // 毫米换算像素
-
+// 处理元素列表刷新（占位，保留与旧接口兼容）
+const handleElementListRefresh = () => {}
 const showFormatDialog = ref(false) // 是否显示格式选择对话框
 const selectedFormat = ref<'png' | 'jpeg' | 'svg'>('png') // 选中的导出格式
 const jpegQuality = ref(92) // JPEG 质量（0-100）
@@ -485,38 +420,6 @@ const saveTemplateForm = ref({
 const userStore = useUserStore()
 
 
-// 绘制工具
-let drawStampUtils: DrawStampUtils
-// 初始化绘制印章参数
-const initDrawStampUtils = () => {
-  drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
-  stampStore.setConfig(drawStampUtils.getDrawConfigs())
-}
-
-
-// 获取所有文字路径（公司名称、编码和印章类型）
-let allTextPaths: any[] = []
-let companyTextPaths: any[] = []
-let codeTextPaths: any[] = []
-let stampTypeTextPaths: any[] = []
-let taxNumberTextPaths: any[] = []
-
-const drawStamp = (refreshSecurityPattern: boolean = false, refreshOld: boolean = false, refreshRoughEdge: boolean = false) => {
-  // 使用drawstamputils进行绘制
-  drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
-
-  // 确保拖动设置与当前状态一致
-  drawStampUtils.setDraggable(isDraggable.value)
-  stampStore.setConfig(drawStampUtils.getDrawConfigs())
-
-  // 更新文字路径
-  companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
-  codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
-  stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
-  taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
-  allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
-}
-
 // 打开格式选择对话框
 const saveStampAsPNG = () => {
   // 检查是否可以保存
@@ -525,11 +428,6 @@ const saveStampAsPNG = () => {
     alert(message || t('stamp.dailyLimitReached', { limit: DAILY_SAVE_LIMIT }))
     return
   }
-
-  const baseSize = drawStampUtils.getExportBaseSize()
-  defaultExportWidth.value = Math.round(baseSize.width)
-  defaultExportHeight.value = Math.round(baseSize.height)
-  resetExportSize()
 
   showFormatDialog.value = true
   selectedFormat.value = 'png'
@@ -612,7 +510,7 @@ const getDownloadButtonTitle = (): string => {
 }
 
 // 确认导出
-const confirmExport = () => {
+const confirmExport = async () => {
   closeFormatDialog()
 
   // 如果是未登录用户，增加保存次数
@@ -620,17 +518,26 @@ const confirmExport = () => {
     incrementTodaySaveCount()
   }
 
+  if (!stampConfig.value) return
+
   // 计算 JPEG 质量（0-1）
   const quality = selectedFormat.value === 'jpeg' ? jpegQuality.value / 100 : 0.92
   const width = clampExportSize(exportWidth.value, Math.round(defaultExportWidth.value) || MIN_EXPORT_SIZE)
   const height = clampExportSize(exportHeight.value, Math.round(defaultExportHeight.value) || MIN_EXPORT_SIZE)
 
-  // 调用保存方法，传入格式和质量
-  drawStampUtils.saveStampAsPNG(selectedFormat.value, quality, Math.round(width), Math.round(height))
+  // 使用临时 Canvas 和 DrawStampUtils 进行导出
+  const tempCanvas = document.createElement('canvas')
+  const { DrawStampUtils } = await import('./DrawStampUtils')
+  const tempUtils = new DrawStampUtils(tempCanvas, 10)
+  tempUtils.setDrawConfigs(stampConfig.value)
+  tempUtils.refreshStamp()
+
+  tempUtils.saveStampAsPNG(selectedFormat.value, quality, Math.round(width), Math.round(height))
 }
 
 const resetStamp = () => {
-  const currentConfig = JSON.parse(JSON.stringify(drawStampUtils.getDrawConfigs())) as IDrawStampConfig
+  if (!stampConfig.value) return
+  const currentConfig = JSON.parse(JSON.stringify(stampConfig.value)) as IDrawStampConfig
   currentConfig.companyList = []
   currentConfig.company.companyName = ''
   currentConfig.stampTypeList = []
@@ -654,13 +561,10 @@ const resetStamp = () => {
   currentConfig.width = 40
   currentConfig.height = 40
 
-  drawStampUtils.setDrawConfigs(currentConfig)
-  stampStore.setConfig(currentConfig)
+  stampConfig.value = currentConfig
   selectedElement.value = ''
   selectedElementType.value = ''
   selectedElementIndex.value = -1
-  drawStamp()
-  handleSelectElement('basic-settings', 'basic', 0)
 }
 
 // 打开保存模板对话框
@@ -700,7 +604,11 @@ const handleSaveTemplate = async () => {
 
   try {
     // 获取当前配置
-    const currentConfig = drawStampUtils.getDrawConfigs()
+    if (!stampConfig.value) {
+      saveTemplateError.value = t('errors.loadTemplateError')
+      return
+    }
+    const currentConfig = stampConfig.value
     const cleanedConfig = cleanConfigForTemplate(currentConfig)
 
     // 生成JSON文件
@@ -733,14 +641,6 @@ const handleSaveTemplate = async () => {
   }
 }
 
-// 添加系统字体列表
-const systemFonts = ref<string[]>([])
-
-// 加载系统字体
-const loadSystemFonts = async () => {
-  systemFonts.value = await getSystemFonts()
-}
-
 // 在组件挂载时加载字体
 onMounted(async () => {
   // 检查是否有从模板管理页面传递的配置
@@ -750,73 +650,12 @@ onMounted(async () => {
       const config = JSON.parse(savedConfig) as IDrawStampConfig
       // 清除 localStorage
       localStorage.removeItem('stamp_config')
-
-      // 初始化绘制工具
-      initDrawStampUtils()
-      await loadSystemFonts()
-
-      // 设置初始拖动状态
-      drawStampUtils.setDraggable(isDraggable.value)
-      if (stampCanvas.value) {
-        stampCanvas.value.style.cursor = isDraggable.value ? 'move' : 'default'
-      }
-
-      // 设置配置
-      const newConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
-      newConfig.ruler.showRuler = true
-      newConfig.ruler.showFullRuler = true
-      newConfig.ruler.showSideRuler = true
-      newConfig.ruler.showCrossLine = true
-      newConfig.ruler.showCurrentPositionText = true
-      newConfig.ruler.showDashLine = true
-
-      if (config.company) {
-        newConfig.company.startAngle = config.company.startAngle
-        newConfig.company.rotateDirection = config.company.rotateDirection
-      }
-
-      if (!newConfig.svgList) {
-        newConfig.svgList = []
-      }
-
-      drawStampUtils.setDrawConfigs(newConfig)
-      stampStore.setConfig(newConfig)
-      drawStamp()
-
-      // 更新文字路径
-      companyTextPaths = drawStampUtils.drawCompanyUtils.getTextPaths()
-      codeTextPaths = drawStampUtils.drawCodeUtils.getTextPaths()
-      stampTypeTextPaths = drawStampUtils.drawStampTypeUtils.getTextPaths()
-      taxNumberTextPaths = drawStampUtils.drawTaxNumberUtils.getTextPaths()
-      allTextPaths = [...companyTextPaths, ...codeTextPaths, ...stampTypeTextPaths, ...taxNumberTextPaths]
+      stampConfig.value = config
 
       // 加载模板列表
       await loadTemplatesFromStorage()
       // 加载公共模板
       await loadPublicTemplates()
-
-      // 初始化所有字体选择器的预览
-      await nextTick()
-      document.querySelectorAll('.font-select, .font-input').forEach((element) => {
-        if (element instanceof HTMLElement) {
-          updateFontPreview({ target: element } as unknown as Event);
-        }
-      });
-
-      // 标记为就绪
-      isDrawStampUtilsReady.value = true
-
-      // 选中基础设置，这样属性面板会显示
-      await nextTick()
-      handleSelectElement('basic-settings', 'basic', 0)
-
-      // 恢复编辑器控件的配置
-      await nextTick()
-      propertiesPanelRef.value?.restoreDrawConfigs()
-
-      // 添加事件监听器
-      window.addEventListener('mousemove', handleMouseMove)
-      drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
 
       return
     } catch (error) {
@@ -825,37 +664,10 @@ onMounted(async () => {
   }
 
   // 正常初始化流程
-  initDrawStampUtils()
-  await loadSystemFonts()
-
-  // 设置初始拖动状态
-  drawStampUtils.setDraggable(isDraggable.value)
-  if (stampCanvas.value) {
-    stampCanvas.value.style.cursor = isDraggable.value ? 'move' : 'default'
-  }
-
-  drawStamp()
   // 加载模板列表，这里是预览的模板列表
   await loadTemplatesFromStorage()
   // 加载公共模板
   await loadPublicTemplates()
-  // 初始化所有字体选择器的预览
-  document.querySelectorAll('.font-select, .font-input').forEach((element) => {
-    if (element instanceof HTMLElement) {
-      updateFontPreview({ target: element } as unknown as Event);
-    }
-  });
-  isDrawStampUtilsReady.value = true
-  await nextTick()
-  handleSelectElement('basic-settings', 'basic', 0)
-  window.addEventListener('mousemove', handleMouseMove)
-  drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
-})
-
-// 在组件卸载时移除事件监听
-onUnmounted(() => {
-  window.removeEventListener('mousemove', handleMouseMove)
-  drawStampUtils?.canvas?.removeEventListener('click', handleCanvasClick)
 })
 
 // 添加新的类型定义
@@ -914,35 +726,6 @@ watch(stampTypePresets, () => {
   savePresetsToLocalStorage()
 }, { deep: true })
 
-// 打开提取印章工具网址
-// 修改字体预览更新函数
-const updateFontPreview = (event: Event) => {
-  const element = event.target as HTMLElement;
-  const fontFamily = element.tagName === 'SELECT'
-    ? (element as HTMLSelectElement).value
-    : (element as HTMLInputElement).value;
-
-  element.style.setProperty('--current-font', fontFamily);
-
-  // 如果是select变化，同步更新input
-  if (element.tagName === 'SELECT') {
-    const input = element.parentElement?.querySelector('.font-input') as HTMLInputElement;
-    if (input) {
-      input.value = fontFamily;
-      input.style.setProperty('--current-font', fontFamily);
-    }
-  }
-
-  // 如果input变化，同步更新select
-  if (element.tagName === 'INPUT') {
-    const select = element.parentElement?.querySelector('.font-select') as HTMLSelectElement;
-    if (select) {
-      select.value = fontFamily;
-      select.style.setProperty('--current-font', fontFamily);
-    }
-  }
-}
-
 // 添加展开/折叠状态控制
 // 添加模板相关的类型定义
 interface Template {
@@ -990,29 +773,17 @@ const loadTemplateFile = async (event: Event) => {
     // 关闭模板弹窗（如果打开）
     showTemplateDialog.value = false
 
-    isDrawStampUtilsReady.value = false
-    // 绘制印章
-    drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
-    drawStamp()
-    // 初始化所有字体选择器的预览
-    document.querySelectorAll('.font-select, .font-input').forEach((element) => {
-      if (element instanceof HTMLElement) {
-        updateFontPreview({ target: element } as unknown as Event);
-      }
-    });
-    isDrawStampUtilsReady.value = true
-    window.addEventListener('mousemove', handleMouseMove)
-    drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
-
-    // 将选中的config进行设置
+    // 将选中的 config 设置到当前配置，StampWorkspace 会通过 v-model 接管渲染
     const newConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
-    newConfig.ruler.showRuler = true
-    newConfig.ruler.showFullRuler = true
-    newConfig.ruler.showSideRuler = true
-    newConfig.ruler.showCrossLine = true
-    newConfig.ruler.showCurrentPositionText = true
-    newConfig.ruler.showDashLine = true
-    if (config.company) {
+    if (newConfig.ruler) {
+      newConfig.ruler.showRuler = true
+      newConfig.ruler.showFullRuler = true
+      newConfig.ruler.showSideRuler = true
+      newConfig.ruler.showCrossLine = true
+      newConfig.ruler.showCurrentPositionText = true
+      newConfig.ruler.showDashLine = true
+    }
+    if (config.company && newConfig.company) {
       newConfig.company.startAngle = config.company.startAngle
       newConfig.company.rotateDirection = config.company.rotateDirection
     }
@@ -1020,13 +791,7 @@ const loadTemplateFile = async (event: Event) => {
       newConfig.svgList = []
     }
 
-    drawStampUtils.setDrawConfigs(newConfig)
-    drawStamp()
-    setTimeout(() => {
-      isDrawStampUtilsReady.value = true
-      console.log("refresh editor controls")
-      propertiesPanelRef.value?.restoreDrawConfigs()
-    }, 100)
+    stampConfig.value = newConfig
 
     // 重置模板索引（因为是从文件加载的）
     currentTemplateIndex.value = -1
@@ -1073,7 +838,11 @@ const saveCurrentAsTemplate = async () => {
   }
 
   // 保存到本地存储（如果需要保存自定义模板，可以在这里实现）
-  const currentConfig = drawStampUtils.getDrawConfigs()
+  if (!stampConfig.value) {
+    alert(t('errors.loadTemplateError'))
+    return
+  }
+  const currentConfig = stampConfig.value
   // 清理未启用的效果数组
   const cleanedConfig = cleanConfigForTemplate(currentConfig)
   // 使用紧凑格式（无缩进和换行）来减小文件大小，并排除 undefined 字段
@@ -1092,7 +861,7 @@ const saveCurrentAsTemplate = async () => {
   URL.revokeObjectURL(url)
 }
 
-// 加载模板，从模板弹窗选中模板，需要将模板的值设置到左边设置里面
+// 加载模板，从模板弹窗选中模板，需要将模板的值设置到编辑器中
 const loadSelectedTemplate = (template: Template) => {
   try {
     // 关闭模板弹窗
@@ -1103,42 +872,25 @@ const loadSelectedTemplate = (template: Template) => {
       selectedPublicTemplateId.value = null
     }
 
-    isDrawStampUtilsReady.value = false
-    // 绘制印章
-    drawStampUtils = new DrawStampUtils(stampCanvas.value, MM_PER_PIXEL)
-    drawStamp()
-    // 初始化所有字体选择器的预览
-    document.querySelectorAll('.font-select, .font-input').forEach((element) => {
-      if (element instanceof HTMLElement) {
-        updateFontPreview({ target: element } as unknown as Event);
-      }
-    });
-    isDrawStampUtilsReady.value = true
-    window.addEventListener('mousemove', handleMouseMove)
-    drawStampUtils?.canvas?.addEventListener('click', handleCanvasClick)
-
-    // 将选中的config进行设置
+    // 将选中的 config 设置到当前配置，StampWorkspace 会通过 v-model 接管渲染
     const newConfig = JSON.parse(JSON.stringify(template.config)) as IDrawStampConfig
-    newConfig.ruler.showRuler = true
-    newConfig.ruler.showFullRuler = true
-    newConfig.ruler.showSideRuler = true
-    newConfig.ruler.showCrossLine = true
-    newConfig.ruler.showCurrentPositionText = true
-    newConfig.ruler.showDashLine = true
-    newConfig.company.startAngle = template.config.company.startAngle
-    newConfig.company.rotateDirection = template.config.company.rotateDirection
+    if (newConfig.ruler) {
+      newConfig.ruler.showRuler = true
+      newConfig.ruler.showFullRuler = true
+      newConfig.ruler.showSideRuler = true
+      newConfig.ruler.showCrossLine = true
+      newConfig.ruler.showCurrentPositionText = true
+      newConfig.ruler.showDashLine = true
+    }
+    if (template.config.company && newConfig.company) {
+      newConfig.company.startAngle = template.config.company.startAngle
+      newConfig.company.rotateDirection = template.config.company.rotateDirection
+    }
     if (!newConfig.svgList) {
       newConfig.svgList = []
     }
 
-    drawStampUtils.setDrawConfigs(newConfig)
-    drawStamp()
-    // drawStampUtils.refreshStamp()
-    setTimeout(() => {
-      isDrawStampUtilsReady.value = true
-      console.log("refresh editor controls")
-      propertiesPanelRef.value?.restoreDrawConfigs()
-    }, 100)
+    stampConfig.value = newConfig
 
     // 更新当前选中的模板索引（使用负数表示默认模板）
     currentTemplateIndex.value = -1 - defaultTemplates.findIndex(t => t === template)
@@ -1178,11 +930,8 @@ watch(showSecurityWarning, (newValue) => {
   localStorage.setItem('showSecurityWarning', String(newValue))
 })
 
-// 更新印章绘制，从EditorControls组件中调用
-const updateDrawStamp = (newConfig: IDrawStampConfig, refreshSecurityPattern: boolean, refreshOld: boolean, refreshRoughEdge: boolean) => {
-  drawStampUtils.setDrawConfigs(newConfig)
-  drawStampUtils.refreshStamp(refreshSecurityPattern, refreshOld, refreshRoughEdge)
-}
+// 更新印章绘制（旧接口占位，StampWorkspace 内部自行管理）
+const updateDrawStamp = (_newConfig: IDrawStampConfig, _refreshSecurityPattern: boolean, _refreshOld: boolean, _refreshRoughEdge: boolean) => {}
 
 // 添加模板弹窗控制
 const showTemplateDialog = ref(false)
@@ -1223,10 +972,22 @@ const templateNameCache = new Map<string, string>()
 const templatePreviewCache = new Map<string, string>()
 const templateConfigCache = new Map<string, IDrawStampConfig>()
 
+// 提供给 TemplateDialog 的简易 drawStampUtils 适配器
+const templateDialogDrawStampUtils = {
+  getDrawConfigs() {
+    return stampConfig.value as IDrawStampConfig
+  },
+  setDrawConfigs(config: IDrawStampConfig) {
+    // 深拷贝一份，避免外部修改直接影响内部引用
+    stampConfig.value = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
+  }
+}
+
 const generateTemplatePreview = async (config: IDrawStampConfig): Promise<string> => {
   const tempCanvas = document.createElement('canvas')
   tempCanvas.width = 500
   tempCanvas.height = 500
+  const { DrawStampUtils } = await import('./DrawStampUtils')
   const tempDrawStampUtils = new DrawStampUtils(tempCanvas, 8)
 
   const previewConfig = JSON.parse(JSON.stringify(config)) as IDrawStampConfig
@@ -1371,119 +1132,9 @@ const loadTemplatesFromStorage = async () => {
   }
 }
 
-// 添加提示相关的响应式数据
-const showTooltip = ref(false)
-const tooltipStyle = ref({
-  left: '0px',
-  top: '0px'
-})
-
-// 添加鼠标移动检测
-const handleMouseMove = (event: MouseEvent) => {
-  if (!drawStampUtils?.canvas) return
-
-  const rect = drawStampUtils.canvas.getBoundingClientRect()
-  const x = event.clientX - rect.left
-  const y = event.clientY - rect.top
-
-  // 检查是否悬停在文字上
-  let isOverText = false
-  for (const textPath of allTextPaths) {
-    if (x >= textPath.bounds.x &&
-      x <= textPath.bounds.x + textPath.bounds.width &&
-      y >= textPath.bounds.y &&
-      y <= textPath.bounds.y + textPath.bounds.height) {
-
-      isOverText = true
-      showTooltip.value = true
-      tooltipStyle.value = {
-        left: `${event.clientX + 10}px`,
-        top: `${event.clientY + 10}px`
-      }
-
-      // 设置鼠标样式为指针
-      drawStampUtils.canvas.style.cursor = 'pointer'
-      return
-    }
-  }
-
-  if (!isOverText) {
-    showTooltip.value = false
-    drawStampUtils.canvas.style.cursor = 'default'
-  }
-}
-
-// 添加点击事件处理
-const handleCanvasClick = (event: MouseEvent) => {
-  if (!drawStampUtils?.canvas) return
-
-  const rect = drawStampUtils.canvas.getBoundingClientRect()
-  const x = event.clientX - rect.left
-  const y = event.clientY - rect.top
-
-  // 检查点击的文字
-  for (const textPath of allTextPaths) {
-    if (x >= textPath.bounds.x &&
-      x <= textPath.bounds.x + textPath.bounds.width &&
-      y >= textPath.bounds.y &&
-      y <= textPath.bounds.y + textPath.bounds.height) {
-
-      // 打印文字信息
-      console.log('点击的文字:', textPath.text)
-      console.log('文字路径:', textPath.path)
-      console.log('文字边界:', textPath.bounds)
-      console.log('文字类型:', textPath.type)
-
-      // 根据文字类型处理点击，选中对应元素
-      if (textPath.type === 'company') {
-        const companyIndex = findCompanyIndexByText(textPath.text)
-        if (companyIndex !== -1) {
-          handleSelectElement(`company-${companyIndex}`, 'company', companyIndex)
-          propertiesPanelRef.value?.restoreDrawConfigs()
-        }
-      } else if (textPath.type === 'code') {
-        handleSelectElement('code', 'code', 0)
-        propertiesPanelRef.value?.restoreDrawConfigs()
-      } else if (textPath.type === 'stampType') {
-        const stampTypeIndex = findStampTypeIndexByText(textPath.text)
-        if (stampTypeIndex !== -1) {
-          handleSelectElement(`stampType-${stampTypeIndex}`, 'stampType', stampTypeIndex)
-          propertiesPanelRef.value?.restoreDrawConfigs()
-        }
-      } else if (textPath.type === 'taxNumber') {
-        handleSelectElement('taxNumber', 'taxNumber', 0)
-        propertiesPanelRef.value?.restoreDrawConfigs()
-      }
-      return
-    }
-  }
-}
-
-// 查找文字对应的公司索引
-const findCompanyIndexByText = (text: string) => {
-  return drawStampUtils.getDrawConfigs().companyList.findIndex(
-    company => company.companyName.includes(text)
-  )
-}
-
-// 查找印章类型索引
-const findStampTypeIndexByText = (text: string) => {
-  return drawStampUtils.getDrawConfigs().stampTypeList.findIndex(
-    stampType => stampType.stampType.includes(text)
-  )
-}
-
-// 监听拖动状态变化
-watch(isDraggable, (newValue) => {
-  if (drawStampUtils) {
-    // 更新 drawStampUtils 中的拖动状态
-    drawStampUtils.setDraggable(newValue)
-
-    // 更新鼠标样式
-    if (stampCanvas.value) {
-      stampCanvas.value.style.cursor = newValue ? 'move' : 'default'
-    }
-  }
+// 监听拖动状态变化（保留占位，未来可用于传递给 StampWorkspace）
+watch(isDraggable, () => {
+  // 暂时不直接控制画布拖动，由 StampWorkspace 内部管理
 })
 </script>
 <style scoped>
@@ -1610,14 +1261,7 @@ watch(isDraggable, (newValue) => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* 主工作区：三栏布局 */
-.main-workspace {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  background: #f5f5f5;
-  min-height: 0; /* 确保 flex 子元素可以正确收缩 */
-}
+
 
 /* Canvas 区域 */
 .canvas-area {
@@ -2140,13 +1784,6 @@ input:checked + .slider:before {
 .save-count-badge {
   font-size: 12px;
   margin-left: 4px;
-  color: #666;
-  font-weight: normal;
-}
-
-.save-count-small {
-  font-size: 10px;
-  margin-left: 2px;
   color: #666;
   font-weight: normal;
 }

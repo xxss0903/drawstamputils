@@ -297,6 +297,8 @@ const handleHeightInput = () => {
 
 // 绘制工具
 let drawStampUtils: DrawStampUtils
+// 标记当前是否为父组件驱动的配置同步，避免 v-model 循环更新
+let isUpdatingFromParent = false
 
 // 获取所有文字路径（公司名称、编码和印章类型）
 let allTextPaths: any[] = []
@@ -320,7 +322,7 @@ const initDrawStampUtils = () => {
 }
 
 const syncConfigToParent = () => {
-  if (!drawStampUtils) return
+  if (!drawStampUtils || isUpdatingFromParent) return
   const currentConfig = drawStampUtils.getDrawConfigs()
   emit('update:modelValue', currentConfig)
 }
@@ -678,9 +680,15 @@ watch(
   (newVal) => {
     if (!drawStampUtils || !newVal) return
     const cloned = JSON.parse(JSON.stringify(newVal)) as IDrawStampConfig
-    drawStampUtils.setDrawConfigs(cloned)
-    stampStore.setConfig(cloned)
-    drawStamp()
+    isUpdatingFromParent = true
+    try {
+      drawStampUtils.setDrawConfigs(cloned)
+      stampStore.setConfig(cloned)
+      // 这里仅刷新画面，但不会通过 syncConfigToParent 再次向父组件回推，避免递归
+      drawStamp(false, false, false)
+    } finally {
+      isUpdatingFromParent = false
+    }
   }
 )
 
@@ -774,7 +782,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
   background:
     linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
     linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
@@ -796,7 +803,7 @@ onUnmounted(() => {
 }
 
 .canvas-action-btn {
-  width: 36px;
+  width: 44px;
   height: 36px;
   border-radius: 50%;
   border: 1px solid #e0e0e0;
@@ -813,6 +820,10 @@ onUnmounted(() => {
   background: #e6f7ff;
   border-color: #1890ff;
   transform: scale(1.1);
+}
+
+.save-count-small {
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {
