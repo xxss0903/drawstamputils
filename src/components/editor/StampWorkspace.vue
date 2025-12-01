@@ -102,6 +102,10 @@
       @update-config="handleElementListUpdate"
       @refresh="handleElementListRefresh"
     />
+    <div v-else class="side-panel-loading">
+      <div class="loading-spinner"></div>
+      <span>{{ t('common.loading') }}</span>
+    </div>
 
     <!-- 中间：Canvas 绘制区域 -->
     <div class="canvas-area">
@@ -159,6 +163,10 @@
       :elementIndex="selectedElementIndex"
       @updateDrawStamp="updateDrawStamp"
     />
+    <div v-else class="right-panel-loading">
+      <div class="loading-spinner"></div>
+      <span>{{ t('common.loading') }}</span>
+    </div>
   </div>
 </template>
 
@@ -820,6 +828,38 @@ onUnmounted(() => {
   background: #e6f7ff;
   border-color: #1890ff;
   transform: scale(1.1);
+}
+
+.save-count-small {
+  font-size: 12px;
+}
+
+/* 左右侧面板 loading 状态 */
+.side-panel-loading,
+.right-panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: #999;
+  font-size: 13px;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .save-count-small {
