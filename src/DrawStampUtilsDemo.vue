@@ -112,114 +112,42 @@
         </div>
       </div>
 
-      <!-- 顶部工具栏 -->
-      <div class="top-toolbar">
-        <div class="toolbar-left">
-          <span v-if="false" class="app-title">DrawStamp - 印章制作工具</span>
-        </div>
-        <div v-if="false" class="toolbar-center">
-          <button class="tool-icon" title="添加文字">
-            <span>A+</span>
-          </button>
-          <button class="tool-icon" title="文字选项">
-            <span>A</span>
-          </button>
-          <button class="tool-icon" title="放大">
-            <span>🔍+</span>
-          </button>
-          <button class="tool-icon" title="缩小">
-            <span>🔍-</span>
-          </button>
-          <button class="tool-icon" title="新建">
-            <span>📄+</span>
-          </button>
-        </div>
-        <div class="toolbar-right">
-          <button v-if="false" class="primary-button" @click="showTemplateDialog = true">
-            < Templates
-          </button>
-          <button class="primary-button" @click="openSaveTemplateDialog">
-            {{ t('stamp.saveTemplate') }}
-          </button>
-          <button class="primary-button" @click="resetStamp">
-            {{ t('stamp.resetStamp') }}
-          </button>
-          <button 
-            class="primary-button" 
-            :class="{ 'disabled': !userStore.isAuthenticated && getRemainingSaveCount() === 0 }"
-            @click="saveStampAsPNG" 
-            :title="getDownloadButtonTitle()"
-            :disabled="!userStore.isAuthenticated && getRemainingSaveCount() === 0"
-          >
-            {{ t('stamp.downloadStamp') }}
-            <span v-if="!userStore.isAuthenticated && getRemainingSaveCount() >= 0" class="save-count-badge">
-              ({{ getRemainingSaveCount() }}/{{ DAILY_SAVE_LIMIT }})
-            </span>
-          </button>
-        </div>
-      </div>
+      <StampToolbar
+        :remaining-saves="userStore.isAuthenticated.value ? -1 : getRemainingSaveCount()"
+        :total-saves="DAILY_SAVE_LIMIT"
+        :download-disabled="!userStore.isAuthenticated.value && getRemainingSaveCount() === 0"
+        @save-template="openSaveTemplateDialog"
+        @reset="resetStamp"
+        @download="saveStampAsPNG"
+      />
 
       <!-- 主内容区域：三栏布局 -->
-      <div class="main-workspace">
-        <!-- 左侧：元素列表 -->
-            <ElementList
-              v-if="isDrawStampUtilsReady"
-              :drawStampUtils="drawStampUtils"
-              @selectElement="handleSelectElement"
-              @update-config="handleElementListUpdate"
-              @refresh="handleElementListRefresh"
-            />
-
-        <!-- 中间：Canvas 绘制区域 -->
-        <div class="canvas-area">
-          <div class="canvas-header">
-            <div class="canvas-tabs">
-              <div class="canvas-tab active">
-                <span>Canvas #0</span>
-              </div>
-            </div>
-          </div>
-          <div class="canvas-wrapper">
-            <canvas ref="stampCanvas" width="600" height="600"></canvas>
-          </div>
-          <div class="canvas-footer">
-            <button v-if="false" class="canvas-action-btn" title="可见性">
-              <span>👁️</span>
-            </button>
-            <button v-if="false" class="canvas-action-btn" title="效果">
-              <span>✨</span>
-            </button>
-            <button 
-              class="canvas-action-btn" 
-              @click="saveStampAsPNG" 
-              :title="getDownloadButtonTitle()"
-              :disabled="!userStore.isAuthenticated && getRemainingSaveCount() === 0"
-            >
-              <span>💾</span>
-              <span v-if="!userStore.isAuthenticated && getRemainingSaveCount() >= 0" class="save-count-small">
-                {{ getRemainingSaveCount() }}/{{ DAILY_SAVE_LIMIT }}
-              </span>
-            </button>
-<!--            <button class="canvas-action-btn" title="帮助">-->
-<!--              <span>❓</span>-->
-<!--            </button>-->
-<!--            <button class="canvas-action-btn" title="联系">-->
-<!--              <span>✉️</span>-->
-<!--            </button>-->
-          </div>
-        </div>
-
-        <!-- 右侧：属性编辑器 -->
-        <PropertiesPanel
-          v-if="isDrawStampUtilsReady"
-          ref="propertiesPanelRef"
-          :drawStampUtils="drawStampUtils"
-          :selectedElement="selectedElement"
-          :elementType="selectedElementType"
-          :elementIndex="selectedElementIndex"
-          @updateDrawStamp="updateDrawStamp"
-        />
-      </div>
+      <StampWorkspace
+        :is-ready="isDrawStampUtilsReady"
+        :drawStampUtils="drawStampUtils"
+        :selected-element="selectedElement"
+        :selected-element-type="selectedElementType"
+        :selected-element-index="selectedElementIndex"
+        :canvas-ref="stampCanvas"
+        :properties-panel-ref="propertiesPanelRef"
+        :download-disabled="!userStore.isAuthenticated.value && getRemainingSaveCount() === 0"
+        :download-title="getDownloadButtonTitle()"
+        :download-badge="!userStore.isAuthenticated.value ? `${getRemainingSaveCount()}/${DAILY_SAVE_LIMIT}` : ''"
+        @select-element="handleSelectElement"
+        @update-config="handleElementListUpdate"
+        @refresh="handleElementListRefresh"
+        @update-draw-stamp="updateDrawStamp"
+        @download="saveStampAsPNG"
+      >
+        <template #canvas-footer-left>
+          <button v-if="false" class="canvas-action-btn" title="可见性">
+            <span>👁️</span>
+          </button>
+          <button v-if="false" class="canvas-action-btn" title="效果">
+            <span>✨</span>
+          </button>
+        </template>
+      </StampWorkspace>
 
       <!-- 底部：模板选择列表 -->
       <div class="template-bar">

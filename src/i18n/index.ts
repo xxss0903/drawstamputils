@@ -423,7 +423,8 @@ const messages = {
         importTemplate: '导入模板',
         exportTemplate: '导出模板',
         resetStamp: '重置印章',
-        download: '下载'
+        download: '下载',
+        joinQQGroup: '加入QQ群'
       }
     },
     about: {
