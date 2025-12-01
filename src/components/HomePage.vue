@@ -92,6 +92,24 @@
   </div>
   <div class="homepage">
     <div class="page-container">
+      <!-- QQ群通知横幅 -->
+      <div v-if="showQqNotification" class="qq-notification-banner">
+        <div class="qq-notification-content">
+          <span class="qq-notification-icon">💬</span>
+          <span class="qq-notification-text">{{ t('homepage.qqNotification.text') }}</span>
+          <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=RheepCUCpXh6hT9CI-AAYtm0XATHVWQR&jump_from=webapi&authKey=V8c0e3oZG2Uku+JLVZA2bM7OaEUZaYHNVrO/bZojWoJVOlojVx/Gh6655XpfflRR"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="DrawStamp交流群" title="DrawStamp交流群"></a>
+          <!-- <a
+            class="qq-notification-link"
+            :href="qqGroupUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            @click.stop
+          >
+            {{ t('homepage.qqNotification.joinButton') }}
+          </a> -->
+        </div>
+        <button class="qq-notification-close" @click="dismissQqNotification" title="关闭">×</button>
+      </div>
       <!-- Hero Section -->
       <section class="hero-section">
         <div class="hero-content">
@@ -348,6 +366,24 @@ const router = useRouter()
 const stampStore = useStampStore()
 const userStore = useUserStore()
 const templateMap = ref<Record<string, Template>>({})
+
+// QQ群相关
+const QQ_GROUP_NUMBER = '644574395'
+const qqGroupUrl = `https://qm.qq.com/q/${QQ_GROUP_NUMBER}`
+const QQ_NOTIFICATION_DISMISSED_KEY = 'qq_notification_dismissed'
+const showQqNotification = ref(false)
+
+// 检查是否已关闭通知
+const checkQqNotificationStatus = () => {
+  const dismissed = localStorage.getItem(QQ_NOTIFICATION_DISMISSED_KEY)
+  showQqNotification.value = !dismissed
+}
+
+// 关闭通知
+const dismissQqNotification = () => {
+  showQqNotification.value = false
+  localStorage.setItem(QQ_NOTIFICATION_DISMISSED_KEY, 'true')
+}
 const templateOptions = [
   { key: 'circle', labelKey: 'circle', templateName: '原型印章' },
   { key: 'ellipse', labelKey: 'ellipse', templateName: '心形印章' },
@@ -870,6 +906,7 @@ const handleCanvasClick = (event: MouseEvent) => {
 
 // 在组件挂载时初始化
 onMounted(async () => {
+  checkQqNotificationStatus()
   initDrawStampUtils()
   await getSystemFonts()
 
@@ -907,6 +944,108 @@ onUnmounted(() => {
 .homepage {
   width: 100%;
   padding: 2rem;
+}
+
+/* QQ群通知横幅 */
+.qq-notification-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.qq-notification-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.qq-notification-icon {
+  font-size: 1.5rem;
+}
+
+.qq-notification-text {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.qq-notification-link {
+  background: white;
+  color: #4caf50;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.qq-notification-link:hover {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.qq-notification-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+  margin-left: 1rem;
+  opacity: 0.8;
+}
+
+.qq-notification-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .qq-notification-banner {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .qq-notification-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .qq-notification-link {
+    width: 100%;
+    text-align: center;
+  }
+
+  .qq-notification-close {
+    align-self: flex-end;
+    margin-left: 0;
+  }
 }
 
 /* Hero Section */

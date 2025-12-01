@@ -7,16 +7,23 @@
       <section>
         <h2>{{ t('contact.methods.title') }}</h2>
           <div class="contact-info">
-            <div class="contact-item">
-              <h3>{{ t('contact.methods.email.title') }}</h3>
-              <p>{{ t('contact.methods.email.description') }}</p>
-              <a
-                class="email-link"
-                href="mailto:xxss0903@gmail.com?subject=DrawStamp反馈&body=请在此填写您的问题...">
-                {{ t('contact.methods.email.sendEmail') }}
-              </a>
-              <p class="email-tip">{{ t('contact.methods.email.tip') }}</p>
-            </div>
+          <div class="contact-item">
+            <h3>{{ t('contact.methods.qqGroup.title') }}</h3>
+            <p>{{ t('contact.methods.qqGroup.description') }}</p>
+            <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=RheepCUCpXh6hT9CI-AAYtm0XATHVWQR&jump_from=webapi&authKey=V8c0e3oZG2Uku+JLVZA2bM7OaEUZaYHNVrO/bZojWoJVOlojVx/Gh6655XpfflRR"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="DrawStamp交流群" title="DrawStamp交流群"></a>
+            <p class="qq-group-tip">{{ t('contact.methods.qqGroup.tip') }}</p>
+          </div>
+
+          <div class="contact-item">
+            <h3>{{ t('contact.methods.email.title') }}</h3>
+            <p>{{ t('contact.methods.email.description') }}</p>
+            <a
+              class="email-link"
+              href="mailto:xxss0903@gmail.com?subject=DrawStamp反馈&body=请在此填写您的问题...">
+              {{ t('contact.methods.email.sendEmail') }}
+            </a>
+            <p class="email-tip">{{ t('contact.methods.email.tip') }}</p>
+          </div>
 
           <div class="contact-item">
             <h3>{{ t('contact.methods.bugReport.title') }}</h3>
@@ -118,6 +125,9 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+
+const QQ_GROUP_NUMBER = '644574395'
+const qqGroupUrl = `https://qm.qq.com/q/${QQ_GROUP_NUMBER}`
 
 const form = ref({
   name: '',
@@ -245,6 +255,34 @@ h2::before {
   color: #555;
   line-height: 1.8;
   margin-bottom: 0.75rem;
+}
+
+.qq-group-link {
+  display: inline-block;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  margin-top: 0.5rem;
+}
+
+.qq-group-link:hover {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.qq-group-tip {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #888;
+  font-style: italic;
 }
 
 /* 美化联系信息中的列表 */

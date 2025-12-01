@@ -306,6 +306,10 @@ const messages = {
         title: '最好的在线电子印章制作工具 - DrawStamp',
         subtitle: 'DrawStamp 是现代企业和个人使用的专业解决方案！我们的印章设计工具将帮助您为任何场合创建独特的印章产品！'
       },
+      qqNotification: {
+        text: '加入我们的QQ群，与其他用户交流，获取最新资讯和技术支持！',
+        joinButton: '加入QQ群'
+      },
       stampTypes: {
         title: '支持多种印章类型',
         types: {
@@ -492,6 +496,12 @@ const messages = {
       intro: '我们很乐意听到您的声音！如果您有任何问题、建议或反馈，请通过以下方式与我们联系。',
       methods: {
         title: '联系方式',
+        qqGroup: {
+          title: '💬 QQ群',
+          description: '加入我们的QQ群，与其他用户交流，获取最新资讯和技术支持。',
+          joinGroup: '加入QQ群 644574395',
+          tip: '点击上方链接即可加入QQ群，与开发者和其他用户实时交流。'
+        },
         email: {
           title: '📧 邮箱',
           description: '最直接的方式是发送邮件，我们会在 1-2 个工作日内回复。',
@@ -948,6 +958,10 @@ const messages = {
         title: 'Best Online Electronic Stamp Maker - DrawStamp',
         subtitle: 'DrawStamp is a professional solution for modern businesses and individuals! Our stamp design tool will help you create unique stamp products for any occasion!'
       },
+      qqNotification: {
+        text: 'Join our QQ group to communicate with other users, get the latest news and technical support!',
+        joinButton: 'Join QQ Group'
+      },
       stampTypes: {
         title: 'Support Multiple Stamp Types',
         types: {
@@ -1133,6 +1147,12 @@ const messages = {
       intro: 'We would love to hear from you! If you have any questions, suggestions or feedback, please contact us through the following methods.',
       methods: {
         title: 'Contact Methods',
+        qqGroup: {
+          title: '💬 QQ Group',
+          description: 'Join our QQ group to communicate with other users, get the latest news and technical support.',
+          joinGroup: 'Join QQ Group 644574395',
+          tip: 'Click the link above to join the QQ group and communicate with developers and other users in real time.'
+        },
         email: {
           title: '📧 Email',
           description: 'The most direct way is to send an email, we will reply within 1-2 business days.',
