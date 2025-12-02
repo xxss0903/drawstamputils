@@ -129,9 +129,33 @@
 
   <!-- 主内容区域：三栏布局（可复用） -->
   <div class="main-workspace">
-    <!-- 左侧：元素列表 -->
-    <ElementList
+    <!-- 顶部快速工具栏 -->
+    <div class="top-toolbar" v-if="isDrawStampUtilsReady">
+      <div class="toolbar-center">
+        <button class="toolbar-btn" type="button" @click="toolbarAddCompany">
+          <span class="toolbar-icon">文</span>
+          <span class="toolbar-label">{{ t('elementList.buttons.addCompany') }}</span>
+        </button>
+        <button class="toolbar-btn" type="button" @click="toolbarAddStampType">
+          <span class="toolbar-icon">章</span>
+          <span class="toolbar-label">{{ t('elementList.buttons.addStampType') }}</span>
+        </button>
+        <button class="toolbar-btn" type="button" @click="toolbarAddInnerCircle">
+          <span class="toolbar-icon">◎</span>
+          <span class="toolbar-label">{{ t('elementList.buttons.addInnerCircle') }}</span>
+        </button>
+        <button class="toolbar-btn" type="button" @click="toolbarAddImage">
+          <span class="toolbar-icon">🖼️</span>
+          <span class="toolbar-label">{{ t('elementList.buttons.addImage') }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="stamp-draw-container">
+<!-- 左侧：元素列表 -->
+<ElementList
       v-if="isDrawStampUtilsReady"
+      ref="elementListRef"
       :drawStampUtils="drawStampUtils"
       @selectElement="handleSelectElement"
       @update-config="handleElementListUpdate"
@@ -202,6 +226,8 @@
       <div class="loading-spinner"></div>
       <span>{{ t('common.loading') }}</span>
     </div>
+    </div>
+    
   </div>
 </template>
 
@@ -233,6 +259,7 @@ const userStore = useUserStore()
 // 控制内部逻辑是否已就绪
 const isDrawStampUtilsReady = ref(false)
 const propertiesPanelRef = ref<InstanceType<typeof PropertiesPanel> | null>(null)
+const elementListRef = ref<any | null>(null)
 
 // 选中的元素
 const selectedElement = ref<string>('')
@@ -257,6 +284,23 @@ const handleElementListUpdate = () => {
 const handleElementListRefresh = () => {
   // 刷新绘制
   drawStamp()
+}
+
+// 顶部工具栏快速添加元素
+const toolbarAddCompany = () => {
+  elementListRef.value?.addCompanyItem?.()
+}
+
+const toolbarAddStampType = () => {
+  elementListRef.value?.addStampTypeItem?.()
+}
+
+const toolbarAddInnerCircle = () => {
+  elementListRef.value?.addInnerCircle?.()
+}
+
+const toolbarAddImage = () => {
+  elementListRef.value?.addImage?.()
 }
 
 const stampCanvas = ref<any | null>(null)
@@ -810,11 +854,52 @@ onUnmounted(() => {
 /* 主工作区：三栏布局 */
 .main-workspace {
   display: flex;
+  flex-direction: column;
   background: white;
   border-radius: 12px;
   margin-top: 2rem;
   min-height: 600px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.top-toolbar {
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: center;
+}
+
+.toolbar-center {
+  display: flex;
+  gap: 12px;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d0d7de;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 13px;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+.toolbar-btn:hover {
+  background: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.toolbar-icon {
+  font-size: 14px;
+}
+
+.toolbar-label {
+  white-space: nowrap;
 }
 
 /* Canvas 区域 */
@@ -946,6 +1031,11 @@ onUnmounted(() => {
   border-top-color: #1890ff;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.stamp-draw-container {
+  display: flex;
+  flex-direction: row;
 }
 
 @keyframes spin {

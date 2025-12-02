@@ -871,6 +871,15 @@ const handleSvgFileChange = async (event: Event) => {
     input.value = ''
   }
 }
+
+// 暴露给父组件调用，方便从工具栏快速添加元素
+defineExpose({
+  addCompanyItem,
+  addStampTypeItem,
+  addImage,
+  addInnerCircle,
+  triggerSvgUpload
+})
 </script>
 
 <style scoped>
