@@ -78,6 +78,7 @@
           <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
           <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
           <option value="rhombus">{{ t('stamp.basic.shapeOptions.rhombus') }}</option>
+          <option value="organic">{{ t('stamp.basic.shapeOptions.organic') }}</option>
         </select>
       </label>
       <label class="checkbox-label">

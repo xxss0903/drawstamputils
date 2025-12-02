@@ -34,7 +34,7 @@ export type ICompany = {
     fontFamily: string // 字体
     fontHeight: number // 字体高度
     fontWeight: string | number // 字体粗细
-    shape: 'ellipse' | 'rectangle' | 'rhombus' // 印章形状
+    shape: 'ellipse' | 'rectangle' | 'rhombus' | 'organic' // 印章形状
     adjustEllipseText: boolean // 是否调整椭圆
     adjustEllipseTextFactor: number // 调整椭圆的因子
     color?: string | undefined // 颜色

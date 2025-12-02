@@ -68,7 +68,8 @@ const messages = {
         shapeOptions: {
           ellipse: '椭圆/圆形',
           rectangle: '矩形',
-          rhombus: '菱形'
+          rhombus: '菱形',
+          organic: '不规则/有机形状'
         }
       },
       company: {
@@ -722,7 +723,8 @@ const messages = {
         shapeOptions: {
           ellipse: 'Ellipse/Circle',
           rectangle: 'Rectangle',
-          rhombus: 'Rhombus'
+          rhombus: 'Rhombus',
+          organic: 'Organic/Irregular Shape'
         }
       },
       company: {

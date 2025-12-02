@@ -9,7 +9,7 @@ import {
   IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
-import { drawBasicBorder, drawRectangleBorder, drawRhombusBorder } from "./utils/DrawBorderUtils.ts";
+import { drawBasicBorder, drawRectangleBorder, drawRhombusBorder, drawOrganicBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
 import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
 import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
@@ -1118,7 +1118,10 @@ export class DrawStampUtils {
         const hasRhombusStamp =
             this.drawStampConfigs.companyList.some(company => company.shape === 'rhombus') ||
             this.drawStampConfigs.company?.shape === 'rhombus'
-        const stampShape = hasRhombusStamp ? 'rhombus' : hasRectangleStamp ? 'rectangle' : 'ellipse'
+        const hasOrganicStamp =
+            this.drawStampConfigs.companyList.some(company => company.shape === 'organic') ||
+            this.drawStampConfigs.company?.shape === 'organic'
+        const stampShape = hasOrganicStamp ? 'organic' : hasRhombusStamp ? 'rhombus' : hasRectangleStamp ? 'rectangle' : 'ellipse'
         const isEllipseShape = stampShape === 'ellipse'
         
         // 矩形印章的尺寸（使用 width 和 height）
@@ -1165,6 +1168,24 @@ export class DrawStampUtils {
                     outBorderGap,
                     fillColor
                 )
+            } else if (stampShape === 'organic') {
+                // 绘制不规则/有机形状边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
+                const fillBackground = this.drawStampConfigs.outBorder.fillBackground || false
+                const fillColor = fillBackground ? (this.drawStampConfigs.outBorder.color || undefined) : undefined
+                drawOrganicBorder(
+                    offscreenCtx,
+                    centerX,
+                    centerY,
+                    rectWidth,
+                    rectHeight,
+                    this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel,
+                    borderColor,
+                    outBorderStyle,
+                    outBorderDash,
+                    outBorderGap,
+                    fillColor,
+                    0.15 // 不规则程度
+                )
             } else {
                 // 绘制椭圆边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
                 const fillBackground = this.drawStampConfigs.outBorder.fillBackground || false
@@ -1202,6 +1223,45 @@ export class DrawStampUtils {
             offscreenCtx.lineTo(centerX, centerY + rectHeight / 2)
             offscreenCtx.lineTo(centerX - rectWidth / 2, centerY)
             offscreenCtx.closePath()
+        } else if (stampShape === 'organic') {
+            // 不规则形状裁剪区域（使用与绘制相同的算法）
+            const halfWidth = rectWidth / 2
+            const halfHeight = rectHeight / 2
+            const points = 64
+            const irregularity = 0.15
+            
+            const noise = (angle: number) => {
+                return (
+                    Math.sin(angle * 2) * 0.3 +
+                    Math.sin(angle * 3) * 0.2 +
+                    Math.sin(angle * 5) * 0.15 +
+                    Math.sin(angle * 7) * 0.1 +
+                    Math.sin(angle * 11) * 0.05
+                ) * irregularity
+            }
+            
+            const pathPoints: { x: number; y: number }[] = []
+            for (let i = 0; i < points; i++) {
+                const angle = (i / points) * Math.PI * 2
+                const noiseValue = noise(angle * 2)
+                const radiusX = halfWidth * (1 + noiseValue)
+                const radiusY = halfHeight * (1 + noiseValue * 0.8)
+                const x = centerX + Math.cos(angle) * radiusX
+                const y = centerY + Math.sin(angle) * radiusY
+                pathPoints.push({ x, y })
+            }
+            
+            if (pathPoints.length > 0) {
+                offscreenCtx.moveTo(pathPoints[0].x, pathPoints[0].y)
+                for (let i = 0; i < pathPoints.length; i++) {
+                    const current = pathPoints[i]
+                    const next = pathPoints[(i + 1) % pathPoints.length]
+                    const cpX = (current.x + next.x) / 2
+                    const cpY = (current.y + next.y) / 2
+                    offscreenCtx.quadraticCurveTo(current.x, current.y, cpX, cpY)
+                }
+                offscreenCtx.closePath()
+            }
         } else {
             // 椭圆裁剪区域
             offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
