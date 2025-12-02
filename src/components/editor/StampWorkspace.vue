@@ -92,6 +92,41 @@
     </div>
   </div>
 
+  <!-- 导出模板元信息弹窗 -->
+  <div v-if="showTemplateMetaDialog" class="legal-dialog-overlay" @click.self="closeTemplateMetaDialog">
+    <div class="legal-dialog">
+      <h3>{{ t('homepage.canvas.exportTemplate') }}</h3>
+      <div class="legal-content">
+        <div class="meta-field">
+          <label>{{ t('stamp.templateMeta.titlePrompt') }}</label>
+          <input
+            v-model="templateTitle"
+            type="text"
+            class="meta-input"
+            :placeholder="t('stamp.templateMeta.titlePrompt')"
+          />
+        </div>
+        <div class="meta-field">
+          <label>{{ t('stamp.templateMeta.categoryPrompt') }}</label>
+          <input
+            v-model="templateCategories"
+            type="text"
+            class="meta-input"
+            :placeholder="t('stamp.templateMeta.categoryPrompt')"
+          />
+        </div>
+      </div>
+      <div class="dialog-buttons">
+        <button @click="closeTemplateMetaDialog" class="cancel-button">
+          {{ t('stamp.exportFormat.cancel') }}
+        </button>
+        <button @click="confirmSaveTemplate" class="confirm-button">
+          {{ t('stamp.exportFormat.export') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 主内容区域：三栏布局（可复用） -->
   <div class="main-workspace">
     <!-- 左侧：元素列表 -->
@@ -238,6 +273,12 @@ const defaultExportHeight = ref(0)
 const exportWidth = ref(0)
 const exportHeight = ref(0)
 const selectedRatio = ref<'original' | 'square' | '4:3' | '16:9' | 'custom'>('original')
+
+// 导出模板元信息弹窗状态
+const showTemplateMetaDialog = ref(false)
+const templateTitle = ref('')
+const templateCategories = ref('')
+const pendingTemplateConfig = ref<IDrawStampConfig | null>(null)
 
 const exportFormats = computed(() => [
   { value: 'png' as const, name: 'PNG', icon: '🖼️', desc: t('stamp.exportFormat.pngDesc') },
@@ -556,15 +597,61 @@ const cleanConfigForTemplate = (config: IDrawStampConfig): IDrawStampConfig => {
   return cleanedConfig
 }
 
-// 导出当前设置为模板
+// 导出当前设置为模板（弹出元信息对话框）
 const saveCurrentAsTemplate = () => {
   if (!drawStampUtils) return
 
   const currentConfig = drawStampUtils.getDrawConfigs()
   // 清理未启用的效果数组
   const cleanedConfig = cleanConfigForTemplate(currentConfig)
+
+  // 预填标题
+  const defaultTitle =
+    cleanedConfig.title ||
+    cleanedConfig.stampType?.stampType ||
+    cleanedConfig.company?.companyName ||
+    ''
+  templateTitle.value = defaultTitle
+
+  // 预填分类（多个分类使用空格分隔）
+  const defaultCategories = Array.isArray(cleanedConfig.categories)
+    ? cleanedConfig.categories.join(' ')
+    : cleanedConfig.category || ''
+  templateCategories.value = defaultCategories
+
+  pendingTemplateConfig.value = cleanedConfig
+  showTemplateMetaDialog.value = true
+}
+
+const closeTemplateMetaDialog = () => {
+  showTemplateMetaDialog.value = false
+  pendingTemplateConfig.value = null
+}
+
+const confirmSaveTemplate = () => {
+  if (!pendingTemplateConfig.value) {
+    closeTemplateMetaDialog()
+    return
+  }
+
+  const config = pendingTemplateConfig.value
+
+  const title = templateTitle.value.trim()
+  if (title) {
+    config.title = title
+  }
+
+  const categoriesInput = templateCategories.value.trim()
+  if (categoriesInput) {
+    const parts = categoriesInput.split(/\s+/).filter(Boolean)
+    if (parts.length > 0) {
+      config.category = parts[0]
+      config.categories = parts
+    }
+  }
+
   // 使用紧凑格式（无缩进和换行）来减小文件大小，并排除 undefined 字段
-  const jsonStr = JSON.stringify(cleanedConfig, (_key, value) => {
+  const jsonStr = JSON.stringify(config, (_key, value) => {
     // JSON.stringify 会自动排除 undefined 值，所以直接返回 value 即可
     return value
   })
@@ -572,11 +659,16 @@ const saveCurrentAsTemplate = () => {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = 'stamp_template.json'
+  const safeTitle = (config.title && config.title.trim()) || 'stamp_template'
+  // 将中文标题中的空格替换为下划线，避免文件名问题
+  const fileName = `${safeTitle.replace(/\s+/g, '_')}.json`
+  link.download = fileName
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
+
+  closeTemplateMetaDialog()
 }
 
 // 更新印章绘制，从 PropertiesPanel 组件中调用
@@ -811,6 +903,27 @@ onUnmounted(() => {
 
 .save-count-small {
   font-size: 12px;
+}
+
+.meta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.meta-input {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meta-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  outline: none;
 }
 
 /* 左右侧面板 loading 状态 */

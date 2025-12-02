@@ -201,6 +201,11 @@ export type IShowRuler = {
 
 // 绘制印章的参数
 export type IDrawStampConfig = {
+    // 元信息（可选）：用于模板管理、筛选与展示
+    title?: string // 印章标题 / 名称
+    category?: string // 主分类，例如：书法印章、有机印章、公章、合同章等
+    categories?: string[] // 多个分类，使用空格分隔后保存为数组
+
     roughEdge: IRoughEdge // 毛边效果
     agingEffect: IAgingEffect // 做旧效果
     ruler: IShowRuler // 是否绘制标尺

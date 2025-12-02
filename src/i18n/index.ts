@@ -49,6 +49,10 @@ const messages = {
         cancel: '取消',
         export: '导出'
       },
+      templateMeta: {
+        titlePrompt: '请输入印章模板标题',
+        categoryPrompt: '请输入印章分类（可填多个，使用空格分隔，例如：书法印章 有机印章 节气）'
+      },
       basic: {
         title: '印章基本设置',
         extractCircle: '提取圆形印章',
@@ -439,6 +443,10 @@ const messages = {
         resetStamp: '重置印章',
         download: '下载',
         joinQQGroup: '加入QQ群'
+      },
+      templateMeta: {
+        titlePrompt: '请输入印章模板标题',
+        categoryPrompt: '请输入印章分类（可填多个，使用空格分隔，例如：书法印章 有机印章 节气）'
       }
     },
     about: {
@@ -710,6 +718,10 @@ const messages = {
         ratioCustom: 'Custom',
         cancel: 'Cancel',
         export: 'Export'
+      },
+      templateMeta: {
+        titlePrompt: 'Enter stamp template title',
+        categoryPrompt: 'Enter stamp categories (multiple allowed, separated by spaces, e.g. Calligraphy Organic Festival)'
       },
       basic: {
         title: 'Basic Stamp Settings',
@@ -1100,6 +1112,10 @@ const messages = {
         exportTemplate: 'Export Template',
         resetStamp: 'Reset Stamp',
         download: 'Download'
+      },
+      templateMeta: {
+        titlePrompt: 'Enter stamp template title',
+        categoryPrompt: 'Enter stamp categories (multiple allowed, separated by spaces, e.g. Calligraphy Organic Festival)'
       }
     },
     about: {
