@@ -116,6 +116,54 @@
           @input="onOutBorderColorInput"
         />
       </label>
+      <label>
+        {{ t('stamp.basic.positionX') }}:
+        <div class="range-container">
+          <input
+            type="range"
+            :value="props.config.offsetX || 0"
+            min="-50"
+            max="50"
+            step="0.1"
+            @input="onPositionXInput"
+          />
+          <span>{{ (props.config.offsetX || 0).toFixed(1) }}</span>
+        </div>
+        <span class="help-text">{{ t('stamp.basic.positionXHint') }}</span>
+      </label>
+      <label>
+        {{ t('stamp.basic.positionY') }}:
+        <div class="range-container">
+          <input
+            type="range"
+            :value="props.config.offsetY || 0"
+            min="-50"
+            max="50"
+            step="0.1"
+            @input="onPositionYInput"
+          />
+          <span>{{ (props.config.offsetY || 0).toFixed(1) }}</span>
+        </div>
+        <span class="help-text">{{ t('stamp.basic.positionYHint') }}</span>
+      </label>
+
+      <!-- 有机/不规则形状的样式选择与随机刷新 -->
+      <div v-if="props.config.company.shape === 'organic'" class="organic-style-group">
+        <label>
+          {{ t('stamp.outBorder.organicStyle') }}:
+          <select
+            :value="props.config.outBorder.organicStyleId ?? 0"
+            @change="onOrganicStyleChange"
+          >
+            <option v-for="i in 10" :key="i" :value="i - 1">
+              {{ t('stamp.outBorder.organicStyleItem', { index: i }) }}
+            </option>
+          </select>
+        </label>
+        <button type="button" class="organic-random-btn" @click="onRandomOrganicStyle">
+          {{ t('stamp.outBorder.randomOrganic') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -232,7 +280,7 @@ const onPrimaryColorInput = (event: Event) => {
 }
 
 const onCompanyShapeChange = (event: Event) => {
-  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus'
+  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'organic'
   emit('update-config', (config) => {
     config.company.shape = value
     // 同时更新 companyList 中所有公司的形状，因为绘制逻辑检查的是 companyList
@@ -283,5 +331,58 @@ const onFillBackgroundChange = (event: Event) => {
     }
   })
 }
+
+const onPositionXInput = (event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  emit('update-config', (config) => {
+    config.offsetX = value
+  })
+}
+
+const onPositionYInput = (event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  emit('update-config', (config) => {
+    config.offsetY = value
+  })
+}
+
+const onOrganicStyleChange = (event: Event) => {
+  const value = Number((event.target as HTMLSelectElement).value)
+  emit('update-config', (config) => {
+    config.outBorder.organicStyleId = value
+  })
+}
+
+const onRandomOrganicStyle = () => {
+  const randomId = Math.floor(Math.random() * 10)
+  emit('update-config', (config) => {
+    config.outBorder.organicStyleId = randomId
+  })
+}
 </script>
+
+<style scoped>
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-container input[type="range"] {
+  flex: 1;
+}
+
+.range-container span {
+  min-width: 50px;
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+</style>
 

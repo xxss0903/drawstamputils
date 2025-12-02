@@ -65,6 +65,10 @@ const messages = {
         },
         dashLength: '虚线长度 (mm)',
         gapLength: '虚线间距 (mm)',
+        positionX: 'X轴位置 (mm)',
+        positionY: 'Y轴位置 (mm)',
+        positionXHint: '正数向右，负数向左',
+        positionYHint: '正数向下，负数向上',
         shapeOptions: {
           ellipse: '椭圆/圆形',
           rectangle: '矩形',
@@ -228,7 +232,10 @@ const messages = {
         enable: '显示外圈边框',
         lineWidth: '边框宽度 (mm)',
         fillBackground: '填充背景颜色',
-        backgroundColor: '背景颜色'
+        backgroundColor: '背景颜色',
+        organicStyle: '有机形状样式',
+        organicStyleItem: '样式 {index}',
+        randomOrganic: '随机刷新形状'
       },
       drag: {
         label: '移动印章'
@@ -720,6 +727,10 @@ const messages = {
         },
         dashLength: 'Dash Length (mm)',
         gapLength: 'Gap Length (mm)',
+        positionX: 'X Position (mm)',
+        positionY: 'Y Position (mm)',
+        positionXHint: 'Positive right, negative left',
+        positionYHint: 'Positive down, negative up',
         shapeOptions: {
           ellipse: 'Ellipse/Circle',
           rectangle: 'Rectangle',
@@ -883,7 +894,10 @@ const messages = {
         enable: 'Show Outer Border',
         lineWidth: 'Border Width (mm)',
         fillBackground: 'Fill Background Color',
-        backgroundColor: 'Background Color'
+        backgroundColor: 'Background Color',
+        organicStyle: 'Organic Shape Style',
+        organicStyleItem: 'Style {index}',
+        randomOrganic: 'Randomize Shape'
       },
       drag: {
         label: 'Move Stamp'

@@ -165,6 +165,9 @@ export class DrawStampUtils {
             drawConfigs.svgList = []
         }
         this.drawStampConfigs = drawConfigs
+        // 同步偏移量
+        this.stampOffsetX = drawConfigs.offsetX || 0
+        this.stampOffsetY = drawConfigs.offsetY || 0
         this.resetSvgCache()
     }
 
@@ -1034,10 +1037,11 @@ export class DrawStampUtils {
             : 0;
         const drawRadiusX = (this.drawStampConfigs.width - borderLineWidth) / 2;
         const drawRadiusY = (this.drawStampConfigs.height - borderLineWidth) / 2;
-        const offsetX = this.stampOffsetX * this.mmToPixel;
-        const offsetY = this.stampOffsetY * this.mmToPixel;
-        const centerX = x + offsetX;
-        const centerY = y + offsetY;
+        // 优先使用配置中的 offsetX/offsetY，其次使用内部拖动偏移量
+        const effectiveOffsetX = (this.drawStampConfigs.offsetX ?? this.stampOffsetX) * this.mmToPixel;
+        const effectiveOffsetY = (this.drawStampConfigs.offsetY ?? this.stampOffsetY) * this.mmToPixel;
+        const centerX = x + effectiveOffsetX;
+        const centerY = y + effectiveOffsetY;
 
         this.drawStamp(
             this.canvasCtx,
@@ -1172,6 +1176,9 @@ export class DrawStampUtils {
                 // 绘制不规则/有机形状边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
                 const fillBackground = this.drawStampConfigs.outBorder.fillBackground || false
                 const fillColor = fillBackground ? (this.drawStampConfigs.outBorder.color || undefined) : undefined
+                const styleId = this.drawStampConfigs.outBorder.organicStyleId ?? 0
+                const irregularityLevels = [0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24]
+                const irregularity = irregularityLevels[styleId % irregularityLevels.length]
                 drawOrganicBorder(
                     offscreenCtx,
                     centerX,
@@ -1184,7 +1191,7 @@ export class DrawStampUtils {
                     outBorderDash,
                     outBorderGap,
                     fillColor,
-                    0.15 // 不规则程度
+                    irregularity
                 )
             } else {
                 // 绘制椭圆边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）

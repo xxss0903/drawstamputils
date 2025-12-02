@@ -516,7 +516,7 @@ const handleLineConfigUpdate = (updater: (config: IDrawStampConfig) => void) => 
     } catch (error) {
       console.error('EditorControls: 加载系统字体失败', error)
       // 即使失败也设置一个默认字体列表
-      systemFonts.value = await getSystemFonts()
+    systemFonts.value = await getSystemFonts()
     }
   }
 

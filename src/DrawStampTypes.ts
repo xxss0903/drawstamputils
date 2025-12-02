@@ -185,6 +185,8 @@ export type IInnerCircle = {
     offsetX?: number // 水平偏移 (mm)
     offsetY?: number // 垂直偏移 (mm)
     fillBackground?: boolean // 是否填充背景颜色
+    // 有机/不规则形状相关配置（仅在 shape 为 organic 时使用）
+    organicStyleId?: number // 有机形状样式编号（0-9）
 }
 
 // 是否绘制标尺
