@@ -441,7 +441,7 @@ const closeFormatDialog = () => {
 
 
 // 每日保存次数管理
-const DAILY_SAVE_LIMIT = 3
+const DAILY_SAVE_LIMIT = 5
 const SAVE_COUNT_KEY = 'stamp_daily_save_count'
 const SAVE_DATE_KEY = 'stamp_daily_save_date'
 
@@ -741,26 +741,11 @@ const isLoadingTemplate = ref(false)
 
 // 触发文件选择
 const triggerTemplateFileLoad = () => {
-  // 检查登录状态，未登录用户无法导入模板
-  if (!userStore.isAuthenticated.value) {
-    alert(t('stamp.needLoginForImport'))
-    return
-  }
   templateFileInput.value?.click()
 }
 
 // 加载模板文件
 const loadTemplateFile = async (event: Event) => {
-  // 检查登录状态，未登录用户无法导入模板
-  if (!userStore.isAuthenticated.value) {
-    alert(t('stamp.needLoginForImport'))
-    const input = event.target as HTMLInputElement
-    if (input) {
-      input.value = '' // 清空文件选择
-    }
-    return
-  }
-
   const input = event.target as HTMLInputElement
   if (!input.files?.length) return
 
@@ -831,12 +816,6 @@ const cleanConfigForTemplate = (config: IDrawStampConfig): IDrawStampConfig => {
 
 // 保存当前设置为模板
 const saveCurrentAsTemplate = async () => {
-  // 检查登录状态，未登录用户无法导出模板
-  if (!userStore.isAuthenticated.value) {
-    alert(t('stamp.needLoginForExport'))
-    return
-  }
-
   // 保存到本地存储（如果需要保存自定义模板，可以在这里实现）
   if (!stampConfig.value) {
     alert(t('errors.loadTemplateError'))

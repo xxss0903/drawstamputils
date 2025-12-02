@@ -247,26 +247,11 @@ const saveAsTemplate = () => {
 
 // 触发文件选择
 const triggerTemplateLoad = () => {
-  // 检查登录状态，未登录用户无法导入模板
-  if (!userStore.isAuthenticated.value) {
-    alert(t('stamp.needLoginForImport'))
-    return
-  }
   templateFileInput.value?.click()
 }
 
 // 加载模板文件
 const loadTemplateFile = async (event: Event) => {
-  // 检查登录状态，未登录用户无法导入模板
-  if (!userStore.isAuthenticated.value) {
-    alert(t('stamp.needLoginForImport'))
-    const input = event.target as HTMLInputElement
-    if (input) {
-      input.value = '' // 清空文件选择
-    }
-    return
-  }
-  
   const input = event.target as HTMLInputElement
   if (!input.files?.length) return
 
