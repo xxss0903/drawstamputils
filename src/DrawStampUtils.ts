@@ -1132,7 +1132,8 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.outBorder.drawInnerCircle) {
             // 在离屏 canvas 上绘制印章基本形状
             if (stampShape === 'rectangle') {
-                // 绘制矩形边框
+                // 绘制矩形边框（如果 outBorder 有 color 属性，则填充背景）
+                const fillColor = this.drawStampConfigs.outBorder.color || undefined
                 drawRectangleBorder(
                     offscreenCtx,
                     centerX,
@@ -1143,7 +1144,8 @@ export class DrawStampUtils {
                     borderColor,
                     outBorderStyle,
                     outBorderDash,
-                    outBorderGap
+                    outBorderGap,
+                    fillColor
                 )
             } else if (stampShape === 'rhombus') {
                 drawRhombusBorder(

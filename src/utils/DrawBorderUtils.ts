@@ -39,7 +39,8 @@ export function drawRectangleBorder(
     borderColor: string,
     lineStyle: 'solid' | 'dashed' | 'dotted' = 'solid',
     dashPx: number = 10,
-    gapPx: number = 5
+    gapPx: number = 5,
+    fillColor?: string
 ) {
     // 让描边完全限制在给定的宽高范围内
     const adjustedWidth = Math.max(width - borderWidth, 0);
@@ -47,11 +48,6 @@ export function drawRectangleBorder(
     const halfWidth = adjustedWidth / 2;
     const halfHeight = adjustedHeight / 2;
 
-    if (lineStyle === 'solid') {
-        ctx.setLineDash([]);
-    } else {
-        ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
-    }
     ctx.beginPath();
     ctx.rect(
         centerX - halfWidth,
@@ -59,6 +55,19 @@ export function drawRectangleBorder(
         adjustedWidth,
         adjustedHeight
     );
+
+    // 如果提供了填充颜色，先填充背景
+    if (fillColor) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+    }
+
+    // 绘制边框
+    if (lineStyle === 'solid') {
+        ctx.setLineDash([]);
+    } else {
+        ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
+    }
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = borderWidth;
     ctx.stroke();

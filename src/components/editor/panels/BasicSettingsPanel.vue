@@ -99,6 +99,14 @@
           @input="onOutBorderWidthInput"
         />
       </label>
+      <label v-if="props.config.outBorder.drawInnerCircle && (props.config.company.shape === 'rectangle' || props.config.company.shape === 'rhombus')">
+        {{ t('stamp.outBorder.backgroundColor') }}:
+        <input
+          type="color"
+          :value="props.config.outBorder.color || props.config.primaryColor"
+          @input="onOutBorderColorInput"
+        />
+      </label>
     </div>
   </div>
 </template>
@@ -243,6 +251,13 @@ const onOutBorderWidthInput = (event: Event) => {
   const value = Number((event.target as HTMLInputElement).value)
   emit('update-config', (config) => {
     config.outBorder.innerCircleLineWidth = value
+  })
+}
+
+const onOutBorderColorInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  emit('update-config', (config) => {
+    config.outBorder.color = value
   })
 }
 </script>

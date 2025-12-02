@@ -25,9 +25,17 @@ export function getFontDisplayName(fontName: string): string {
     'STXihei': '华文细黑',
     'STHupo': '华文琥珀',
     'STLiti': '华文隶书',
-    'STXingkai': '华文行楷',
-    'STXinwei': '华文新魏',
+    'STXingkai': '华文行楷 (书法)',
+    'STXinwei': '华文新魏 (书法)',
     'STCaiyun': '华文彩云',
+    'STLiti': '华文隶书 (书法)',
+    'LiSu': '隶书 (书法)',
+    'SimLi': '隶书 (GB2312) (书法)',
+    // 篆书字体（如果系统已安装）
+    'FZZhuan': '方正篆书',
+    'HYZhuan': '汉仪篆书',
+    'STZhuan': '华文篆书',
+    'ZhuanShu': '篆书',
     
     // 方正字体系列
     'FZShuTi': '方正舒体',
@@ -120,6 +128,11 @@ function getChineseFonts(): string[] {
     'STXingkai', // 华文行楷
     'STXinwei', // 华文新魏
     'STCaiyun', // 华文彩云
+    // 篆书字体（如果系统已安装）
+    'FZZhuan', // 方正篆书
+    'HYZhuan', // 汉仪篆书
+    'STZhuan', // 华文篆书
+    'ZhuanShu', // 篆书
     
     // 方正字体系列
     'FZShuTi', // 方正舒体

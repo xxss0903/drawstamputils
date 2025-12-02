@@ -225,7 +225,8 @@ const messages = {
       },
       outBorder: {
         enable: '显示外圈边框',
-        lineWidth: '边框宽度 (mm)'
+        lineWidth: '边框宽度 (mm)',
+        backgroundColor: '背景颜色'
       },
       drag: {
         label: '移动印章'
@@ -877,7 +878,8 @@ const messages = {
       },
       outBorder: {
         enable: 'Show Outer Border',
-        lineWidth: 'Border Width (mm)'
+        lineWidth: 'Border Width (mm)',
+        backgroundColor: 'Background Color'
       },
       drag: {
         label: 'Move Stamp'
