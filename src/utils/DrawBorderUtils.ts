@@ -11,15 +11,24 @@ export function drawBasicBorder(
     borderColor: string,
     lineStyle: 'solid' | 'dashed' | 'dotted' = 'solid',
     dashPx: number = 10,
-    gapPx: number = 5
+    gapPx: number = 5,
+    fillColor?: string
 ) {
+    ctx.beginPath();
+    ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+
+    // 如果提供了填充颜色，先填充背景
+    if (fillColor) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+    }
+
+    // 绘制边框
     if (lineStyle === 'solid') {
         ctx.setLineDash([]);
     } else {
         ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
     }
-    ctx.beginPath();
-    ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = borderWidth;
     ctx.stroke();
@@ -84,18 +93,13 @@ export function drawRhombusBorder(
     borderColor: string,
     lineStyle: 'solid' | 'dashed' | 'dotted' = 'solid',
     dashPx: number = 10,
-    gapPx: number = 5
+    gapPx: number = 5,
+    fillColor?: string
 ) {
     const adjustedWidth = Math.max(width - borderWidth, 0);
     const adjustedHeight = Math.max(height - borderWidth, 0);
     const halfWidth = adjustedWidth / 2;
     const halfHeight = adjustedHeight / 2;
-
-    if (lineStyle === 'solid') {
-        ctx.setLineDash([]);
-    } else {
-        ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
-    }
 
     ctx.beginPath();
     ctx.moveTo(centerX, centerY - halfHeight);
@@ -103,6 +107,19 @@ export function drawRhombusBorder(
     ctx.lineTo(centerX, centerY + halfHeight);
     ctx.lineTo(centerX - halfWidth, centerY);
     ctx.closePath();
+
+    // 如果提供了填充颜色，先填充背景
+    if (fillColor) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+    }
+
+    // 绘制边框
+    if (lineStyle === 'solid') {
+        ctx.setLineDash([]);
+    } else {
+        ctx.setLineDash([Math.max(1, dashPx), Math.max(1, gapPx)]);
+    }
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = borderWidth;
     ctx.stroke();

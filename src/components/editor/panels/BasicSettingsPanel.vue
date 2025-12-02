@@ -99,7 +99,15 @@
           @input="onOutBorderWidthInput"
         />
       </label>
-      <label v-if="props.config.outBorder.drawInnerCircle && (props.config.company.shape === 'rectangle' || props.config.company.shape === 'rhombus')">
+      <label v-if="props.config.outBorder.drawInnerCircle" class="checkbox-label">
+        <input
+          type="checkbox"
+          :checked="props.config.outBorder.fillBackground || false"
+          @change="onFillBackgroundChange"
+        />
+        {{ t('stamp.outBorder.fillBackground') }}
+      </label>
+      <label v-if="props.config.outBorder.drawInnerCircle && (props.config.outBorder.fillBackground || false)">
         {{ t('stamp.outBorder.backgroundColor') }}:
         <input
           type="color"
@@ -258,6 +266,20 @@ const onOutBorderColorInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value
   emit('update-config', (config) => {
     config.outBorder.color = value
+  })
+}
+
+const onFillBackgroundChange = (event: Event) => {
+  const value = (event.target as HTMLInputElement).checked
+  emit('update-config', (config) => {
+    config.outBorder.fillBackground = value
+    // 如果关闭背景填充，清除背景颜色
+    if (!value) {
+      config.outBorder.color = undefined
+    } else if (!config.outBorder.color) {
+      // 如果开启背景填充但没有设置颜色，使用主色
+      config.outBorder.color = config.primaryColor
+    }
   })
 }
 </script>

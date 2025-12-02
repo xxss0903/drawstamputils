@@ -184,6 +184,7 @@ export type IInnerCircle = {
     shape?: 'ellipse' | 'rectangle' | 'rhombus' // 形状
     offsetX?: number // 水平偏移 (mm)
     offsetY?: number // 垂直偏移 (mm)
+    fillBackground?: boolean // 是否填充背景颜色
 }
 
 // 是否绘制标尺

@@ -226,6 +226,7 @@ const messages = {
       outBorder: {
         enable: '显示外圈边框',
         lineWidth: '边框宽度 (mm)',
+        fillBackground: '填充背景颜色',
         backgroundColor: '背景颜色'
       },
       drag: {
@@ -879,6 +880,7 @@ const messages = {
       outBorder: {
         enable: 'Show Outer Border',
         lineWidth: 'Border Width (mm)',
+        fillBackground: 'Fill Background Color',
         backgroundColor: 'Background Color'
       },
       drag: {

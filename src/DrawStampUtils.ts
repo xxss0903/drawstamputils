@@ -1132,8 +1132,9 @@ export class DrawStampUtils {
         if (this.drawStampConfigs.outBorder.drawInnerCircle) {
             // 在离屏 canvas 上绘制印章基本形状
             if (stampShape === 'rectangle') {
-                // 绘制矩形边框（如果 outBorder 有 color 属性，则填充背景）
-                const fillColor = this.drawStampConfigs.outBorder.color || undefined
+                // 绘制矩形边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
+                const fillBackground = this.drawStampConfigs.outBorder.fillBackground || false
+                const fillColor = fillBackground ? (this.drawStampConfigs.outBorder.color || undefined) : undefined
                 drawRectangleBorder(
                     offscreenCtx,
                     centerX,
@@ -1148,6 +1149,9 @@ export class DrawStampUtils {
                     fillColor
                 )
             } else if (stampShape === 'rhombus') {
+                // 绘制菱形边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
+                const fillBackground = this.drawStampConfigs.outBorder.fillBackground || false
+                const fillColor = fillBackground ? (this.drawStampConfigs.outBorder.color || undefined) : undefined
                 drawRhombusBorder(
                     offscreenCtx,
                     centerX,
@@ -1158,10 +1162,13 @@ export class DrawStampUtils {
                     borderColor,
                     outBorderStyle,
                     outBorderDash,
-                    outBorderGap
+                    outBorderGap,
+                    fillColor
                 )
             } else {
-                // 绘制椭圆边框
+                // 绘制椭圆边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
+                const fillBackground = this.drawStampConfigs.outBorder.fillBackground || false
+                const fillColor = fillBackground ? (this.drawStampConfigs.outBorder.color || undefined) : undefined
                 drawBasicBorder(
                     offscreenCtx,
                     centerX,
@@ -1172,7 +1179,8 @@ export class DrawStampUtils {
                     borderColor,
                     outBorderStyle,
                     outBorderDash,
-                    outBorderGap
+                    outBorderGap,
+                    fillColor
                 );
             }
         }
