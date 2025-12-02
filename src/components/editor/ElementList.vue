@@ -878,6 +878,7 @@ defineExpose({
   addStampTypeItem,
   addImage,
   addInnerCircle,
+  addLine,
   triggerSvgUpload
 })
 </script>

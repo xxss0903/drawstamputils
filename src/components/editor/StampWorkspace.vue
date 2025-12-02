@@ -148,6 +148,18 @@
           <span class="toolbar-icon">🖼️</span>
           <span class="toolbar-label">{{ t('elementList.buttons.addImage') }}</span>
         </button>
+        <button class="toolbar-btn" type="button" @click="toolbarAddSvg">
+          <span class="toolbar-icon">SVG</span>
+          <span class="toolbar-label">{{ t('elementList.buttons.uploadSvg') }}</span>
+        </button>
+        <button class="toolbar-btn" type="button" @click="toolbarAddHorizontalLine">
+          <span class="toolbar-icon">─</span>
+          <span class="toolbar-label">{{ t('elementList.buttons.addHorizontalLine') }}</span>
+        </button>
+        <button class="toolbar-btn" type="button" @click="toolbarAddVerticalLine">
+          <span class="toolbar-icon">│</span>
+          <span class="toolbar-label">{{ t('elementList.buttons.addVerticalLine') }}</span>
+        </button>
       </div>
     </div>
 
@@ -301,6 +313,18 @@ const toolbarAddInnerCircle = () => {
 
 const toolbarAddImage = () => {
   elementListRef.value?.addImage?.()
+}
+
+const toolbarAddSvg = () => {
+  elementListRef.value?.triggerSvgUpload?.()
+}
+
+const toolbarAddHorizontalLine = () => {
+  elementListRef.value?.addLine?.('horizontal')
+}
+
+const toolbarAddVerticalLine = () => {
+  elementListRef.value?.addLine?.('vertical')
 }
 
 const stampCanvas = ref<any | null>(null)
