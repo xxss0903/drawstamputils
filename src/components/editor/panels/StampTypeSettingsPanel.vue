@@ -19,7 +19,7 @@
             <button class="action-btn" @click.stop="copyStampType(index)">
               复制
             </button>
-            <button class="action-btn delete-btn" @click.stop="removeStampType(index)">
+            <button class="small-button delete-button" @click.stop="removeStampType(index)">
               删除
             </button>
           </div>

@@ -23,7 +23,7 @@
             <button class="action-btn" @click.stop="copyCode(index)">
               复制
             </button>
-            <button class="action-btn delete-btn" @click.stop="removeCode(index)">
+            <button class="small-button delete-button" @click.stop="removeCode(index)">
               {{ t('stamp.common.delete') }}
             </button>
           </div>

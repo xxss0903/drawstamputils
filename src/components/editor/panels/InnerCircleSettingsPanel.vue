@@ -19,7 +19,7 @@
             <button class="action-btn" @click.stop="copyInnerCircle(index)">
               复制
             </button>
-            <button class="action-btn delete-btn" @click.stop="removeInnerCircle(index)">
+            <button class="small-button delete-button" @click.stop="removeInnerCircle(index)">
               删除
             </button>
           </div>
@@ -387,29 +387,6 @@ const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus') => {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
-}
-
-.add-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.add-button {
-  border: 1px dashed #1890ff;
-  background: #e6f7ff;
-  color: #1890ff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-}
-
-.add-button:hover {
-  background: #bae7ff;
-  border-color: #40a9ff;
-  color: #096dd9;
 }
 
 .fade-enter-from,
