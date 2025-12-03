@@ -178,19 +178,36 @@ const selectedIndex = computed(() => props.selectedIndex ?? -1)
 // 跟踪每个项的展开状态
 const expandedItems = ref<Record<number, boolean>>({})
 
-// 当 selectedIndex 变化时，自动展开对应的项
-watch(selectedIndex, (newIndex) => {
-  if (newIndex >= 0) {
-    expandedItems.value[newIndex] = true
-  }
-}, { immediate: true })
+// 当 selectedIndex 变化时，自动展开对应的项，并收起其他项
+watch(
+  selectedIndex,
+  (newIndex) => {
+    if (newIndex >= 0) {
+      // 先收起所有项
+      Object.keys(expandedItems.value).forEach((key) => {
+        expandedItems.value[Number(key)] = false
+      })
+      // 再展开当前选中的项
+      expandedItems.value[newIndex] = true
+    }
+  },
+  { immediate: true }
+)
 
 const toggleExpanded = () => {
   emit('update:expanded', !props.expanded)
 }
 
 const toggleItem = (index: number) => {
-  expandedItems.value[index] = !expandedItems.value[index]
+  // 如果当前项已展开，则收起它；否则先收起其他项，再展开当前项
+  if (expandedItems.value[index]) {
+    expandedItems.value[index] = false
+  } else {
+    Object.keys(expandedItems.value).forEach((key) => {
+      expandedItems.value[Number(key)] = false
+    })
+    expandedItems.value[index] = true
+  }
 }
 
 const isItemExpanded = (index: number) => {
