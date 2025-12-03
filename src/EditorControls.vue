@@ -36,6 +36,7 @@
           :expanded="props.showAll ? expandedGroups.code : true"
           :config="getDrawConfigs()"
           :system-fonts="systemFonts"
+          :selected-index="props.selectedElementType === 'code' ? props.selectedElementIndex ?? -1 : -1"
           @update:expanded="value => (expandedGroups.code = value)"
           @update-config="handleCodeConfigUpdate"
         />

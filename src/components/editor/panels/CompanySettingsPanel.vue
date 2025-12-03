@@ -572,14 +572,6 @@ const addCompany = () => {
   font-size: 14px;
 }
 
-.header-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: stretch;
-  flex-shrink: 0;
-}
-
 .action-btn {
   background: #fff;
   border: 1px solid #d9d9d9;

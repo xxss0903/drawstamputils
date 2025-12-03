@@ -307,12 +307,6 @@ const handleImageUpload = (event: Event, index: number) => {
   font-size: 14px;
 }
 
-.header-actions {
-  display: flex;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
 .image-body {
   padding: 16px;
   background: #fff;

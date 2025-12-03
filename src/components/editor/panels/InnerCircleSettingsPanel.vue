@@ -357,29 +357,19 @@ const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus') => {
   background: #fff;
 }
 
-.header-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: stretch;
-  flex-shrink: 0;
-}
-
 .action-btn {
   background: #fff;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   cursor: pointer;
-  padding: 6px 12px;
+  padding: 4px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #666;
   transition: all 0.2s;
   font-size: 12px;
-  line-height: 1.4;
   white-space: nowrap;
-  min-width: 50px;
 }
 
 .action-btn:hover {

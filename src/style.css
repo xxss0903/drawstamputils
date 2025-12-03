@@ -947,3 +947,11 @@ canvas {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
+.header-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
