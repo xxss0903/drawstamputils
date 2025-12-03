@@ -87,8 +87,9 @@ export class DrawCompanyUtils {
     ) {
         const fontSize = company.fontHeight * this.mmToPixel
         const fontWeight = company.fontWeight || 'normal'
+        const fontStyle = company.fontStyle || 'normal'
         ctx.save()
-        ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`
+        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${company.fontFamily}`
         ctx.fillStyle = color
         ctx.textAlign = 'center'
         ctx.textBaseline = 'bottom'
@@ -205,6 +206,7 @@ export class DrawCompanyUtils {
     ) {
         const fontSize = company.fontHeight * this.mmToPixel
         const fontWeight = company.fontWeight || 'normal'
+        const fontStyle = company.fontStyle || 'normal'
         const textMargin = (company.rectangleTextMargin !== undefined ? company.rectangleTextMargin : company.borderOffset) * this.mmToPixel
         const textDirection = company.rectangleTextDirection || 'horizontal'
         const textPosition = company.rectangleTextPosition || 'center'
@@ -219,7 +221,7 @@ export class DrawCompanyUtils {
         const adjustedCenterY = centerY + positionOffsetY
 
         ctx.save()
-        ctx.font = `${fontWeight} ${fontSize}px ${company.fontFamily}`
+        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${company.fontFamily}`
         ctx.fillStyle = color
 
         // 矩形尺寸（像素）

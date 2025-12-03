@@ -30,46 +30,56 @@
           {{ t('stamp.company.name') }}:
           <input type="text" :value="company.companyName" @input="onFieldInput(index, 'companyName', $event)" />
         </label>
-        <label>
-          {{ t('stamp.company.font') }}:
-          <div class="font-input-group">
-            <select
-              :value="company.fontFamily"
-              class="font-select"
-              @change="onFieldInput(index, 'fontFamily', $event)"
-            >
-              <option v-for="font in fonts" :key="font" :value="font" :style="{ fontFamily: font }">
-                {{ getFontDisplayName(font) }}
-              </option>
-            </select>
-            <input
-              type="text"
-              :value="company.fontFamily"
-              class="font-input"
-              @input="onFieldInput(index, 'fontFamily', $event)"
-              :placeholder="t('stamp.common.fontPlaceholder')"
-            />
-          </div>
-        </label>
-        <label>
-          {{ t('stamp.company.fontSize') }}:
+
+        <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 颜色 -->
+        <div class="text-toolbar">
+          <select
+            :value="company.fontFamily"
+            class="toolbar-font-select"
+            @change="onFieldInput(index, 'fontFamily', $event)"
+          >
+            <option v-for="font in fonts" :key="font" :value="font" :style="{ fontFamily: font }">
+              {{ getFontDisplayName(font) }}
+            </option>
+          </select>
           <input
             type="number"
+            class="toolbar-font-size"
             :value="company.fontHeight"
             min="1"
             max="10"
             step="0.1"
             @input="onNumberInput(index, 'fontHeight', $event)"
           />
-        </label>
-        <label>
-          {{ t('stamp.company.fontWeight') }}:
-          <select :value="company.fontWeight" @change="onFontWeightChange(index, $event)">
-            <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
-            <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
-            <option v-for="value in fontWeightOptions" :key="value" :value="value">{{ value }}</option>
-          </select>
-        </label>
+        </div>
+          <div class="text-toolbar">
+            <button
+              type="button"
+              class="toolbar-bold-btn"
+              :class="{ active: company.fontWeight === 'bold' || company.fontWeight === 700 }"
+              @click="toggleBold(index)"
+            >
+              B
+            </button>
+            <button
+              type="button"
+              class="toolbar-italic-btn"
+              :class="{ active: company.fontStyle === 'italic' }"
+              @click="toggleItalic(index)"
+              title="倾斜"
+            >
+              <img :src="icItalicPng" alt="倾斜" class="toolbar-icon-img" />
+            </button>
+            <label class="toolbar-color-wrapper">
+              <span class="toolbar-color-swatch" :style="{ backgroundColor: company.color || primaryColor }"></span>
+              <input
+                type="color"
+                class="toolbar-color-input"
+                :value="company.color || primaryColor"
+                @input="onColorInput(index, $event)"
+              />
+            </label>
+          </div>
         <label>
           {{ t('stamp.company.compression') }}:
           <input
@@ -95,14 +105,6 @@
           <span>{{ company.textDistributionFactor.toFixed(2) }}</span>
         </label>
         <label>
-          {{ t('stamp.company.color') }}:
-          <input
-            type="color"
-            :value="company.color || primaryColor"
-            @input="onColorInput(index, $event)"
-          />
-        </label>
-        <label>
           {{ t('stamp.company.margin') }}:
           <input
             type="number"
@@ -118,15 +120,15 @@
             <div class="angle-label-row">
               <span class="angle-label-text">{{ t('stamp.company.startAngle') }}:</span>
               <div class="angle-controls">
-                <button 
-                  class="angle-btn" 
+                <button
+                  class="angle-btn"
                   type="button"
                   @click.stop="adjustStartAngle(index, -1)"
                   title="减少1度"
                 >-</button>
                 <span class="angle-value">{{ (company.startAngle * 180 / Math.PI).toFixed(0) }}°</span>
-                <button 
-                  class="angle-btn" 
+                <button
+                  class="angle-btn"
                   type="button"
                   @click.stop="adjustStartAngle(index, 1)"
                   title="增加1度"
@@ -254,6 +256,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ICompany, IDrawStampConfig } from '../../../DrawStampTypes'
 import { getFontDisplayName } from '../../../utils/fontUtils'
+import icItalicPng from "../../../assets/icons/ic_italic.png";
 
 const { t } = useI18n()
 
@@ -367,6 +370,28 @@ const onFontWeightChange = (index: number, event: Event) => {
   const value = target.value === 'normal' || target.value === 'bold' ? target.value : Number(target.value)
   updateConfig((company) => {
     company.fontWeight = value
+  }, index)
+}
+
+const toggleBold = (index: number) => {
+  updateConfig((company) => {
+    const current = company.fontWeight
+    if (current === 'bold' || current === 700) {
+      company.fontWeight = 'normal'
+    } else {
+      company.fontWeight = 'bold'
+    }
+  }, index)
+}
+
+const toggleItalic = (index: number) => {
+  updateConfig((company) => {
+    const current = company.fontStyle || 'normal'
+    if (current === 'italic') {
+      company.fontStyle = 'normal'
+    } else {
+      company.fontStyle = 'italic'
+    }
   }, index)
 }
 
@@ -587,6 +612,101 @@ const addCompany = () => {
 .company-body {
   padding: 16px;
   background: #fff;
+}
+
+.text-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.toolbar-font-select {
+  min-width: 120px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+
+.toolbar-font-size {
+  width: 60px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+
+.toolbar-bold-btn {
+  width: 28px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+}
+
+.toolbar-bold-btn.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+
+.toolbar-italic-btn {
+  width: 28px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+}
+
+.toolbar-italic-btn .toolbar-icon-img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.toolbar-italic-btn.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+
+.toolbar-italic-btn.active .toolbar-icon-img {
+  filter: brightness(0) invert(1);
+}
+
+.toolbar-color-wrapper {
+  position: relative;
+  width: 32px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.toolbar-color-swatch {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.toolbar-color-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .fade-enter-active,
