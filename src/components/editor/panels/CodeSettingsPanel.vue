@@ -106,7 +106,7 @@
           :value="config.stampCode.borderOffset"
           min="-10"
           max="20"
-          step="0.05"
+          step="0.01"
           @input="updateCode('borderOffset', parseNumber($event))"
         />
       </label>

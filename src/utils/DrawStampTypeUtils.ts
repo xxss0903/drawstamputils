@@ -64,7 +64,8 @@ export class DrawStampTypeUtils {
         const rotationRad = ((stampType.rotation || 0) * Math.PI) / 180
 
         ctx.save()
-        ctx.font = `${fontWeight} ${fontSize}px ${stampType.fontFamily}`
+        const fontStyle = stampType.fontStyle || 'normal'
+        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${stampType.fontFamily}`
         ctx.fillStyle = stampType.color || primaryColor
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'

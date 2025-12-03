@@ -45,7 +45,7 @@
           :value="config.securityPattern.securityPatternWidth"
           min="0.05"
           max="0.5"
-          step="0.05"
+          step="0.01"
           @input="updateSecurityPattern('securityPatternWidth', parseNumber($event))"
         />
       </label>

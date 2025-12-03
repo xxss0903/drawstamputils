@@ -34,57 +34,57 @@
             @input="updateStampType(index, 'stampType', ($event.target as HTMLInputElement).value)"
           />
         </label>
-        <label>
-          {{ t('stamp.stampType.fontSize') }}:
+
+        <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 倾斜 / 颜色 -->
+        <div class="text-toolbar">
+          <select
+            :value="type.fontFamily"
+            class="toolbar-font-select"
+            @change="updateStampType(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
+          >
+            <option v-for="font in systemFonts" :key="font" :value="font" :style="{ fontFamily: font }">
+              {{ getFontDisplayName(font) }}
+            </option>
+          </select>
           <input
             type="number"
+            class="toolbar-font-size"
             :value="type.fontHeight"
             min="1"
             max="10"
             step="0.1"
             @input="updateStampType(index, 'fontHeight', parseNumber($event))"
           />
-        </label>
-        <label>
-          {{ t('stamp.stampType.font') }}:
-          <div class="font-input-group">
-            <select
-              :value="type.fontFamily"
-              class="font-select"
-              @change="updateStampType(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
-            >
-              <option v-for="font in systemFonts" :key="font" :value="font" :style="{ fontFamily: font }">
-                {{ getFontDisplayName(font) }}
-              </option>
-            </select>
-            <input
-              type="text"
-              :value="type.fontFamily"
-              class="font-input"
-              @input="updateStampType(index, 'fontFamily', ($event.target as HTMLInputElement).value)"
-              :placeholder="t('stamp.common.fontPlaceholder')"
-            />
-          </div>
-        </label>
-        <label>
-          {{ t('stamp.stampType.fontWeight') }}:
-          <select
-            :value="type.fontWeight"
-            @change="updateStampType(index, 'fontWeight', ($event.target as HTMLSelectElement).value)"
+        </div>
+        <div class="text-toolbar">
+          <button
+            type="button"
+            class="toolbar-bold-btn"
+            :class="{ active: type.fontWeight === 'bold' || type.fontWeight === 700 }"
+            @click="toggleBold(index)"
           >
-            <option value="normal">正常</option>
-            <option value="bold">粗体</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500">500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-          </select>
-        </label>
+            B
+          </button>
+          <button
+            type="button"
+            class="toolbar-italic-btn"
+            :class="{ active: type.fontStyle === 'italic' }"
+            @click="toggleItalic(index)"
+            title="倾斜"
+          >
+            <img :src="icItalicPng" alt="倾斜" class="toolbar-icon-img" />
+          </button>
+          <label class="toolbar-color-wrapper">
+            <span class="toolbar-color-swatch" :style="{ backgroundColor: type.color || primaryColor }"></span>
+            <input
+              type="color"
+              class="toolbar-color-input"
+              :value="type.color || primaryColor"
+              @input="onColorInput(index, $event)"
+            />
+          </label>
+        </div>
+
         <label>
           {{ t('stamp.stampType.compression') }}:
           <input
@@ -92,7 +92,7 @@
             :value="type.compression"
             min="0.1"
             max="1.5"
-            step="0.05"
+            step="0.01"
             @input="updateStampType(index, 'compression', parseNumber($event))"
           />
           <span>{{ type.compression.toFixed(2) }}</span>
@@ -104,18 +104,10 @@
             :value="type.letterSpacing"
             min="-1"
             max="10"
-            step="0.05"
+            step="0.01"
             @input="updateStampType(index, 'letterSpacing', parseNumber($event))"
           />
           <span>{{ type.letterSpacing.toFixed(2) }}</span>
-        </label>
-        <label>
-          {{ t('stamp.stampType.color') }}:
-          <input
-            type="color"
-            :value="type.color || primaryColor"
-            @input="onColorInput(index, $event)"
-          />
         </label>
         <label>
           水平位置 X (mm):
@@ -184,6 +176,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, IStampType } from '../../../DrawStampTypes'
 import { getFontDisplayName } from '../../../utils/fontUtils'
+import icItalicPng from '../../../assets/icons/ic_italic.png'
 
 const { t } = useI18n()
 
@@ -241,6 +234,32 @@ const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).
 const onColorInput = (index: number, event: Event) => {
   const value = (event.target as HTMLInputElement).value
   updateStampType(index, 'color', value)
+}
+
+const toggleBold = (index: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const current = list[index].fontWeight
+    if (current === 'bold' || current === 700) {
+      list[index].fontWeight = 'normal'
+    } else {
+      list[index].fontWeight = 'bold'
+    }
+  })
+}
+
+const toggleItalic = (index: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const current = list[index].fontStyle || 'normal'
+    if (current === 'italic') {
+      list[index].fontStyle = 'normal'
+    } else {
+      list[index].fontStyle = 'italic'
+    }
+  })
 }
 
 const updateStampType = <K extends keyof IStampType>(
@@ -461,5 +480,100 @@ const addStampType = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.text-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.toolbar-font-select {
+  min-width: 120px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+
+.toolbar-font-size {
+  width: 60px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+
+.toolbar-bold-btn {
+  width: 28px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+}
+
+.toolbar-bold-btn.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+
+.toolbar-italic-btn {
+  width: 28px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+}
+
+.toolbar-italic-btn .toolbar-icon-img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.toolbar-italic-btn.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+
+.toolbar-italic-btn.active .toolbar-icon-img {
+  filter: brightness(0) invert(1);
+}
+
+.toolbar-color-wrapper {
+  position: relative;
+  width: 32px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.toolbar-color-swatch {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.toolbar-color-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 </style>

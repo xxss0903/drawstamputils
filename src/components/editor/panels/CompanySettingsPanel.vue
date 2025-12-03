@@ -87,7 +87,7 @@
             :value="company.compression"
             min="0.5"
             max="1.5"
-            step="0.05"
+            step="0.01"
             @input="onNumberInput(index, 'compression', $event)"
           />
           <span>{{ company.compression.toFixed(2) }}</span>
@@ -111,7 +111,7 @@
             :value="company.borderOffset"
             min="-10"
             max="10"
-            step="0.05"
+            step="0.01"
             @input="onNumberInput(index, 'borderOffset', $event)"
           />
         </label>

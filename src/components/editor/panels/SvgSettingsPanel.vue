@@ -150,7 +150,7 @@
                   type="range"
                   min="0.2"
                   max="3"
-                  step="0.05"
+                  step="0.01"
                   :value="item.scale"
                   @input="event => updateField(index, 'scale', parseNumber(event))"
                 />

@@ -23,7 +23,7 @@
             :value="config.roughEdge.roughEdgeWidth"
             min="0.05"
             max="0.5"
-            step="0.05"
+            step="0.01"
             @input="updateRoughEdge('roughEdgeWidth', parseNumber($event))"
           />
           <span>{{ config.roughEdge.roughEdgeWidth.toFixed(2) }}</span>

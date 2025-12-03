@@ -78,7 +78,7 @@
           :value="config.taxNumber.letterSpacing"
           min="-1"
           max="20"
-          step="0.05"
+          step="0.01"
           @input="updateTaxNumber('letterSpacing', parseNumber($event))"
         />
       </label>

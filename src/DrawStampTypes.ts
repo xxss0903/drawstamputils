@@ -166,6 +166,7 @@ export type IStampType = {
     positionY: number // 位置
     fontWidth: number // 字体宽度
     fontWeight: string | number // 字体粗细
+    fontStyle?: 'normal' | 'italic' // 字体样式（正常/倾斜）
     lineSpacing: number // 新增：行间距
     color?: string // 颜色
     orientation?: 'horizontal' | 'vertical' // 文字方向

@@ -33,7 +33,7 @@
             :value="innerCircle.innerCircleLineWidth"
             min="0.05"
             max="0.5"
-            step="0.05"
+            step="0.01"
             @input="updateInnerCircle(index, 'innerCircleLineWidth', parseNumber($event))"
           />
         </label>

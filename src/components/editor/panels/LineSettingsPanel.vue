@@ -140,7 +140,7 @@
               :value="line.opacity ?? 1"
               min="0"
               max="1"
-              step="0.05"
+              step="0.01"
               @input="updateLine(index, 'opacity', parseNumber($event))"
             />
             <span>{{ ((line.opacity ?? 1) * 100).toFixed(0) }}%</span>
