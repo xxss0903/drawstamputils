@@ -1313,9 +1313,17 @@ export class DrawStampUtils {
             )
         }
         this.drawStampTypeUtils.drawStampTypeList(offscreenCtx, this.drawStampConfigs.stampTypeList, centerX, centerY, radiusX, this.drawStampConfigs.primaryColor)
-        // 绘制编码文字内容，边框的圆形文字
-        const codeColor = this.drawStampConfigs.stampCode?.color || this.drawStampConfigs.primaryColor
-        this.drawCodeUtils.drawCode(offscreenCtx, this.drawStampConfigs.stampCode, centerX, centerY, radiusX, radiusY, codeColor)
+        // 绘制编码文字内容，边框的圆形文字（支持多条编码）
+        const stampCodes: ICode[] = (this.drawStampConfigs.stampCodeList && this.drawStampConfigs.stampCodeList.length > 0)
+            ? this.drawStampConfigs.stampCodeList
+            : this.drawStampConfigs.stampCode
+                ? [this.drawStampConfigs.stampCode]
+                : []
+
+        for (const code of stampCodes) {
+            const codeColor = code.color || this.drawStampConfigs.primaryColor
+            this.drawCodeUtils.drawCode(offscreenCtx, code, centerX, centerY, radiusX, radiusY, codeColor)
+        }
         // 绘制税号文字内容，边框的圆形文字
         this.drawTaxNumberUtils.drawTaxNumber(offscreenCtx, this.drawStampConfigs.taxNumber, centerX, centerY, this.drawStampConfigs.primaryColor)
     // 绘制自定义线条

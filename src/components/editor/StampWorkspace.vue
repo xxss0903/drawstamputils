@@ -614,6 +614,7 @@ const resetStamp = () => {
   blankConfig.company.companyName = ''
   blankConfig.stampTypeList = []
   blankConfig.stampCode.code = ''
+  blankConfig.stampCodeList = []
   blankConfig.taxNumber.code = ''
   blankConfig.imageList = []
   blankConfig.lineList = []

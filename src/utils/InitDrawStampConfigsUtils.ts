@@ -90,6 +90,8 @@ export class InitDrawStampConfigsUtils {
         rotation: 0,
         color: this.primaryColor,
     }
+    // 印章编码列表（支持多条编码），默认将单个 stampCode 作为第一条
+    private stampCodeList: ICode[] = [this.stampCode]
     // 做旧效果
     private agingEffect: IAgingEffect = {
         applyAging: false,
@@ -202,6 +204,7 @@ export class InitDrawStampConfigsUtils {
         outThinCircle: this.outThinCircle,
         openManualAging: false,
         stampTypeList: this.stampTypeList,
+        stampCodeList: this.stampCodeList,
         companyList: this.companyList,
         innerCircleList: this.innerCircleList,
         imageList: this.imageList,

@@ -81,12 +81,20 @@
             <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
-        <div class="element-item"
-             :class="{ active: selectedElement === 'code' }"
-             @click.stop="selectElement('code', 'code', 0)">
+        <div
+          class="element-item"
+          v-for="(code, index) in stampCodeList"
+          :key="`code-${index}`"
+          :class="{ active: selectedElement === `code-${index}` }"
+          @click.stop="selectElement(`code-${index}`, 'code', index)"
+        >
           <span class="element-icon">🔢</span>
-          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code || '')">
-            {{ stampCode.code || t('elementList.elements.code') + '（' + t('elementList.status.notSet') + '）' }}
+          <span
+            class="element-name"
+            v-if="editingElement !== `code-${index}`"
+            @dblclick.stop="startEdit(`code-${index}`, 'code', index, code.code || '')"
+          >
+            {{ code.code || t('elementList.elements.code') + ' ' + (index + 1) }}
           </span>
           <input
             v-else
@@ -98,11 +106,22 @@
             @click.stop
             ref="editInputRef"
           />
-<!--          <span class="element-type">编码</span>-->
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" :title="t('elementList.buttons.edit')">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('code', 0)" :title="t('elementList.buttons.clear')">🗑️</button>
-            <button class="action-btn delete-btn" @click="deleteElement('code', 0)" title="删除">❌</button>
+            <button
+              class="action-btn edit-btn"
+              @click="startEdit(`code-${index}`, 'code', index, code.code || '')"
+              :title="t('elementList.buttons.edit')"
+            >✏️</button>
+            <button
+              class="action-btn clear-btn"
+              @click="clearText('code', index)"
+              :title="t('elementList.buttons.clear')"
+            >🗑️</button>
+            <button
+              class="action-btn delete-btn"
+              @click="deleteElement('code', index)"
+              title="删除"
+            >❌</button>
           </div>
         </div>
         <div class="element-item"
@@ -213,6 +232,10 @@
             <span class="add-icon">➕</span>
             <span>{{ t('elementList.buttons.addStampType') }}</span>
           </button>
+          <button class="add-line-button" @click="addCodeItem">
+            <span class="add-icon">➕</span>
+            <span>{{ t('elementList.elements.code') }}</span>
+          </button>
         </div>
       </div>
 
@@ -268,12 +291,20 @@
             <button class="action-btn delete-btn" @click="deleteElement('stampType', index)" :title="t('elementList.buttons.delete')">❌</button>
           </div>
         </div>
-        <div class="element-item"
-             :class="{ active: selectedElement === 'code' }"
-             @click.stop="selectElement('code', 'code', 0)">
+        <div
+          class="element-item"
+          v-for="(code, index) in stampCodeList"
+          :key="`code-text-${index}`"
+          :class="{ active: selectedElement === `code-${index}` }"
+          @click.stop="selectElement(`code-${index}`, 'code', index)"
+        >
           <span class="element-icon">🔢</span>
-          <span class="element-name" v-if="editingElement !== 'code'" @dblclick.stop="startEdit('code', 'code', 0, stampCode.code || '')">
-            {{ stampCode.code || t('elementList.elements.code') + '（' + t('elementList.status.notSet') + '）' }}
+          <span
+            class="element-name"
+            v-if="editingElement !== `code-${index}`"
+            @dblclick.stop="startEdit(`code-${index}`, 'code', index, code.code || '')"
+          >
+            {{ code.code || t('elementList.elements.code') + ' ' + (index + 1) }}
           </span>
           <input
             v-else
@@ -286,8 +317,16 @@
             ref="editInputRef"
           />
           <div class="element-actions show-always" @click.stop>
-            <button class="action-btn edit-btn" @click="startEdit('code', 'code', 0, stampCode.code || '')" :title="t('elementList.buttons.edit')">✏️</button>
-            <button class="action-btn clear-btn" @click="clearText('code', 0)" :title="t('elementList.buttons.clear')">🗑️</button>
+            <button
+              class="action-btn edit-btn"
+              @click="startEdit(`code-${index}`, 'code', index, code.code || '')"
+              :title="t('elementList.buttons.edit')"
+            >✏️</button>
+            <button
+              class="action-btn clear-btn"
+              @click="clearText('code', index)"
+              :title="t('elementList.buttons.clear')"
+            >🗑️</button>
           </div>
         </div>
         <div class="element-item"
@@ -481,6 +520,11 @@ const config = computed(() => {
 
 const companyList = computed(() => config.value.companyList || [])
 const stampTypeList = computed(() => config.value.stampTypeList || [])
+const stampCodeList = computed(() => {
+  const cfg = config.value
+  if (cfg.stampCodeList && cfg.stampCodeList.length > 0) return cfg.stampCodeList
+  return cfg.stampCode ? [cfg.stampCode] : []
+})
 const stampCode = computed(() => config.value.stampCode || { code: '' })
 const taxNumber = computed(() => config.value.taxNumber || { code: '' })
 const drawStar = computed(() => config.value.drawStar || { drawStar: false })
@@ -526,7 +570,16 @@ const saveEdit = () => {
       } else if (elementType === 'stampType' && config.stampTypeList && config.stampTypeList[index]) {
         config.stampTypeList[index].stampType = editingValue.value
       } else if (elementType === 'code') {
-        config.stampCode.code = editingValue.value
+        if (!config.stampCodeList) {
+          config.stampCodeList = []
+          if (config.stampCode) {
+            config.stampCodeList.push({ ...config.stampCode })
+          }
+        }
+        if (config.stampCodeList[index]) {
+          config.stampCodeList[index].code = editingValue.value
+        }
+        config.stampCode = config.stampCodeList[0] || config.stampCode
       } else if (elementType === 'taxNumber') {
         config.taxNumber.code = editingValue.value
       }
@@ -554,7 +607,11 @@ const clearText = (elementType: string, index: number) => {
     } else if (elementType === 'stampType' && config.stampTypeList && config.stampTypeList[index]) {
       config.stampTypeList[index].stampType = ''
     } else if (elementType === 'code') {
-      config.stampCode.code = ''
+      if (config.stampCodeList && config.stampCodeList[index]) {
+        config.stampCodeList[index].code = ''
+      } else if (config.stampCode) {
+        config.stampCode.code = ''
+      }
     } else if (elementType === 'taxNumber') {
       config.taxNumber.code = ''
     }
@@ -581,8 +638,11 @@ const deleteElement = (elementType: string, index: number) => {
           selectedElement.value = ''
         }
       } else if (elementType === 'code') {
-        config.stampCode.code = ''
-        if (selectedElement.value === 'code') {
+        if (config.stampCodeList) {
+          config.stampCodeList.splice(index, 1)
+        }
+        config.stampCode = (config.stampCodeList && config.stampCodeList[0]) || config.stampCode
+        if (selectedElement.value === `code-${index}`) {
           selectedElement.value = ''
         }
       } else if (elementType === 'taxNumber') {
@@ -770,6 +830,37 @@ const addStampTypeItem = () => {
   emit('refresh')
 }
 
+const addCodeItem = () => {
+  stampStore.updateConfig((config) => {
+    if (!config.stampCodeList) {
+      config.stampCodeList = []
+      if (config.stampCode) {
+        config.stampCodeList.push({ ...config.stampCode })
+      }
+    }
+    const base = config.stampCodeList[config.stampCodeList.length - 1] || config.stampCode || {
+      code: '',
+      compression: 1,
+      fontHeight: 1.2,
+      fontFamily: 'Arial',
+      borderOffset: 1,
+      fontWidth: 1.2,
+      textDistributionFactor: 50,
+      fontWeight: 'normal',
+      color: config.primaryColor || '#d40000'
+    }
+    config.stampCodeList.push({ ...base, code: '' })
+    const newIndex = config.stampCodeList.length - 1
+    nextTick(() => {
+      selectElement(`code-${newIndex}`, 'code', newIndex)
+    })
+    config.stampCode = config.stampCodeList[0]
+  })
+
+  emit('updateConfig')
+  emit('refresh')
+}
+
 // 添加图片
 const addImage = () => {
   stampStore.updateConfig((config) => {
@@ -876,6 +967,7 @@ const handleSvgFileChange = async (event: Event) => {
 defineExpose({
   addCompanyItem,
   addStampTypeItem,
+  addCodeItem,
   addImage,
   addInnerCircle,
   addLine,

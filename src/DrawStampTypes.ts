@@ -214,7 +214,8 @@ export type IDrawStampConfig = {
     drawStar: IDrawStar // 是否绘制五角星
     securityPattern: ISecurityPattern
     company: ICompany // 公司
-    stampCode: ICode // 印章编码
+    stampCode: ICode // 印章编码（兼容旧结构，通常与 stampCodeList[0] 同步）
+    stampCodeList?: ICode[] // 印章编码列表，可配置多条编码
     taxNumber: ITaxNumber // 税号
     stampType: IStampType // 印章类型
     width: number // 印章宽度
