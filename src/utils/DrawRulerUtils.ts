@@ -49,20 +49,24 @@ export class DrawRulerUtils {
             if (mm % 5 === 0) {
                 ctx.beginPath();
                 if (isHorizontal) {
-                    ctx.moveTo(pos, 0);
-                    ctx.lineTo(pos, rulerSize * 0.8);
+                    // 水平标尺：刻度从底部（靠近绘制内容）向上绘制，缩短长度避免遮挡文字
+                    ctx.moveTo(pos, rulerSize);
+                    ctx.lineTo(pos, rulerSize * 0.5);
                 } else {
-                    ctx.moveTo(0, pos);
-                    ctx.lineTo(rulerSize * 0.8, pos);
+                    // 垂直标尺：刻度从右侧（靠近绘制内容）向左绘制，缩短长度避免遮挡文字
+                    ctx.moveTo(rulerSize, pos);
+                    ctx.lineTo(rulerSize * 0.5, pos);
                 }
                 ctx.lineWidth = 1; // 保持线宽不变
                 ctx.stroke();
 
                 ctx.save();
                 if (isHorizontal) {
-                    ctx.fillText(mm.toString(), pos, rulerSize * 0.8);
+                    // 水平标尺：文字在刻度上方（靠近绘制内容的一侧），位置在刻度线之上
+                    ctx.fillText(mm.toString(), pos, rulerSize * 0.3);
                 } else {
-                    ctx.translate(rulerSize * 0.8, pos);
+                    // 垂直标尺：文字在刻度右侧（靠近绘制内容的一侧），位置在刻度线之外
+                    ctx.translate(rulerSize * 0.3, pos);
                     ctx.rotate(-Math.PI / 2);
                     ctx.fillText(mm.toString(), 0, 0);
                 }
@@ -70,11 +74,13 @@ export class DrawRulerUtils {
             } else {
                 ctx.beginPath();
                 if (isHorizontal) {
-                    ctx.moveTo(pos, 0);
-                    ctx.lineTo(pos, rulerSize * 0.6);
+                    // 水平标尺：小刻度从底部向上绘制，长度更短
+                    ctx.moveTo(pos, rulerSize);
+                    ctx.lineTo(pos, rulerSize * 0.7);
                 } else {
-                    ctx.moveTo(0, pos);
-                    ctx.lineTo(rulerSize * 0.6, pos);
+                    // 垂直标尺：小刻度从右侧向左绘制，长度更短
+                    ctx.moveTo(rulerSize, pos);
+                    ctx.lineTo(rulerSize * 0.7, pos);
                 }
                 ctx.lineWidth = 0.5; // 保持线宽不变
                 ctx.stroke();
