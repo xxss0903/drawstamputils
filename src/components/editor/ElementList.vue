@@ -1139,6 +1139,7 @@ defineExpose({
   display: flex;
   gap: 8px;
   margin: 8px 0;
+  flex-direction: column;
 }
 
 .add-line-button {
