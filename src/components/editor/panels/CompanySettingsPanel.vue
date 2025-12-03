@@ -109,8 +109,8 @@
           <input
             type="number"
             :value="company.borderOffset"
-            min="-10"
-            max="10"
+            min="-20"
+            max="20"
             step="0.01"
             @input="onNumberInput(index, 'borderOffset', $event)"
           />
