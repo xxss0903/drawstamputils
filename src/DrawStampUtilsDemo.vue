@@ -172,6 +172,12 @@
         <div class="template-bar-header">
           <h4>📋 {{ t('stamp.template.select') }}</h4>
           <div class="template-bar-actions">
+            <input
+              v-model="templateSearchQuery"
+              type="text"
+              class="template-search-input"
+              placeholder="搜索模板名称或标签"
+            />
             <button class="load-template-btn" @click="triggerTemplateFileLoad" :disabled="isLoadingTemplate">
               <span v-if="!isLoadingTemplate">📂</span>
               <span v-else class="loading-spinner-small"></span>
@@ -193,7 +199,7 @@
         <div class="template-list-horizontal">
           <!-- 默认模板 -->
           <div
-            v-for="(template, index) in defaultTemplates"
+            v-for="(template, index) in filteredDefaultTemplates"
             :key="'default-' + index"
             class="template-item-horizontal"
             :class="{ 'active': currentTemplateIndex === (-1 - index) }"
@@ -211,13 +217,13 @@
           </div>
 
           <!-- 分隔线 -->
-          <div v-if="publicTemplates.length > 0" class="template-divider">
+          <div v-if="filteredPublicTemplates.length > 0" class="template-divider">
             <span>{{ t('stamp.template.publicTemplates') }}</span>
           </div>
 
           <!-- 公共模板 -->
           <div
-            v-for="template in publicTemplates"
+            v-for="template in filteredPublicTemplates"
             :key="'public-' + template.id"
             class="template-item-horizontal public-template-item"
             :class="{ 'active': selectedPublicTemplateId === template.id }"
@@ -902,6 +908,25 @@ const defaultTemplates: Template[] = Object.entries(templateModules).map(([path,
   }
 })
 
+// 模板搜索关键字
+const templateSearchQuery = ref('')
+
+// 过滤后的默认模板（按名称 / 标题 / 分类匹配）
+const filteredDefaultTemplates = computed(() => {
+  const q = templateSearchQuery.value.trim().toLowerCase()
+  if (!q) return defaultTemplates
+  return defaultTemplates.filter((tpl) => {
+    const cfg = tpl.config
+    const parts: string[] = []
+    if (tpl.name) parts.push(tpl.name)
+    if (cfg.title) parts.push(cfg.title)
+    if (cfg.category) parts.push(cfg.category)
+    if (cfg.categories && cfg.categories.length > 0) parts.push(...cfg.categories)
+    const text = parts.join(' ').toLowerCase()
+    return text.includes(q)
+  })
+})
+
 // 添加新的响应式变量
 const showSecurityWarning = ref(localStorage.getItem('showSecurityWarning') !== 'false')
 
@@ -924,6 +949,17 @@ type PublicTemplateItem = PublicTemplate & {
 const publicTemplates = ref<PublicTemplateItem[]>([])
 const loadingPublicTemplates = ref(false)
 const selectedPublicTemplateId = ref<string | null>(null)
+
+// 过滤后的公共模板（按显示名称和描述匹配）
+const filteredPublicTemplates = computed(() => {
+  const q = templateSearchQuery.value.trim().toLowerCase()
+  if (!q) return publicTemplates.value
+  return publicTemplates.value.filter((tpl) => {
+    const name = getTemplateDisplayName(tpl).toLowerCase()
+    const desc = (tpl.description || '').toLowerCase()
+    return name.includes(q) || desc.includes(q)
+  })
+})
 
 // 从模板配置中解析名称
 const parseTemplateName = (config: any): string | null => {
@@ -1352,6 +1388,21 @@ watch(isDraggable, () => {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+.template-search-input {
+  width: 220px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.template-search-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.15);
 }
 
 .template-bar-header h4 {
