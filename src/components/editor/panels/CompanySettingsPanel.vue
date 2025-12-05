@@ -28,10 +28,17 @@
         <div v-show="isItemExpanded(index)" class="company-body">
           <!-- 文本/选择类设置 -->
           <div class="settings-section">
-            <label class="inline-label">
-              <span class="label-text">{{ t('stamp.company.name') }}:</span>
-              <input type="text" :value="company.companyName" @input="onFieldInput(index, 'companyName', $event)" />
-            </label>
+            <div class="text-input-item">
+              <div class="text-input-header">
+                <span class="text-input-label">{{ t('stamp.company.name') }}:</span>
+              </div>
+              <input 
+                type="text" 
+                class="text-input-field"
+                :value="company.companyName" 
+                @input="onFieldInput(index, 'companyName', $event)" 
+              />
+            </div>
 
             <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 颜色 -->
             <div class="text-toolbar">
@@ -712,6 +719,40 @@ label {
 .inline-label input[type="text"]:focus,
 .inline-label input[type="number"]:focus,
 .inline-label select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* 文本输入项样式（两行显示） */
+.text-input-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.text-input-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.text-input-label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.text-input-field {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.text-input-field:focus {
   border-color: #3b82f6;
   outline: none;
 }
