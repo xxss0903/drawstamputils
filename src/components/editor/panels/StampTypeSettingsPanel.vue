@@ -26,141 +26,174 @@
         </div>
         <transition name="fade">
         <div v-show="isItemExpanded(index)" class="stamp-type-body">
-        <label>
-          {{ t('stamp.stampType.type') }}:
-          <input
-            type="text"
-            :value="type.stampType"
-            @input="updateStampType(index, 'stampType', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
+          <!-- 文本/选择类设置 -->
+          <div class="settings-section">
+            <div class="text-input-item">
+              <div class="text-input-header">
+                <span class="text-input-label">{{ t('stamp.stampType.type') }}:</span>
+              </div>
+              <input 
+                type="text" 
+                class="text-input-field"
+                :value="type.stampType"
+                @input="updateStampType(index, 'stampType', ($event.target as HTMLInputElement).value)"
+              />
+            </div>
 
-        <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 倾斜 / 颜色 -->
-        <div class="text-toolbar">
-          <select
-            :value="type.fontFamily"
-            class="toolbar-font-select"
-            @change="updateStampType(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
-          >
-            <option v-for="font in systemFonts" :key="font" :value="font" :style="{ fontFamily: font }">
-              {{ getFontDisplayName(font) }}
-            </option>
-          </select>
-          <input
-            type="number"
-            class="toolbar-font-size"
-            :value="type.fontHeight"
-            min="1"
-            max="10"
-            step="0.1"
-            @input="updateStampType(index, 'fontHeight', parseNumber($event))"
-          />
-        </div>
-        <div class="text-toolbar">
-          <button
-            type="button"
-            class="toolbar-bold-btn"
-            :class="{ active: type.fontWeight === 'bold' || type.fontWeight === 700 }"
-            @click="toggleBold(index)"
-          >
-            B
-          </button>
-          <button
-            type="button"
-            class="toolbar-italic-btn"
-            :class="{ active: type.fontStyle === 'italic' }"
-            @click="toggleItalic(index)"
-            title="倾斜"
-          >
-            <img :src="icItalicPng" alt="倾斜" class="toolbar-icon-img" />
-          </button>
-          <label class="toolbar-color-wrapper">
-            <span class="toolbar-color-swatch" :style="{ backgroundColor: type.color || primaryColor }"></span>
-            <input
-              type="color"
-              class="toolbar-color-input"
-              :value="type.color || primaryColor"
-              @input="onColorInput(index, $event)"
-            />
-          </label>
-        </div>
+            <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 倾斜 / 颜色 -->
+            <div class="text-toolbar">
+              <select
+                :value="type.fontFamily"
+                class="toolbar-font-select"
+                @change="updateStampType(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
+              >
+                <option v-for="font in systemFonts" :key="font" :value="font" :style="{ fontFamily: font }">
+                  {{ getFontDisplayName(font) }}
+                </option>
+              </select>
+              <input
+                type="number"
+                class="toolbar-font-size"
+                :value="type.fontHeight"
+                min="1"
+                max="10"
+                step="0.1"
+                @input="updateStampType(index, 'fontHeight', parseNumber($event))"
+              />
+            </div>
+            <div class="text-toolbar">
+              <button
+                type="button"
+                class="toolbar-bold-btn"
+                :class="{ active: type.fontWeight === 'bold' || type.fontWeight === 700 }"
+                @click="toggleBold(index)"
+              >
+                B
+              </button>
+              <button
+                type="button"
+                class="toolbar-italic-btn"
+                :class="{ active: type.fontStyle === 'italic' }"
+                @click="toggleItalic(index)"
+                title="倾斜"
+              >
+                <img :src="icItalicPng" alt="倾斜" class="toolbar-icon-img" />
+              </button>
+              <label class="toolbar-color-wrapper">
+                <span class="toolbar-color-swatch" :style="{ backgroundColor: type.color || primaryColor }"></span>
+                <input
+                  type="color"
+                  class="toolbar-color-input"
+                  :value="type.color || primaryColor"
+                  @input="onColorInput(index, $event)"
+                />
+              </label>
+            </div>
+            <label class="inline-label">
+              <span class="label-text">显示方向:</span>
+              <select
+                :value="type.orientation || 'horizontal'"
+                @change="updateStampType(index, 'orientation', ($event.target as HTMLSelectElement).value as 'horizontal' | 'vertical')"
+              >
+                <option value="horizontal">水平</option>
+                <option value="vertical">竖直</option>
+              </select>
+            </label>
+          </div>
 
-        <label>
-          {{ t('stamp.stampType.compression') }}:
-          <input
-            type="range"
-            :value="type.compression"
-            min="0.1"
-            max="1.5"
-            step="0.01"
-            @input="updateStampType(index, 'compression', parseNumber($event))"
-          />
-          <span>{{ type.compression.toFixed(2) }}</span>
-        </label>
-        <label>
-          {{ t('stamp.stampType.letterSpacing') }}:
-          <input
-            type="range"
-            :value="type.letterSpacing"
-            min="-1"
-            max="10"
-            step="0.01"
-            @input="updateStampType(index, 'letterSpacing', parseNumber($event))"
-          />
-          <span>{{ type.letterSpacing.toFixed(2) }}</span>
-        </label>
-        <label>
-          水平位置 X (mm):
-          <div class="range-container">
-            <input
-              type="range"
-              :value="type.positionX || 0"
-              min="-20"
-              max="20"
-              step="0.1"
-              @input="updateStampType(index, 'positionX', parseNumber($event))"
-            />
-            <span>{{ (type.positionX || 0).toFixed(1) }}</span>
+          <!-- 拖动条类设置 -->
+          <div class="range-section">
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.stampType.compression') }}</span>
+                <span class="range-value-display">[ {{ type.compression.toFixed(2) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustCompression(index, -0.01)">◀</button>
+                <input
+                  type="range"
+                  :value="type.compression"
+                  min="0.1"
+                  max="1.5"
+                  step="0.01"
+                  @input="updateStampType(index, 'compression', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustCompression(index, 0.01)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.stampType.letterSpacing') }}</span>
+                <span class="range-value-display">[ {{ type.letterSpacing.toFixed(2) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustLetterSpacing(index, -0.01)">◀</button>
+                <input
+                  type="range"
+                  :value="type.letterSpacing"
+                  min="-1"
+                  max="10"
+                  step="0.01"
+                  @input="updateStampType(index, 'letterSpacing', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustLetterSpacing(index, 0.01)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">水平位置 X (mm)</span>
+                <span class="range-value-display">[ {{ (type.positionX || 0).toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="type.positionX || 0"
+                  min="-50"
+                  max="50"
+                  step="0.1"
+                  @input="updateStampType(index, 'positionX', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, 0.1)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">垂直位置 Y (mm)</span>
+                <span class="range-value-display">[ {{ type.positionY.toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="type.positionY"
+                  min="-50"
+                  max="50"
+                  step="0.1"
+                  @input="updateStampType(index, 'positionY', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, 0.1)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">旋转角度 (°)</span>
+                <span class="range-value-display">[ {{ (type.rotation || 0).toFixed(0) }}° ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustRotation(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="type.rotation || 0"
+                  min="-180"
+                  max="180"
+                  step="0.1"
+                  @input="updateStampType(index, 'rotation', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustRotation(index, 0.1)">▶</button>
+              </div>
+            </div>
           </div>
-        </label>
-        <label>
-          垂直位置 Y (mm):
-          <div class="range-container">
-            <input
-              type="range"
-              :value="type.positionY"
-              min="-20"
-              max="20"
-              step="0.1"
-              @input="updateStampType(index, 'positionY', parseNumber($event))"
-            />
-            <span>{{ type.positionY.toFixed(1) }}</span>
-          </div>
-        </label>
-        <label>
-          显示方向:
-          <select
-            :value="type.orientation || 'horizontal'"
-            @change="updateStampType(index, 'orientation', ($event.target as HTMLSelectElement).value as 'horizontal' | 'vertical')"
-          >
-            <option value="horizontal">水平</option>
-            <option value="vertical">竖直</option>
-          </select>
-        </label>
-        <label>
-          旋转角度 (°):
-          <div class="range-container">
-            <input
-              type="range"
-              :value="type.rotation || 0"
-              min="-180"
-              max="180"
-              step="0.1"
-              @input="updateStampType(index, 'rotation', parseNumber($event))"
-            />
-            <span>{{ (type.rotation || 0).toFixed(0) }}</span>
-          </div>
-        </label>
         </div>
         </transition>
       </div>
@@ -323,6 +356,53 @@ const addStampType = () => {
     })
   })
 }
+
+const adjustCompression = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const newValue = Math.max(0.1, Math.min(1.5, list[index].compression + delta))
+    list[index].compression = newValue
+  })
+}
+
+const adjustLetterSpacing = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const newValue = Math.max(-1, Math.min(10, list[index].letterSpacing + delta))
+    list[index].letterSpacing = newValue
+  })
+}
+
+const adjustPositionX = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const currentValue = list[index].positionX || 0
+    const newValue = Math.max(-50, Math.min(50, currentValue + delta))
+    list[index].positionX = newValue
+  })
+}
+
+const adjustPositionY = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const newValue = Math.max(-50, Math.min(50, list[index].positionY + delta))
+    list[index].positionY = newValue
+  })
+}
+
+const adjustRotation = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const currentValue = list[index].rotation || 0
+    const newValue = Math.max(-180, Math.min(180, currentValue + delta))
+    list[index].rotation = newValue
+  })
+}
 </script>
 
 <style scoped>
@@ -405,8 +485,131 @@ const addStampType = () => {
 }
 
 .stamp-type-body {
-  padding: 16px;
+  padding: 12px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 文本/选择类设置区域 */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 拖动条类设置区域 */
+.range-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #374151;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.inline-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-label .label-text {
+  min-width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.inline-label input[type="text"],
+.inline-label input[type="number"],
+.inline-label select {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.inline-label input[type="text"]:focus,
+.inline-label input[type="number"]:focus,
+.inline-label select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* 文本输入项样式（两行显示） */
+.text-input-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.text-input-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.text-input-label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.text-input-field {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.text-input-field:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* 拖动条项样式 */
+.range-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.range-label-text {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.range-value-display {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
 }
 
 .action-btn {
@@ -443,25 +646,78 @@ const addStampType = () => {
   gap: 6px;
 }
 
-.stamp-type-body {
-  margin-top: 8px;
-}
-
 .range-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  width: 100%;
 }
 
-.range-container input[type='range'] {
+.range-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.range-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.range-btn:active {
+  background-color: #e5e7eb;
+}
+
+.range-container input[type="range"] {
   flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 3px;
+  outline: none;
 }
 
-.range-container span {
-  min-width: 50px;
-  text-align: right;
-  font-size: 14px;
-  color: #666;
+.range-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb:hover {
+  background: #2563eb;
+}
+
+.range-container input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-moz-range-thumb:hover {
+  background: #2563eb;
 }
 
 .fade-enter-active,
