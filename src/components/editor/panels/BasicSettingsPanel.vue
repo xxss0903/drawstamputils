@@ -200,6 +200,11 @@ const onWidthInput = (event: Event) => {
   const value = Number((event.target as HTMLInputElement).value)
   emit('update-config', (config) => {
     config.width = value
+    // 如果当前形状是三角形，自动调整高度以保持正三角形
+    if (config.company.shape === 'triangle') {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      config.height = value * sqrt3Over2
+    }
   })
 }
 
@@ -284,6 +289,12 @@ const onCompanyShapeChange = (event: Event) => {
   const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'triangle' | 'organic'
   emit('update-config', (config) => {
     config.company.shape = value
+    // 如果选择三角形，调整高度使其成为正三角形
+    // 正三角形：高度 = 宽度 * sqrt(3) / 2
+    if (value === 'triangle') {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      config.height = config.width * sqrt3Over2
+    }
     // 同时更新 companyList 中所有公司的形状，因为绘制逻辑检查的是 companyList
     if (config.companyList && config.companyList.length > 0) {
       config.companyList.forEach(company => {

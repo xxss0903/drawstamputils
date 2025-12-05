@@ -194,8 +194,12 @@ export class DrawCircleUtils {
         dashLength: number,
         gapLength: number
     ) {
-        const halfWidth = width / 2
-        const halfHeight = height / 2
+        // 让描边完全限制在给定的宽高范围内
+        // 由于描边会向外扩展 borderWidth/2，所以需要额外减去 borderWidth
+        const adjustedWidth = Math.max(width - borderWidth * 2, 0)
+        const adjustedHeight = Math.max(height - borderWidth * 2, 0)
+        const halfWidth = adjustedWidth / 2
+        const halfHeight = adjustedHeight / 2
         if (lineStyle === 'solid') {
             ctx.setLineDash([])
         } else {

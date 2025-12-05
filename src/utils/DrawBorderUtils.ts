@@ -234,8 +234,10 @@ export function drawTriangleBorder(
     gapPx: number = 5,
     fillColor?: string
 ) {
-    const adjustedWidth = Math.max(width - borderWidth, 0);
-    const adjustedHeight = Math.max(height - borderWidth, 0);
+    // 让描边完全限制在给定的宽高范围内
+    // 由于描边会向外扩展 borderWidth/2，所以需要额外减去 borderWidth
+    const adjustedWidth = Math.max(width - borderWidth * 2, 0);
+    const adjustedHeight = Math.max(height - borderWidth * 2, 0);
     const halfWidth = adjustedWidth / 2;
     const halfHeight = adjustedHeight / 2;
 
