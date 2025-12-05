@@ -1008,6 +1008,138 @@ export class DrawStampUtils {
     }
 
     /**
+     * 获取印章图片的 base64 数据
+     * @param format 图片格式
+     * @param quality 图片质量（仅对 JPEG 有效）
+     * @param targetWidth 目标宽度（可选）
+     * @param targetHeight 目标高度（可选）
+     * @returns Promise<string> base64 数据 URL
+     */
+    async getStampImageBase64(
+        format: 'png' | 'jpeg' = 'png',
+        quality: number = 0.92,
+        targetWidth?: number,
+        targetHeight?: number
+    ): Promise<string> {
+        return new Promise((resolve, reject) => {
+            // 图像与边框的间距
+            let imagePadding = 1
+            let maxStampSize = Math.max(this.drawStampConfigs.width, this.drawStampConfigs.height)
+            let stampWidth = (this.drawStampConfigs.width + imagePadding*2) * this.mmToPixel
+            let stampHeight = (this.drawStampConfigs.height + imagePadding*2) * this.mmToPixel
+
+            // 首先隐藏标尺
+            const originalShowCrossLine = this.drawStampConfigs.ruler.showCrossLine
+            const originalShowRuler = this.drawStampConfigs.ruler.showRuler
+            const originalShowDashLine = this.drawStampConfigs.ruler.showDashLine
+            const originalShowSideRuler = this.drawStampConfigs.ruler.showSideRuler
+            const originalShowFullRuler = this.drawStampConfigs.ruler.showFullRuler
+            const originalShowCurrentPositionText = this.drawStampConfigs.ruler.showCurrentPositionText
+
+            this.drawStampConfigs.ruler.showCrossLine = false
+            this.drawStampConfigs.ruler.showRuler = false
+            this.drawStampConfigs.ruler.showDashLine = false
+            this.drawStampConfigs.ruler.showSideRuler = false
+            this.drawStampConfigs.ruler.showFullRuler = false
+            this.drawStampConfigs.ruler.showCurrentPositionText = false
+            this.refreshStamp()
+
+            setTimeout(() => {
+                try {
+                    // 创建一个新的 canvas 元素
+                    const saveCanvas = document.createElement('canvas')
+                    saveCanvas.width = stampWidth
+                    saveCanvas.height = stampHeight
+                    const saveCtx = saveCanvas.getContext('2d')
+                    if (!saveCtx) {
+                        reject(new Error('无法创建 canvas context'))
+                        return
+                    }
+
+                    // 清除画布，使背景透明
+                    saveCtx.clearRect(0, 0, stampWidth, stampHeight)
+
+                    // 将原始 canvas 中的印章部分绘制到新的 canvas 上
+                    saveCtx.drawImage(
+                        this.canvas,
+                        RULER_WIDTH*this.mmToPixel + this.stampOffsetX * this.mmToPixel,
+                        RULER_HEIGHT*this.mmToPixel + this.stampOffsetY * this.mmToPixel,
+                        stampWidth,
+                        stampHeight,
+                        imagePadding * this.mmToPixel,
+                        imagePadding * this.mmToPixel,
+                        stampWidth,
+                        stampHeight
+                    )
+
+                    // 如果启用了做旧效果，在新的 canvas 上应用做旧效果
+                    if (this.drawStampConfigs.agingEffect.applyAging) {
+                        this.addAgingEffect(saveCtx, stampWidth, stampHeight, false)
+                    }
+
+                    // 如果需要自定义导出尺寸，创建缩放后的画布
+                    let outputCanvas = saveCanvas
+                    const exportWidth = targetWidth && targetWidth > 0 ? targetWidth : stampWidth
+                    const exportHeight = targetHeight && targetHeight > 0 ? targetHeight : stampHeight
+                    if (exportWidth !== stampWidth || exportHeight !== stampHeight) {
+                        const scaledCanvas = document.createElement('canvas')
+                        scaledCanvas.width = exportWidth
+                        scaledCanvas.height = exportHeight
+                        const scaledCtx = scaledCanvas.getContext('2d')
+                        if (scaledCtx) {
+                            scaledCtx.drawImage(saveCanvas, 0, 0, exportWidth, exportHeight)
+                            outputCanvas = scaledCanvas
+                        }
+                    }
+
+                    let dataURL: string
+
+                    if (format === 'jpeg') {
+                        // JPEG 格式，需要白色背景
+                        const tempCanvas = document.createElement('canvas')
+                        tempCanvas.width = outputCanvas.width
+                        tempCanvas.height = outputCanvas.height
+                        const tempCtx = tempCanvas.getContext('2d')
+                        if (tempCtx) {
+                            tempCtx.fillStyle = '#FFFFFF'
+                            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+                            tempCtx.drawImage(outputCanvas, 0, 0, tempCanvas.width, tempCanvas.height)
+                            dataURL = tempCanvas.toDataURL('image/jpeg', quality)
+                        } else {
+                            dataURL = outputCanvas.toDataURL('image/jpeg', quality)
+                        }
+                    } else {
+                        // PNG 格式（默认）
+                        dataURL = outputCanvas.toDataURL('image/png')
+                    }
+
+                    // 恢复标尺设置
+                    this.drawStampConfigs.ruler.showCrossLine = originalShowCrossLine
+                    this.drawStampConfigs.ruler.showRuler = originalShowRuler
+                    this.drawStampConfigs.ruler.showDashLine = originalShowDashLine
+                    this.drawStampConfigs.ruler.showSideRuler = originalShowSideRuler
+                    this.drawStampConfigs.ruler.showFullRuler = originalShowFullRuler
+                    this.drawStampConfigs.ruler.showCurrentPositionText = originalShowCurrentPositionText
+                    this.refreshStamp()
+
+                    resolve(dataURL)
+                } catch (error) {
+                    // 恢复标尺设置
+                    this.drawStampConfigs.ruler.showCrossLine = originalShowCrossLine
+                    this.drawStampConfigs.ruler.showRuler = originalShowRuler
+                    this.drawStampConfigs.ruler.showDashLine = originalShowDashLine
+                    this.drawStampConfigs.ruler.showSideRuler = originalShowSideRuler
+                    this.drawStampConfigs.ruler.showFullRuler = originalShowFullRuler
+                    this.drawStampConfigs.ruler.showCurrentPositionText = originalShowCurrentPositionText
+                    this.refreshStamp()
+
+                    reject(error)
+                }
+            }, 50)
+        })
+    }
+
+    /**
      * 刷新印章绘制
      * @param refreshSecurityPattern 是否刷新防伪纹路
      * @param refreshOld 是否刷新做旧效果

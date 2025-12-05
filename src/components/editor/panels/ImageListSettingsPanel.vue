@@ -138,14 +138,14 @@ const expandedItems = ref<Record<number, boolean>>({})
 watch(
   selectedIndex,
   (newIndex) => {
-    if (newIndex >= 0) {
+  if (newIndex >= 0) {
       // 先收起所有项
       Object.keys(expandedItems.value).forEach((key) => {
         expandedItems.value[Number(key)] = false
       })
       // 再展开当前选中的项
-      expandedItems.value[newIndex] = true
-    }
+    expandedItems.value[newIndex] = true
+  }
   },
   { immediate: true }
 )

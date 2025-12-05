@@ -253,6 +253,7 @@ import ElementList from './ElementList.vue'
 import PropertiesPanel from './PropertiesPanel.vue'
 import { useStampStore } from '../../stores/stampStore'
 import { useUserStore } from '../../stores/userStore'
+import { stampSaveApi } from '../../utils/api'
 
 const props = defineProps<{
   /** 传入的印章模板配置，用于初始化或联动 */
@@ -591,19 +592,48 @@ const getRemainingSaveCount = (): number => {
   return Math.max(0, DAILY_SAVE_LIMIT - todayCount)
 }
 
-const confirmExport = () => {
+const confirmExport = async () => {
   closeFormatDialog()
-
-  // 如果是未登录用户，增加保存次数
-  if (!userStore.isAuthenticated.value) {
-    incrementTodaySaveCount()
-  }
 
   if (!drawStampUtils) return
   const width = clampExportSize(exportWidth.value, Math.round(defaultExportWidth.value) || MIN_EXPORT_SIZE)
   const height = clampExportSize(exportHeight.value, Math.round(defaultExportHeight.value) || MIN_EXPORT_SIZE)
   const quality = selectedFormat.value === 'jpeg' ? jpegQuality.value / 100 : 0.92
 
+  // 保存印章记录到后端（使用图片 base64）
+  try {
+    // 生成图片 base64（使用较小的尺寸以减少数据量，例如 800px 宽度）
+    const maxPreviewWidth = 800
+    const aspectRatio = width / height
+    const previewWidth = Math.min(maxPreviewWidth, width)
+    const previewHeight = Math.round(previewWidth / aspectRatio)
+    
+    const imageBase64 = await drawStampUtils.getStampImageBase64(
+      selectedFormat.value === 'jpeg' ? 'jpeg' : 'png',
+      quality,
+      previewWidth,
+      previewHeight
+    )
+    
+    // 验证 base64 数据是否有效
+    if (!imageBase64 || typeof imageBase64 !== 'string' || !imageBase64.startsWith('data:image/')) {
+      console.warn('生成的图片 base64 数据无效，跳过保存记录')
+    } else {
+      // 调用 API 保存记录，传入图片 base64 数据
+      await stampSaveApi.saveStamp(imageBase64)
+      // 保存成功，继续执行下载
+    }
+  } catch (error) {
+    // 保存记录失败不影响下载，只记录错误
+    console.error('保存印章记录失败:', error)
+  }
+
+  // 如果是未登录用户，增加本地保存次数（用于前端显示）
+  if (!userStore.isAuthenticated.value) {
+    incrementTodaySaveCount()
+  }
+
+  // 执行下载
   drawStampUtils.saveStampAsPNG(selectedFormat.value, quality, Math.round(width), Math.round(height))
 }
 

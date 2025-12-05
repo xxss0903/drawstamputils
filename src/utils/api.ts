@@ -258,3 +258,41 @@ export const publicTemplateApi = {
   },
 }
 
+// 印章保存记录相关 API
+export interface StampSaveResponse {
+  id: string
+  user_id: string | null
+  user_email: string | null // 用户邮箱（如果已登录）
+  ip_address: string
+  created_at: number // 时间戳（毫秒）
+}
+
+export const stampSaveApi = {
+  // 保存印章记录
+  saveStamp: async (imageBase64: string): Promise<ApiResponse<StampSaveResponse>> => {
+    // 验证参数
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      throw new Error('图片 base64 数据无效')
+    }
+    
+    if (!imageBase64.startsWith('data:image/')) {
+      throw new Error('图片 base64 数据格式错误，必须以 data:image/ 开头')
+    }
+
+    // 发送请求，传入图片 base64 数据
+    return request<StampSaveResponse>('/api/stamp-saves', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        image_base64: imageBase64 
+      }),
+    })
+  },
+
+  // 获取今日保存次数
+  getTodaySaveCount: async (): Promise<ApiResponse<{ count: number }>> => {
+    return request<{ count: number }>('/api/stamp-saves/today-count', {
+      method: 'GET',
+    })
+  },
+}
+
