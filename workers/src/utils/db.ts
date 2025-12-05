@@ -338,3 +338,58 @@ export async function getUserCollections(db: D1Database, userId: string): Promis
   return result.results || [];
 }
 
+/**
+ * 创建印章保存记录
+ */
+export async function createStampSave(
+  db: D1Database,
+  userId: string | null,
+  ipAddress: string,
+  imageBase64: string
+): Promise<{ id: string; user_id: string | null; ip_address: string; created_at: number }> {
+  const id = crypto.randomUUID();
+  const now = Date.now();
+
+  await db.prepare(
+    `INSERT INTO stamp_saves (id, user_id, ip_address, image_base64, created_at)
+     VALUES (?, ?, ?, ?, ?)`
+  ).bind(id, userId, ipAddress, imageBase64, now).run();
+
+  return {
+    id,
+    user_id: userId,
+    ip_address: ipAddress,
+    created_at: now,
+  };
+}
+
+/**
+ * 获取用户今日保存次数（基于 IP 或用户 ID）
+ */
+export async function getTodaySaveCount(
+  db: D1Database,
+  userId: string | null,
+  ipAddress: string
+): Promise<number> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStart = today.getTime();
+
+  let result;
+  if (userId) {
+    // 已登录用户：按用户 ID 统计
+    result = await db.prepare(
+      `SELECT COUNT(*) as count FROM stamp_saves 
+       WHERE user_id = ? AND created_at >= ?`
+    ).bind(userId, todayStart).first<{ count: number }>();
+  } else {
+    // 未登录用户：按 IP 统计
+    result = await db.prepare(
+      `SELECT COUNT(*) as count FROM stamp_saves 
+       WHERE ip_address = ? AND created_at >= ? AND user_id IS NULL`
+    ).bind(ipAddress, todayStart).first<{ count: number }>();
+  }
+
+  return result?.count || 0;
+}
+

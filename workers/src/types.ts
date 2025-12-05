@@ -117,6 +117,27 @@ export interface JWTPayload {
   exp?: number;
 }
 
+// 印章保存记录相关类型
+export interface StampSave {
+  id: string;
+  user_id: string | null;
+  ip_address: string;
+  image_base64: string; // 图片 base64 数据
+  created_at: number;
+}
+
+export interface SaveStampRequest {
+  image_base64: string; // 图片 base64 数据
+}
+
+export interface StampSaveResponse {
+  id: string;
+  user_id: string | null;
+  user_email: string | null; // 用户邮箱（如果已登录）
+  ip_address: string;
+  created_at: number; // 时间戳（毫秒）
+}
+
 // API 响应类型
 export interface ApiResponse<T = any> {
   success: boolean;

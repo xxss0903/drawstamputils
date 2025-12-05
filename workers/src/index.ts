@@ -20,6 +20,7 @@ import {
   handleGetPublicTemplatePreview,
 } from './routes/publicTemplates';
 import { handleInitPublicTemplates, handleListR2Files } from './routes/admin';
+import { handleSaveStamp, handleGetTodaySaveCount } from './routes/stampSaves';
 import { verifyAuth } from './middleware/auth';
 import { handleCors, addCorsHeaders } from './middleware/cors';
 import type { Env } from './types';
@@ -232,6 +233,20 @@ export default {
         } else if (action === 'uncollect') {
           return handleUncollectTemplate(request, env, auth, templateId);
         }
+      }
+
+      // 印章保存记录路由
+      if (path === '/api/stamp-saves' && request.method === 'POST') {
+        // 保存印章记录（可选认证，未登录用户使用 IP）
+        // 保存的信息包括：用户 ID、用户邮箱（如果已登录）、IP 地址、图片 base64、保存时间
+        const auth = await verifyAuth(request, env); // 可选，不强制要求登录
+        return handleSaveStamp(request, env, auth);
+      }
+
+      if (path === '/api/stamp-saves/today-count' && request.method === 'GET') {
+        // 获取今日保存次数（可选认证）
+        const auth = await verifyAuth(request, env); // 可选，不强制要求登录
+        return handleGetTodaySaveCount(request, env, auth);
       }
 
       // 管理接口
