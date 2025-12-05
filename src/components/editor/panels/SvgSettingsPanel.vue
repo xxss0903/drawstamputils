@@ -423,7 +423,7 @@ const adjustScale = (index: number, delta: number) => {
 
 .svg-settings-group label {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   font-size: 13px;
   color: #374151;
   gap: 4px;
@@ -608,18 +608,18 @@ const adjustScale = (index: number, delta: number) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+  border-bottom: 1px solid #e8e8e8;
+  transition: background 0.2s;
+  gap: 12px;
 }
 
-.header-left span {
-  font-weight: 600;
-  color: #000;
-}
-
-.header-actions {
+.header-left {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
 }
 
 .action-btn {
@@ -718,6 +718,43 @@ const adjustScale = (index: number, delta: number) => {
 
 .range-container input[type="range"]::-moz-range-thumb:hover {
   background: #2563eb;
+}
+
+
+.expand-toggle-btn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+  min-width: 24px;
+  height: 24px;
+}
+
+.expand-toggle-btn:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.expand-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.expand-icon.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-icon:not(.expanded) {
+  transform: rotate(-90deg);
 }
 </style>
 
