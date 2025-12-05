@@ -35,7 +35,7 @@ export type ICompany = {
     fontHeight: number // 字体高度
     fontWeight: string | number // 字体粗细
     fontStyle?: 'normal' | 'italic' // 字体样式（正常/倾斜）
-    shape: 'ellipse' | 'rectangle' | 'rhombus' | 'organic' // 印章形状
+    shape: 'ellipse' | 'rectangle' | 'rhombus' | 'organic' | 'triangle' // 印章形状
     adjustEllipseText: boolean // 是否调整椭圆
     adjustEllipseTextFactor: number // 调整椭圆的因子
     color?: string | undefined // 颜色
@@ -183,7 +183,7 @@ export type IInnerCircle = {
     lineStyle?: LineStyle // 线条样式
     dashLength?: number // 虚线长度
     gapLength?: number // 虚线间距
-    shape?: 'ellipse' | 'rectangle' | 'rhombus' // 形状
+    shape?: 'ellipse' | 'rectangle' | 'rhombus' | 'triangle' // 形状
     offsetX?: number // 水平偏移 (mm)
     offsetY?: number // 垂直偏移 (mm)
     fillBackground?: boolean // 是否填充背景颜色

@@ -73,11 +73,12 @@
               <span class="label-text">形状:</span>
               <select
                 :value="innerCircle.shape || 'ellipse'"
-                @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus')"
+                @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'triangle')"
               >
                 <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
                 <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
                 <option value="rhombus">{{ t('stamp.basic.shapeOptions.rhombus') }}</option>
+                <option value="triangle">{{ t('stamp.basic.shapeOptions.triangle') }}</option>
               </select>
             </label>
             <label class="inline-label">
@@ -168,6 +169,9 @@
         </button>
         <button class="add-button" @click="addInnerCircle('rhombus')">
           {{ t('stamp.innerCircle.addRhombus') }}
+        </button>
+        <button class="add-button" @click="addInnerCircle('triangle')">
+          {{ t('stamp.innerCircle.addTriangle') }}
         </button>
       </div>
     </div>
@@ -272,7 +276,7 @@ const copyInnerCircle = (index: number) => {
   })
 }
 
-const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus') => {
+const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus' | 'triangle') => {
   emit('update-config', (config) => {
     if (!config.innerCircleList) {
       config.innerCircleList = []

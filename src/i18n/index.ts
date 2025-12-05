@@ -77,6 +77,7 @@ const messages = {
           ellipse: '椭圆/圆形',
           rectangle: '矩形',
           rhombus: '菱形',
+          triangle: '三角形',
           organic: '不规则/有机形状'
         }
       },
@@ -230,7 +231,8 @@ const messages = {
         positionY: '垂直偏移 (mm)',
         addEllipse: '添加圆形/椭圆内圈',
         addRectangle: '添加矩形内圈',
-        addRhombus: '添加菱形内圈'
+        addRhombus: '添加菱形内圈',
+        addTriangle: '添加三角形内圈'
       },
       outBorder: {
         enable: '显示外圈边框',
@@ -301,7 +303,7 @@ const messages = {
       }
     },
     navigation: {
-      maker: '印章制作',
+      maker: '印章模板',
       about: '关于我们',
       contact: '联系我们',
       footer: {
@@ -747,6 +749,7 @@ const messages = {
           ellipse: 'Ellipse/Circle',
           rectangle: 'Rectangle',
           rhombus: 'Rhombus',
+          triangle: 'Triangle',
           organic: 'Organic/Irregular Shape'
         }
       },
@@ -900,7 +903,8 @@ const messages = {
         positionY: 'Offset Y (mm)',
         addEllipse: 'Add Ellipse Circle',
         addRectangle: 'Add Rectangle Circle',
-        addRhombus: 'Add Rhombus Circle'
+        addRhombus: 'Add Rhombus Circle',
+        addTriangle: 'Add Triangle Circle'
       },
       outBorder: {
         enable: 'Show Outer Border',
@@ -971,7 +975,7 @@ const messages = {
       }
     },
     navigation: {
-      maker: 'Stamp Maker',
+      maker: 'Stamp Templates',
       about: 'About Us',
       contact: 'Contact Us',
       footer: {

@@ -66,6 +66,7 @@
             <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
             <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
             <option value="rhombus">{{ t('stamp.basic.shapeOptions.rhombus') }}</option>
+            <option value="triangle">{{ t('stamp.basic.shapeOptions.triangle') }}</option>
             <option value="organic">{{ t('stamp.basic.shapeOptions.organic') }}</option>
           </select>
         </label>
@@ -280,7 +281,7 @@ const onPrimaryColorInput = (event: Event) => {
 }
 
 const onCompanyShapeChange = (event: Event) => {
-  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'organic'
+  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'triangle' | 'organic'
   emit('update-config', (config) => {
     config.company.shape = value
     // 同时更新 companyList 中所有公司的形状，因为绘制逻辑检查的是 companyList
@@ -291,7 +292,10 @@ const onCompanyShapeChange = (event: Event) => {
     }
     if (config.innerCircleList) {
       config.innerCircleList.forEach(circle => {
-        circle.shape = value
+        // 只更新支持的形状类型（内圈不支持 organic）
+        if (value === 'ellipse' || value === 'rectangle' || value === 'rhombus' || value === 'triangle') {
+          circle.shape = value
+        }
       })
     }
   })

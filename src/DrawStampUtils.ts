@@ -9,7 +9,7 @@ import {
   IStampType,
   ITaxNumber
 } from "./DrawStampTypes.ts";
-import { drawBasicBorder, drawRectangleBorder, drawRhombusBorder, drawOrganicBorder } from "./utils/DrawBorderUtils.ts";
+import { drawBasicBorder, drawRectangleBorder, drawRhombusBorder, drawOrganicBorder, drawTriangleBorder } from "./utils/DrawBorderUtils.ts";
 import { DrawCircleUtils } from "./utils/DrawCircleUtils.ts";
 import { DrawCompanyUtils } from "./utils/DrawCompanyUtils.ts";
 import { DrawRulerUtils } from "./utils/DrawRulerUtils.ts";
@@ -1257,7 +1257,10 @@ export class DrawStampUtils {
         const hasOrganicStamp =
             this.drawStampConfigs.companyList.some(company => company.shape === 'organic') ||
             this.drawStampConfigs.company?.shape === 'organic'
-        const stampShape = hasOrganicStamp ? 'organic' : hasRhombusStamp ? 'rhombus' : hasRectangleStamp ? 'rectangle' : 'ellipse'
+        const hasTriangleStamp =
+            this.drawStampConfigs.companyList.some(company => company.shape === 'triangle') ||
+            this.drawStampConfigs.company?.shape === 'triangle'
+        const stampShape = hasOrganicStamp ? 'organic' : hasTriangleStamp ? 'triangle' : hasRhombusStamp ? 'rhombus' : hasRectangleStamp ? 'rectangle' : 'ellipse'
         const isEllipseShape = stampShape === 'ellipse'
         
         // 矩形印章的尺寸（使用 width 和 height）
@@ -1324,6 +1327,23 @@ export class DrawStampUtils {
                     outBorderGap,
                     fillColor,
                     irregularity
+                )
+            } else if (stampShape === 'triangle') {
+                // 绘制三角形边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
+                const fillBackground = this.drawStampConfigs.outBorder.fillBackground || false
+                const fillColor = fillBackground ? (this.drawStampConfigs.outBorder.color || undefined) : undefined
+                drawTriangleBorder(
+                    offscreenCtx,
+                    centerX,
+                    centerY,
+                    rectWidth,
+                    rectHeight,
+                    this.drawStampConfigs.outBorder.innerCircleLineWidth * this.mmToPixel,
+                    borderColor,
+                    outBorderStyle,
+                    outBorderDash,
+                    outBorderGap,
+                    fillColor
                 )
             } else {
                 // 绘制椭圆边框（如果 outBorder 启用了背景填充且有 color 属性，则填充背景）
@@ -1401,6 +1421,14 @@ export class DrawStampUtils {
                 }
                 offscreenCtx.closePath()
             }
+        } else if (stampShape === 'triangle') {
+            // 三角形裁剪区域
+            const halfWidth = rectWidth / 2
+            const halfHeight = rectHeight / 2
+            offscreenCtx.moveTo(centerX, centerY - halfHeight)
+            offscreenCtx.lineTo(centerX + halfWidth, centerY + halfHeight)
+            offscreenCtx.lineTo(centerX - halfWidth, centerY + halfHeight)
+            offscreenCtx.closePath()
         } else {
             // 椭圆裁剪区域
             offscreenCtx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2)
@@ -1423,7 +1451,7 @@ export class DrawStampUtils {
         }
         // 绘制公司文字内容（支持椭圆和矩形）
         // 对于矩形印章，传递宽度和高度；对于椭圆印章，传递半径
-        if (stampShape === 'rectangle' || stampShape === 'rhombus') {
+        if (stampShape === 'rectangle' || stampShape === 'rhombus' || stampShape === 'triangle') {
             this.drawCompanyUtils.drawCompanyList(
                 offscreenCtx,
                 this.drawStampConfigs.companyList,
