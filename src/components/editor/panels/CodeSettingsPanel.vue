@@ -30,93 +30,117 @@
         </div>
         <transition name="fade">
         <div v-show="isItemExpanded(index)" class="code-body">
-      <label>
-        {{ t('stamp.code.code') }}:
-        <input
-          type="text"
-          :value="code.code"
-          @input="updateCode(index, 'code', ($event.target as HTMLInputElement).value)"
-        />
-      </label>
+          <!-- 文本/选择类设置 -->
+          <div class="settings-section">
+            <div class="text-input-item">
+              <div class="text-input-header">
+                <span class="text-input-label">{{ t('stamp.code.code') }}:</span>
+              </div>
+              <input 
+                type="text" 
+                class="text-input-field"
+                :value="code.code"
+                @input="updateCode(index, 'code', ($event.target as HTMLInputElement).value)"
+              />
+            </div>
 
-      <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 颜色 -->
-      <div class="text-toolbar">
-        <select
-          :value="code.fontFamily"
-          class="toolbar-font-select"
-          @change="updateCode(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
-        >
-          <option
-            v-for="font in systemFonts"
-            :key="font"
-            :value="font"
-            :style="{ fontFamily: font }"
-          >
-            {{ getFontDisplayName(font) }}
-          </option>
-        </select>
-        <input
-          type="number"
-          class="toolbar-font-size"
-          :value="code.fontHeight"
-          min="1"
-          max="10"
-          step="0.1"
-          @input="updateCode(index, 'fontHeight', parseNumber($event))"
-        />
-      </div>
-      <div class="text-toolbar">
-        <button
-          type="button"
-          class="toolbar-bold-btn"
-          :class="{ active: code.fontWeight === 'bold' || code.fontWeight === 700 }"
-          @click="toggleBold(index)"
-        >
-          B
-        </button>
-        <label class="toolbar-color-wrapper">
-          <span class="toolbar-color-swatch" :style="{ backgroundColor: code.color || primaryColor }"></span>
-          <input
-            type="color"
-            class="toolbar-color-input"
-            :value="code.color || primaryColor"
-            @input="onColorInput(index, $event)"
-          />
-        </label>
-      </div>
-      <label>
-        <span>{{ t('stamp.common.compression', { value: code.compression.toFixed(2) }) }}</span>
-        <input
-          type="range"
-          :value="code.compression"
-          min="0.0"
-          max="3"
-          step="0.01"
-          @input="updateCode(index, 'compression', parseNumber($event))"
-        />
-      </label>
-      <label>
-        <span>{{ t('stamp.common.distribution', { value: code.textDistributionFactor.toFixed(1) }) }}</span>
-        <input
-          type="range"
-          :value="code.textDistributionFactor"
-          min="0"
-          max="100"
-          step="0.5"
-          @input="updateCode(index, 'textDistributionFactor', parseNumber($event))"
-        />
-      </label>
-      <label>
-        {{ t('stamp.code.margin') }}:
-        <input
-          type="number"
-          :value="code.borderOffset"
-          min="-10"
-          max="20"
-          step="0.01"
-          @input="updateCode(index, 'borderOffset', parseNumber($event))"
-        />
-      </label>
+            <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 颜色 -->
+            <div class="text-toolbar">
+              <select
+                :value="code.fontFamily"
+                class="toolbar-font-select"
+                @change="updateCode(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
+              >
+                <option
+                  v-for="font in systemFonts"
+                  :key="font"
+                  :value="font"
+                  :style="{ fontFamily: font }"
+                >
+                  {{ getFontDisplayName(font) }}
+                </option>
+              </select>
+              <input
+                type="number"
+                class="toolbar-font-size"
+                :value="code.fontHeight"
+                min="1"
+                max="10"
+                step="0.1"
+                @input="updateCode(index, 'fontHeight', parseNumber($event))"
+              />
+            </div>
+            <div class="text-toolbar">
+              <button
+                type="button"
+                class="toolbar-bold-btn"
+                :class="{ active: code.fontWeight === 'bold' || code.fontWeight === 700 }"
+                @click="toggleBold(index)"
+              >
+                B
+              </button>
+              <label class="toolbar-color-wrapper">
+                <span class="toolbar-color-swatch" :style="{ backgroundColor: code.color || primaryColor }"></span>
+                <input
+                  type="color"
+                  class="toolbar-color-input"
+                  :value="code.color || primaryColor"
+                  @input="onColorInput(index, $event)"
+                />
+              </label>
+            </div>
+            <label class="inline-label">
+              <span class="label-text">{{ t('stamp.code.margin') }}:</span>
+              <input
+                type="number"
+                :value="code.borderOffset"
+                min="-10"
+                max="20"
+                step="0.01"
+                @input="updateCode(index, 'borderOffset', parseNumber($event))"
+              />
+            </label>
+          </div>
+
+          <!-- 拖动条类设置 -->
+          <div class="range-section">
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">压缩比例</span>
+                <span class="range-value-display">[ {{ code.compression.toFixed(2) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustCompression(index, -0.01)">◀</button>
+                <input
+                  type="range"
+                  :value="code.compression"
+                  min="0.0"
+                  max="3"
+                  step="0.01"
+                  @input="updateCode(index, 'compression', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustCompression(index, 0.01)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">分布因子</span>
+                <span class="range-value-display">[ {{ code.textDistributionFactor.toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustDistribution(index, -0.5)">◀</button>
+                <input
+                  type="range"
+                  :value="code.textDistributionFactor"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  @input="updateCode(index, 'textDistributionFactor', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustDistribution(index, 0.5)">▶</button>
+              </div>
+            </div>
+          </div>
         </div>
         </transition>
       </div>
@@ -317,6 +341,38 @@ const addCode = () => {
     config.stampCode = config.stampCodeList[0]
   })
 }
+
+const adjustCompression = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    if (!config.stampCodeList) {
+      config.stampCodeList = []
+      if (config.stampCode) {
+        config.stampCodeList.push({ ...config.stampCode })
+      }
+    }
+    const list = config.stampCodeList
+    if (!list[index]) return
+    const newValue = Math.max(0.0, Math.min(3, list[index].compression + delta))
+    list[index].compression = newValue
+    config.stampCode = list[0]
+  })
+}
+
+const adjustDistribution = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    if (!config.stampCodeList) {
+      config.stampCodeList = []
+      if (config.stampCode) {
+        config.stampCodeList.push({ ...config.stampCode })
+      }
+    }
+    const list = config.stampCodeList
+    if (!list[index]) return
+    const newValue = Math.max(0, Math.min(100, list[index].textDistributionFactor + delta))
+    list[index].textDistributionFactor = newValue
+    config.stampCode = list[0]
+  })
+}
 </script>
 
 <style scoped>
@@ -385,7 +441,205 @@ const addCode = () => {
 }
 
 .code-body {
-  padding: 12px 12px 4px;
+  padding: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 文本/选择类设置区域 */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 拖动条类设置区域 */
+.range-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #374151;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.inline-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-label .label-text {
+  min-width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.inline-label input[type="text"],
+.inline-label input[type="number"],
+.inline-label select {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.inline-label input[type="text"]:focus,
+.inline-label input[type="number"]:focus,
+.inline-label select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* 文本输入项样式（两行显示） */
+.text-input-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.text-input-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.text-input-label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.text-input-field {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.text-input-field:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* 拖动条项样式 */
+.range-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.range-label-text {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.range-value-display {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.range-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.range-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.range-btn:active {
+  background-color: #e5e7eb;
+}
+
+.range-container input[type="range"] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 3px;
+  outline: none;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb:hover {
+  background: #2563eb;
+}
+
+.range-container input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-moz-range-thumb:hover {
+  background: #2563eb;
 }
 
 .expand-toggle-btn {

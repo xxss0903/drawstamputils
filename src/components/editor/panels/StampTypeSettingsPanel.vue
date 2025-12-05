@@ -178,7 +178,7 @@
             <div class="range-item">
               <div class="range-header">
                 <span class="range-label-text">旋转角度 (°)</span>
-                <span class="range-value-display">[ {{ (type.rotation || 0).toFixed(0) }}° ]</span>
+                <span class="range-value-display">[ {{ (type.rotation || 0).toFixed(1) }}° ]</span>
               </div>
               <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustRotation(index, -0.1)">◀</button>
