@@ -58,7 +58,7 @@ const messages = {
         extractCircle: '提取圆形印章',
         width: '印章宽度 (mm)',
         height: '印章高度 (mm)',
-        borderWidth: '圆形边框宽度 (mm)',
+        borderWidth: '边框宽度 (mm)',
         color: '印章颜色',
         shape: '印章形状',
         borderLineStyle: '边框线条样式',
