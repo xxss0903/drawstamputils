@@ -54,10 +54,11 @@
               <span class="label-text">{{ t('stamp.innerCircle.radiusY') }}:</span>
               <input
                 type="number"
-                :value="innerCircle.innerCircleLineRadiusY"
+                :value="getComputedRadiusY(innerCircle, index)"
                 min="1"
                 max="50"
                 step="0.1"
+                :disabled="innerCircle.shape === 'triangle' && (props.config.lockTriangleEquilateral ?? true)"
                 @input="updateInnerCircle(index, 'innerCircleLineRadiusY', parseNumber($event))"
               />
             </label>
@@ -73,7 +74,7 @@
               <span class="label-text">形状:</span>
               <select
                 :value="innerCircle.shape || 'ellipse'"
-                @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'triangle')"
+                @change="onInnerCircleShapeChange(index, $event)"
               >
                 <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
                 <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
@@ -245,6 +246,29 @@ const isItemExpanded = (index: number) => {
 
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
 
+// 计算 radiusY 值：如果是三角形且开启了等边三角形锁定，根据 radiusX 计算等边三角形的高度
+const getComputedRadiusY = (innerCircle: IInnerCircle, index: number) => {
+  if (innerCircle.shape === 'triangle' && (props.config.lockTriangleEquilateral ?? true)) {
+    const sqrt3Over2 = Math.sqrt(3) / 2
+    return innerCircle.innerCircleLineRadiusX * sqrt3Over2
+  }
+  return innerCircle.innerCircleLineRadiusY
+}
+
+const onInnerCircleShapeChange = (index: number, event: Event) => {
+  const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'triangle'
+  emit('update-config', (config) => {
+    const list = config.innerCircleList || []
+    if (!list[index]) return
+    list[index].shape = value
+    // 如果选择三角形且开启了等边三角形锁定，调整 radiusY 使其成为等边三角形
+    if (value === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      list[index].innerCircleLineRadiusY = list[index].innerCircleLineRadiusX * sqrt3Over2
+    }
+  })
+}
+
 const updateInnerCircle = <K extends keyof IInnerCircle>(
   index: number,
   key: K,
@@ -254,6 +278,18 @@ const updateInnerCircle = <K extends keyof IInnerCircle>(
     const list = config.innerCircleList || []
     if (!list[index]) return
     list[index][key] = value
+    // 如果修改的是 radiusX 且形状是三角形且开启了等边三角形锁定，自动更新 radiusY
+    if (key === 'innerCircleLineRadiusX' && list[index].shape === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      list[index].innerCircleLineRadiusY = Number(value) * sqrt3Over2
+    }
+    // 如果修改的是 radiusY 且形状是三角形且开启了等边三角形锁定，根据 radiusY 反向计算 radiusX
+    if (key === 'innerCircleLineRadiusY' && list[index].shape === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      list[index].innerCircleLineRadiusX = Number(value) / sqrt3Over2
+      // 重新计算 radiusY 以确保精度
+      list[index].innerCircleLineRadiusY = list[index].innerCircleLineRadiusX * sqrt3Over2
+    }
   })
 }
 
@@ -267,10 +303,17 @@ const copyInnerCircle = (index: number) => {
   emit('update-config', (config) => {
     if (!config.innerCircleList || !config.innerCircleList[index]) return
     const original = config.innerCircleList[index]
+    let radiusX = original.innerCircleLineRadiusX + 1 // 稍微偏移
+    let radiusY = original.innerCircleLineRadiusY + 1
+    // 如果形状是三角形且开启了等边三角形锁定，根据 radiusX 计算 radiusY
+    if (original.shape === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      radiusY = radiusX * sqrt3Over2
+    }
     const clone: IInnerCircle = {
       ...original,
-      innerCircleLineRadiusX: original.innerCircleLineRadiusX + 1, // 稍微偏移
-      innerCircleLineRadiusY: original.innerCircleLineRadiusY + 1
+      innerCircleLineRadiusX: radiusX,
+      innerCircleLineRadiusY: radiusY
     }
     config.innerCircleList.splice(index + 1, 0, clone)
   })
@@ -281,15 +324,23 @@ const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus' | 'triangle'
     if (!config.innerCircleList) {
       config.innerCircleList = []
     }
+    const newShape = shape || config.company.shape || 'ellipse'
+    let radiusX = 16
+    let radiusY = 12
+    // 如果形状是三角形且开启了等边三角形锁定，根据 radiusX 计算 radiusY
+    if (newShape === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      radiusY = radiusX * sqrt3Over2
+    }
     config.innerCircleList.push({
       drawInnerCircle: true,
       innerCircleLineWidth: 0.5,
-      innerCircleLineRadiusX: 16,
-      innerCircleLineRadiusY: 12,
+      innerCircleLineRadiusX: radiusX,
+      innerCircleLineRadiusY: radiusY,
       lineStyle: 'solid',
       dashLength: 2,
       gapLength: 1,
-      shape: shape || config.company.shape || 'ellipse',
+      shape: newShape,
       color: config.primaryColor || '#d40000',
       offsetX: 0,
       offsetY: 0

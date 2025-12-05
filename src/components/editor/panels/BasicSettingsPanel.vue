@@ -17,10 +17,11 @@
           <span class="label-text">{{ t('stamp.basic.height') }}:</span>
           <input
             type="number"
-            :value="props.config.height"
+            :value="computedHeight"
             min="1"
             max="50"
             step="0.1"
+            :disabled="props.config.company.shape === 'triangle' && (props.config.lockTriangleEquilateral ?? true)"
             @input="onHeightInput"
           />
         </label>
@@ -77,6 +78,14 @@
             @change="onDrawOutBorderChange"
           />
           {{ t('stamp.outBorder.enable') }}
+        </label>
+        <label v-if="props.config.company.shape === 'triangle'" class="checkbox-label">
+          <input
+            type="checkbox"
+            :checked="props.config.lockTriangleEquilateral ?? true"
+            @change="onLockTriangleEquilateralChange"
+          />
+          固定为等边三角形
         </label>
         <label v-if="props.config.outBorder.drawInnerCircle" class="inline-label">
           <span class="label-text">{{ t('stamp.outBorder.lineWidth') }}:</span>
@@ -175,12 +184,22 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 import type { IDrawStampConfig } from '../../../DrawStampTypes'
+import { computed } from 'vue'
 
 const props = defineProps<{
   expanded: boolean
   isCircleDetect: boolean
   config: IDrawStampConfig
 }>()
+
+// 计算高度值：如果是三角形且开启了等边三角形锁定，根据宽度计算等边三角形的高度
+const computedHeight = computed(() => {
+  if (props.config.company.shape === 'triangle' && (props.config.lockTriangleEquilateral ?? true)) {
+    const sqrt3Over2 = Math.sqrt(3) / 2
+    return props.config.width * sqrt3Over2
+  }
+  return props.config.height
+})
 
 const emit = defineEmits<{
   (e: 'update:expanded', value: boolean): void
@@ -200,8 +219,8 @@ const onWidthInput = (event: Event) => {
   const value = Number((event.target as HTMLInputElement).value)
   emit('update-config', (config) => {
     config.width = value
-    // 如果当前形状是三角形，自动调整高度以保持正三角形
-    if (config.company.shape === 'triangle') {
+    // 如果当前形状是三角形且开启了等边三角形锁定，自动调整高度以保持等边三角形
+    if (config.company.shape === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
       const sqrt3Over2 = Math.sqrt(3) / 2
       config.height = value * sqrt3Over2
     }
@@ -211,7 +230,16 @@ const onWidthInput = (event: Event) => {
 const onHeightInput = (event: Event) => {
   const value = Number((event.target as HTMLInputElement).value)
   emit('update-config', (config) => {
-    config.height = value
+    // 如果当前形状是三角形且开启了等边三角形锁定，高度输入框应该被禁用，不应该执行到这里
+    // 但为了安全起见，如果用户通过其他方式修改了高度，我们根据高度反向计算宽度
+    if (config.company.shape === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      config.width = value / sqrt3Over2
+      // 重新计算高度以确保精度
+      config.height = config.width * sqrt3Over2
+    } else {
+      config.height = value
+    }
   })
 }
 
@@ -285,13 +313,25 @@ const onPrimaryColorInput = (event: Event) => {
   })
 }
 
+const onLockTriangleEquilateralChange = (event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked
+  emit('update-config', (config) => {
+    config.lockTriangleEquilateral = checked
+    // 如果开启锁定且当前是三角形，调整高度使其成为等边三角形
+    if (checked && config.company.shape === 'triangle') {
+      const sqrt3Over2 = Math.sqrt(3) / 2
+      config.height = config.width * sqrt3Over2
+    }
+  })
+}
+
 const onCompanyShapeChange = (event: Event) => {
   const value = (event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus' | 'triangle' | 'organic'
   emit('update-config', (config) => {
     config.company.shape = value
-    // 如果选择三角形，调整高度使其成为正三角形
-    // 正三角形：高度 = 宽度 * sqrt(3) / 2
-    if (value === 'triangle') {
+    // 如果选择三角形且开启了等边三角形锁定，调整高度使其成为等边三角形
+    // 等边三角形：高度 = 宽度 * sqrt(3) / 2
+    if (value === 'triangle' && (config.lockTriangleEquilateral ?? true)) {
       const sqrt3Over2 = Math.sqrt(3) / 2
       config.height = config.width * sqrt3Over2
     }

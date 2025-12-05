@@ -238,4 +238,5 @@ export type IDrawStampConfig = {
     offsetY: number // y轴偏移量
     mmToPixel: number // 毫米到像素的转换比例
     outBorder: IInnerCircle // 外圈圆
+    lockTriangleEquilateral?: boolean // 是否固定三角形为等边三角形
 }
