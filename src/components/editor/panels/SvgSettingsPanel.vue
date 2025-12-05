@@ -51,112 +51,135 @@
         </div>
         <transition name="fade">
           <div v-show="isItemExpanded(index)" class="svg-body">
-            <label>
-              名称:
-              <input
-                type="text"
-                :value="item.name"
-                @input="event => updateField(index, 'name', (event.target as HTMLInputElement).value)"
-              />
-            </label>
-            <label class="color-field">
-              颜色:
-              <input
-                class="color-picker"
-                type="color"
-                :value="item.color || primaryColor"
-                @input="event => updateColor(index, (event.target as HTMLInputElement).value)"
-              />
-            </label>
-            <label>
-              宽度 (mm):
-              <input
-                class="number-input"
-                type="number"
-                min="1"
-                max="200"
-                step="0.1"
-                :value="item.width"
-                @input="event => updateField(index, 'width', parseNumber(event))"
-              />
-            </label>
-            <label>
-              高度 (mm):
-              <input
-                class="number-input"
-                type="number"
-                min="1"
-                max="200"
-                step="0.1"
-                :value="item.height"
-                :disabled="item.keepAspectRatio"
-                @input="event => updateField(index, 'height', parseNumber(event))"
-              />
-            </label>
-            <label class="checkbox-field">
-              <input
-                type="checkbox"
-                :checked="item.keepAspectRatio"
-                @change="event => updateField(index, 'keepAspectRatio', (event.target as HTMLInputElement).checked)"
-              />
-              保持宽高比
-            </label>
-            <label>
-              水平位置 X (mm):
-              <div class="range-container">
-                <input
-                  type="range"
-                  min="-40"
-                  max="40"
-                  step="0.2"
-                  :value="item.positionX"
-                  @input="event => updateField(index, 'positionX', parseNumber(event))"
+            <!-- 文本/选择类设置 -->
+            <div class="settings-section">
+              <div class="text-input-item">
+                <div class="text-input-header">
+                  <span class="text-input-label">名称:</span>
+                </div>
+                <input 
+                  type="text" 
+                  class="text-input-field"
+                  :value="item.name"
+                  @input="event => updateField(index, 'name', (event.target as HTMLInputElement).value)"
                 />
-                <span>{{ (item.positionX || 0).toFixed(1) }}</span>
               </div>
-            </label>
-            <label>
-              垂直位置 Y (mm):
-              <div class="range-container">
+              <label class="inline-label">
+                <span class="label-text">颜色:</span>
                 <input
-                  type="range"
-                  min="-40"
-                  max="40"
-                  step="0.2"
-                  :value="item.positionY"
-                  @input="event => updateField(index, 'positionY', parseNumber(event))"
+                  type="color"
+                  :value="item.color || primaryColor"
+                  @input="event => updateColor(index, (event.target as HTMLInputElement).value)"
                 />
-                <span>{{ (item.positionY || 0).toFixed(1) }}</span>
-              </div>
-            </label>
-            <label>
-              旋转角度 (°):
-              <div class="range-container">
+              </label>
+              <label class="inline-label">
+                <span class="label-text">宽度 (mm):</span>
                 <input
-                  type="range"
-                  min="-180"
-                  max="180"
+                  type="number"
+                  min="1"
+                  max="200"
                   step="0.1"
-                  :value="item.rotation"
-                  @input="event => updateField(index, 'rotation', parseNumber(event))"
+                  :value="item.width"
+                  @input="event => updateField(index, 'width', parseNumber(event))"
                 />
-                <span>{{ (item.rotation || 0).toFixed(0) }}</span>
-              </div>
-            </label>
-            <label>
-              缩放比例:
-              <div class="range-container">
+              </label>
+              <label class="inline-label">
+                <span class="label-text">高度 (mm):</span>
                 <input
-                  type="range"
-                  min="0.2"
-                  max="3"
-                  step="0.01"
-                  :value="item.scale"
-                  @input="event => updateField(index, 'scale', parseNumber(event))"
+                  type="number"
+                  min="1"
+                  max="200"
+                  step="0.1"
+                  :value="item.height"
+                  :disabled="item.keepAspectRatio"
+                  @input="event => updateField(index, 'height', parseNumber(event))"
                 />
-                <span>{{ (item.scale || 1).toFixed(2) }}</span>
+              </label>
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  :checked="item.keepAspectRatio"
+                  @change="event => updateField(index, 'keepAspectRatio', (event.target as HTMLInputElement).checked)"
+                />
+                保持宽高比
+              </label>
+            </div>
+
+            <!-- 拖动条类设置 -->
+            <div class="range-section">
+              <div class="range-item">
+                <div class="range-header">
+                  <span class="range-label-text">水平位置 X (mm)</span>
+                  <span class="range-value-display">[ {{ (item.positionX || 0).toFixed(1) }} ]</span>
+                </div>
+                <div class="range-container">
+                  <button type="button" class="range-btn" @click.stop="adjustPositionX(index, -0.2)">◀</button>
+                  <input
+                    type="range"
+                    min="-50"
+                    max="50"
+                    step="0.2"
+                    :value="item.positionX"
+                    @input="event => updateField(index, 'positionX', parseNumber(event))"
+                  />
+                  <button type="button" class="range-btn" @click.stop="adjustPositionX(index, 0.2)">▶</button>
+                </div>
               </div>
-            </label>
+              <div class="range-item">
+                <div class="range-header">
+                  <span class="range-label-text">垂直位置 Y (mm)</span>
+                  <span class="range-value-display">[ {{ (item.positionY || 0).toFixed(1) }} ]</span>
+                </div>
+                <div class="range-container">
+                  <button type="button" class="range-btn" @click.stop="adjustPositionY(index, -0.2)">◀</button>
+                  <input
+                    type="range"
+                    min="-50"
+                    max="50"
+                    step="0.2"
+                    :value="item.positionY"
+                    @input="event => updateField(index, 'positionY', parseNumber(event))"
+                  />
+                  <button type="button" class="range-btn" @click.stop="adjustPositionY(index, 0.2)">▶</button>
+                </div>
+              </div>
+              <div class="range-item">
+                <div class="range-header">
+                  <span class="range-label-text">旋转角度 (°)</span>
+                  <span class="range-value-display">[ {{ (item.rotation || 0).toFixed(1) }}° ]</span>
+                </div>
+                <div class="range-container">
+                  <button type="button" class="range-btn" @click.stop="adjustRotation(index, -0.1)">◀</button>
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    step="0.1"
+                    :value="item.rotation"
+                    @input="event => updateField(index, 'rotation', parseNumber(event))"
+                  />
+                  <button type="button" class="range-btn" @click.stop="adjustRotation(index, 0.1)">▶</button>
+                </div>
+              </div>
+              <div class="range-item">
+                <div class="range-header">
+                  <span class="range-label-text">缩放比例</span>
+                  <span class="range-value-display">[ {{ (item.scale || 1).toFixed(2) }} ]</span>
+                </div>
+                <div class="range-container">
+                  <button type="button" class="range-btn" @click.stop="adjustScale(index, -0.01)">◀</button>
+                  <input
+                    type="range"
+                    min="0.2"
+                    max="3"
+                    step="0.01"
+                    :value="item.scale"
+                    @input="event => updateField(index, 'scale', parseNumber(event))"
+                  />
+                  <button type="button" class="range-btn" @click.stop="adjustScale(index, 0.01)">▶</button>
+                </div>
+              </div>
+            </div>
           </div>
         </transition>
       </div>
@@ -327,14 +350,197 @@ watch(
     }
   }
 )
+
+const adjustPositionX = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    ensureSvgList(config)
+    if (!config.svgList[index]) return
+    const currentValue = config.svgList[index].positionX || 0
+    const newValue = Math.max(-50, Math.min(50, currentValue + delta))
+    config.svgList[index].positionX = newValue
+    config.svgList[index].version = Date.now()
+  })
+}
+
+const adjustPositionY = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    ensureSvgList(config)
+    if (!config.svgList[index]) return
+    const currentValue = config.svgList[index].positionY || 0
+    const newValue = Math.max(-50, Math.min(50, currentValue + delta))
+    config.svgList[index].positionY = newValue
+    config.svgList[index].version = Date.now()
+  })
+}
+
+const adjustRotation = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    ensureSvgList(config)
+    if (!config.svgList[index]) return
+    const currentValue = config.svgList[index].rotation || 0
+    const newValue = Math.max(-180, Math.min(180, currentValue + delta))
+    config.svgList[index].rotation = newValue
+    config.svgList[index].version = Date.now()
+  })
+}
+
+const adjustScale = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    ensureSvgList(config)
+    if (!config.svgList[index]) return
+    const currentValue = config.svgList[index].scale || 1
+    const newValue = Math.max(0.2, Math.min(3, currentValue + delta))
+    config.svgList[index].scale = newValue
+    config.svgList[index].version = Date.now()
+  })
+}
 </script>
 
 <style scoped>
+.svg-body {
+  padding: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 文本/选择类设置区域 */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 拖动条类设置区域 */
+.range-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
 .svg-settings-group label {
   display: flex;
   flex-direction: column;
+  font-size: 13px;
+  color: #374151;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.inline-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-label .label-text {
+  min-width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.inline-label input[type="number"],
+.inline-label input[type="color"],
+.inline-label select {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.inline-label input[type="number"]:focus,
+.inline-label select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.inline-label input[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  cursor: pointer;
   gap: 6px;
-  margin-bottom: 12px;
+}
+
+.checkbox-label input[type='checkbox'] {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* 文本输入项样式（两行显示） */
+.text-input-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.text-input-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.text-input-label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.text-input-field {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.text-input-field:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* 拖动条项样式 */
+.range-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.range-label-text {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.range-value-display {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
 }
 
 .upload-row {
@@ -440,38 +646,78 @@ watch(
   background: #fff1f0;
 }
 
-.svg-body {
-  margin-top: 10px;
-}
-
-.color-picker {
-  width: 52px;
-  height: 32px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.number-input {
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #dcdcdc;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
 }
 
-.number-input:focus {
-  border-color: #1890ff;
+.range-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.range-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.range-btn:active {
+  background-color: #e5e7eb;
+}
+
+.range-container input[type="range"] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 3px;
   outline: none;
 }
 
-.checkbox-field {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  margin-top: -4px;
+.range-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb:hover {
+  background: #2563eb;
+}
+
+.range-container input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-moz-range-thumb:hover {
+  background: #2563eb;
 }
 </style>
 

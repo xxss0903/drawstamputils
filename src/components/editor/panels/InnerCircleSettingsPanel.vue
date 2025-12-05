@@ -26,115 +26,136 @@
         </div>
         <transition name="fade">
         <div v-show="isItemExpanded(index)" class="inner-circle-body">
-        <label>
-          {{ t('stamp.innerCircle.lineWidth') }}:
-          <input
-            type="number"
-            :value="innerCircle.innerCircleLineWidth"
-            min="0.05"
-            max="0.5"
-            step="0.01"
-            @input="updateInnerCircle(index, 'innerCircleLineWidth', parseNumber($event))"
-          />
-        </label>
-        <label>
-          {{ t('stamp.innerCircle.radiusX') }}:
-          <input
-            type="number"
-            :value="innerCircle.innerCircleLineRadiusX"
-            min="1"
-            max="50"
-            step="0.1"
-            @input="updateInnerCircle(index, 'innerCircleLineRadiusX', parseNumber($event))"
-          />
-        </label>
-        <label>
-          {{ t('stamp.innerCircle.radiusY') }}:
-          <input
-            type="number"
-            :value="innerCircle.innerCircleLineRadiusY"
-            min="1"
-            max="50"
-            step="0.1"
-            @input="updateInnerCircle(index, 'innerCircleLineRadiusY', parseNumber($event))"
-          />
-        </label>
-        <label>
-          {{ t('stamp.innerCircle.color') }}:
-          <input
-            type="color"
-            :value="innerCircle.color || primaryColor"
-            @input="updateInnerCircle(index, 'color', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label>
-          {{ t('stamp.innerCircle.positionX') }}:
-          <input
-            type="number"
-            :value="innerCircle.offsetX ?? 0"
-            min="-50"
-            max="50"
-            step="0.1"
-            @input="updateInnerCircle(index, 'offsetX', parseNumber($event))"
-          />
-        </label>
-        <label>
-          {{ t('stamp.innerCircle.positionY') }}:
-          <input
-            type="number"
-            :value="innerCircle.offsetY ?? 0"
-            min="-50"
-            max="50"
-            step="0.1"
-            @input="updateInnerCircle(index, 'offsetY', parseNumber($event))"
-          />
-        </label>
-        <label>
-          形状:
-          <select
-            :value="innerCircle.shape || 'ellipse'"
-            @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus')"
-          >
-            <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
-            <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
-            <option value="rhombus">{{ t('stamp.basic.shapeOptions.rhombus') }}</option>
-          </select>
-        </label>
-        <label>
-          线条样式:
-          <select
-            :value="innerCircle.lineStyle || 'solid'"
-            @change="updateInnerCircle(index, 'lineStyle', ($event.target as HTMLSelectElement).value as 'solid' | 'dashed' | 'dotted')"
-          >
-            <option value="solid">实线</option>
-            <option value="dashed">虚线</option>
-            <option value="dotted">点线</option>
-          </select>
-        </label>
-        <template v-if="(innerCircle.lineStyle || 'solid') !== 'solid'">
-          <label>
-            虚线长度 (mm):
-            <input
-              type="number"
-              :value="innerCircle.dashLength ?? 2"
-              min="0.1"
-              max="20"
-              step="0.1"
-              @input="updateInnerCircle(index, 'dashLength', parseNumber($event))"
-            />
-          </label>
-          <label>
-            虚线间距 (mm):
-            <input
-              type="number"
-              :value="innerCircle.gapLength ?? 1"
-              min="0.1"
-              max="20"
-              step="0.1"
-              @input="updateInnerCircle(index, 'gapLength', parseNumber($event))"
-            />
-          </label>
-        </template>
+          <!-- 文本/选择类设置 -->
+          <div class="settings-section">
+            <label class="inline-label">
+              <span class="label-text">{{ t('stamp.innerCircle.lineWidth') }}:</span>
+              <input
+                type="number"
+                :value="innerCircle.innerCircleLineWidth"
+                min="0.05"
+                max="0.5"
+                step="0.01"
+                @input="updateInnerCircle(index, 'innerCircleLineWidth', parseNumber($event))"
+              />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">{{ t('stamp.innerCircle.radiusX') }}:</span>
+              <input
+                type="number"
+                :value="innerCircle.innerCircleLineRadiusX"
+                min="1"
+                max="50"
+                step="0.1"
+                @input="updateInnerCircle(index, 'innerCircleLineRadiusX', parseNumber($event))"
+              />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">{{ t('stamp.innerCircle.radiusY') }}:</span>
+              <input
+                type="number"
+                :value="innerCircle.innerCircleLineRadiusY"
+                min="1"
+                max="50"
+                step="0.1"
+                @input="updateInnerCircle(index, 'innerCircleLineRadiusY', parseNumber($event))"
+              />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">{{ t('stamp.innerCircle.color') }}:</span>
+              <input
+                type="color"
+                :value="innerCircle.color || primaryColor"
+                @input="updateInnerCircle(index, 'color', ($event.target as HTMLInputElement).value)"
+              />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">形状:</span>
+              <select
+                :value="innerCircle.shape || 'ellipse'"
+                @change="updateInnerCircle(index, 'shape', ($event.target as HTMLSelectElement).value as 'ellipse' | 'rectangle' | 'rhombus')"
+              >
+                <option value="ellipse">{{ t('stamp.basic.shapeOptions.ellipse') }}</option>
+                <option value="rectangle">{{ t('stamp.basic.shapeOptions.rectangle') }}</option>
+                <option value="rhombus">{{ t('stamp.basic.shapeOptions.rhombus') }}</option>
+              </select>
+            </label>
+            <label class="inline-label">
+              <span class="label-text">线条样式:</span>
+              <select
+                :value="innerCircle.lineStyle || 'solid'"
+                @change="updateInnerCircle(index, 'lineStyle', ($event.target as HTMLSelectElement).value as 'solid' | 'dashed' | 'dotted')"
+              >
+                <option value="solid">实线</option>
+                <option value="dashed">虚线</option>
+                <option value="dotted">点线</option>
+              </select>
+            </label>
+            <template v-if="(innerCircle.lineStyle || 'solid') !== 'solid'">
+              <label class="inline-label">
+                <span class="label-text">虚线长度 (mm):</span>
+                <input
+                  type="number"
+                  :value="innerCircle.dashLength ?? 2"
+                  min="0.1"
+                  max="20"
+                  step="0.1"
+                  @input="updateInnerCircle(index, 'dashLength', parseNumber($event))"
+                />
+              </label>
+              <label class="inline-label">
+                <span class="label-text">虚线间距 (mm):</span>
+                <input
+                  type="number"
+                  :value="innerCircle.gapLength ?? 1"
+                  min="0.1"
+                  max="20"
+                  step="0.1"
+                  @input="updateInnerCircle(index, 'gapLength', parseNumber($event))"
+                />
+              </label>
+            </template>
+          </div>
+
+          <!-- 拖动条类设置 -->
+          <div class="range-section">
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.innerCircle.positionX') }}</span>
+                <span class="range-value-display">[ {{ (innerCircle.offsetX ?? 0).toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="innerCircle.offsetX ?? 0"
+                  min="-50"
+                  max="50"
+                  step="0.1"
+                  @input="updateInnerCircle(index, 'offsetX', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, 0.1)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.innerCircle.positionY') }}</span>
+                <span class="range-value-display">[ {{ (innerCircle.offsetY ?? 0).toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="innerCircle.offsetY ?? 0"
+                  min="-50"
+                  max="50"
+                  step="0.1"
+                  @input="updateInnerCircle(index, 'offsetY', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, 0.1)">▶</button>
+              </div>
+            </div>
+          </div>
         </div>
         </transition>
       </div>
@@ -271,6 +292,26 @@ const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus') => {
     })
   })
 }
+
+const adjustPositionX = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.innerCircleList || []
+    if (!list[index]) return
+    const currentValue = list[index].offsetX ?? 0
+    const newValue = Math.max(-50, Math.min(50, currentValue + delta))
+    list[index].offsetX = newValue
+  })
+}
+
+const adjustPositionY = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.innerCircleList || []
+    if (!list[index]) return
+    const currentValue = list[index].offsetY ?? 0
+    const newValue = Math.max(-50, Math.min(50, currentValue + delta))
+    list[index].offsetY = newValue
+  })
+}
 </script>
 
 <style scoped>
@@ -353,8 +394,177 @@ const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus') => {
 }
 
 .inner-circle-body {
-  padding: 16px;
+  padding: 12px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 文本/选择类设置区域 */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 拖动条类设置区域 */
+.range-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #374151;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.inline-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-label .label-text {
+  min-width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.inline-label input[type="number"],
+.inline-label input[type="color"],
+.inline-label select {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.inline-label input[type="number"]:focus,
+.inline-label select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.inline-label input[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+/* 拖动条项样式 */
+.range-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.range-label-text {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.range-value-display {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.range-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.range-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.range-btn:active {
+  background-color: #e5e7eb;
+}
+
+.range-container input[type="range"] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 3px;
+  outline: none;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb:hover {
+  background: #2563eb;
+}
+
+.range-container input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-moz-range-thumb:hover {
+  background: #2563eb;
 }
 
 .action-btn {

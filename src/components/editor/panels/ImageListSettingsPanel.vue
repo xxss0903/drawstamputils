@@ -21,85 +21,106 @@
         </div>
         <transition name="fade">
         <div v-show="isItemExpanded(index)" class="image-body">
-        <div class="image-preview" v-if="image.imageUrl">
-          <img :src="image.imageUrl" :alt="t('stamp.common.preview')" />
-        </div>
-        <label>
-          {{ t('stamp.images.select') }}:
-          <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
-        </label>
-        <label>
-          {{ t('stamp.images.width') }}:
-          <input
-            type="number"
-            :value="image.imageWidth"
-            min="1"
-            max="100"
-            step="0.5"
-            @input="updateImage(index, 'imageWidth', parseNumber($event))"
-          />
-        </label>
-        <label>
-          {{ t('stamp.images.height') }}:
-          <input
-            type="number"
-            :value="image.imageHeight"
-            min="1"
-            max="100"
-            step="0.5"
-            @input="updateImage(index, 'imageHeight', parseNumber($event))"
-          />
-        </label>
-        <label>
-          {{ t('stamp.images.positionX') }}:
-          <div class="range-container">
-            <input
-              type="range"
-              :value="image.positionX"
-              min="-20"
-              max="20"
-              step="0.1"
-              @input="updateImage(index, 'positionX', parseNumber($event))"
-            />
-            <span>{{ image.positionX.toFixed(1) }}</span>
+          <!-- 图片预览 -->
+          <div class="image-preview" v-if="image.imageUrl">
+            <img :src="image.imageUrl" :alt="t('stamp.common.preview')" />
           </div>
-        </label>
-        <label>
-          {{ t('stamp.images.positionY') }}:
-          <div class="range-container">
-            <input
-              type="range"
-              :value="image.positionY"
-              min="-20"
-              max="20"
-              step="0.1"
-              @input="updateImage(index, 'positionY', parseNumber($event))"
-            />
-            <span>{{ image.positionY.toFixed(1) }}</span>
+
+          <!-- 文本/选择类设置 -->
+          <div class="settings-section">
+            <label>
+              {{ t('stamp.images.select') }}:
+              <input type="file" @change="(e) => handleImageUpload(e, index)" accept="image/*" />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">{{ t('stamp.images.width') }}:</span>
+              <input
+                type="number"
+                :value="image.imageWidth"
+                min="1"
+                max="100"
+                step="0.5"
+                @input="updateImage(index, 'imageWidth', parseNumber($event))"
+              />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">{{ t('stamp.images.height') }}:</span>
+              <input
+                type="number"
+                :value="image.imageHeight"
+                min="1"
+                max="100"
+                step="0.5"
+                @input="updateImage(index, 'imageHeight', parseNumber($event))"
+              />
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                :checked="image.keepAspectRatio"
+                @change="updateImage(index, 'keepAspectRatio', ($event.target as HTMLInputElement).checked)"
+              />
+              {{ t('stamp.images.keepRatio') }}
+            </label>
           </div>
-        </label>
-        <label>
-          {{ t('stamp.images.rotation') }}:
-          <div class="range-container">
-            <input
-              type="range"
-              :value="image.rotation || 0"
-              min="0"
-              max="360"
-              step="0.1"
-              @input="updateImage(index, 'rotation', parseNumber($event))"
-            />
-            <span>{{ (image.rotation || 0).toFixed(0) }}°</span>
+
+          <!-- 拖动条类设置 -->
+          <div class="range-section">
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.images.positionX') }}</span>
+                <span class="range-value-display">[ {{ image.positionX.toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="image.positionX"
+                  min="-50"
+                  max="50"
+                  step="0.1"
+                  @input="updateImage(index, 'positionX', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, 0.1)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.images.positionY') }}</span>
+                <span class="range-value-display">[ {{ image.positionY.toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="image.positionY"
+                  min="-50"
+                  max="50"
+                  step="0.1"
+                  @input="updateImage(index, 'positionY', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, 0.1)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.images.rotation') }}</span>
+                <span class="range-value-display">[ {{ (image.rotation || 0).toFixed(1) }}° ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustRotation(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="image.rotation || 0"
+                  min="0"
+                  max="360"
+                  step="0.1"
+                  @input="updateImage(index, 'rotation', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustRotation(index, 0.1)">▶</button>
+              </div>
+            </div>
           </div>
-        </label>
-        <label class="checkbox-label">
-          <input
-            type="checkbox"
-            :checked="image.keepAspectRatio"
-            @change="updateImage(index, 'keepAspectRatio', ($event.target as HTMLInputElement).checked)"
-          />
-          {{ t('stamp.images.keepRatio') }}
-        </label>
         </div>
         </transition>
       </div>
@@ -226,24 +247,222 @@ const handleImageUpload = (event: Event, index: number) => {
     reader.readAsDataURL(file)
   }
 }
+
+const adjustPositionX = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.imageList || []
+    if (!list[index]) return
+    const newValue = Math.max(-50, Math.min(50, list[index].positionX + delta))
+    list[index].positionX = newValue
+  })
+}
+
+const adjustPositionY = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.imageList || []
+    if (!list[index]) return
+    const newValue = Math.max(-50, Math.min(50, list[index].positionY + delta))
+    list[index].positionY = newValue
+  })
+}
+
+const adjustRotation = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.imageList || []
+    if (!list[index]) return
+    const currentValue = list[index].rotation || 0
+    const newValue = Math.max(0, Math.min(360, currentValue + delta))
+    list[index].rotation = newValue
+  })
+}
 </script>
 
 <style scoped>
-.range-container {
+.image-body {
+  padding: 12px;
+  background: #fff;
   display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.image-preview {
+  margin-bottom: 8px;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+/* 文本/选择类设置区域 */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 拖动条类设置区域 */
+.range-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #374151;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.inline-label {
+  flex-direction: row;
   align-items: center;
   gap: 8px;
 }
 
-.range-container input[type="range"] {
-  flex: 1;
+.inline-label .label-text {
+  min-width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #374151;
 }
 
-.range-container span {
-  min-width: 50px;
-  text-align: right;
-  font-size: 14px;
-  color: #666;
+.inline-label input[type="number"] {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.inline-label input[type="number"]:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  cursor: pointer;
+  gap: 6px;
+}
+
+.checkbox-label input[type='checkbox'] {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* 拖动条项样式 */
+.range-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.range-label-text {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.range-value-display {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.range-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.range-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.range-btn:active {
+  background-color: #e5e7eb;
+}
+
+.range-container input[type="range"] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 3px;
+  outline: none;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb:hover {
+  background: #2563eb;
+}
+
+.range-container input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-moz-range-thumb:hover {
+  background: #2563eb;
 }
 
 .image-item {

@@ -30,122 +30,132 @@
         </div>
         <transition name="fade">
         <div v-show="isItemExpanded(index)" class="line-body">
-
-        <label>
-          方向:
-          <select :value="line.type" @change="updateLine(index, 'type', ($event.target as HTMLSelectElement).value as 'horizontal' | 'vertical')">
-            <option value="horizontal">横线</option>
-            <option value="vertical">竖线</option>
-          </select>
-        </label>
-
-        <label>
-          长度 (mm):
-          <input
-            type="number"
-            :value="line.length"
-            min="1"
-            :max="maxLength"
-            step="0.5"
-            @input="updateLine(index, 'length', parseNumber($event))"
-          />
-        </label>
-
-        <label>
-          线宽 (mm):
-          <input
-            type="number"
-            :value="line.lineWidth"
-            min="0.1"
-            max="5"
-            step="0.1"
-            @input="updateLine(index, 'lineWidth', parseNumber($event))"
-          />
-        </label>
-
-        <label>
-          水平位置 X (mm):
-          <div class="range-container">
-            <input
-              type="range"
-              :value="line.positionX"
-              :min="positionRangeX * -1"
-              :max="positionRangeX"
-              step="0.1"
-              @input="updateLine(index, 'positionX', parseNumber($event))"
-            />
-            <span>{{ line.positionX.toFixed(1) }}</span>
+          <!-- 文本/选择类设置 -->
+          <div class="settings-section">
+            <label class="inline-label">
+              <span class="label-text">方向:</span>
+              <select :value="line.type" @change="updateLine(index, 'type', ($event.target as HTMLSelectElement).value as 'horizontal' | 'vertical')">
+                <option value="horizontal">横线</option>
+                <option value="vertical">竖线</option>
+              </select>
+            </label>
+            <label class="inline-label">
+              <span class="label-text">长度 (mm):</span>
+              <input
+                type="number"
+                :value="line.length"
+                min="1"
+                :max="maxLength"
+                step="0.5"
+                @input="updateLine(index, 'length', parseNumber($event))"
+              />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">线宽 (mm):</span>
+              <input
+                type="number"
+                :value="line.lineWidth"
+                min="0.1"
+                max="5"
+                step="0.1"
+                @input="updateLine(index, 'lineWidth', parseNumber($event))"
+              />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">颜色:</span>
+              <input type="color" :value="line.color || defaultColor" @input="updateLine(index, 'color', ($event.target as HTMLInputElement).value)" />
+            </label>
+            <label class="inline-label">
+              <span class="label-text">线型:</span>
+              <select :value="line.style" @change="updateLine(index, 'style', ($event.target as HTMLSelectElement).value as LineStyle)">
+                <option value="solid">实线</option>
+                <option value="dashed">虚线</option>
+                <option value="dotted">点线</option>
+              </select>
+            </label>
+            <template v-if="line.style !== 'solid'">
+              <label class="inline-label">
+                <span class="label-text">dash 长度 (mm):</span>
+                <input
+                  type="number"
+                  :value="line.dashLength ?? 2"
+                  min="0.2"
+                  max="10"
+                  step="0.1"
+                  @input="updateLine(index, 'dashLength', parseNumber($event))"
+                />
+              </label>
+              <label class="inline-label">
+                <span class="label-text">gap 长度 (mm):</span>
+                <input
+                  type="number"
+                  :value="line.gapLength ?? 1"
+                  min="0.2"
+                  max="10"
+                  step="0.1"
+                  @input="updateLine(index, 'gapLength', parseNumber($event))"
+                />
+              </label>
+            </template>
           </div>
-        </label>
 
-        <label>
-          垂直位置 Y (mm):
-          <div class="range-container">
-            <input
-              type="range"
-              :value="line.positionY"
-              :min="positionRangeY * -1"
-              :max="positionRangeY"
-              step="0.1"
-              @input="updateLine(index, 'positionY', parseNumber($event))"
-            />
-            <span>{{ line.positionY.toFixed(1) }}</span>
+          <!-- 拖动条类设置 -->
+          <div class="range-section">
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">水平位置 X (mm)</span>
+                <span class="range-value-display">[ {{ line.positionX.toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="line.positionX"
+                  :min="positionRangeX * -1"
+                  :max="positionRangeX"
+                  step="0.1"
+                  @input="updateLine(index, 'positionX', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionX(index, 0.1)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">垂直位置 Y (mm)</span>
+                <span class="range-value-display">[ {{ line.positionY.toFixed(1) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, -0.1)">◀</button>
+                <input
+                  type="range"
+                  :value="line.positionY"
+                  :min="positionRangeY * -1"
+                  :max="positionRangeY"
+                  step="0.1"
+                  @input="updateLine(index, 'positionY', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustPositionY(index, 0.1)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">透明度</span>
+                <span class="range-value-display">[ {{ ((line.opacity ?? 1) * 100).toFixed(0) }}% ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustOpacity(index, -0.01)">◀</button>
+                <input
+                  type="range"
+                  :value="line.opacity ?? 1"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  @input="updateLine(index, 'opacity', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustOpacity(index, 0.01)">▶</button>
+              </div>
+            </div>
           </div>
-        </label>
-
-        <label>
-          颜色:
-          <input type="color" :value="line.color || defaultColor" @input="updateLine(index, 'color', ($event.target as HTMLInputElement).value)" />
-        </label>
-
-        <label>
-          线型:
-          <select :value="line.style" @change="updateLine(index, 'style', ($event.target as HTMLSelectElement).value as LineStyle)">
-            <option value="solid">实线</option>
-            <option value="dashed">虚线</option>
-            <option value="dotted">点线</option>
-          </select>
-        </label>
-
-        <div v-if="line.style !== 'solid'" class="dash-settings">
-          <label>
-            dash 长度 (mm):
-            <input
-              type="number"
-              :value="line.dashLength ?? 2"
-              min="0.2"
-              max="10"
-              step="0.1"
-              @input="updateLine(index, 'dashLength', parseNumber($event))"
-            />
-          </label>
-          <label>
-            gap 长度 (mm):
-            <input
-              type="number"
-              :value="line.gapLength ?? 1"
-              min="0.2"
-              max="10"
-              step="0.1"
-              @input="updateLine(index, 'gapLength', parseNumber($event))"
-            />
-          </label>
-        </div>
-
-        <label>
-          透明度:
-          <div class="range-container">
-            <input
-              type="range"
-              :value="line.opacity ?? 1"
-              min="0"
-              max="1"
-              step="0.01"
-              @input="updateLine(index, 'opacity', parseNumber($event))"
-            />
-            <span>{{ ((line.opacity ?? 1) * 100).toFixed(0) }}%</span>
-          </div>
-        </label>
         </div>
         </transition>
       </div>
@@ -265,6 +275,36 @@ const copyLine = (index: number) => {
     config.lineList.splice(index + 1, 0, clone)
   })
 }
+
+const adjustPositionX = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.lineList || []
+    if (!list[index]) return
+    const range = positionRangeX.value
+    const newValue = Math.max(range * -1, Math.min(range, list[index].positionX + delta))
+    list[index].positionX = newValue
+  })
+}
+
+const adjustPositionY = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.lineList || []
+    if (!list[index]) return
+    const range = positionRangeY.value
+    const newValue = Math.max(range * -1, Math.min(range, list[index].positionY + delta))
+    list[index].positionY = newValue
+  })
+}
+
+const adjustOpacity = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.lineList || []
+    if (!list[index]) return
+    const currentValue = list[index].opacity ?? 1
+    const newValue = Math.max(0, Math.min(1, currentValue + delta))
+    list[index].opacity = newValue
+  })
+}
 </script>
 
 <style scoped>
@@ -347,8 +387,103 @@ const copyLine = (index: number) => {
 }
 
 .line-body {
-  padding: 16px;
+  padding: 12px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 文本/选择类设置区域 */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 拖动条类设置区域 */
+.range-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #374151;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.inline-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-label .label-text {
+  min-width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.inline-label input[type="number"],
+.inline-label input[type="color"],
+.inline-label select {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.inline-label input[type="number"]:focus,
+.inline-label select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.inline-label input[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+/* 拖动条项样式 */
+.range-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.range-label-text {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.range-value-display {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
 }
 
 .header-actions {
@@ -418,18 +553,75 @@ const copyLine = (index: number) => {
 .range-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  width: 100%;
 }
 
-.range-container input[type='range'] {
+.range-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.range-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.range-btn:active {
+  background-color: #e5e7eb;
+}
+
+.range-container input[type="range"] {
   flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 3px;
+  outline: none;
 }
 
-.range-container span {
-  min-width: 50px;
-  text-align: right;
-  font-size: 14px;
-  color: #666;
+.range-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-webkit-slider-thumb:hover {
+  background: #2563eb;
+}
+
+.range-container input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.range-container input[type="range"]::-moz-range-thumb:hover {
+  background: #2563eb;
 }
 
 .fade-enter-active,
