@@ -70,6 +70,22 @@
                 @input="updateInnerCircle(index, 'color', ($event.target as HTMLInputElement).value)"
               />
             </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                :checked="innerCircle.fillBackground ?? false"
+                @change="updateInnerCircle(index, 'fillBackground', ($event.target as HTMLInputElement).checked)"
+              />
+              填充背景
+            </label>
+            <label v-if="innerCircle.fillBackground" class="inline-label">
+              <span class="label-text">填充颜色:</span>
+              <input
+                type="color"
+                :value="innerCircle.fillColor || innerCircle.color || primaryColor"
+                @input="updateInnerCircle(index, 'fillColor', ($event.target as HTMLInputElement).value)"
+              />
+            </label>
             <label class="inline-label">
               <span class="label-text">形状:</span>
               <select
