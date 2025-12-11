@@ -10,6 +10,11 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const currentLanguage = ref(locale.value)
+const languageOptions = computed(() => [
+  { value: 'zh', label: t('common.language.chinese') },
+  { value: 'en', label: t('common.language.english') },
+  { value: 'ja', label: t('common.language.japanese') }
+])
 const showAuthDialog = ref(false)
 
 onMounted(() => {
@@ -64,10 +69,14 @@ const handleAuthSuccess = () => {
               <button @click="handleLogin" class="login-btn">{{ t('auth.login') }}</button>
             </template>
           </div>
-          <div class="language-switch">
-            <button @click="switchLanguage('zh')" :class="{ active: currentLanguage === 'zh' }">{{ t('common.language.chinese') }}</button>
-            <button @click="switchLanguage('en')" :class="{ active: currentLanguage === 'en' }">{{ t('common.language.english') }}</button>
-          </div>
+          <label class="language-switch">
+            <span class="language-label">{{ t('common.language.select') }}</span>
+            <select :value="currentLanguage" @change="switchLanguage(($event.target as HTMLSelectElement).value)">
+              <option v-for="option in languageOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
         </div>
       </div>
     </nav>
@@ -220,27 +229,26 @@ const handleAuthSuccess = () => {
 
 .language-switch {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
 }
 
-.language-switch button {
-  padding: 6px 12px;
+.language-switch select {
+  padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: all 0.3s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.language-switch button:hover {
-  background: #f0f0f0;
-}
-
-.language-switch button.active {
-  background: #007bff;
-  color: white;
-  border-color: #0056b3;
+.language-switch select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
 }
 
 

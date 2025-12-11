@@ -1,6 +1,6 @@
 import { createI18n } from 'vue-i18n'
 
-const messages = {
+const messages: Record<string, any> = {
   zh: {
     menu: {
       home: '首页',
@@ -595,8 +595,10 @@ const messages = {
         showAll: '显示全部'
       },
       language: {
+        select: '选择语言',
         chinese: '中文',
-        english: 'English'
+        english: 'English',
+        japanese: '日语'
       }
     },
     errors: {
@@ -1266,8 +1268,10 @@ const messages = {
         showAll: 'Show All'
       },
       language: {
+        select: 'Language',
         chinese: 'Chinese',
-        english: 'English'
+        english: 'English',
+        japanese: 'Japanese'
       }
     },
     errors: {
@@ -1342,6 +1346,299 @@ const messages = {
       sortByDate: 'Sort by Date',
       sortByCollect: 'Sort by Collections',
       sortByView: 'Sort by Views'
+    }
+  }
+  ,
+  ja: {
+    menu: {
+      home: 'ホーム',
+      about: '概要',
+      contact: 'お問い合わせ'
+    },
+    navigation: {
+      maker: '印章テンプレート',
+      about: '私たちについて',
+      contact: 'お問い合わせ',
+      footer: {
+        description: 'プロ向けオンライン電子印章メーカー',
+        quickLinks: 'クイックリンク',
+        legalInfo: '法的情報',
+        privacyPolicy: 'プライバシーポリシー',
+        termsOfService: '利用規約',
+        importantNotice: '重要なお知らせ',
+        warning: '⚠️ 本ツールは学習・参考用途のみ。違法利用は禁止です。',
+        allRightsReserved: 'All rights reserved'
+      }
+    },
+    common: {
+      properties: {
+        title: 'プロパティ',
+        showAll: 'すべて表示'
+      },
+      language: {
+        select: '言語',
+        chinese: '中文',
+        english: 'English',
+        japanese: '日本語'
+      }
+    },
+    auth: {
+      login: 'ログイン',
+      register: '登録',
+      logout: 'ログアウト',
+      email: 'メール',
+      password: 'パスワード',
+      emailPlaceholder: 'メールアドレスを入力',
+      passwordPlaceholder: 'パスワードを入力（6文字以上）',
+      loading: '処理中...',
+      error: '操作に失敗しました。後でもう一度お試しください。',
+      success: '成功しました'
+    },
+    stamp: {
+      save: '印章を保存',
+      saveTemplate: 'テンプレートに保存',
+      loadTemplate: 'テンプレートを読み込み',
+      resetStamp: 'リセット',
+      downloadStamp: 'ダウンロード',
+      basic: {
+        title: '基本設定',
+        width: '幅 (mm)',
+        height: '高さ (mm)',
+        borderWidth: '枠線幅 (mm)',
+        color: '色',
+        shape: '形状',
+        borderLineStyle: '枠線スタイル',
+        lineStyle: {
+          solid: '実線',
+          dashed: '破線',
+          dotted: '点線'
+        },
+        dashLength: '破線長 (mm)',
+        gapLength: '間隔 (mm)',
+        positionX: 'X 位置 (mm)',
+        positionY: 'Y 位置 (mm)',
+        shapeOptions: {
+          ellipse: '楕円/円',
+          rectangle: '矩形',
+          rhombus: '菱形',
+          triangle: '三角形',
+          organic: '有機形状'
+        }
+      },
+      company: {
+        title: '会社名リスト設定',
+        name: '会社名',
+        font: 'フォント',
+        fontSize: 'サイズ (mm)',
+        fontWeight: '太さ',
+        compression: '圧縮率',
+        distribution: '分布係数',
+        margin: 'マージン (mm)',
+        color: '色',
+        startAngle: '開始角度 (°)',
+        rotateDirection: '回転方向',
+        counterclockwise: '反時計回り',
+        clockwise: '時計回り'
+      },
+      stampType: {
+        title: '印章タイプ設定',
+        type: 'テキスト',
+        fontSize: 'サイズ (mm)',
+        font: 'フォント',
+        fontWeight: '太さ',
+        compression: '圧縮率',
+        letterSpacing: '字間 (mm)',
+        color: '色',
+        verticalPosition: '垂直位置 (mm)',
+        addNew: '追加',
+        delete: '削除',
+        line: '行 {index}'
+      },
+      code: {
+        title: 'コード設定',
+        code: 'コード',
+        font: 'フォント',
+        fontSize: 'サイズ (mm)',
+        fontWeight: '太さ',
+        color: '色',
+        compression: '圧縮率',
+        distribution: '分布係数',
+        margin: 'マージン (mm)'
+      },
+      taxNumber: {
+        title: '中央数字設定',
+        number: '税番号',
+        font: 'フォント',
+        fontSize: 'サイズ (mm)',
+        fontWeight: '太さ',
+        compression: '圧縮率',
+        letterSpacing: '字間 (mm)',
+        verticalPosition: '垂直位置 (mm)'
+      },
+      images: {
+        title: '画像リスト設定',
+        image: '画像 {index}',
+        select: '画像を選択',
+        width: '幅 (mm)',
+        height: '高さ (mm)',
+        positionX: '水平位置 (mm)',
+        positionY: '垂直位置 (mm)',
+        rotation: '回転角',
+        keepRatio: '縦横比を維持',
+        preview: 'プレビュー'
+      },
+      innerCircle: {
+        addNew: '追加',
+        title: '内側の円設定',
+        lineWidth: '線幅 (mm)',
+        radiusX: '半径X (mm)',
+        radiusY: '半径Y (mm)',
+        color: '色',
+        positionX: '水平オフセット (mm)',
+        positionY: '垂直オフセット (mm)',
+        addEllipse: '楕円を追加',
+        addRectangle: '矩形を追加',
+        addRhombus: '菱形を追加',
+        addTriangle: '三角形を追加'
+      },
+      star: {
+        title: '星形設定',
+        enable: '星形を描画',
+        diameter: '直径 (mm)',
+        horizontalPosition: '水平位置 (mm)',
+        verticalPosition: '垂直位置 (mm)'
+      },
+      roughEdge: {
+        title: 'ギザギザ効果',
+        enable: '有効化',
+        width: '幅 (mm)',
+        height: '高さ (mm)',
+        probability: '確率',
+        shift: 'シフト (mm)',
+        points: '点数',
+        refresh: '更新'
+      },
+      security: {
+        title: 'セキュリティパターン',
+        enable: '有効化',
+        refresh: '更新',
+        count: '本数',
+        length: '長さ (mm)',
+        width: '幅 (mm)'
+      },
+      aging: {
+        title: 'エイジング',
+        enable: '有効化',
+        manual: '手動エイジング',
+        intensity: '強度',
+        refresh: '更新'
+      },
+      drag: {
+        label: '印章を移動'
+      },
+      outBorder: {
+        enable: '外枠を表示',
+        lineWidth: '枠線幅 (mm)',
+        fillBackground: '背景色を塗りつぶす',
+        backgroundColor: '背景色',
+        organicStyle: '有機形状スタイル',
+        organicStyleItem: 'スタイル {index}',
+        randomOrganic: '形状をランダム化'
+      },
+      common: {
+        line: '行 {index}',
+        delete: '削除',
+        addNew: '追加',
+        expand: '展開',
+        collapse: '折りたたむ',
+        fontPlaceholder: 'フォント名を入力',
+        fontWeightNormal: '標準',
+        fontWeightBold: '太字',
+        fontWeight: {
+          normal: '標準',
+          bold: '太字',
+          light: '細字',
+          medium: '中太',
+          semibold: 'セミボールド'
+        },
+        compression: '圧縮：{value}',
+        distribution: '分布：{value}',
+        letterSpacing: '字間：{value} mm',
+        verticalPosition: '垂直位置：{value} mm',
+        preview: 'プレビュー画像'
+      },
+      template: {
+        title: 'テンプレート',
+        save: 'テンプレートに保存',
+        saveCurrent: 'テンプレートを書き出す',
+        defaultTitle: 'デフォルトテンプレート',
+        publicTemplates: '公共テンプレート',
+        preview: 'プレビュー',
+        name: 'テンプレート名',
+        open: '開く',
+        load: '読み込み',
+        loadFile: 'ファイルを読み込み',
+        loading: '読み込み中...',
+        generatingPreview: 'プレビュー生成中...',
+        select: 'テンプレート選択',
+        loadingPublicTemplates: '公共テンプレートを読み込み中...',
+        noPublicTemplates: '公共テンプレートはありません'
+      }
+    },
+    elementList: {
+      title: '要素リスト',
+      tabs: {
+        all: 'すべて',
+        text: 'テキスト',
+        figure: '図形',
+        effect: '効果'
+      },
+      elements: {
+        basicSettings: '基本設定',
+        companyName: '会社名',
+        stampType: '印章タイプ',
+        code: 'コード',
+        taxNumber: '税番号',
+        star: '星形',
+        innerCircle: '内側の円',
+        image: '画像',
+        verticalLine: '縦線',
+        horizontalLine: '横線',
+        agingEffect: 'エイジング',
+        roughEdge: 'ギザギザ',
+        securityPattern: 'セキュリティパターン'
+      },
+      status: {
+        enabled: '有効',
+        disabled: '無効',
+        notSet: '未設定'
+      },
+      buttons: {
+        addCompany: '会社名を追加',
+        addStampType: '印章タイプを追加',
+        addHorizontalLine: '横線を追加',
+        addVerticalLine: '縦線を追加',
+        addImage: '画像を追加',
+        addInnerCircle: '内側の円を追加',
+        uploadSvg: 'SVG をアップロード',
+        edit: '編集',
+        clear: 'クリア',
+        delete: '削除'
+      },
+      confirm: {
+        deleteElement: 'この要素を削除しますか？'
+      },
+      defaults: {
+        newCompanyName: '新しい会社名',
+        newStampType: '新しい印章タイプ',
+        companyNameIndex: '会社名 {index}',
+        stampTypeIndex: '印章タイプ {index}',
+        innerCircleIndex: '内側の円 {index}',
+        imageIndex: '画像 {index}',
+        verticalLineIndex: '縦線 {index}',
+        horizontalLineIndex: '横線 {index}',
+        svgIndex: 'SVG {index}'
+      }
     }
   }
 }
