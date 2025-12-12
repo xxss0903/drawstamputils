@@ -222,13 +222,24 @@ button:focus-visible {
 
 .inner-circle-item,
 .company-item,
+.code-item,
+.line-item,
+.image-item,
 .stamp-type-item {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
-  padding: 12px;
-  transition: all 0.3s ease;
   margin-bottom: 12px;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .inner-circle-item:hover,
@@ -913,13 +924,6 @@ canvas {
   gap: 15px;
 }
 
-.image-item {
-  border: 1px solid #ddd;
-  padding: 12px;
-  border-radius: 6px;
-  background: #f8f9fa;
-}
-
 .image-header {
   display: flex;
   justify-content: space-between;
@@ -963,15 +967,6 @@ canvas {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.header-actions {
-  display: flex;
-  flex-direction: row;
-  gap: 6px;
-  align-items: stretch;
-  flex-shrink: 0;
-}
-
-
 .expand-toggle-btn {
   background: #fff;
   border: 1px solid #d9d9d9;
@@ -1006,4 +1001,17 @@ canvas {
 
 .expand-icon:not(.expanded) {
   transform: rotate(-90deg);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.header-left span {
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
 }

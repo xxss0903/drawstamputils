@@ -1,8 +1,7 @@
 <template>
   <div class="control-group svg-settings-group">
     <div class="group-header" @click="toggleExpanded">
-      <h3>SVG 图形设置</h3>
-      <span class="expand-icon" :class="{ expanded }">▼</span>
+      <h3>{{ t('stamp.svg.title') }}<span class="expand-icon" :class="{ expanded }">▼</span></h3>
     </div>
     <div class="group-content" v-show="expanded">
       <div class="upload-row">
@@ -13,7 +12,7 @@
           style="display: none"
           @change="handleSvgUpload"
         />
-        <button class="add-svg-button" @click.stop="triggerSvgUpload">上传 SVG 文件</button>
+        <button class="add-svg-button" @click.stop="triggerSvgUpload">{{ t('stamp.svg.uploadSvgFile') }}</button>
       </div>
       <div class="asset-row" v-if="builtinSvgAssets.length">
         <select v-model="selectedAssetKey">
@@ -22,11 +21,11 @@
           </option>
         </select>
         <button class="add-asset-button" @click="addSelectedAsset" :disabled="!selectedAssetKey">
-          添加内置 SVG
+          {{ t('stamp.svg.addBuiltinSvg') }}
         </button>
       </div>
       <p v-if="svgList.length === 0" class="empty-hint">
-        暂无 SVG 图形，请上传 SVG 文件。
+        {{ t('stamp.svg.emptyHint') }}
       </p>
       <div
         v-for="(item, index) in svgList"
@@ -38,15 +37,15 @@
             <button
               class="expand-toggle-btn"
               @click.stop="toggleItem(index)"
-              :title="isItemExpanded(index) ? '收起' : '展开'"
+              :title="isItemExpanded(index) ? t('stamp.common.collapse') : t('stamp.common.expand')"
             >
               <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
             </button>
-            <span>{{ item.name || `SVG ${index + 1}` }}</span>
+            <span>{{ item.name || t('elementList.defaults.svgIndex', { index: index + 1 }) }}</span>
           </div>
           <div class="header-actions">
-            <button class="action-btn" @click.stop="copySvg(index)">复制</button>
-            <button class="action-btn delete-btn" @click.stop="removeSvg(index)">删除</button>
+            <button class="action-btn" @click.stop="copySvg(index)">{{ t('stamp.common.copy') }}</button>
+            <button class="action-btn delete-btn" @click.stop="removeSvg(index)">{{ t('stamp.common.delete') }}</button>
           </div>
         </div>
         <transition name="fade">
@@ -55,17 +54,17 @@
             <div class="settings-section">
               <div class="text-input-item">
                 <div class="text-input-header">
-                  <span class="text-input-label">名称:</span>
+                  <span class="text-input-label">{{ t('stamp.svg.name') }}:</span>
                 </div>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   class="text-input-field"
                   :value="item.name"
                   @input="event => updateField(index, 'name', (event.target as HTMLInputElement).value)"
                 />
               </div>
               <label class="inline-label">
-                <span class="label-text">颜色:</span>
+                <span class="label-text">{{ t('stamp.svg.color') }}:</span>
                 <input
                   type="color"
                   :value="item.color || primaryColor"
@@ -73,7 +72,7 @@
                 />
               </label>
               <label class="inline-label">
-                <span class="label-text">宽度 (mm):</span>
+                <span class="label-text">{{ t('stamp.svg.width') }}:</span>
                 <input
                   type="number"
                   min="1"
@@ -84,7 +83,7 @@
                 />
               </label>
               <label class="inline-label">
-                <span class="label-text">高度 (mm):</span>
+                <span class="label-text">{{ t('stamp.svg.height') }}:</span>
                 <input
                   type="number"
                   min="1"
@@ -101,7 +100,7 @@
                   :checked="item.keepAspectRatio"
                   @change="event => updateField(index, 'keepAspectRatio', (event.target as HTMLInputElement).checked)"
                 />
-                保持宽高比
+                {{ t('stamp.svg.keepAspectRatio') }}
               </label>
             </div>
 
@@ -109,7 +108,7 @@
             <div class="range-section">
               <div class="range-item">
                 <div class="range-header">
-                  <span class="range-label-text">水平位置 X (mm)</span>
+                  <span class="range-label-text">{{ t('stamp.svg.horizontalPositionX') }}</span>
                   <span class="range-value-display">[ {{ (item.positionX || 0).toFixed(1) }} ]</span>
                 </div>
                 <div class="range-container">
@@ -127,7 +126,7 @@
               </div>
               <div class="range-item">
                 <div class="range-header">
-                  <span class="range-label-text">垂直位置 Y (mm)</span>
+                  <span class="range-label-text">{{ t('stamp.svg.verticalPositionY') }}</span>
                   <span class="range-value-display">[ {{ (item.positionY || 0).toFixed(1) }} ]</span>
                 </div>
                 <div class="range-container">
@@ -145,7 +144,7 @@
               </div>
               <div class="range-item">
                 <div class="range-header">
-                  <span class="range-label-text">旋转角度 (°)</span>
+                  <span class="range-label-text">{{ t('stamp.svg.rotationAngle') }}</span>
                   <span class="range-value-display">[ {{ (item.rotation || 0).toFixed(1) }}° ]</span>
                 </div>
                 <div class="range-container">
@@ -163,7 +162,7 @@
               </div>
               <div class="range-item">
                 <div class="range-header">
-                  <span class="range-label-text">缩放比例</span>
+                  <span class="range-label-text">{{ t('stamp.svg.scale') }}</span>
                   <span class="range-value-display">[ {{ (item.scale || 1).toFixed(2) }} ]</span>
                 </div>
                 <div class="range-container">
@@ -189,8 +188,11 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, ISvgShape } from '../../../DrawStampTypes'
 import { getSvgAssets } from '../../../utils/svgAssets'
+
+const { t } = useI18n()
 
 interface Props {
   expanded?: boolean
@@ -316,7 +318,7 @@ const copySvg = (index: number) => {
     const clone: ISvgShape = {
       ...original,
       id: crypto?.randomUUID ? crypto.randomUUID() : `svg-${Date.now()}`,
-      name: `${original.name || 'SVG'} 副本`,
+      name: `${original.name || 'SVG'} ${t('stamp.svg.copy')}`,
       positionX: (original.positionX || 0) + 1,
       positionY: (original.positionY || 0) + 1,
       version: Date.now()
@@ -613,13 +615,6 @@ const adjustScale = (index: number, delta: number) => {
   border-bottom: 1px solid #e8e8e8;
   transition: background 0.2s;
   gap: 12px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
 }
 
 .action-btn {

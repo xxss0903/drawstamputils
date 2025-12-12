@@ -42,7 +42,7 @@
               :value="config.taxNumber.fontFamily"
               class="font-input"
               @input="updateTaxNumber('fontFamily', ($event.target as HTMLInputElement).value)"
-              placeholder="输入字体名称"
+              :placeholder="t('stamp.common.fontPlaceholder')"
             />
           </div>
         </label>
@@ -52,8 +52,8 @@
             :value="config.taxNumber.fontWeight"
             @change="updateTaxNumber('fontWeight', ($event.target as HTMLSelectElement).value)"
           >
-            <option value="normal">正常</option>
-            <option value="bold">粗体</option>
+            <option value="normal">{{ t('stamp.common.fontWeight.normal') }}</option>
+            <option value="bold">{{ t('stamp.common.fontWeight.bold') }}</option>
             <option value="100">100</option>
             <option value="200">200</option>
             <option value="300">300</option>
@@ -71,7 +71,7 @@
       <div class="range-section">
         <div class="range-item">
           <div class="range-header">
-            <span class="range-label-text">压缩比例</span>
+            <span class="range-label-text">{{ t('stamp.taxNumber.compression') }}</span>
             <span class="range-value-display">[ {{ config.taxNumber.compression.toFixed(2) }} ]</span>
           </div>
           <div class="range-container">
@@ -89,7 +89,7 @@
         </div>
         <div class="range-item">
           <div class="range-header">
-            <span class="range-label-text">字间距</span>
+            <span class="range-label-text">{{ t('stamp.taxNumber.letterSpacingShort') }}</span>
             <span class="range-value-display">[ {{ config.taxNumber.letterSpacing.toFixed(2) }} ]</span>
           </div>
           <div class="range-container">
@@ -107,7 +107,7 @@
         </div>
         <div class="range-item">
           <div class="range-header">
-            <span class="range-label-text">垂直位置 (mm)</span>
+            <span class="range-label-text">{{ t('stamp.taxNumber.verticalPositionShort') }}</span>
             <span class="range-value-display">[ {{ config.taxNumber.positionY.toFixed(1) }} ]</span>
           </div>
           <div class="range-container">

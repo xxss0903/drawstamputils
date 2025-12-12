@@ -10,14 +10,18 @@
       <div v-for="(company, index) in companyList" :key="index" class="company-item">
         <div class="company-header">
           <div class="header-left">
-            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? '收起' : '展开'">
+            <button
+              class="expand-toggle-btn"
+              @click.stop="toggleItem(index)"
+              :title="isItemExpanded(index) ? t('stamp.common.collapse') : t('stamp.common.expand')"
+            >
               <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
             </button>
             <span>{{ t('stamp.common.line', { index: index + 1 }) }}</span>
           </div>
           <div class="header-actions">
             <button class="action-btn" @click.stop="copyCompany(index)">
-              复制
+              {{ t('stamp.common.copy') }}
             </button>
             <button class="small-button delete-button" @click.stop="removeCompany(index)">
               {{ t('stamp.common.delete') }}
@@ -32,11 +36,11 @@
               <div class="text-input-header">
                 <span class="text-input-label">{{ t('stamp.company.name') }}:</span>
               </div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 class="text-input-field"
-                :value="company.companyName" 
-                @input="onFieldInput(index, 'companyName', $event)" 
+                :value="company.companyName"
+                @input="onFieldInput(index, 'companyName', $event)"
               />
             </div>
 
@@ -75,9 +79,9 @@
                 class="toolbar-italic-btn"
                 :class="{ active: company.fontStyle === 'italic' }"
                 @click="toggleItalic(index)"
-                title="倾斜"
+                :title="t('stamp.company.italic')"
               >
-                <img :src="icItalicPng" alt="倾斜" class="toolbar-icon-img" />
+                <img :src="icItalicPng" :alt="t('stamp.company.italic')" class="toolbar-icon-img" />
               </button>
               <label class="toolbar-color-wrapper">
                 <span class="toolbar-color-swatch" :style="{ backgroundColor: company.color || primaryColor }"></span>
@@ -112,40 +116,40 @@
 
             <template v-else>
               <label class="inline-label">
-                <span class="label-text">文字方向:</span>
+                <span class="label-text">{{ t('stamp.company.textDirection') }}:</span>
                 <select :value="company.rectangleTextDirection" @change="onFieldInput(index, 'rectangleTextDirection', $event)">
-                  <option value="horizontal">横向</option>
-                  <option value="vertical">纵向</option>
+                  <option value="horizontal">{{ t('stamp.company.textDirectionOptions.horizontal') }}</option>
+                  <option value="vertical">{{ t('stamp.company.textDirectionOptions.vertical') }}</option>
                 </select>
               </label>
               <label class="inline-label">
-                <span class="label-text">文字位置:</span>
+                <span class="label-text">{{ t('stamp.company.textPosition') }}:</span>
                 <select :value="company.rectangleTextPosition" @change="onFieldInput(index, 'rectangleTextPosition', $event)">
-                  <option value="top">顶部</option>
-                  <option value="bottom">底部</option>
-                  <option value="left">左侧</option>
-                  <option value="right">右侧</option>
-                  <option value="center">中心</option>
+                  <option value="top">{{ t('stamp.company.textPositionOptions.top') }}</option>
+                  <option value="bottom">{{ t('stamp.company.textPositionOptions.bottom') }}</option>
+                  <option value="left">{{ t('stamp.company.textPositionOptions.left') }}</option>
+                  <option value="right">{{ t('stamp.company.textPositionOptions.right') }}</option>
+                  <option value="center">{{ t('stamp.company.textPositionOptions.center') }}</option>
                 </select>
               </label>
               <label v-if="company.rectangleTextDirection === 'horizontal'" class="inline-label">
-                <span class="label-text">横向对齐:</span>
+                <span class="label-text">{{ t('stamp.company.horizontalAlign') }}:</span>
                 <select :value="company.rectangleTextAlignment" @change="onFieldInput(index, 'rectangleTextAlignment', $event)">
-                  <option value="left">左对齐</option>
-                  <option value="center">居中</option>
-                  <option value="right">右对齐</option>
+                  <option value="left">{{ t('stamp.company.horizontalAlignOptions.left') }}</option>
+                  <option value="center">{{ t('stamp.company.horizontalAlignOptions.center') }}</option>
+                  <option value="right">{{ t('stamp.company.horizontalAlignOptions.right') }}</option>
                 </select>
               </label>
               <label v-else class="inline-label">
-                <span class="label-text">纵向对齐:</span>
+                <span class="label-text">{{ t('stamp.company.verticalAlign') }}:</span>
                 <select :value="company.rectangleVerticalAlignment" @change="onFieldInput(index, 'rectangleVerticalAlignment', $event)">
-                  <option value="top">顶部对齐</option>
-                  <option value="center">居中</option>
-                  <option value="bottom">底部对齐</option>
+                  <option value="top">{{ t('stamp.company.verticalAlignOptions.top') }}</option>
+                  <option value="center">{{ t('stamp.company.verticalAlignOptions.center') }}</option>
+                  <option value="bottom">{{ t('stamp.company.verticalAlignOptions.bottom') }}</option>
                 </select>
               </label>
               <label v-if="company.rectangleTextDirection === 'vertical'" class="inline-label">
-                <span class="label-text">行间距 (mm):</span>
+                <span class="label-text">{{ t('stamp.company.lineSpacing') }}:</span>
                 <input
                   type="number"
                   :value="company.rectangleLineSpacing"
@@ -156,7 +160,7 @@
                 />
               </label>
               <label class="inline-label">
-                <span class="label-text">文字边距 (mm):</span>
+                <span class="label-text">{{ t('stamp.company.textMargin') }}:</span>
                 <input
                   type="number"
                   :value="company.rectangleTextMargin"
@@ -576,13 +580,6 @@ const addCompany = () => {
 
 .company-header:hover {
   background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
 }
 
 .expand-toggle-btn {

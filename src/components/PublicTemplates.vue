@@ -196,14 +196,6 @@ const formatFileSize = (bytes: number) => {
   margin: 0 0 1rem 0;
   color: #333;
 }
-
-.header-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
 .filter-tabs {
   display: flex;
   gap: 0.5rem;

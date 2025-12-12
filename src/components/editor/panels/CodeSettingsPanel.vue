@@ -13,7 +13,7 @@
             <button
               class="expand-toggle-btn"
               @click.stop="toggleItem(index)"
-              :title="isItemExpanded(index) ? '收起' : '展开'"
+              :title="isItemExpanded(index) ? t('stamp.common.collapse') : t('stamp.common.expand')"
             >
               <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
             </button>
@@ -21,7 +21,7 @@
           </div>
           <div class="header-actions">
             <button class="action-btn" @click.stop="copyCode(index)">
-              复制
+              {{ t('stamp.common.copy') }}
             </button>
             <button class="small-button delete-button" @click.stop="removeCode(index)">
               {{ t('stamp.common.delete') }}
@@ -36,8 +36,8 @@
               <div class="text-input-header">
                 <span class="text-input-label">{{ t('stamp.code.code') }}:</span>
               </div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 class="text-input-field"
                 :value="code.code"
                 @input="updateCode(index, 'code', ($event.target as HTMLInputElement).value)"
@@ -106,7 +106,7 @@
           <div class="range-section">
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">压缩比例</span>
+                <span class="range-label-text">{{ t('stamp.code.compression') }}</span>
                 <span class="range-value-display">[ {{ code.compression.toFixed(2) }} ]</span>
               </div>
               <div class="range-container">
@@ -124,7 +124,7 @@
             </div>
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">分布因子</span>
+                <span class="range-label-text">{{ t('stamp.code.distribution') }}</span>
                 <span class="range-value-display">[ {{ code.textDistributionFactor.toFixed(1) }} ]</span>
               </div>
               <div class="range-container">
@@ -376,13 +376,6 @@ const adjustDistribution = (index: number, delta: number) => {
 </script>
 
 <style scoped>
-.code-item {
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  background: #fff;
-  overflow: hidden;
-}
 
 .code-header {
   display: flex;
@@ -397,20 +390,6 @@ const adjustDistribution = (index: number, delta: number) => {
 
 .code-header:hover {
   background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-}
-
-.header-actions {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-shrink: 0;
 }
 
 .action-btn {

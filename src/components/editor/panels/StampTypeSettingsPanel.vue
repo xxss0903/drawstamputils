@@ -10,17 +10,17 @@
       <div v-for="(type, index) in stampTypeList" :key="index" class="stamp-type-item">
         <div class="stamp-type-header">
           <div class="header-left">
-            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? '收起' : '展开'">
+            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? t('stamp.common.collapse') : t('stamp.common.expand')">
               <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
             </button>
             <span>{{ t('stamp.stampType.line', { index: index + 1 }) }}</span>
           </div>
           <div class="header-actions">
             <button class="action-btn" @click.stop="copyStampType(index)">
-              复制
+              {{ t('stamp.common.copy') }}
             </button>
             <button class="small-button delete-button" @click.stop="removeStampType(index)">
-              删除
+              {{ t('stamp.common.delete') }}
             </button>
           </div>
         </div>
@@ -32,8 +32,8 @@
               <div class="text-input-header">
                 <span class="text-input-label">{{ t('stamp.stampType.type') }}:</span>
               </div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 class="text-input-field"
                 :value="type.stampType"
                 @input="updateStampType(index, 'stampType', ($event.target as HTMLInputElement).value)"
@@ -75,9 +75,9 @@
                 class="toolbar-italic-btn"
                 :class="{ active: type.fontStyle === 'italic' }"
                 @click="toggleItalic(index)"
-                title="倾斜"
+                :title="t('stamp.common.italic')"
               >
-                <img :src="icItalicPng" alt="倾斜" class="toolbar-icon-img" />
+                <img :src="icItalicPng" :alt="t('stamp.common.italic')" class="toolbar-icon-img" />
               </button>
               <label class="toolbar-color-wrapper">
                 <span class="toolbar-color-swatch" :style="{ backgroundColor: type.color || primaryColor }"></span>
@@ -90,13 +90,13 @@
               </label>
             </div>
             <label class="inline-label">
-              <span class="label-text">显示方向:</span>
+              <span class="label-text">{{ t('stamp.stampType.displayDirection') }}:</span>
               <select
                 :value="type.orientation || 'horizontal'"
                 @change="updateStampType(index, 'orientation', ($event.target as HTMLSelectElement).value as 'horizontal' | 'vertical')"
               >
-                <option value="horizontal">水平</option>
-                <option value="vertical">竖直</option>
+                <option value="horizontal">{{ t('stamp.stampType.displayDirectionOptions.horizontal') }}</option>
+                <option value="vertical">{{ t('stamp.stampType.displayDirectionOptions.vertical') }}</option>
               </select>
             </label>
           </div>
@@ -141,7 +141,7 @@
             </div>
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">水平位置 X (mm)</span>
+                <span class="range-label-text">{{ t('stamp.stampType.horizontalPositionX') }}</span>
                 <span class="range-value-display">[ {{ (type.positionX || 0).toFixed(1) }} ]</span>
               </div>
               <div class="range-container">
@@ -159,7 +159,7 @@
             </div>
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">垂直位置 Y (mm)</span>
+                <span class="range-label-text">{{ t('stamp.stampType.verticalPositionY') }}</span>
                 <span class="range-value-display">[ {{ type.positionY.toFixed(1) }} ]</span>
               </div>
               <div class="range-container">
@@ -177,7 +177,7 @@
             </div>
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">旋转角度 (°)</span>
+                <span class="range-label-text">{{ t('stamp.stampType.rotationAngle') }}</span>
                 <span class="range-value-display">[ {{ (type.rotation || 0).toFixed(1) }}° ]</span>
               </div>
               <div class="range-container">
@@ -341,7 +341,7 @@ const addStampType = () => {
       newPositionY = lastStampType.positionY + lastStampType.fontHeight
     }
     config.stampTypeList.push({
-      stampType: '新印章类型',
+      stampType: t('stamp.stampType.defaultNewStampType'),
       fontHeight: 4.0,
       fontFamily: 'SimSun',
       compression: 0.75,
@@ -435,12 +435,7 @@ const adjustRotation = (index: number, delta: number) => {
   background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-}
+
 
 .expand-toggle-btn {
   background: #fff;
@@ -639,11 +634,6 @@ label {
   color: #ff4d4f;
   border-color: #ff4d4f;
   background: #fff1f0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 6px;
 }
 
 .range-container {

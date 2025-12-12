@@ -5,15 +5,16 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from './stores/userStore'
 import AuthDialog from './components/AuthDialog.vue'
 
-const { locale, t } = useI18n()
+const { locale, t, messages } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const currentLanguage = ref(locale.value)
+// 语言选项：显示目标语言的名称（中文显示"中文"，英文显示"English"，日文显示"日本語"）
 const languageOptions = computed(() => [
-  { value: 'zh', label: t('common.language.chinese') },
-  { value: 'en', label: t('common.language.english') },
-  { value: 'ja', label: t('common.language.japanese') }
+  { value: 'zh', label: (messages.value.zh as any)?.common?.language?.chinese || '中文' },
+  { value: 'en', label: (messages.value.en as any)?.common?.language?.english || 'English' },
+  { value: 'ja', label: (messages.value.ja as any)?.common?.language?.japanese || '日本語' }
 ])
 const showAuthDialog = ref(false)
 
@@ -70,7 +71,7 @@ const handleAuthSuccess = () => {
             </template>
           </div>
           <label class="language-switch">
-            <span class="language-label">{{ t('common.language.select') }}</span>
+            <span class="language-label">{{ currentLanguage === 'zh' ? 'Language' : currentLanguage === 'en' ? '选择语言' : 'Language' }}</span>
             <select :value="currentLanguage" @change="switchLanguage(($event.target as HTMLSelectElement).value)">
               <option v-for="option in languageOptions" :key="option.value" :value="option.value">
                 {{ option.label }}

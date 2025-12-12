@@ -10,17 +10,17 @@
       <div v-for="(innerCircle, index) in innerCircleList" :key="index" class="inner-circle-item">
         <div class="inner-circle-header">
           <div class="header-left">
-            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? '收起' : '展开'">
+            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? t('stamp.common.collapse') : t('stamp.common.expand')">
               <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
             </button>
-            <span>第 {{ index + 1 }} 行</span>
+            <span>{{ t('stamp.common.line', { index: index + 1 }) }}</span>
           </div>
           <div class="header-actions">
             <button class="action-btn" @click.stop="copyInnerCircle(index)">
-              复制
+              {{ t('stamp.common.copy') }}
             </button>
             <button class="small-button delete-button" @click.stop="removeInnerCircle(index)">
-              删除
+              {{ t('stamp.common.delete') }}
             </button>
           </div>
         </div>
@@ -54,7 +54,7 @@
               <span class="label-text">{{ t('stamp.innerCircle.radiusY') }}:</span>
               <input
                 type="number"
-                :value="getComputedRadiusY(innerCircle, index)"
+                :value="getComputedRadiusY(innerCircle)"
                 min="1"
                 max="50"
                 step="0.1"
@@ -76,10 +76,10 @@
                 :checked="innerCircle.fillBackground ?? false"
                 @change="updateInnerCircle(index, 'fillBackground', ($event.target as HTMLInputElement).checked)"
               />
-              填充背景
+              {{ t('stamp.innerCircle.fillBackground') }}
             </label>
             <label v-if="innerCircle.fillBackground" class="inline-label">
-              <span class="label-text">填充颜色:</span>
+              <span class="label-text">{{ t('stamp.innerCircle.fillColor') }}:</span>
               <input
                 type="color"
                 :value="innerCircle.fillColor || innerCircle.color || primaryColor"
@@ -87,7 +87,7 @@
               />
             </label>
             <label class="inline-label">
-              <span class="label-text">形状:</span>
+              <span class="label-text">{{ t('stamp.innerCircle.shape') }}:</span>
               <select
                 :value="innerCircle.shape || 'ellipse'"
                 @change="onInnerCircleShapeChange(index, $event)"
@@ -99,19 +99,19 @@
               </select>
             </label>
             <label class="inline-label">
-              <span class="label-text">线条样式:</span>
+              <span class="label-text">{{ t('stamp.innerCircle.lineStyle') }}:</span>
               <select
                 :value="innerCircle.lineStyle || 'solid'"
                 @change="updateInnerCircle(index, 'lineStyle', ($event.target as HTMLSelectElement).value as 'solid' | 'dashed' | 'dotted')"
               >
-                <option value="solid">实线</option>
-                <option value="dashed">虚线</option>
-                <option value="dotted">点线</option>
+                <option value="solid">{{ t('stamp.basic.lineStyle.solid') }}</option>
+                <option value="dashed">{{ t('stamp.basic.lineStyle.dashed') }}</option>
+                <option value="dotted">{{ t('stamp.basic.lineStyle.dotted') }}</option>
               </select>
             </label>
             <template v-if="(innerCircle.lineStyle || 'solid') !== 'solid'">
               <label class="inline-label">
-                <span class="label-text">虚线长度 (mm):</span>
+                <span class="label-text">{{ t('stamp.innerCircle.dashLength') }}:</span>
                 <input
                   type="number"
                   :value="innerCircle.dashLength ?? 2"
@@ -122,7 +122,7 @@
                 />
               </label>
               <label class="inline-label">
-                <span class="label-text">虚线间距 (mm):</span>
+                <span class="label-text">{{ t('stamp.innerCircle.gapLength') }}:</span>
                 <input
                   type="number"
                   :value="innerCircle.gapLength ?? 1"
@@ -263,7 +263,7 @@ const isItemExpanded = (index: number) => {
 const parseNumber = (event: Event) => Number((event.target as HTMLInputElement).value)
 
 // 计算 radiusY 值：如果是三角形且开启了等边三角形锁定，根据 radiusX 计算等边三角形的高度
-const getComputedRadiusY = (innerCircle: IInnerCircle, index: number) => {
+const getComputedRadiusY = (innerCircle: IInnerCircle) => {
   if (innerCircle.shape === 'triangle' && (props.config.lockTriangleEquilateral ?? true)) {
     const sqrt3Over2 = Math.sqrt(3) / 2
     return innerCircle.innerCircleLineRadiusX * sqrt3Over2
@@ -340,7 +340,8 @@ const addInnerCircle = (shape?: 'ellipse' | 'rectangle' | 'rhombus' | 'triangle'
     if (!config.innerCircleList) {
       config.innerCircleList = []
     }
-    const newShape = shape || config.company.shape || 'ellipse'
+    const companyShape = config.company.shape
+    const newShape = shape || (companyShape === 'organic' ? 'ellipse' : (companyShape === 'ellipse' || companyShape === 'rectangle' || companyShape === 'rhombus' || companyShape === 'triangle' ? companyShape : 'ellipse'))
     let radiusX = 16
     let radiusY = 12
     // 如果形状是三角形且开启了等边三角形锁定，根据 radiusX 计算 radiusY
@@ -413,13 +414,6 @@ const adjustPositionY = (index: number, delta: number) => {
 
 .inner-circle-header:hover {
   background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
 }
 
 .expand-toggle-btn {

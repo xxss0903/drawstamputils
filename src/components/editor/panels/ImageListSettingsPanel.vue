@@ -465,15 +465,6 @@ label {
   background: #2563eb;
 }
 
-.image-item {
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  background: #fff;
-  overflow: hidden;
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-
 .image-item:hover {
   border-color: #d0d0d0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -492,13 +483,6 @@ label {
 
 .image-header:hover {
   background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
 }
 
 .expand-toggle-btn {

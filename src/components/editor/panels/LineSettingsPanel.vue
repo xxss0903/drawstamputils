@@ -2,7 +2,7 @@
   <div class="control-group">
     <div class="group-header" @click="toggleExpanded">
       <h3>
-        线条设置
+        {{ t('stamp.line.title') }}
         <span class="expand-icon" :class="{ expanded }">▼</span>
       </h3>
     </div>
@@ -14,17 +14,17 @@
       >
         <div class="line-header">
           <div class="header-left">
-            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? '收起' : '展开'">
+            <button class="expand-toggle-btn" @click.stop="toggleItem(index)" :title="isItemExpanded(index) ? t('stamp.common.collapse') : t('stamp.common.expand')">
               <span class="expand-icon" :class="{ expanded: isItemExpanded(index) }">▼</span>
             </button>
-            <span>{{ line.type === 'vertical' ? '竖线' : '横线' }} {{ index + 1 }}</span>
+            <span>{{ line.type === 'vertical' ? t('stamp.line.verticalLine') : t('stamp.line.horizontalLine') }} {{ index + 1 }}</span>
           </div>
           <div class="header-actions">
             <button class="action-btn" @click.stop="copyLine(index)">
-              复制
+              {{ t('stamp.common.copy') }}
             </button>
             <button class="action-btn delete-btn" @click.stop="removeLine(index)">
-              删除
+              {{ t('stamp.common.delete') }}
             </button>
           </div>
         </div>
@@ -33,14 +33,14 @@
           <!-- 文本/选择类设置 -->
           <div class="settings-section">
             <label class="inline-label">
-              <span class="label-text">方向:</span>
+              <span class="label-text">{{ t('stamp.line.direction') }}:</span>
               <select :value="line.type" @change="updateLine(index, 'type', ($event.target as HTMLSelectElement).value as 'horizontal' | 'vertical')">
-                <option value="horizontal">横线</option>
-                <option value="vertical">竖线</option>
+                <option value="horizontal">{{ t('stamp.line.directionOptions.horizontal') }}</option>
+                <option value="vertical">{{ t('stamp.line.directionOptions.vertical') }}</option>
               </select>
             </label>
             <label class="inline-label">
-              <span class="label-text">长度 (mm):</span>
+              <span class="label-text">{{ t('stamp.line.length') }}:</span>
               <input
                 type="number"
                 :value="line.length"
@@ -51,7 +51,7 @@
               />
             </label>
             <label class="inline-label">
-              <span class="label-text">线宽 (mm):</span>
+              <span class="label-text">{{ t('stamp.line.lineWidth') }}:</span>
               <input
                 type="number"
                 :value="line.lineWidth"
@@ -62,20 +62,20 @@
               />
             </label>
             <label class="inline-label">
-              <span class="label-text">颜色:</span>
+              <span class="label-text">{{ t('stamp.line.color') }}:</span>
               <input type="color" :value="line.color || defaultColor" @input="updateLine(index, 'color', ($event.target as HTMLInputElement).value)" />
             </label>
             <label class="inline-label">
-              <span class="label-text">线型:</span>
+              <span class="label-text">{{ t('stamp.line.lineStyle') }}:</span>
               <select :value="line.style" @change="updateLine(index, 'style', ($event.target as HTMLSelectElement).value as LineStyle)">
-                <option value="solid">实线</option>
-                <option value="dashed">虚线</option>
-                <option value="dotted">点线</option>
+                <option value="solid">{{ t('stamp.line.lineStyleOptions.solid') }}</option>
+                <option value="dashed">{{ t('stamp.line.lineStyleOptions.dashed') }}</option>
+                <option value="dotted">{{ t('stamp.line.lineStyleOptions.dotted') }}</option>
               </select>
             </label>
             <template v-if="line.style !== 'solid'">
               <label class="inline-label">
-                <span class="label-text">dash 长度 (mm):</span>
+                <span class="label-text">{{ t('stamp.line.dashLength') }}:</span>
                 <input
                   type="number"
                   :value="line.dashLength ?? 2"
@@ -86,7 +86,7 @@
                 />
               </label>
               <label class="inline-label">
-                <span class="label-text">gap 长度 (mm):</span>
+                <span class="label-text">{{ t('stamp.line.gapLength') }}:</span>
                 <input
                   type="number"
                   :value="line.gapLength ?? 1"
@@ -103,7 +103,7 @@
           <div class="range-section">
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">水平位置 X (mm)</span>
+                <span class="range-label-text">{{ t('stamp.line.horizontalPositionX') }}</span>
                 <span class="range-value-display">[ {{ line.positionX.toFixed(1) }} ]</span>
               </div>
               <div class="range-container">
@@ -121,7 +121,7 @@
             </div>
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">垂直位置 Y (mm)</span>
+                <span class="range-label-text">{{ t('stamp.line.verticalPositionY') }}</span>
                 <span class="range-value-display">[ {{ line.positionY.toFixed(1) }} ]</span>
               </div>
               <div class="range-container">
@@ -139,7 +139,7 @@
             </div>
             <div class="range-item">
               <div class="range-header">
-                <span class="range-label-text">透明度</span>
+                <span class="range-label-text">{{ t('stamp.line.opacity') }}</span>
                 <span class="range-value-display">[ {{ ((line.opacity ?? 1) * 100).toFixed(0) }}% ]</span>
               </div>
               <div class="range-container">
@@ -161,8 +161,8 @@
       </div>
 
       <div class="line-actions">
-        <button class="add-line-button" @click="addLine('horizontal')">添加横线</button>
-        <button class="add-line-button" @click="addLine('vertical')">添加竖线</button>
+        <button class="add-line-button" @click="addLine('horizontal')">{{ t('stamp.line.addHorizontal') }}</button>
+        <button class="add-line-button" @click="addLine('vertical')">{{ t('stamp.line.addVertical') }}</button>
       </div>
     </div>
   </div>
@@ -170,7 +170,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { IDrawStampConfig, ILineConfig, LineStyle } from '../../../DrawStampTypes'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   expanded: boolean
@@ -337,13 +340,6 @@ const adjustOpacity = (index: number, delta: number) => {
   background: linear-gradient(to bottom, #f5f5f5, #f0f0f0);
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-}
-
 .expand-toggle-btn {
   background: #fff;
   border: 1px solid #d9d9d9;
@@ -484,14 +480,6 @@ label {
   color: #6b7280;
   font-family: 'Courier New', monospace;
   font-weight: 500;
-}
-
-.header-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: stretch;
-  flex-shrink: 0;
 }
 
 .action-btn {

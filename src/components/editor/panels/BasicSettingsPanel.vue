@@ -85,7 +85,7 @@
             :checked="props.config.lockTriangleEquilateral ?? true"
             @change="onLockTriangleEquilateralChange"
           />
-          固定为等边三角形
+          {{ t('stamp.basic.lockEquilateralTriangle') }}
         </label>
         <label v-if="props.config.outBorder.drawInnerCircle" class="inline-label">
           <span class="label-text">{{ t('stamp.outBorder.lineWidth') }}:</span>

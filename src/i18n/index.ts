@@ -79,7 +79,8 @@ const messages: Record<string, any> = {
           rhombus: '菱形',
           triangle: '三角形',
           organic: '不规则/有机形状'
-        }
+        },
+        lockEquilateralTriangle: '固定为等边三角形'
       },
       company: {
         title: '公司名称列表设置',
@@ -87,6 +88,34 @@ const messages: Record<string, any> = {
         font: '字体',
         fontSize: '字体大小 (mm)',
         fontWeight: '字体粗细',
+        italic: '倾斜',
+        textDirection: '文字方向',
+        textDirectionOptions: {
+          horizontal: '横向',
+          vertical: '纵向'
+        },
+        textPosition: '文字位置',
+        textPositionOptions: {
+          top: '顶部',
+          bottom: '底部',
+          left: '左侧',
+          right: '右侧',
+          center: '中心'
+        },
+        horizontalAlign: '横向对齐',
+        horizontalAlignOptions: {
+          left: '左对齐',
+          center: '居中',
+          right: '右对齐'
+        },
+        verticalAlign: '纵向对齐',
+        verticalAlignOptions: {
+          top: '顶部对齐',
+          center: '居中',
+          bottom: '底部对齐'
+        },
+        lineSpacing: '行间距 (mm)',
+        textMargin: '文字边距 (mm)',
         compression: '压缩比例',
         distribution: '分布因子',
         margin: '边距 (mm)',
@@ -108,7 +137,42 @@ const messages: Record<string, any> = {
         verticalPosition: '垂直位置 (mm)',
         addNew: '添加新行',
         delete: '删除',
-        line: '第 {index} 行'
+        line: '第 {index} 行',
+        displayDirection: '显示方向',
+        displayDirectionOptions: {
+          horizontal: '水平',
+          vertical: '竖直'
+        },
+        horizontalPositionX: '水平位置 X (mm)',
+        verticalPositionY: '垂直位置 Y (mm)',
+        rotationAngle: '旋转角度 (°)',
+        defaultNewStampType: '新印章类型'
+      },
+      line: {
+        title: '线条设置',
+        direction: '方向',
+        directionOptions: {
+          horizontal: '横线',
+          vertical: '竖线'
+        },
+        length: '长度 (mm)',
+        lineWidth: '线宽 (mm)',
+        color: '颜色',
+        lineStyle: '线型',
+        lineStyleOptions: {
+          solid: '实线',
+          dashed: '虚线',
+          dotted: '点线'
+        },
+        dashLength: 'dash 长度 (mm)',
+        gapLength: 'gap 长度 (mm)',
+        horizontalPositionX: '水平位置 X (mm)',
+        verticalPositionY: '垂直位置 Y (mm)',
+        opacity: '透明度',
+        addHorizontal: '添加横线',
+        addVertical: '添加竖线',
+        horizontalLine: '横线',
+        verticalLine: '竖线'
       },
       star: {
         title: '五角星设置',
@@ -168,6 +232,7 @@ const messages: Record<string, any> = {
       common: {
         line: '第 {index} 行',
         delete: '删除',
+        copy: '复制',
         addNew: '添加新行',
         expand: '展开',
         collapse: '收起',
@@ -206,7 +271,9 @@ const messages: Record<string, any> = {
         fontWeight: '字体粗细',
         compression: '压缩比例',
         letterSpacing: '字符间距 (mm)',
-        verticalPosition: '垂直位置调整 (mm)'
+        letterSpacingShort: '字间距',
+        verticalPosition: '垂直位置调整 (mm)',
+        verticalPositionShort: '垂直位置 (mm)'
       },
       images: {
         title: '图片列表设置',
@@ -220,6 +287,22 @@ const messages: Record<string, any> = {
         keepRatio: '保持宽高比',
         preview: '预览'
       },
+      svg: {
+        title: 'SVG 图形设置',
+        uploadSvgFile: '上传 SVG 文件',
+        addBuiltinSvg: '添加内置 SVG',
+        emptyHint: '暂无 SVG 图形，请上传 SVG 文件。',
+        name: '名称',
+        color: '颜色',
+        width: '宽度 (mm)',
+        height: '高度 (mm)',
+        keepAspectRatio: '保持宽高比',
+        horizontalPositionX: '水平位置 X (mm)',
+        verticalPositionY: '垂直位置 Y (mm)',
+        rotationAngle: '旋转角度 (°)',
+        scale: '缩放比例',
+        copy: '副本'
+      },
       innerCircle: {
         addNew: '新增',
         title: '内圈圆形设置',
@@ -232,7 +315,13 @@ const messages: Record<string, any> = {
         addEllipse: '添加圆形/椭圆内圈',
         addRectangle: '添加矩形内圈',
         addRhombus: '添加菱形内圈',
-        addTriangle: '添加三角形内圈'
+        addTriangle: '添加三角形内圈',
+        fillBackground: '填充背景',
+        fillColor: '填充颜色',
+        shape: '形状',
+        lineStyle: '线条样式',
+        dashLength: '虚线长度 (mm)',
+        gapLength: '虚线间距 (mm)'
       },
       outBorder: {
         enable: '显示外圈边框',
@@ -753,7 +842,8 @@ const messages: Record<string, any> = {
           rhombus: 'Rhombus',
           triangle: 'Triangle',
           organic: 'Organic/Irregular Shape'
-        }
+        },
+        lockEquilateralTriangle: 'Lock as Equilateral Triangle'
       },
       company: {
         title: 'Company Name List Settings',
@@ -761,6 +851,34 @@ const messages: Record<string, any> = {
         font: 'Font',
         fontSize: 'Font Size (mm)',
         fontWeight: 'Font Weight',
+        italic: 'Italic',
+        textDirection: 'Text Direction',
+        textDirectionOptions: {
+          horizontal: 'Horizontal',
+          vertical: 'Vertical'
+        },
+        textPosition: 'Text Position',
+        textPositionOptions: {
+          top: 'Top',
+          bottom: 'Bottom',
+          left: 'Left',
+          right: 'Right',
+          center: 'Center'
+        },
+        horizontalAlign: 'Horizontal Align',
+        horizontalAlignOptions: {
+          left: 'Left',
+          center: 'Center',
+          right: 'Right'
+        },
+        verticalAlign: 'Vertical Align',
+        verticalAlignOptions: {
+          top: 'Top',
+          center: 'Center',
+          bottom: 'Bottom'
+        },
+        lineSpacing: 'Line Spacing (mm)',
+        textMargin: 'Text Margin (mm)',
         compression: 'Compression Ratio',
         distribution: 'Distribution Factor',
         margin: 'Margin (mm)',
@@ -782,7 +900,42 @@ const messages: Record<string, any> = {
         verticalPosition: 'Vertical Position (mm)',
         addNew: 'Add New',
         delete: 'Delete',
-        line: 'Line {index}'
+        line: 'Line {index}',
+        displayDirection: 'Display Direction',
+        displayDirectionOptions: {
+          horizontal: 'Horizontal',
+          vertical: 'Vertical'
+        },
+        horizontalPositionX: 'Horizontal Position X (mm)',
+        verticalPositionY: 'Vertical Position Y (mm)',
+        rotationAngle: 'Rotation Angle (°)',
+        defaultNewStampType: 'New Stamp Type'
+      },
+      line: {
+        title: 'Line Settings',
+        direction: 'Direction',
+        directionOptions: {
+          horizontal: 'Horizontal',
+          vertical: 'Vertical'
+        },
+        length: 'Length (mm)',
+        lineWidth: 'Line Width (mm)',
+        color: 'Color',
+        lineStyle: 'Line Style',
+        lineStyleOptions: {
+          solid: 'Solid',
+          dashed: 'Dashed',
+          dotted: 'Dotted'
+        },
+        dashLength: 'Dash Length (mm)',
+        gapLength: 'Gap Length (mm)',
+        horizontalPositionX: 'Horizontal Position X (mm)',
+        verticalPositionY: 'Vertical Position Y (mm)',
+        opacity: 'Opacity',
+        addHorizontal: 'Add Horizontal Line',
+        addVertical: 'Add Vertical Line',
+        horizontalLine: 'Horizontal Line',
+        verticalLine: 'Vertical Line'
       },
       star: {
         title: 'Star Settings',
@@ -842,6 +995,7 @@ const messages: Record<string, any> = {
       common: {
         line: 'Line {index}',
         delete: 'Delete',
+        copy: 'Copy',
         addNew: 'Add New',
         expand: 'Expand',
         collapse: 'Collapse',
@@ -880,7 +1034,9 @@ const messages: Record<string, any> = {
         fontWeight: 'Font Weight',
         compression: 'Compression Ratio',
         letterSpacing: 'Letter Spacing (mm)',
-        verticalPosition: 'Vertical Position (mm)'
+        letterSpacingShort: 'Letter Spacing',
+        verticalPosition: 'Vertical Position (mm)',
+        verticalPositionShort: 'Vertical Position (mm)'
       },
       images: {
         title: 'Image List Settings',
@@ -894,6 +1050,22 @@ const messages: Record<string, any> = {
         keepRatio: 'Keep Aspect Ratio',
         preview: 'Preview'
       },
+      svg: {
+        title: 'SVG Graphics Settings',
+        uploadSvgFile: 'Upload SVG File',
+        addBuiltinSvg: 'Add Built-in SVG',
+        emptyHint: 'No SVG graphics yet. Please upload an SVG file.',
+        name: 'Name',
+        color: 'Color',
+        width: 'Width (mm)',
+        height: 'Height (mm)',
+        keepAspectRatio: 'Keep Aspect Ratio',
+        horizontalPositionX: 'Horizontal Position X (mm)',
+        verticalPositionY: 'Vertical Position Y (mm)',
+        rotationAngle: 'Rotation Angle (°)',
+        scale: 'Scale',
+        copy: 'Copy'
+      },
       innerCircle: {
         addNew: 'Add New',
         title: 'Inner Circle Settings',
@@ -906,7 +1078,13 @@ const messages: Record<string, any> = {
         addEllipse: 'Add Ellipse Circle',
         addRectangle: 'Add Rectangle Circle',
         addRhombus: 'Add Rhombus Circle',
-        addTriangle: 'Add Triangle Circle'
+        addTriangle: 'Add Triangle Circle',
+        fillBackground: 'Fill Background',
+        fillColor: 'Fill Color',
+        shape: 'Shape',
+        lineStyle: 'Line Style',
+        dashLength: 'Dash Length (mm)',
+        gapLength: 'Gap Length (mm)'
       },
       outBorder: {
         enable: 'Show Outer Border',
@@ -920,6 +1098,48 @@ const messages: Record<string, any> = {
       drag: {
         label: 'Move Stamp'
       }
+    },
+    company: {
+      title: '会社名リスト設定',
+      name: '会社名',
+      font: 'フォント',
+      fontSize: 'サイズ (mm)',
+      fontWeight: '太さ',
+      textDirection: '文字方向',
+      textDirectionOptions: {
+        horizontal: '横書き',
+        vertical: '縦書き'
+      },
+      textPosition: '文字位置',
+      textPositionOptions: {
+        top: '上',
+        bottom: '下',
+        left: '左',
+        right: '右',
+        center: '中央'
+      },
+      horizontalAlign: '水平方向の揃え',
+      horizontalAlignOptions: {
+        left: '左揃え',
+        center: '中央',
+        right: '右揃え'
+      },
+      verticalAlign: '垂直方向の揃え',
+      verticalAlignOptions: {
+        top: '上揃え',
+        center: '中央',
+        bottom: '下揃え'
+      },
+      lineSpacing: '行間 (mm)',
+      textMargin: '文字マージン (mm)',
+      compression: '圧縮率',
+      distribution: '分布係数',
+      margin: 'マージン (mm)',
+      color: '色',
+      startAngle: '開始角度 (°)',
+      rotateDirection: '回転方向',
+      counterclockwise: '反時計回り',
+      clockwise: '時計回り'
     },
     elementList: {
       title: 'Element List',
@@ -1423,7 +1643,8 @@ const messages: Record<string, any> = {
           rhombus: '菱形',
           triangle: '三角形',
           organic: '有機形状'
-        }
+        },
+        lockEquilateralTriangle: '正三角形に固定'
       },
       company: {
         title: '会社名リスト設定',
@@ -1431,6 +1652,34 @@ const messages: Record<string, any> = {
         font: 'フォント',
         fontSize: 'サイズ (mm)',
         fontWeight: '太さ',
+        italic: 'イタリック',
+        textDirection: '文字方向',
+        textDirectionOptions: {
+          horizontal: '横書き',
+          vertical: '縦書き'
+        },
+        textPosition: '文字位置',
+        textPositionOptions: {
+          top: '上',
+          bottom: '下',
+          left: '左',
+          right: '右',
+          center: '中央'
+        },
+        horizontalAlign: '水平方向の揃え',
+        horizontalAlignOptions: {
+          left: '左揃え',
+          center: '中央',
+          right: '右揃え'
+        },
+        verticalAlign: '垂直方向の揃え',
+        verticalAlignOptions: {
+          top: '上揃え',
+          center: '中央',
+          bottom: '下揃え'
+        },
+        lineSpacing: '行間 (mm)',
+        textMargin: '文字マージン (mm)',
         compression: '圧縮率',
         distribution: '分布係数',
         margin: 'マージン (mm)',
@@ -1452,7 +1701,16 @@ const messages: Record<string, any> = {
         verticalPosition: '垂直位置 (mm)',
         addNew: '追加',
         delete: '削除',
-        line: '行 {index}'
+        line: '行 {index}',
+        displayDirection: '表示方向',
+        displayDirectionOptions: {
+          horizontal: '水平',
+          vertical: '垂直'
+        },
+        horizontalPositionX: '水平位置 X (mm)',
+        verticalPositionY: '垂直位置 Y (mm)',
+        rotationAngle: '回転角度 (°)',
+        defaultNewStampType: '新規印章タイプ'
       },
       code: {
         title: 'コード設定',
@@ -1473,7 +1731,35 @@ const messages: Record<string, any> = {
         fontWeight: '太さ',
         compression: '圧縮率',
         letterSpacing: '字間 (mm)',
-        verticalPosition: '垂直位置 (mm)'
+        letterSpacingShort: '字間',
+        verticalPosition: '垂直位置 (mm)',
+        verticalPositionShort: '垂直位置 (mm)'
+      },
+      line: {
+        title: '線設定',
+        direction: '方向',
+        directionOptions: {
+          horizontal: '横線',
+          vertical: '縦線'
+        },
+        length: '長さ (mm)',
+        lineWidth: '線幅 (mm)',
+        color: '色',
+        lineStyle: '線スタイル',
+        lineStyleOptions: {
+          solid: '実線',
+          dashed: '破線',
+          dotted: '点線'
+        },
+        dashLength: '破線長 (mm)',
+        gapLength: '間隔 (mm)',
+        horizontalPositionX: '水平位置 X (mm)',
+        verticalPositionY: '垂直位置 Y (mm)',
+        opacity: '透明度',
+        addHorizontal: '横線を追加',
+        addVertical: '縦線を追加',
+        horizontalLine: '横線',
+        verticalLine: '縦線'
       },
       images: {
         title: '画像リスト設定',
@@ -1487,6 +1773,22 @@ const messages: Record<string, any> = {
         keepRatio: '縦横比を維持',
         preview: 'プレビュー'
       },
+      svg: {
+        title: 'SVG グラフィック設定',
+        uploadSvgFile: 'SVG ファイルをアップロード',
+        addBuiltinSvg: '組み込み SVG を追加',
+        emptyHint: 'SVG グラフィックがありません。SVG ファイルをアップロードしてください。',
+        name: '名前',
+        color: '色',
+        width: '幅 (mm)',
+        height: '高さ (mm)',
+        keepAspectRatio: '縦横比を維持',
+        horizontalPositionX: '水平位置 X (mm)',
+        verticalPositionY: '垂直位置 Y (mm)',
+        rotationAngle: '回転角度 (°)',
+        scale: 'スケール',
+        copy: 'コピー'
+      },
       innerCircle: {
         addNew: '追加',
         title: '内側の円設定',
@@ -1499,7 +1801,13 @@ const messages: Record<string, any> = {
         addEllipse: '楕円を追加',
         addRectangle: '矩形を追加',
         addRhombus: '菱形を追加',
-        addTriangle: '三角形を追加'
+        addTriangle: '三角形を追加',
+        fillBackground: '背景を塗りつぶす',
+        fillColor: '塗りつぶし色',
+        shape: '形状',
+        lineStyle: '線スタイル',
+        dashLength: '破線長 (mm)',
+        gapLength: '間隔 (mm)'
       },
       star: {
         title: '星形設定',
@@ -1548,6 +1856,7 @@ const messages: Record<string, any> = {
       common: {
         line: '行 {index}',
         delete: '削除',
+        copy: 'コピー',
         addNew: '追加',
         expand: '展開',
         collapse: '折りたたむ',
