@@ -1,0 +1,46 @@
+{
+  "name": "drawstamputils",
+  "private": false,
+  "version": "0.2.5",
+  "description": "drawstamputils, stamp maker, manual aging stamp",
+  "keywords": [
+    "stamp.js",
+    "drawStampUtils.js",
+    "stamp",
+    "drawstamp",
+    "印章制作",
+    "电子印章",
+    "stamp maker",
+    "digital seal",
+    "印章生成",
+    "电子印章生成",
+    "印章生成器",
+    "电子印章生成器"
+  ],
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xxss0903/drawstamputils"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/xxss0903/drawstamputils",
+  "author": "xxss0903",
+  "main": "src/DrawStampUtils.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "rollup": "^4.27.4",
+    "vue": "^3.4.37",
+    "vue-i18n": "^11.0.0-beta.2",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.2",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1",
+    "vue-tsc": "^2.0.29"
+  }
+}
