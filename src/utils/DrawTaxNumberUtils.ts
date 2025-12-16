@@ -42,6 +42,7 @@ export class DrawTaxNumberUtils {
         const positionY = taxNumber.positionY * this.mmToPixel + 0.3
         const fontWeight = taxNumber.fontWeight || 'normal'
         const letterSpacing = taxNumber.letterSpacing * this.mmToPixel
+        const stretchScale = taxNumber.fontWidth || 1
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${taxNumber.fontFamily}`
@@ -71,19 +72,22 @@ export class DrawTaxNumberUtils {
             
             ctx.save()
             ctx.translate(x, adjustedCenterY)
-            ctx.scale(taxNumber.compression, 1.35)
+            // compression 控制横向压缩，stretchScale 专门拉伸高度
+            ctx.scale(taxNumber.compression, 1.35 * stretchScale)
             ctx.fillText(char, 0, 0)
 
             // 存储字符路径
+            const visualWidth = charWidth * taxNumber.compression
+            const visualHeight = fontSize * 1.35 * stretchScale
             this.textPaths.push({
                 text: char,
                 type: 'taxNumber',
                 path: new Path2D(),
                 bounds: {
-                    x: x - (charWidth * taxNumber.compression) / 2,
-                    y: adjustedCenterY - fontSize / 2,
-                    width: Math.abs(charWidth * taxNumber.compression),
-                    height: fontSize * 1.35
+                    x: x - visualWidth / 2,
+                    y: adjustedCenterY - visualHeight / 2,
+                    width: Math.abs(visualWidth),
+                    height: visualHeight
                 }
 
             })

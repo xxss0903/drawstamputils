@@ -41,6 +41,7 @@ export class DrawCodeUtils {
         const fontSize = code.fontHeight * this.mmToPixel
         const text = code.code
         const fontWeight = code.fontWeight || 'normal'
+        const stretchScale = code.fontWidth || 1
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${code.fontFamily}`
@@ -59,20 +60,23 @@ export class DrawCodeUtils {
 
             ctx.save()
             ctx.translate(x, y)
-            ctx.scale(code.compression, 1)
+            // compression 继续只控制排布密度，stretchScale 单独拉伸高度
+            ctx.scale(code.compression, stretchScale)
             ctx.fillText(text, 0, 0)
 
-            // 存储文字路径
+            // 存储文字路径（高度按拉伸后计入）
             const metrics = ctx.measureText(text)
+            const visualWidth = metrics.width * code.compression
+            const visualHeight = fontSize * stretchScale
             this.textPaths.push({
                 text,
                 type: 'code',
                 path: new Path2D(),
                 bounds: {
-                    x: x - (metrics.width * code.compression) / 2,
-                    y: y - fontSize / 2,
-                    width: metrics.width * code.compression,
-                    height: fontSize
+                    x: x - visualWidth / 2,
+                    y: y - visualHeight / 2,
+                    width: visualWidth,
+                    height: visualHeight
                 }
             })
 
@@ -91,20 +95,22 @@ export class DrawCodeUtils {
                 ctx.save()
                 ctx.translate(x, y)
                 ctx.rotate(angle - Math.PI / 2)
-                ctx.scale(code.compression, 1)
+                ctx.scale(code.compression, stretchScale)
                 ctx.fillText(char, 0, 0)
 
                 // 存储每个字符的路径
                 const metrics = ctx.measureText(char)
+                const visualWidth = metrics.width * code.compression
+                const visualHeight = fontSize * stretchScale
                 this.textPaths.push({
                     text: char,
                     type: 'code',
                     path: new Path2D(),
                     bounds: {
-                        x: x - (metrics.width * code.compression) / 2,
-                        y: y - fontSize / 2,
-                        width: metrics.width * code.compression,
-                        height: fontSize
+                        x: x - visualWidth / 2,
+                        y: y - visualHeight / 2,
+                        width: visualWidth,
+                        height: visualHeight
                     }
                 })
 

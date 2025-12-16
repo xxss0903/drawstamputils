@@ -62,6 +62,7 @@ export class DrawStampTypeUtils {
         const lineSpacingPx = stampType.lineSpacing * this.mmToPixel
         const orientation = stampType.orientation || 'horizontal'
         const rotationRad = ((stampType.rotation || 0) * Math.PI) / 180
+        const stretchScale = stampType.fontWidth || 1
 
         ctx.save()
         const fontStyle = stampType.fontStyle || 'normal'
@@ -94,20 +95,22 @@ export class DrawStampTypeUtils {
                     if (rotationRad !== 0) {
                         ctx.rotate(rotationRad)
                     }
-                    ctx.scale(stampType.compression, 1)
+                    // compression 控制沿排布方向的压缩，stretchScale 单独拉伸高度
+                    ctx.scale(stampType.compression, stretchScale)
                     ctx.fillText(char, 0, relativeY)
                     ctx.restore()
 
                     const charWidth = ctx.measureText(char).width * stampType.compression
+                    const charHeight = fontSize * stretchScale
                     this.textPaths.push({
                         text: char,
                         type: 'stampType',
                         path: new Path2D(),
                         bounds: {
                             x: columnX - charWidth / 2,
-                            y: charY - fontSize / 2,
+                            y: charY - charHeight / 2,
                             width: charWidth,
-                            height: fontSize
+                            height: charHeight
                         }
                     })
                 })
@@ -131,7 +134,7 @@ export class DrawStampTypeUtils {
                 if (rotationRad !== 0) {
                     ctx.rotate(rotationRad)
                 }
-                ctx.scale(stampType.compression, 1)
+                ctx.scale(stampType.compression, stretchScale)
 
                 let currentX = -totalWidth / 2 // 从文本的左边缘开始
 
@@ -141,6 +144,7 @@ export class DrawStampTypeUtils {
                     ctx.fillText(char, charX, 0)
 
                     const charWidth = charWidths[index] * stampType.compression
+                    const charHeight = fontSize * stretchScale
 
                     this.textPaths.push({
                         text: char,
@@ -148,9 +152,9 @@ export class DrawStampTypeUtils {
                         path: new Path2D(),
                         bounds: {
                             x: centerX + offsetX + charX * stampType.compression - charWidth / 2,
-                            y: textY - fontSize / 2,
+                            y: textY - charHeight / 2,
                             width: charWidth,
-                            height: fontSize
+                            height: charHeight
                         }
                     })
 

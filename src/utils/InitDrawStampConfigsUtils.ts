@@ -161,6 +161,7 @@ export class InitDrawStampConfigsUtils {
             fontFamily: 'SimSun',
             fontHeight: 4.2,
             fontWeight: 'normal',
+            fontWidth: 1,
             shape: 'ellipse',
             adjustEllipseText: true,
             adjustEllipseTextFactor: 0.5,

@@ -124,6 +124,24 @@
             </div>
             <div class="range-item">
               <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.code.fontWidth') }}</span>
+                <span class="range-value-display">[ {{ (code.fontWidth ?? 1).toFixed(2) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, -0.05)">◀</button>
+                <input
+                  type="range"
+                  :value="code.fontWidth ?? 1"
+                  min="1"
+                  max="5"
+                  step="0.05"
+                  @input="updateCode(index, 'fontWidth', parseNumber($event))"
+                />
+                <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, 0.05)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
                 <span class="range-label-text">{{ t('stamp.code.distribution') }}</span>
                 <span class="range-value-display">[ {{ code.textDistributionFactor.toFixed(1) }} ]</span>
               </div>
@@ -354,6 +372,23 @@ const adjustCompression = (index: number, delta: number) => {
     if (!list[index]) return
     const newValue = Math.max(0.0, Math.min(3, list[index].compression + delta))
     list[index].compression = newValue
+    config.stampCode = list[0]
+  })
+}
+
+const adjustFontWidth = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    if (!config.stampCodeList) {
+      config.stampCodeList = []
+      if (config.stampCode) {
+        config.stampCodeList.push({ ...config.stampCode })
+      }
+    }
+    const list = config.stampCodeList
+    if (!list[index]) return
+    const current = list[index].fontWidth ?? 1.2
+    const newValue = Math.max(0.5, Math.min(5, current + delta))
+    list[index].fontWidth = newValue
     config.stampCode = list[0]
   })
 }

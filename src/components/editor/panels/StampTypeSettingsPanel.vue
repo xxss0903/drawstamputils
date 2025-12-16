@@ -32,61 +32,61 @@
               <div class="text-input-header">
                 <span class="text-input-label">{{ t('stamp.stampType.type') }}:</span>
               </div>
-              <input
-                type="text"
+          <input
+            type="text"
                 class="text-input-field"
-                :value="type.stampType"
-                @input="updateStampType(index, 'stampType', ($event.target as HTMLInputElement).value)"
-              />
+            :value="type.stampType"
+            @input="updateStampType(index, 'stampType', ($event.target as HTMLInputElement).value)"
+          />
             </div>
 
-            <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 倾斜 / 颜色 -->
-            <div class="text-toolbar">
-              <select
-                :value="type.fontFamily"
-                class="toolbar-font-select"
-                @change="updateStampType(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
-              >
-                <option v-for="font in systemFonts" :key="font" :value="font" :style="{ fontFamily: font }">
-                  {{ getFontDisplayName(font) }}
-                </option>
-              </select>
-              <input
-                type="number"
-                class="toolbar-font-size"
-                :value="type.fontHeight"
-                min="1"
-                max="10"
-                step="0.1"
-                @input="updateStampType(index, 'fontHeight', parseNumber($event))"
-              />
-            </div>
-            <div class="text-toolbar">
-              <button
-                type="button"
-                class="toolbar-bold-btn"
-                :class="{ active: type.fontWeight === 'bold' || type.fontWeight === 700 }"
-                @click="toggleBold(index)"
-              >
-                B
-              </button>
-              <button
-                type="button"
-                class="toolbar-italic-btn"
-                :class="{ active: type.fontStyle === 'italic' }"
-                @click="toggleItalic(index)"
+        <!-- 顶部文字工具栏：字体 / 字号 / 粗体 / 倾斜 / 颜色 -->
+        <div class="text-toolbar">
+          <select
+            :value="type.fontFamily"
+            class="toolbar-font-select"
+            @change="updateStampType(index, 'fontFamily', ($event.target as HTMLSelectElement).value)"
+          >
+            <option v-for="font in systemFonts" :key="font" :value="font" :style="{ fontFamily: font }">
+              {{ getFontDisplayName(font) }}
+            </option>
+          </select>
+          <input
+            type="number"
+            class="toolbar-font-size"
+            :value="type.fontHeight"
+            min="1"
+            max="10"
+            step="0.1"
+            @input="updateStampType(index, 'fontHeight', parseNumber($event))"
+          />
+        </div>
+        <div class="text-toolbar">
+          <button
+            type="button"
+            class="toolbar-bold-btn"
+            :class="{ active: type.fontWeight === 'bold' || type.fontWeight === 700 }"
+            @click="toggleBold(index)"
+          >
+            B
+          </button>
+          <button
+            type="button"
+            class="toolbar-italic-btn"
+            :class="{ active: type.fontStyle === 'italic' }"
+            @click="toggleItalic(index)"
                 :title="t('stamp.common.italic')"
-              >
+          >
                 <img :src="icItalicPng" :alt="t('stamp.common.italic')" class="toolbar-icon-img" />
-              </button>
-              <label class="toolbar-color-wrapper">
-                <span class="toolbar-color-swatch" :style="{ backgroundColor: type.color || primaryColor }"></span>
-                <input
-                  type="color"
-                  class="toolbar-color-input"
-                  :value="type.color || primaryColor"
-                  @input="onColorInput(index, $event)"
-                />
+          </button>
+          <label class="toolbar-color-wrapper">
+            <span class="toolbar-color-swatch" :style="{ backgroundColor: type.color || primaryColor }"></span>
+            <input
+              type="color"
+              class="toolbar-color-input"
+              :value="type.color || primaryColor"
+              @input="onColorInput(index, $event)"
+            />
               </label>
             </div>
             <label class="inline-label">
@@ -98,8 +98,8 @@
                 <option value="horizontal">{{ t('stamp.stampType.displayDirectionOptions.horizontal') }}</option>
                 <option value="vertical">{{ t('stamp.stampType.displayDirectionOptions.vertical') }}</option>
               </select>
-            </label>
-          </div>
+          </label>
+        </div>
 
           <!-- 拖动条类设置 -->
           <div class="range-section">
@@ -110,15 +110,33 @@
               </div>
               <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustCompression(index, -0.01)">◀</button>
+          <input
+            type="range"
+            :value="type.compression"
+            min="0.1"
+            max="1.5"
+            step="0.01"
+            @input="updateStampType(index, 'compression', parseNumber($event))"
+          />
+                <button type="button" class="range-btn" @click.stop="adjustCompression(index, 0.01)">▶</button>
+              </div>
+            </div>
+            <div class="range-item">
+              <div class="range-header">
+                <span class="range-label-text">{{ t('stamp.stampType.fontWidth') }}</span>
+                <span class="range-value-display">[ {{ (type.fontWidth ?? 1).toFixed(2) }} ]</span>
+              </div>
+              <div class="range-container">
+                <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, -0.05)">◀</button>
                 <input
                   type="range"
-                  :value="type.compression"
-                  min="0.1"
-                  max="1.5"
-                  step="0.01"
-                  @input="updateStampType(index, 'compression', parseNumber($event))"
+                  :value="type.fontWidth ?? 1"
+                  min="1"
+                  max="8"
+                  step="0.05"
+                  @input="updateStampType(index, 'fontWidth', parseNumber($event))"
                 />
-                <button type="button" class="range-btn" @click.stop="adjustCompression(index, 0.01)">▶</button>
+                <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, 0.05)">▶</button>
               </div>
             </div>
             <div class="range-item">
@@ -128,14 +146,14 @@
               </div>
               <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustLetterSpacing(index, -0.01)">◀</button>
-                <input
-                  type="range"
-                  :value="type.letterSpacing"
-                  min="-1"
-                  max="10"
-                  step="0.01"
-                  @input="updateStampType(index, 'letterSpacing', parseNumber($event))"
-                />
+          <input
+            type="range"
+            :value="type.letterSpacing"
+            min="-1"
+            max="10"
+            step="0.01"
+            @input="updateStampType(index, 'letterSpacing', parseNumber($event))"
+          />
                 <button type="button" class="range-btn" @click.stop="adjustLetterSpacing(index, 0.01)">▶</button>
               </div>
             </div>
@@ -144,16 +162,16 @@
                 <span class="range-label-text">{{ t('stamp.stampType.horizontalPositionX') }}</span>
                 <span class="range-value-display">[ {{ (type.positionX || 0).toFixed(1) }} ]</span>
               </div>
-              <div class="range-container">
+          <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustPositionX(index, -0.1)">◀</button>
-                <input
-                  type="range"
-                  :value="type.positionX || 0"
+            <input
+              type="range"
+              :value="type.positionX || 0"
                   min="-50"
                   max="50"
-                  step="0.1"
-                  @input="updateStampType(index, 'positionX', parseNumber($event))"
-                />
+              step="0.1"
+              @input="updateStampType(index, 'positionX', parseNumber($event))"
+            />
                 <button type="button" class="range-btn" @click.stop="adjustPositionX(index, 0.1)">▶</button>
               </div>
             </div>
@@ -161,17 +179,17 @@
               <div class="range-header">
                 <span class="range-label-text">{{ t('stamp.stampType.verticalPositionY') }}</span>
                 <span class="range-value-display">[ {{ type.positionY.toFixed(1) }} ]</span>
-              </div>
-              <div class="range-container">
+          </div>
+          <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustPositionY(index, -0.1)">◀</button>
-                <input
-                  type="range"
-                  :value="type.positionY"
+            <input
+              type="range"
+              :value="type.positionY"
                   min="-50"
                   max="50"
-                  step="0.1"
-                  @input="updateStampType(index, 'positionY', parseNumber($event))"
-                />
+              step="0.1"
+              @input="updateStampType(index, 'positionY', parseNumber($event))"
+            />
                 <button type="button" class="range-btn" @click.stop="adjustPositionY(index, 0.1)">▶</button>
               </div>
             </div>
@@ -179,17 +197,17 @@
               <div class="range-header">
                 <span class="range-label-text">{{ t('stamp.stampType.rotationAngle') }}</span>
                 <span class="range-value-display">[ {{ (type.rotation || 0).toFixed(1) }}° ]</span>
-              </div>
-              <div class="range-container">
+          </div>
+          <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustRotation(index, -0.1)">◀</button>
-                <input
-                  type="range"
-                  :value="type.rotation || 0"
-                  min="-180"
-                  max="180"
-                  step="0.1"
-                  @input="updateStampType(index, 'rotation', parseNumber($event))"
-                />
+            <input
+              type="range"
+              :value="type.rotation || 0"
+              min="-180"
+              max="180"
+              step="0.1"
+              @input="updateStampType(index, 'rotation', parseNumber($event))"
+            />
                 <button type="button" class="range-btn" @click.stop="adjustRotation(index, 0.1)">▶</button>
               </div>
             </div>
@@ -363,6 +381,16 @@ const adjustCompression = (index: number, delta: number) => {
     if (!list[index]) return
     const newValue = Math.max(0.1, Math.min(1.5, list[index].compression + delta))
     list[index].compression = newValue
+  })
+}
+
+const adjustFontWidth = (index: number, delta: number) => {
+  emit('update-config', (config) => {
+    const list = config.stampTypeList || []
+    if (!list[index]) return
+    const current = list[index].fontWidth ?? 3
+    const newValue = Math.max(0.5, Math.min(8, current + delta))
+    list[index].fontWidth = newValue
   })
 }
 

@@ -88,6 +88,7 @@ export class DrawCompanyUtils {
         const fontSize = company.fontHeight * this.mmToPixel
         const fontWeight = company.fontWeight || 'normal'
         const fontStyle = company.fontStyle || 'normal'
+        const stretchScale = company.fontWidth || 1
         ctx.save()
         ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${company.fontFamily}`
         ctx.fillStyle = color
@@ -136,20 +137,22 @@ export class DrawCompanyUtils {
             ctx.translate(x, y)
             // 根据旋转方向调整文字旋转角度
             ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
-            ctx.scale(company.compression, 1)
+            // compression 控制沿路径方向排布，stretchScale 单独拉伸高度
+            ctx.scale(company.compression, stretchScale)
 
             // 创建文字路径
             const path = new Path2D()
             path.rect(-fontSize/2, -fontSize, fontSize, fontSize)
+            const visualHeight = fontSize * stretchScale
             this.textPaths.push({
                 text: char,
                 path: path,
                 type: 'company',
                 bounds: {
                     x: x - fontSize/2,
-                    y: y - fontSize,
+                    y: y - visualHeight,
                     width: fontSize,
-                    height: fontSize
+                    height: visualHeight
                 }
             })
 
@@ -167,20 +170,21 @@ export class DrawCompanyUtils {
             ctx.save()
             ctx.translate(x, y)
             ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
-            ctx.scale(company.compression, 1)
+            ctx.scale(company.compression, stretchScale)
 
             // 创建文字路径
             const path = new Path2D()
             path.rect(-fontSize/2, -fontSize, fontSize, fontSize)
+            const visualHeight = fontSize * stretchScale
             this.textPaths.push({
                 text: char,
                 path: path,
                 type: 'company',
                 bounds: {
                     x: x - fontSize/2,
-                    y: y - fontSize,
+                    y: y - visualHeight,
                     width: fontSize,
-                    height: fontSize
+                    height: visualHeight
                 }
             })
 
@@ -361,20 +365,21 @@ export class DrawCompanyUtils {
                     ctx.save()
                     ctx.translate(x, charX)
                     ctx.rotate(position === 'left' ? -Math.PI / 2 : Math.PI / 2)
-                    ctx.scale(compression, 1)
+                    ctx.scale(compression, stretchScale)
 
                     const metrics = ctx.measureText(char)
                     const path = new Path2D()
                     path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                    const visualHeight = fontSize * stretchScale
                     this.textPaths.push({
                         text: char,
                         path: path,
                         type: 'company',
                         bounds: {
                             x: x - metrics.width / 2,
-                            y: charX - fontSize / 2,
+                            y: charX - visualHeight / 2,
                             width: metrics.width,
-                            height: fontSize
+                            height: visualHeight
                         }
                     })
 
@@ -409,27 +414,28 @@ export class DrawCompanyUtils {
                     const charWidth = lineCharWidths[charIndex]
                     const charX = lineStartX + lineCharWidths.slice(0, charIndex).reduce((sum, w) => sum + w, 0) + charWidth / 2
 
-                    ctx.save()
-                    ctx.translate(charX, lineY)
-                    ctx.scale(compression, 1)
+                ctx.save()
+                ctx.translate(charX, lineY)
+                ctx.scale(compression, stretchScale)
 
-                    const metrics = ctx.measureText(char)
-                    const path = new Path2D()
-                    path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
-                    this.textPaths.push({
-                        text: char,
-                        path: path,
-                        type: 'company',
-                        bounds: {
-                            x: charX - metrics.width / 2,
-                            y: lineY - fontSize / 2,
-                            width: metrics.width,
-                            height: fontSize
-                        }
-                    })
+                const metrics = ctx.measureText(char)
+                const path = new Path2D()
+                path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                const visualHeight = fontSize * stretchScale
+                this.textPaths.push({
+                    text: char,
+                    path: path,
+                    type: 'company',
+                    bounds: {
+                        x: charX - metrics.width / 2,
+                        y: lineY - visualHeight / 2,
+                        width: metrics.width,
+                        height: visualHeight
+                    }
+                })
 
-                    ctx.fillText(char, 0, 0)
-                    ctx.restore()
+                ctx.fillText(char, 0, 0)
+                ctx.restore()
                 })
             })
         }
@@ -494,21 +500,22 @@ export class DrawCompanyUtils {
                 ctx.save()
                 ctx.translate(x, charX)
                 ctx.rotate(position === 'left' ? -Math.PI / 2 : Math.PI / 2)
-                ctx.scale(compression, 1)
+                ctx.scale(compression, stretchScale)
 
                 // 创建文字路径
                 const metrics = ctx.measureText(char)
                 const path = new Path2D()
                 path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                const visualHeight = fontSize * stretchScale
                 this.textPaths.push({
                     text: char,
                     path: path,
                     type: 'company',
                     bounds: {
                         x: x - metrics.width / 2,
-                        y: charX - fontSize / 2,
+                        y: charX - visualHeight / 2,
                         width: metrics.width,
-                        height: fontSize
+                        height: visualHeight
                     }
                 })
 
@@ -523,22 +530,23 @@ export class DrawCompanyUtils {
 
                 ctx.save()
                 ctx.translate(charX, y)
-                ctx.scale(compression, 1)
+                ctx.scale(compression, stretchScale)
                 ctx.textAlign = 'center'
 
                 // 创建文字路径
                 const metrics = ctx.measureText(char)
                 const path = new Path2D()
                 path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                const visualHeight = fontSize * stretchScale
                 this.textPaths.push({
                     text: char,
                     path: path,
                     type: 'company',
                     bounds: {
                         x: charX - metrics.width / 2,
-                        y: y - fontSize / 2,
+                        y: y - visualHeight / 2,
                         width: metrics.width,
-                        height: fontSize
+                        height: visualHeight
                     }
                 })
 
@@ -642,20 +650,21 @@ export class DrawCompanyUtils {
                     ctx.save()
                     ctx.translate(charY, y)
                     ctx.rotate(position === 'top' ? Math.PI / 2 : -Math.PI / 2)
-                    ctx.scale(compression, 1)
+                    ctx.scale(compression, stretchScale)
 
                     const metrics = ctx.measureText(char)
                     const path = new Path2D()
                     path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                    const visualHeight = fontSize * stretchScale
                     this.textPaths.push({
                         text: char,
                         path: path,
                         type: 'company',
                         bounds: {
                             x: charY - metrics.width / 2,
-                            y: y - fontSize / 2,
+                            y: y - visualHeight / 2,
                             width: metrics.width,
-                            height: fontSize
+                            height: visualHeight
                         }
                     })
 
@@ -687,20 +696,21 @@ export class DrawCompanyUtils {
 
                     ctx.save()
                     ctx.translate(columnX, charY)
-                    ctx.scale(compression, 1)
+                    ctx.scale(compression, stretchScale)
 
                     const metrics = ctx.measureText(char)
                     const path = new Path2D()
                     path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                    const visualHeight = fontSize * stretchScale
                     this.textPaths.push({
                         text: char,
                         path: path,
                         type: 'company',
                         bounds: {
                             x: columnX - metrics.width / 2,
-                            y: charY - fontSize / 2,
+                            y: charY - visualHeight / 2,
                             width: metrics.width,
-                            height: fontSize
+                            height: visualHeight
                         }
                     })
 
@@ -767,21 +777,22 @@ export class DrawCompanyUtils {
                 ctx.save()
                 ctx.translate(charY, y)
                 ctx.rotate(position === 'top' ? Math.PI / 2 : -Math.PI / 2)
-                ctx.scale(compression, 1)
+                ctx.scale(compression, stretchScale)
 
                 // 创建文字路径
                 const metrics = ctx.measureText(char)
                 const path = new Path2D()
                 path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                const visualHeight = fontSize * stretchScale
                 this.textPaths.push({
                     text: char,
                     path: path,
                     type: 'company',
                     bounds: {
                         x: charY - metrics.width / 2,
-                        y: y - fontSize / 2,
+                        y: y - visualHeight / 2,
                         width: metrics.width,
-                        height: fontSize
+                        height: visualHeight
                     }
                 })
 
@@ -795,21 +806,22 @@ export class DrawCompanyUtils {
 
                 ctx.save()
                 ctx.translate(x, charY)
-                ctx.scale(compression, 1)
+                ctx.scale(compression, stretchScale)
 
                 // 创建文字路径
                 const metrics = ctx.measureText(char)
                 const path = new Path2D()
                 path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                const visualHeight = fontSize * stretchScale
                 this.textPaths.push({
                     text: char,
                     path: path,
                     type: 'company',
                     bounds: {
                         x: x - metrics.width / 2,
-                        y: charY - fontSize / 2,
+                        y: charY - visualHeight / 2,
                         width: metrics.width,
-                        height: fontSize
+                        height: visualHeight
                     }
                 })
 
