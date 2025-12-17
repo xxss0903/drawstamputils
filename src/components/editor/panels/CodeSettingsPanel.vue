@@ -132,7 +132,7 @@
                 <input
                   type="range"
                   :value="code.fontWidth ?? 1"
-                  min="1"
+                  min="0"
                   max="5"
                   step="0.05"
                   @input="updateCode(index, 'fontWidth', parseNumber($event))"
@@ -387,7 +387,7 @@ const adjustFontWidth = (index: number, delta: number) => {
     const list = config.stampCodeList
     if (!list[index]) return
     const current = list[index].fontWidth ?? 1.2
-    const newValue = Math.max(0.5, Math.min(5, current + delta))
+    const newValue = Math.max(0, Math.min(5, current + delta))
     list[index].fontWidth = newValue
     config.stampCode = list[0]
   })

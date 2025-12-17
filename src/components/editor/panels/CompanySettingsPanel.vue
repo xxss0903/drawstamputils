@@ -203,7 +203,7 @@
                 <input
                   type="range"
                   :value="company.fontWidth ?? 1"
-                  min="1"
+                  min="0"
                   max="5"
                   step="0.05"
                   @input="onNumberInput(index, 'fontWidth', $event)"
@@ -422,7 +422,7 @@ const adjustDistribution = (index: number, delta: number) => {
 const adjustFontWidth = (index: number, delta: number) => {
   updateConfig((company) => {
     const current = company.fontWidth ?? 1
-    const newValue = Math.max(1, Math.min(5, current + delta))
+    const newValue = Math.max(0, Math.min(5, current + delta))
     company.fontWidth = newValue
   }, index)
 }

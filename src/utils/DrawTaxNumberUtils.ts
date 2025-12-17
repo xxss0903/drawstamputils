@@ -42,7 +42,7 @@ export class DrawTaxNumberUtils {
         const positionY = taxNumber.positionY * this.mmToPixel + 0.3
         const fontWeight = taxNumber.fontWeight || 'normal'
         const letterSpacing = taxNumber.letterSpacing * this.mmToPixel
-        const stretchScale = taxNumber.fontWidth || 1
+        const stretchScale = taxNumber.fontWidth ?? 1
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${taxNumber.fontFamily}`

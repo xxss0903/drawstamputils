@@ -97,7 +97,7 @@
             <input
               type="range"
               :value="config.taxNumber.fontWidth ?? 1"
-              min="1"
+              min="0"
               max="5"
               step="0.05"
               @input="updateTaxNumber('fontWidth', parseNumber($event))"
@@ -189,7 +189,7 @@ const adjustCompression = (delta: number) => {
 const adjustFontWidth = (delta: number) => {
   emit('update-config', (config) => {
     const current = config.taxNumber.fontWidth ?? 1.3
-    const newValue = Math.max(0.5, Math.min(5, current + delta))
+    const newValue = Math.max(0, Math.min(5, current + delta))
     config.taxNumber.fontWidth = newValue
   })
 }

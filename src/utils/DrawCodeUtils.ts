@@ -41,7 +41,7 @@ export class DrawCodeUtils {
         const fontSize = code.fontHeight * this.mmToPixel
         const text = code.code
         const fontWeight = code.fontWeight || 'normal'
-        const stretchScale = code.fontWidth || 1
+        const stretchScale = code.fontWidth ?? 1
 
         ctx.save()
         ctx.font = `${fontWeight} ${fontSize}px ${code.fontFamily}`

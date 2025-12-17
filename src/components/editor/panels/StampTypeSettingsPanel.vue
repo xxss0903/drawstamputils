@@ -131,7 +131,7 @@
                 <input
                   type="range"
                   :value="type.fontWidth ?? 1"
-                  min="1"
+                  min="0"
                   max="8"
                   step="0.05"
                   @input="updateStampType(index, 'fontWidth', parseNumber($event))"
@@ -367,7 +367,7 @@ const addStampType = () => {
       positionY: newPositionY,
       fontWeight: 'normal',
       lineSpacing: 2,
-      fontWidth: 3,
+      fontWidth: 1,
       orientation: 'horizontal',
       rotation: 0,
       color: config.primaryColor || '#d40000'

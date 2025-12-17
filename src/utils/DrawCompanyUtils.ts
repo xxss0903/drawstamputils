@@ -88,7 +88,7 @@ export class DrawCompanyUtils {
         const fontSize = company.fontHeight * this.mmToPixel
         const fontWeight = company.fontWeight || 'normal'
         const fontStyle = company.fontStyle || 'normal'
-        const stretchScale = company.fontWidth || 1
+        const stretchScale = company.fontWidth ?? 1
         ctx.save()
         ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${company.fontFamily}`
         ctx.fillStyle = color
@@ -217,6 +217,7 @@ export class DrawCompanyUtils {
         const textAlignment = company.rectangleTextAlignment || 'center'
         const verticalAlignment = company.rectangleVerticalAlignment || 'center'
         const lineSpacing = (company.rectangleLineSpacing || 0) * this.mmToPixel
+        const stretchScale = company.fontWidth ?? 1
         
         // 应用位置偏移量（毫米转像素）
         const positionOffsetX = (company.rectanglePositionX || 0) * this.mmToPixel
@@ -245,7 +246,8 @@ export class DrawCompanyUtils {
                 textMargin,
                 textPosition,
                 textAlignment,
-                company.compression
+                company.compression,
+                stretchScale
             )
         } else {
             // 纵向绘制
@@ -261,7 +263,8 @@ export class DrawCompanyUtils {
                 textPosition,
                 verticalAlignment,
                 lineSpacing,
-                company.compression
+                company.compression,
+                stretchScale
             )
         }
 
@@ -282,7 +285,8 @@ export class DrawCompanyUtils {
         textMargin: number,
         position: 'top' | 'bottom' | 'left' | 'right' | 'center',
         alignment: 'left' | 'center' | 'right',
-        compression: number
+        compression: number,
+        stretchScale: number
     ) {
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
@@ -455,7 +459,8 @@ export class DrawCompanyUtils {
         borderOffset: number,
         position: 'top' | 'bottom' | 'left' | 'right' | 'center',
         alignment: 'left' | 'center' | 'right',
-        compression: number
+        compression: number,
+        stretchScale: number = 1
     ) {
         const characters = text.split('')
         ctx.textBaseline = 'middle'
@@ -571,7 +576,8 @@ export class DrawCompanyUtils {
         position: 'top' | 'bottom' | 'left' | 'right' | 'center',
         alignment: 'top' | 'center' | 'bottom',
         lineSpacing: number,
-        compression: number
+        compression: number,
+        stretchScale: number
     ) {
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
@@ -736,7 +742,8 @@ export class DrawCompanyUtils {
         position: 'top' | 'bottom' | 'left' | 'right' | 'center',
         alignment: 'top' | 'center' | 'bottom',
         lineSpacing: number,
-        compression: number
+        compression: number,
+        stretchScale: number = 1
     ) {
         const characters = text.split('')
         ctx.textBaseline = 'middle'
