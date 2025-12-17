@@ -88,7 +88,7 @@ export class DrawCompanyUtils {
         const fontSize = company.fontHeight * this.mmToPixel
         const fontWeight = company.fontWeight || 'normal'
         const fontStyle = company.fontStyle || 'normal'
-        const stretchScale = company.fontWidth ?? 1
+        const stretchScale = company.textStretch ?? 1
         ctx.save()
         ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${company.fontFamily}`
         ctx.fillStyle = color
@@ -217,7 +217,7 @@ export class DrawCompanyUtils {
         const textAlignment = company.rectangleTextAlignment || 'center'
         const verticalAlignment = company.rectangleVerticalAlignment || 'center'
         const lineSpacing = (company.rectangleLineSpacing || 0) * this.mmToPixel
-        const stretchScale = company.fontWidth ?? 1
+        const stretchScale = company.textStretch ?? 1
         
         // 应用位置偏移量（毫米转像素）
         const positionOffsetX = (company.rectanglePositionX || 0) * this.mmToPixel

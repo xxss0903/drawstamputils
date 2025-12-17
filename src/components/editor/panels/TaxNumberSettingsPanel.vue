@@ -90,17 +90,17 @@
         <div class="range-item">
           <div class="range-header">
             <span class="range-label-text">{{ t('stamp.taxNumber.fontWidth') }}</span>
-            <span class="range-value-display">[ {{ (config.taxNumber.fontWidth ?? 1).toFixed(2) }} ]</span>
+            <span class="range-value-display">[ {{ (config.taxNumber.textStretch ?? 1).toFixed(2) }} ]</span>
           </div>
           <div class="range-container">
             <button type="button" class="range-btn" @click.stop="adjustFontWidth(-0.05)">◀</button>
             <input
               type="range"
-              :value="config.taxNumber.fontWidth ?? 1"
+              :value="config.taxNumber.textStretch ?? 1"
               min="0"
               max="5"
               step="0.05"
-              @input="updateTaxNumber('fontWidth', parseNumber($event))"
+              @input="updateTaxNumber('textStretch', parseNumber($event))"
             />
             <button type="button" class="range-btn" @click.stop="adjustFontWidth(0.05)">▶</button>
           </div>
@@ -188,9 +188,9 @@ const adjustCompression = (delta: number) => {
 
 const adjustFontWidth = (delta: number) => {
   emit('update-config', (config) => {
-    const current = config.taxNumber.fontWidth ?? 1.3
+    const current = config.taxNumber.textStretch ?? 1
     const newValue = Math.max(0, Math.min(5, current + delta))
-    config.taxNumber.fontWidth = newValue
+    config.taxNumber.textStretch = newValue
   })
 }
 

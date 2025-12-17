@@ -125,17 +125,17 @@
             <div class="range-item">
               <div class="range-header">
                 <span class="range-label-text">{{ t('stamp.code.fontWidth') }}</span>
-                <span class="range-value-display">[ {{ (code.fontWidth ?? 1).toFixed(2) }} ]</span>
+                <span class="range-value-display">[ {{ (code.textStretch ?? 1).toFixed(2) }} ]</span>
               </div>
               <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, -0.05)">◀</button>
                 <input
                   type="range"
-                  :value="code.fontWidth ?? 1"
+                  :value="code.textStretch ?? 1"
                   min="0"
                   max="5"
                   step="0.05"
-                  @input="updateCode(index, 'fontWidth', parseNumber($event))"
+                  @input="updateCode(index, 'textStretch', parseNumber($event))"
                 />
                 <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, 0.05)">▶</button>
               </div>
@@ -386,9 +386,9 @@ const adjustFontWidth = (index: number, delta: number) => {
     }
     const list = config.stampCodeList
     if (!list[index]) return
-    const current = list[index].fontWidth ?? 1.2
+    const current = list[index].textStretch ?? 1
     const newValue = Math.max(0, Math.min(5, current + delta))
-    list[index].fontWidth = newValue
+    list[index].textStretch = newValue
     config.stampCode = list[0]
   })
 }

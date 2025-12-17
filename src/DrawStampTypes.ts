@@ -34,7 +34,9 @@ export type ICompany = {
     fontFamily: string // 字体
     fontHeight: number // 字体高度
     fontWeight: string | number // 字体粗细
-    fontWidth?: number // 字体拉伸高度因子（仅影响高度）
+    // 旧字段：fontWidth 曾用于尝试文字拉伸，现废弃，仅保留兼容
+    fontWidth?: number
+    textStretch?: number // 文本拉伸高度因子（仅影响渲染高度）
     fontStyle?: 'normal' | 'italic' // 字体样式（正常/倾斜）
     shape: 'ellipse' | 'rectangle' | 'rhombus' | 'organic' | 'triangle' // 印章形状
     adjustEllipseText: boolean // 是否调整椭圆
@@ -60,9 +62,10 @@ export type ICode = {
     fontHeight: number // 编码字体大小
     fontFamily: string // 编码字体
     borderOffset: number // 编码边框偏移量
-    fontWidth: number // 编码字体宽度
+    fontWidth: number // 编码字体宽度（旧字段，不参与拉伸，仅保留兼容）
     textDistributionFactor: number // 文字分布因子
     fontWeight: string | number // 编码字体粗细
+    textStretch?: number // 文本拉伸高度因子（仅影响渲染高度）
     color?: string // 颜色
 }
 
@@ -71,11 +74,12 @@ export type ITaxNumber = {
     compression: number // 税号压缩比例
     fontHeight: number // 税号字体大小
     fontFamily: string // 编码字体
-    fontWidth: number // 编码字体宽度
+    fontWidth: number // 编码字体宽度（旧字段，不参与拉伸）
     letterSpacing: number // 编码字符间距
     positionY: number // 编码文字位置
     totalWidth: number // 编码文字总宽度
     fontWeight: string | number // 税号字体粗细
+    textStretch?: number // 文本拉伸高度因子（仅影响渲染高度）
     color?: string // 颜色
 }
 
@@ -165,8 +169,9 @@ export type IStampType = {
     letterSpacing: number // 字符间距
     positionX?: number // 水平位置
     positionY: number // 位置
-    fontWidth: number // 字体宽度
+    fontWidth: number // 字体宽度（旧字段，不参与拉伸）
     fontWeight: string | number // 字体粗细
+    textStretch?: number // 文本拉伸高度因子（仅影响渲染高度）
     fontStyle?: 'normal' | 'italic' // 字体样式（正常/倾斜）
     lineSpacing: number // 新增：行间距
     color?: string // 颜色

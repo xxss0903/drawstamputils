@@ -62,7 +62,7 @@ export class DrawStampTypeUtils {
         const lineSpacingPx = stampType.lineSpacing * this.mmToPixel
         const orientation = stampType.orientation || 'horizontal'
         const rotationRad = ((stampType.rotation || 0) * Math.PI) / 180
-        const stretchScale = stampType.fontWidth ?? 1
+        const stretchScale = stampType.textStretch ?? 1
 
         ctx.save()
         const fontStyle = stampType.fontStyle || 'normal'

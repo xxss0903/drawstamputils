@@ -196,17 +196,17 @@
             <div class="range-item">
               <div class="range-header">
                 <span class="range-label-text">{{ t('stamp.company.fontWidth') }}</span>
-                <span class="range-value-display">[ {{ (company.fontWidth ?? 1).toFixed(2) }} ]</span>
+                <span class="range-value-display">[ {{ (company.textStretch ?? 1).toFixed(2) }} ]</span>
               </div>
               <div class="range-container">
                 <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, -0.05)">◀</button>
                 <input
                   type="range"
-                  :value="company.fontWidth ?? 1"
+                  :value="company.textStretch ?? 1"
                   min="0"
                   max="5"
                   step="0.05"
-                  @input="onNumberInput(index, 'fontWidth', $event)"
+                  @input="onNumberInput(index, 'textStretch', $event)"
                 />
                 <button type="button" class="range-btn" @click.stop="adjustFontWidth(index, 0.05)">▶</button>
               </div>
@@ -421,9 +421,9 @@ const adjustDistribution = (index: number, delta: number) => {
 
 const adjustFontWidth = (index: number, delta: number) => {
   updateConfig((company) => {
-    const current = company.fontWidth ?? 1
+    const current = company.textStretch ?? 1
     const newValue = Math.max(0, Math.min(5, current + delta))
-    company.fontWidth = newValue
+    company.textStretch = newValue
   }, index)
 }
 
