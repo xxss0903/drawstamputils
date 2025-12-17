@@ -88,6 +88,7 @@ const messages: Record<string, any> = {
         font: '字体',
         fontSize: '字体大小 (mm)',
         fontWeight: '字体粗细',
+        fontWidth: '文字拉伸',
         italic: '倾斜',
         textDirection: '文字方向',
         textDirectionOptions: {
@@ -132,6 +133,7 @@ const messages: Record<string, any> = {
         font: '字体',
         fontWeight: '字体粗细',
         compression: '压缩比例',
+        fontWidth: '文字拉伸',
         letterSpacing: '字符间距 (mm)',
         color: '颜色',
         verticalPosition: '垂直位置 (mm)',
@@ -261,7 +263,8 @@ const messages: Record<string, any> = {
         color: '颜色',
         compression: '压缩比例',
         distribution: '分布因子',
-        margin: '边距 (mm)'
+        margin: '边距 (mm)',
+        fontWidth: '文字拉伸'
       },
       taxNumber: {
         title: '中间数字设置',
@@ -270,6 +273,7 @@ const messages: Record<string, any> = {
         fontSize: '字体大小 (mm)',
         fontWeight: '字体粗细',
         compression: '压缩比例',
+        fontWidth: '文字拉伸',
         letterSpacing: '字符间距 (mm)',
         letterSpacingShort: '字间距',
         verticalPosition: '垂直位置调整 (mm)',
@@ -851,6 +855,7 @@ const messages: Record<string, any> = {
         font: 'Font',
         fontSize: 'Font Size (mm)',
         fontWeight: 'Font Weight',
+        fontWidth: 'Text Stretch',
         italic: 'Italic',
         textDirection: 'Text Direction',
         textDirectionOptions: {
@@ -895,6 +900,7 @@ const messages: Record<string, any> = {
         font: 'Font',
         fontWeight: 'Font Weight',
         compression: 'Compression Ratio',
+        fontWidth: 'Text Stretch',
         letterSpacing: 'Letter Spacing (mm)',
         color: 'Color',
         verticalPosition: 'Vertical Position (mm)',
@@ -1024,7 +1030,8 @@ const messages: Record<string, any> = {
         color: 'Color',
         compression: 'Compression Ratio',
         distribution: 'Distribution Factor',
-        margin: 'Margin (mm)'
+        margin: 'Margin (mm)',
+        fontWidth: 'Text Stretch'
       },
       taxNumber: {
         title: 'Center Number Settings',
@@ -1033,6 +1040,7 @@ const messages: Record<string, any> = {
         fontSize: 'Font Size (mm)',
         fontWeight: 'Font Weight',
         compression: 'Compression Ratio',
+        fontWidth: 'Text Stretch',
         letterSpacing: 'Letter Spacing (mm)',
         letterSpacingShort: 'Letter Spacing',
         verticalPosition: 'Vertical Position (mm)',
@@ -1652,6 +1660,7 @@ const messages: Record<string, any> = {
         font: 'フォント',
         fontSize: 'サイズ (mm)',
         fontWeight: '太さ',
+        fontWidth: '文字の伸縮',
         italic: 'イタリック',
         textDirection: '文字方向',
         textDirectionOptions: {
@@ -1696,6 +1705,7 @@ const messages: Record<string, any> = {
         font: 'フォント',
         fontWeight: '太さ',
         compression: '圧縮率',
+        fontWidth: '文字の伸縮',
         letterSpacing: '字間 (mm)',
         color: '色',
         verticalPosition: '垂直位置 (mm)',
@@ -1721,7 +1731,8 @@ const messages: Record<string, any> = {
         color: '色',
         compression: '圧縮率',
         distribution: '分布係数',
-        margin: 'マージン (mm)'
+        margin: 'マージン (mm)',
+        fontWidth: '文字の伸縮'
       },
       taxNumber: {
         title: '中央数字設定',
@@ -1730,6 +1741,7 @@ const messages: Record<string, any> = {
         fontSize: 'サイズ (mm)',
         fontWeight: '太さ',
         compression: '圧縮率',
+        fontWidth: '文字の伸縮',
         letterSpacing: '字間 (mm)',
         letterSpacingShort: '字間',
         verticalPosition: '垂直位置 (mm)',
