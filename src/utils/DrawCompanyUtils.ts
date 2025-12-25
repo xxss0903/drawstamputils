@@ -133,10 +133,43 @@ export class DrawCompanyUtils {
             const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
             const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
       
+            // 计算椭圆在该点的法线角度（垂直于椭圆边界）
+            // 对于椭圆 x²/a² + y²/b² = 1，在参数角 t 处的法线角度为 atan2(a*sin(t), b*cos(t))
+            let normalAngle = Math.atan2(radiusX * Math.sin(angle), radiusY * Math.cos(angle))
+      
+            // 根据分布因子和椭圆形状优化法线角度，特别是对于两边的文字
+            // 计算文字在分布范围内的相对位置（从中心到边缘，0为中心，1为边缘）
+            const centerAngle = startAngle + totalAngle / 2
+            const angleFromCenter = Math.abs(angle - centerAngle)
+            const relativePosition = Math.min(angleFromCenter / (totalAngle / 2), 1)
+            
+            // 计算椭圆扁度（椭圆越扁，调整越明显）
+            const ellipseFlatness = Math.abs(radiusX - radiusY) / Math.max(radiusX, radiusY)
+            
+            // 根据分布因子、相对位置和椭圆扁度计算调整
+            // 分布因子越小，文字越集中，需要更强的调整
+            // 相对位置越大（越靠近边缘），需要更强的调整
+            const distributionFactor = Math.max(0.1, company.textDistributionFactor)
+            const positionWeight = Math.pow(relativePosition, 1.5) // 使用1.5次方，使边缘调整更明显
+            const flatnessWeight = Math.pow(ellipseFlatness, 0.8) // 椭圆扁度的影响
+            
+            // 计算调整因子，分布因子越小，调整越大
+            const adjustmentFactor2 = positionWeight * (1 / distributionFactor) * flatnessWeight
+            
+            // 调整法线角度，使两边的文字更垂直于边界
+            // 最大调整角度根据椭圆扁度和分布因子动态计算
+            const maxAdjustment = Math.min(Math.PI / 6, Math.PI / 4 * ellipseFlatness * (1 / distributionFactor)) // 最大30度，但根据情况动态调整
+            const angleAdjustment = adjustmentFactor2 * maxAdjustment
+            
+            // 根据文字在左边还是右边决定调整方向
+            // 对于顶部文字，左侧文字需要顺时针调整，右侧文字需要逆时针调整
+            const sideFactor = (angle < centerAngle) ? -1 : 1
+            normalAngle += angleAdjustment * sideFactor
+      
             ctx.save()
             ctx.translate(x, y)
-            // 根据旋转方向调整文字旋转角度
-            ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
+            // 根据旋转方向调整文字旋转角度，使用优化后的法线角度
+            ctx.rotate(normalAngle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
             // compression 控制沿路径方向排布，stretchScale 单独拉伸高度
             ctx.scale(company.compression, stretchScale)
 
@@ -167,9 +200,43 @@ export class DrawCompanyUtils {
             const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
             const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
       
+            // 计算椭圆在该点的法线角度（垂直于椭圆边界）
+            // 对于椭圆 x²/a² + y²/b² = 1，在参数角 t 处的法线角度为 atan2(a*sin(t), b*cos(t))
+            let normalAngle = Math.atan2(radiusX * Math.sin(angle), radiusY * Math.cos(angle))
+      
+            // 根据分布因子和椭圆形状优化法线角度，特别是对于两边的文字
+            // 计算文字在分布范围内的相对位置（从中心到边缘，0为中心，1为边缘）
+            const centerAngle = startAngle + totalAngle / 2
+            const angleFromCenter = Math.abs(angle - centerAngle)
+            const relativePosition = Math.min(angleFromCenter / (totalAngle / 2), 1)
+            
+            // 计算椭圆扁度（椭圆越扁，调整越明显）
+            const ellipseFlatness = Math.abs(radiusX - radiusY) / Math.max(radiusX, radiusY)
+            
+            // 根据分布因子、相对位置和椭圆扁度计算调整
+            // 分布因子越小，文字越集中，需要更强的调整
+            // 相对位置越大（越靠近边缘），需要更强的调整
+            const distributionFactor = Math.max(0.1, company.textDistributionFactor)
+            const positionWeight = Math.pow(relativePosition, 1.5) // 使用1.5次方，使边缘调整更明显
+            const flatnessWeight = Math.pow(ellipseFlatness, 0.8) // 椭圆扁度的影响
+            
+            // 计算调整因子，分布因子越小，调整越大
+            const adjustmentFactor = positionWeight * (1 / distributionFactor) * flatnessWeight
+            
+            // 调整法线角度，使两边的文字更垂直于边界
+            // 最大调整角度根据椭圆扁度和分布因子动态计算
+            const maxAdjustment = Math.min(Math.PI / 6, Math.PI / 4 * ellipseFlatness * (1 / distributionFactor)) // 最大30度，但根据情况动态调整
+            const angleAdjustment = adjustmentFactor * maxAdjustment
+            
+            // 根据文字在左边还是右边决定调整方向
+            // 对于顶部文字，左侧文字需要顺时针调整，右侧文字需要逆时针调整
+            const sideFactor = (angle < centerAngle) ? -1 : 1
+            normalAngle += angleAdjustment * sideFactor
+      
             ctx.save()
             ctx.translate(x, y)
-            ctx.rotate(angle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
+            // 根据旋转方向调整文字旋转角度，使用优化后的法线角度
+            ctx.rotate(normalAngle + (company.rotateDirection === 'clockwise' ? -Math.PI/2 : Math.PI/2))
             ctx.scale(company.compression, stretchScale)
 
             // 创建文字路径
