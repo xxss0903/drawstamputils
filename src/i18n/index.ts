@@ -124,7 +124,15 @@ const messages: Record<string, any> = {
         startAngle: '起始角度 (°)',
         rotateDirection: '旋转方向',
         counterclockwise: '逆时针',
-        clockwise: '顺时针'
+        clockwise: '顺时针',
+        charAdjustments: {
+          title: '单个文字调整',
+          reset: '重置',
+          horizontalOffset: '水平偏移 (mm)',
+          verticalOffset: '垂直偏移 (mm)',
+          rotation: '旋转角度 (°)',
+          resetTooltip: '重置所有字符调整'
+        }
       },
       stampType: {
         title: '印章类型列表设置',
@@ -891,7 +899,15 @@ const messages: Record<string, any> = {
         startAngle: 'Start Angle (°)',
         rotateDirection: 'Rotate Direction',
         counterclockwise: 'Counter Clockwise',
-        clockwise: 'Clockwise'
+        clockwise: 'Clockwise',
+        charAdjustments: {
+          title: 'Character Adjustments',
+          reset: 'Reset',
+          horizontalOffset: 'Horizontal Offset (mm)',
+          verticalOffset: 'Vertical Offset (mm)',
+          rotation: 'Rotation Angle (°)',
+          resetTooltip: 'Reset all character adjustments'
+        }
       },
       stampType: {
         title: 'Stamp Type List Settings',
@@ -1696,7 +1712,15 @@ const messages: Record<string, any> = {
         startAngle: '開始角度 (°)',
         rotateDirection: '回転方向',
         counterclockwise: '反時計回り',
-        clockwise: '時計回り'
+        clockwise: '時計回り',
+        charAdjustments: {
+          title: '文字調整',
+          reset: 'リセット',
+          horizontalOffset: '水平オフセット (mm)',
+          verticalOffset: '垂直オフセット (mm)',
+          rotation: '回転角度 (°)',
+          resetTooltip: 'すべての文字調整をリセット'
+        }
       },
       stampType: {
         title: '印章タイプ設定',

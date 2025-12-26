@@ -254,16 +254,16 @@
                 <div class="char-adjustments-header" @click.stop="toggleCharAdjustments(index)">
                   <div class="char-adjustments-title-wrapper">
                     <span class="expand-icon-small" :class="{ expanded: isCharAdjustmentsExpanded(index) }">▼</span>
-                    <span class="char-adjustments-title">单个文字调整</span>
+                    <span class="char-adjustments-title">{{ t('stamp.company.charAdjustments.title') }}</span>
                   </div>
                   <div class="char-adjustments-actions" @click.stop>
                     <button 
                       type="button" 
                       class="action-btn small-btn" 
                       @click.stop="resetCharAdjustments(index)"
-                      title="重置所有字符调整"
+                      :title="t('stamp.company.charAdjustments.resetTooltip')"
                     >
-                      重置
+                      {{ t('stamp.company.charAdjustments.reset') }}
                     </button>
                   </div>
                 </div>
@@ -280,7 +280,7 @@
                       </div>
                       <div class="char-controls">
                         <div class="char-control-group">
-                          <label class="char-control-label">水平偏移 (mm)</label>
+                          <label class="char-control-label">{{ t('stamp.company.charAdjustments.horizontalOffset') }}</label>
                           <div class="char-range-container">
                             <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharOffsetX(index, charIndex, -0.1)">◀</button>
                             <input
@@ -297,7 +297,7 @@
                           </div>
                         </div>
                         <div class="char-control-group">
-                          <label class="char-control-label">垂直偏移 (mm)</label>
+                          <label class="char-control-label">{{ t('stamp.company.charAdjustments.verticalOffset') }}</label>
                           <div class="char-range-container">
                             <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharOffsetY(index, charIndex, -0.1)">◀</button>
                             <input
@@ -314,7 +314,7 @@
                           </div>
                         </div>
                         <div class="char-control-group">
-                          <label class="char-control-label">旋转角度 (°)</label>
+                          <label class="char-control-label">{{ t('stamp.company.charAdjustments.rotation') }}</label>
                           <div class="char-range-container">
                             <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharRotation(index, charIndex, -1)">◀</button>
                             <input
