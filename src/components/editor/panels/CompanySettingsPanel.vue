@@ -248,6 +248,93 @@
                   <button type="button" class="range-btn" @click.stop="adjustStartAngle(index, 0.1)">▶</button>
                 </div>
               </div>
+              
+              <!-- 单个文字调整 -->
+              <div class="char-adjustments-section">
+                <div class="char-adjustments-header" @click.stop="toggleCharAdjustments(index)">
+                  <div class="char-adjustments-title-wrapper">
+                    <span class="expand-icon-small" :class="{ expanded: isCharAdjustmentsExpanded(index) }">▼</span>
+                    <span class="char-adjustments-title">单个文字调整</span>
+                  </div>
+                  <div class="char-adjustments-actions" @click.stop>
+                    <button 
+                      type="button" 
+                      class="action-btn small-btn" 
+                      @click.stop="resetCharAdjustments(index)"
+                      title="重置所有字符调整"
+                    >
+                      重置
+                    </button>
+                  </div>
+                </div>
+                <transition name="char-adjustments-fade">
+                  <div v-show="isCharAdjustmentsExpanded(index)" class="char-adjustments-list">
+                    <div 
+                      v-for="(char, charIndex) in company.companyName.split('')" 
+                      :key="charIndex"
+                      class="char-adjustment-item"
+                    >
+                      <div class="char-label">
+                        <span class="char-index">{{ charIndex + 1 }}</span>
+                        <span class="char-text">{{ char }}</span>
+                      </div>
+                      <div class="char-controls">
+                        <div class="char-control-group">
+                          <label class="char-control-label">水平偏移 (mm)</label>
+                          <div class="char-range-container">
+                            <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharOffsetX(index, charIndex, -0.1)">◀</button>
+                            <input
+                              type="range"
+                              :value="getCharAdjustment(index, charIndex, 'offsetX')"
+                              min="-5"
+                              max="5"
+                              step="0.1"
+                              @input="onCharOffsetXInput(index, charIndex, $event)"
+                              class="char-range-input"
+                            />
+                            <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharOffsetX(index, charIndex, 0.1)">▶</button>
+                            <span class="char-value-display">{{ getCharAdjustment(index, charIndex, 'offsetX').toFixed(1) }}</span>
+                          </div>
+                        </div>
+                        <div class="char-control-group">
+                          <label class="char-control-label">垂直偏移 (mm)</label>
+                          <div class="char-range-container">
+                            <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharOffsetY(index, charIndex, -0.1)">◀</button>
+                            <input
+                              type="range"
+                              :value="getCharAdjustment(index, charIndex, 'offsetY')"
+                              min="-5"
+                              max="5"
+                              step="0.1"
+                              @input="onCharOffsetYInput(index, charIndex, $event)"
+                              class="char-range-input"
+                            />
+                            <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharOffsetY(index, charIndex, 0.1)">▶</button>
+                            <span class="char-value-display">{{ getCharAdjustment(index, charIndex, 'offsetY').toFixed(1) }}</span>
+                          </div>
+                        </div>
+                        <div class="char-control-group">
+                          <label class="char-control-label">旋转角度 (°)</label>
+                          <div class="char-range-container">
+                            <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharRotation(index, charIndex, -1)">◀</button>
+                            <input
+                              type="range"
+                              :value="getCharAdjustment(index, charIndex, 'rotation')"
+                              min="-30"
+                              max="30"
+                              step="0.5"
+                              @input="onCharRotationInput(index, charIndex, $event)"
+                              class="char-range-input"
+                            />
+                            <button type="button" class="range-btn small-range-btn" @click.stop="adjustCharRotation(index, charIndex, 1)">▶</button>
+                            <span class="char-value-display">{{ getCharAdjustment(index, charIndex, 'rotation').toFixed(1) }}°</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </transition>
+              </div>
             </template>
             <template v-else>
               <div class="range-item">
@@ -327,6 +414,9 @@ const selectedIndex = computed(() => props.selectedIndex ?? -1)
 
 // 跟踪每个项的展开状态
 const expandedItems = ref<Record<number, boolean>>({})
+
+// 跟踪每个公司名称的字符调整展开状态
+const charAdjustmentsExpanded = ref<Record<number, boolean>>({})
 
 // 当 selectedIndex 变化时，自动展开对应的项，并关闭其他项
 watch(selectedIndex, (newIndex) => {
@@ -441,6 +531,90 @@ const adjustRectanglePositionY = (index: number, delta: number) => {
     const newValue = Math.max(-50, Math.min(50, currentValue + delta))
     company.rectanglePositionY = newValue
   }, index)
+}
+
+// 单个文字调整相关函数
+const getCharAdjustment = (companyIndex: number, charIndex: number, field: 'offsetX' | 'offsetY' | 'rotation'): number => {
+  const company = companyList.value[companyIndex]
+  if (!company || !company.charAdjustments || !company.charAdjustments[charIndex]) {
+    return 0
+  }
+  return company.charAdjustments[charIndex][field] || 0
+}
+
+const ensureCharAdjustments = (company: ICompany) => {
+  if (!company.charAdjustments) {
+    company.charAdjustments = []
+  }
+  const charCount = company.companyName.length
+  while (company.charAdjustments.length < charCount) {
+    company.charAdjustments.push({})
+  }
+}
+
+const adjustCharOffsetX = (companyIndex: number, charIndex: number, delta: number) => {
+  updateConfig((company) => {
+    ensureCharAdjustments(company)
+    const current = company.charAdjustments![charIndex].offsetX || 0
+    const newValue = Math.max(-5, Math.min(5, current + delta))
+    company.charAdjustments![charIndex].offsetX = newValue
+  }, companyIndex)
+}
+
+const adjustCharOffsetY = (companyIndex: number, charIndex: number, delta: number) => {
+  updateConfig((company) => {
+    ensureCharAdjustments(company)
+    const current = company.charAdjustments![charIndex].offsetY || 0
+    const newValue = Math.max(-5, Math.min(5, current + delta))
+    company.charAdjustments![charIndex].offsetY = newValue
+  }, companyIndex)
+}
+
+const adjustCharRotation = (companyIndex: number, charIndex: number, delta: number) => {
+  updateConfig((company) => {
+    ensureCharAdjustments(company)
+    const current = company.charAdjustments![charIndex].rotation || 0
+    const newValue = Math.max(-30, Math.min(30, current + delta))
+    company.charAdjustments![charIndex].rotation = newValue
+  }, companyIndex)
+}
+
+const onCharOffsetXInput = (companyIndex: number, charIndex: number, event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  updateConfig((company) => {
+    ensureCharAdjustments(company)
+    company.charAdjustments![charIndex].offsetX = value
+  }, companyIndex)
+}
+
+const onCharOffsetYInput = (companyIndex: number, charIndex: number, event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  updateConfig((company) => {
+    ensureCharAdjustments(company)
+    company.charAdjustments![charIndex].offsetY = value
+  }, companyIndex)
+}
+
+const onCharRotationInput = (companyIndex: number, charIndex: number, event: Event) => {
+  const value = Number((event.target as HTMLInputElement).value)
+  updateConfig((company) => {
+    ensureCharAdjustments(company)
+    company.charAdjustments![charIndex].rotation = value
+  }, companyIndex)
+}
+
+const resetCharAdjustments = (companyIndex: number) => {
+  updateConfig((company) => {
+    company.charAdjustments = []
+  }, companyIndex)
+}
+
+const toggleCharAdjustments = (companyIndex: number) => {
+  charAdjustmentsExpanded.value[companyIndex] = !charAdjustmentsExpanded.value[companyIndex]
+}
+
+const isCharAdjustmentsExpanded = (companyIndex: number): boolean => {
+  return charAdjustmentsExpanded.value[companyIndex] ?? false
 }
 
 const onColorInput = (index: number, event: Event) => {
@@ -991,6 +1165,201 @@ label {
   color: #9ca3af;
   margin-top: 2px;
   padding-left: 0;
+}
+
+/* 单个文字调整样式 */
+.char-adjustments-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.char-adjustments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.char-adjustments-header:hover {
+  background-color: #f3f4f6;
+}
+
+.char-adjustments-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expand-icon-small {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+  color: #6b7280;
+}
+
+.expand-icon-small.expanded {
+  transform: rotate(0deg);
+}
+
+.expand-icon-small:not(.expanded) {
+  transform: rotate(-90deg);
+}
+
+.char-adjustments-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.char-adjustments-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.small-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  min-width: auto;
+}
+
+.char-adjustments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.char-adjustment-item {
+  padding: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.char-adjustment-item:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.char-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.char-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.char-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+  min-width: 24px;
+  text-align: center;
+}
+
+.char-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.char-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.char-control-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.char-range-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.small-range-btn {
+  width: 20px;
+  height: 20px;
+  font-size: 9px;
+  padding: 0;
+}
+
+.char-range-input {
+  flex: 1;
+  height: 5px;
+}
+
+.char-value-display {
+  min-width: 45px;
+  font-size: 11px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+  font-weight: 500;
+}
+
+.char-adjustments-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.char-adjustments-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.char-adjustments-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.char-adjustments-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 字符调整展开/收缩动画 */
+.char-adjustments-fade-enter-active,
+.char-adjustments-fade-leave-active {
+  transition: opacity 0.2s ease, max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.char-adjustments-fade-enter-from,
+.char-adjustments-fade-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.char-adjustments-fade-enter-to,
+.char-adjustments-fade-leave-from {
+  opacity: 1;
+  max-height: 2000px;
 }
 
 </style>

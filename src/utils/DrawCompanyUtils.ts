@@ -130,8 +130,26 @@ export class DrawCompanyUtils {
             angle += additionalAngle * factor
       
             // 计算字符位置
-            const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-            const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+            let x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+            let y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+      
+            // 应用单个文字的偏移调整（如果存在）
+            const charAdjustment = company.charAdjustments && company.charAdjustments[index]
+            if (charAdjustment) {
+              // 计算椭圆在该点的切线和法线方向
+              const tangentAngle = Math.atan2(-radiusX * Math.sin(angle), radiusY * Math.cos(angle))
+              const normalAngleForOffset = Math.atan2(radiusX * Math.sin(angle), radiusY * Math.cos(angle))
+              
+              // 将偏移量转换为像素
+              const offsetXPx = (charAdjustment.offsetX || 0) * this.mmToPixel
+              const offsetYPx = (charAdjustment.offsetY || 0) * this.mmToPixel
+              
+              // 沿法线方向（垂直于边界）和切线方向（沿边界）应用偏移
+              // 法线方向：垂直于椭圆边界
+              // 切线方向：沿椭圆边界
+              x += Math.cos(normalAngleForOffset) * offsetXPx + Math.cos(tangentAngle) * offsetYPx
+              y += Math.sin(normalAngleForOffset) * offsetXPx + Math.sin(tangentAngle) * offsetYPx
+            }
       
             // 计算椭圆在该点的法线角度（垂直于椭圆边界）
             // 对于椭圆 x²/a² + y²/b² = 1，在参数角 t 处的法线角度为 atan2(a*sin(t), b*cos(t))
@@ -165,6 +183,11 @@ export class DrawCompanyUtils {
             // 对于顶部文字，左侧文字需要顺时针调整，右侧文字需要逆时针调整
             const sideFactor = (angle < centerAngle) ? -1 : 1
             normalAngle += angleAdjustment * sideFactor
+            
+            // 应用单个文字的旋转调整（如果存在）
+            if (charAdjustment && charAdjustment.rotation !== undefined) {
+              normalAngle += (charAdjustment.rotation * Math.PI / 180) // 度转弧度
+            }
       
             ctx.save()
             ctx.translate(x, y)
@@ -197,8 +220,27 @@ export class DrawCompanyUtils {
           characters.forEach((char, index) => {
             const angle = startAngle + direction * anglePerChar * (index + 0.5)
             
-            const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
-            const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+            // 计算字符位置
+            let x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+            let y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+      
+            // 应用单个文字的偏移调整（如果存在）
+            const charAdjustment = company.charAdjustments && company.charAdjustments[index]
+            if (charAdjustment) {
+              // 计算椭圆在该点的切线和法线方向
+              const tangentAngle = Math.atan2(-radiusX * Math.sin(angle), radiusY * Math.cos(angle))
+              const normalAngleForOffset = Math.atan2(radiusX * Math.sin(angle), radiusY * Math.cos(angle))
+              
+              // 将偏移量转换为像素
+              const offsetXPx = (charAdjustment.offsetX || 0) * this.mmToPixel
+              const offsetYPx = (charAdjustment.offsetY || 0) * this.mmToPixel
+              
+              // 沿法线方向（垂直于边界）和切线方向（沿边界）应用偏移
+              // 法线方向：垂直于椭圆边界
+              // 切线方向：沿椭圆边界
+              x += Math.cos(normalAngleForOffset) * offsetXPx + Math.cos(tangentAngle) * offsetYPx
+              y += Math.sin(normalAngleForOffset) * offsetXPx + Math.sin(tangentAngle) * offsetYPx
+            }
       
             // 计算椭圆在该点的法线角度（垂直于椭圆边界）
             // 对于椭圆 x²/a² + y²/b² = 1，在参数角 t 处的法线角度为 atan2(a*sin(t), b*cos(t))
@@ -232,6 +274,11 @@ export class DrawCompanyUtils {
             // 对于顶部文字，左侧文字需要顺时针调整，右侧文字需要逆时针调整
             const sideFactor = (angle < centerAngle) ? -1 : 1
             normalAngle += angleAdjustment * sideFactor
+            
+            // 应用单个文字的旋转调整（如果存在）
+            if (charAdjustment && charAdjustment.rotation !== undefined) {
+              normalAngle += (charAdjustment.rotation * Math.PI / 180) // 度转弧度
+            }
       
             ctx.save()
             ctx.translate(x, y)
