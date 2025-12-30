@@ -405,6 +405,7 @@ const messages: Record<string, any> = {
     },
     navigation: {
       maker: '印章模板',
+      certificate: '奖状模板',
       about: '关于我们',
       contact: '联系我们',
       footer: {
@@ -1222,6 +1223,7 @@ const messages: Record<string, any> = {
     },
     navigation: {
       maker: 'Stamp Templates',
+      certificate: 'Certificate Templates',
       about: 'About Us',
       contact: 'Contact Us',
       footer: {
@@ -1590,6 +1592,83 @@ const messages: Record<string, any> = {
       sortByDate: 'Sort by Date',
       sortByCollect: 'Sort by Collections',
       sortByView: 'Sort by Views'
+    },
+    certificate: {
+      tabs: {
+        editor: 'Template Editor',
+        batch: 'Batch Generate'
+      },
+      editor: {
+        title: 'Certificate Template Editor',
+        loadTemplate: 'Load Template',
+        saveTemplate: 'Save Template',
+        preview: 'Preview',
+        elements: 'Elements',
+        fields: 'Variable Fields',
+        addField: 'Add Field',
+        properties: 'Properties',
+        templateSettings: 'Template Settings',
+        width: 'Width',
+        height: 'Height',
+        backgroundColor: 'Background Color',
+        fieldName: 'Field Name',
+        fieldLabel: 'Field Label',
+        fieldType: 'Field Type',
+        fieldTypeText: 'Text',
+        fieldTypeDate: 'Date',
+        fieldTypeNumber: 'Number',
+        fieldTypeImage: 'Image',
+        fieldTypeSignature: 'Signature',
+        cancel: 'Cancel',
+        add: 'Add',
+        delete: 'Delete',
+        close: 'Close',
+        download: 'Download',
+        enterData: 'Enter Data',
+        addSignature: 'Add Signature',
+        elementText: 'Text',
+        elementImage: 'Image',
+        elementLine: 'Line',
+        elementRectangle: 'Rectangle',
+        elementField: 'Field',
+        backgroundImage: 'Background Image',
+        uploadImage: 'Upload Image',
+        removeImage: 'Remove Image',
+        createDefaultAward: 'Create Default Award Template'
+      },
+      batch: {
+        title: 'Batch Generate Certificates',
+        uploadCsv: 'Upload CSV File',
+        uploadHint: 'Click or drag CSV file here',
+        uploadHintSmall: 'CSV file should contain headers, first row is field names',
+        fileLoaded: 'File loaded',
+        recordCount: 'Total {count} records',
+        dataPreview: 'Data Preview',
+        page: 'Page {current} / {total}',
+        fieldMapping: 'Field Mapping',
+        notMapped: 'Not Mapped',
+        generationOptions: 'Generation Options',
+        outputFormat: 'Output Format',
+        quality: 'Image Quality',
+        generate: 'Start Generation',
+        generating: 'Generating...',
+        generationComplete: 'Successfully generated {count} certificates',
+        generationError: 'Generation failed, please try again'
+      },
+      signature: {
+        title: 'Signature',
+        draw: 'Draw',
+        upload: 'Upload',
+        clear: 'Clear',
+        undo: 'Undo',
+        penWidth: 'Pen Width',
+        color: 'Color',
+        uploadHint: 'Click or drag image here',
+        uploadHintSmall: 'Supports PNG, JPG and other formats',
+        remove: 'Remove',
+        cancel: 'Cancel',
+        confirm: 'Confirm'
+      }
     }
   }
   ,
@@ -1601,6 +1680,7 @@ const messages: Record<string, any> = {
     },
     navigation: {
       maker: '印章テンプレート',
+      certificate: '賞状テンプレート',
       about: '私たちについて',
       contact: 'お問い合わせ',
       footer: {
@@ -1983,6 +2063,83 @@ const messages: Record<string, any> = {
         verticalLineIndex: '縦線 {index}',
         horizontalLineIndex: '横線 {index}',
         svgIndex: 'SVG {index}'
+      }
+    },
+    certificate: {
+      tabs: {
+        editor: 'テンプレートエディタ',
+        batch: '一括生成'
+      },
+      editor: {
+        title: '賞状テンプレートエディタ',
+        loadTemplate: 'テンプレートを読み込み',
+        saveTemplate: 'テンプレートを保存',
+        preview: 'プレビュー',
+        elements: '要素',
+        fields: '可変フィールド',
+        addField: 'フィールドを追加',
+        properties: 'プロパティ',
+        templateSettings: 'テンプレート設定',
+        width: '幅',
+        height: '高さ',
+        backgroundColor: '背景色',
+        fieldName: 'フィールド名',
+        fieldLabel: 'フィールドラベル',
+        fieldType: 'フィールドタイプ',
+        fieldTypeText: 'テキスト',
+        fieldTypeDate: '日付',
+        fieldTypeNumber: '数字',
+        fieldTypeImage: '画像',
+        fieldTypeSignature: '署名',
+        cancel: 'キャンセル',
+        add: '追加',
+        delete: '削除',
+        close: '閉じる',
+        download: 'ダウンロード',
+        enterData: 'データを入力',
+        addSignature: '署名を追加',
+        elementText: 'テキスト',
+        elementImage: '画像',
+        elementLine: '線',
+        elementRectangle: '矩形',
+        elementField: 'フィールド',
+        backgroundImage: '背景画像',
+        uploadImage: '画像をアップロード',
+        removeImage: '画像を削除',
+        createDefaultAward: 'デフォルト賞状テンプレートを作成'
+      },
+      batch: {
+        title: '賞状一括生成',
+        uploadCsv: 'CSVファイルをアップロード',
+        uploadHint: 'クリックまたはCSVファイルをドラッグ',
+        uploadHintSmall: 'CSVファイルにはヘッダーを含め、最初の行はフィールド名',
+        fileLoaded: 'ファイルが読み込まれました',
+        recordCount: '合計 {count} 件のレコード',
+        dataPreview: 'データプレビュー',
+        page: 'ページ {current} / {total}',
+        fieldMapping: 'フィールドマッピング',
+        notMapped: 'マッピングなし',
+        generationOptions: '生成オプション',
+        outputFormat: '出力形式',
+        quality: '画像品質',
+        generate: '生成開始',
+        generating: '生成中...',
+        generationComplete: '{count} 枚の賞状を正常に生成しました',
+        generationError: '生成に失敗しました。もう一度お試しください'
+      },
+      signature: {
+        title: '署名',
+        draw: '手書き',
+        upload: 'アップロード',
+        clear: 'クリア',
+        undo: '元に戻す',
+        penWidth: 'ペン幅',
+        color: '色',
+        uploadHint: 'クリックまたは画像をドラッグ',
+        uploadHintSmall: 'PNG、JPGなどの形式をサポート',
+        remove: '削除',
+        cancel: 'キャンセル',
+        confirm: '確認'
       }
     }
   }

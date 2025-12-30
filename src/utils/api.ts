@@ -199,6 +199,54 @@ export const templateApi = {
       method: 'DELETE',
     })
   },
+
+  // 上传证书模板
+  uploadCertificateTemplate: async (
+    name: string,
+    description: string | undefined,
+    templateData: any,
+    preview: File | null
+  ): Promise<ApiResponse<Template>> => {
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('type', 'certificate')
+    if (description) {
+      formData.append('description', description)
+    }
+    formData.append('file', new Blob([JSON.stringify(templateData)], { type: 'application/json' }), `${name}.json`)
+    if (preview) {
+      formData.append('preview', preview)
+    }
+
+    const token = localStorage.getItem('auth_token')
+    const headers: HeadersInit = {}
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/templates`, {
+      method: 'POST',
+      headers,
+      body: formData,
+      credentials: 'include',
+    })
+
+    const data: ApiResponse<Template> = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error || '上传失败')
+    }
+
+    return data
+  },
+
+  // 获取证书模板列表
+  getCertificateTemplates: async (): Promise<ApiResponse<Template[]>> => {
+    return request<Template[]>('/api/templates?type=certificate', {
+      method: 'GET',
+    })
+  },
 }
 
 // 公共模板相关 API
