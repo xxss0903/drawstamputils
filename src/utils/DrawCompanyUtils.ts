@@ -1,4 +1,5 @@
 import { ICompany } from "../DrawStampTypes"
+import { getArcSegments, isRtlText, segmentGraphemes, segmentWords } from "./textLayoutUtils"
 
 export class DrawCompanyUtils {
     private mmToPixel = 10
@@ -94,14 +95,22 @@ export class DrawCompanyUtils {
         ctx.fillStyle = color
         ctx.textAlign = 'center'
         ctx.textBaseline = 'bottom'
-      
-        const characters = company.companyName.split('')
-        const characterCount = characters.length
+        const rtl = isRtlText(company.companyName)
+        ctx.direction = rtl ? 'rtl' : 'ltr'
+
         const borderOffset = company.borderOffset * this.mmToPixel
-      
+        const segments = getArcSegments(company.companyName, rtl)
+        const spaceUnits = rtl && segments.length > 1 ? 1 : 0
+        const totalUnits =
+          segments.reduce((sum, s) => sum + s.units, 0) + Math.max(0, segments.length - 1) * spaceUnits
+
+        if (totalUnits <= 0) {
+          ctx.restore()
+          return
+        }
         // 计算总角度和每个字符的角度
-        const totalAngle = Math.PI * (0.5 + characterCount / (company.textDistributionFactor * 4))
-        const anglePerChar = totalAngle / characterCount
+        const totalAngle = Math.PI * (0.5 + totalUnits / (company.textDistributionFactor * 4))
+        const anglePerUnit = totalAngle / totalUnits
       
         // 根据旋转方向设置起始角度和角度增量
         const direction = company.rotateDirection === 'clockwise' ? -1 : 1
@@ -110,7 +119,10 @@ export class DrawCompanyUtils {
           Math.PI + (Math.PI - totalAngle) / 2)
       
         // 计算字符位置时考虑椭圆文字调整
-        if (company.adjustEllipseText) {
+        if (company.adjustEllipseText && !rtl) {
+          const characters = segmentGraphemes(company.companyName)
+          const characterCount = characters.length
+          const anglePerChar = totalAngle / Math.max(1, characterCount)
           let halfCharCount = 0
           if(characterCount % 2 !== 0){
             halfCharCount = characterCount / 2
@@ -216,16 +228,19 @@ export class DrawCompanyUtils {
             ctx.restore()
           })
         } else {
-          // 不调整椭圆文字时的正常绘制
-          characters.forEach((char, index) => {
-            const angle = startAngle + direction * anglePerChar * (index + 0.5)
+          const orderedSegments = rtl ? [...segments].reverse() : segments
+          let accUnits = 0
+
+          orderedSegments.forEach((seg, index) => {
+            const segMid = accUnits + seg.units / 2
+            const angle = startAngle + direction * anglePerUnit * segMid
             
             // 计算字符位置
             let x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
             let y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
       
             // 应用单个文字的偏移调整（如果存在）
-            const charAdjustment = company.charAdjustments && company.charAdjustments[index]
+            const charAdjustment = !rtl ? (company.charAdjustments && company.charAdjustments[index]) : undefined
             if (charAdjustment) {
               // 计算椭圆在该点的切线和法线方向
               const tangentAngle = Math.atan2(-radiusX * Math.sin(angle), radiusY * Math.cos(angle))
@@ -287,23 +302,27 @@ export class DrawCompanyUtils {
             ctx.scale(company.compression, stretchScale)
 
             // 创建文字路径
+            const metrics = ctx.measureText(seg.text)
+            const boxWidth = rtl ? metrics.width : fontSize
             const path = new Path2D()
-            path.rect(-fontSize/2, -fontSize, fontSize, fontSize)
+            path.rect(-boxWidth / 2, -fontSize, boxWidth, fontSize)
             const visualHeight = fontSize * stretchScale
             this.textPaths.push({
-                text: char,
+                text: seg.text,
                 path: path,
                 type: 'company',
                 bounds: {
-                    x: x - fontSize/2,
+                    x: x - boxWidth / 2,
                     y: y - visualHeight,
-                    width: fontSize,
+                    width: boxWidth,
                     height: visualHeight
                 }
             })
 
-            ctx.fillText(char, 0, 0)
+            ctx.fillText(seg.text, 0, 0)
             ctx.restore()
+
+            accUnits += seg.units + spaceUnits
           })
         }
       
@@ -404,34 +423,52 @@ export class DrawCompanyUtils {
     ) {
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
+        const rtl = isRtlText(text)
+        ctx.direction = rtl ? 'rtl' : 'ltr'
 
         // 计算可用宽度（减去左右边距）
         const availableWidth = rectWidth - 2 * textMargin
-        const characters = text.split('')
-
-        // 将文字按行分割（自动换行）
         const lines: string[] = []
-        let currentLine = ''
-        let currentLineWidth = 0
+        if (rtl) {
+            const trimmed = text.trim()
+            const words = segmentWords(text)
+            const tokens = words.length > 0 ? words : (trimmed ? [trimmed] : [])
+            let currentLine = ''
 
-        for (const char of characters) {
-            const metrics = ctx.measureText(char)
-            const charWidth = metrics.width * compression
-
-            if (currentLineWidth + charWidth > availableWidth && currentLine.length > 0) {
-                // 当前行已满，开始新行
-                lines.push(currentLine)
-                currentLine = char
-                currentLineWidth = charWidth
-            } else {
-                // 添加到当前行
-                currentLine += char
-                currentLineWidth += charWidth
+            for (const word of tokens) {
+                const candidate = currentLine ? `${currentLine} ${word}` : word
+                const candidateWidth = ctx.measureText(candidate).width * compression
+                if (candidateWidth > availableWidth && currentLine) {
+                    lines.push(currentLine)
+                    currentLine = word
+                } else {
+                    currentLine = candidate
+                }
             }
-        }
-        // 添加最后一行
-        if (currentLine.length > 0) {
-            lines.push(currentLine)
+
+            if (currentLine) lines.push(currentLine)
+        } else {
+            const characters = segmentGraphemes(text)
+            let currentLine = ''
+            let currentLineWidth = 0
+
+            for (const char of characters) {
+                const metrics = ctx.measureText(char)
+                const charWidth = metrics.width * compression
+
+                if (currentLineWidth + charWidth > availableWidth && currentLine.length > 0) {
+                    lines.push(currentLine)
+                    currentLine = char
+                    currentLineWidth = charWidth
+                } else {
+                    currentLine += char
+                    currentLineWidth += charWidth
+                }
+            }
+
+            if (currentLine.length > 0) {
+                lines.push(currentLine)
+            }
         }
 
         // 计算总高度
@@ -457,104 +494,181 @@ export class DrawCompanyUtils {
 
             lines.forEach((line, lineIndex) => {
                 const lineY = startY + lineIndex * (fontSize * 1.2)
-                const lineChars = line.split('')
-                
-                // 计算行的总宽度
-                const lineCharWidths = lineChars.map(char => {
-                    const metrics = ctx.measureText(char)
-                    return metrics.width * compression
-                })
-                const lineTotalWidth = lineCharWidths.reduce((sum, w) => sum + w, 0)
-
-                // 根据对齐方式计算起始X坐标
-                let lineStartX = centerX
-                if (alignment === 'left') {
-                    lineStartX = centerX - rectWidth / 2 + textMargin
-                } else if (alignment === 'right') {
-                    lineStartX = centerX + rectWidth / 2 - textMargin - lineTotalWidth
-                } else {
-                    lineStartX = centerX - lineTotalWidth / 2
-                }
-
-                lineChars.forEach((char, charIndex) => {
-                    const charWidth = lineCharWidths[charIndex]
-                    const charX = lineStartX + lineCharWidths.slice(0, charIndex).reduce((sum, w) => sum + w, 0) + charWidth / 2
+                if (rtl) {
+                    const metrics = ctx.measureText(line)
+                    const visualWidth = metrics.width * compression
+                    const anchorX =
+                        alignment === 'left'
+                            ? centerX - rectWidth / 2 + textMargin
+                            : alignment === 'right'
+                              ? centerX + rectWidth / 2 - textMargin
+                              : centerX
+                    const axisCenter =
+                        alignment === 'left'
+                            ? anchorX + visualWidth / 2
+                            : alignment === 'right'
+                              ? anchorX - visualWidth / 2
+                              : anchorX
 
                     ctx.save()
-                    ctx.translate(x, charX)
+                    ctx.translate(x, anchorX)
                     ctx.rotate(position === 'left' ? -Math.PI / 2 : Math.PI / 2)
                     ctx.scale(compression, stretchScale)
+                    ctx.textAlign = alignment
+                    ctx.textBaseline = 'middle'
 
-                    const metrics = ctx.measureText(char)
                     const path = new Path2D()
-                    path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                    path.rect(-visualWidth / 2, -fontSize / 2, visualWidth, fontSize)
                     const visualHeight = fontSize * stretchScale
                     this.textPaths.push({
-                        text: char,
+                        text: line,
                         path: path,
                         type: 'company',
                         bounds: {
-                            x: x - metrics.width / 2,
-                            y: charX - visualHeight / 2,
-                            width: metrics.width,
+                            x: x - visualWidth / 2,
+                            y: axisCenter - visualHeight / 2,
+                            width: visualWidth,
                             height: visualHeight
                         }
                     })
 
-                    ctx.fillText(char, 0, 0)
+                    ctx.fillText(line, 0, 0)
                     ctx.restore()
-                })
+                } else {
+                    const lineChars = segmentGraphemes(line)
+                    const lineCharWidths = lineChars.map(char => {
+                        const metrics = ctx.measureText(char)
+                        return metrics.width * compression
+                    })
+                    const lineTotalWidth = lineCharWidths.reduce((sum, w) => sum + w, 0)
+
+                    let lineStartX = centerX
+                    if (alignment === 'left') {
+                        lineStartX = centerX - rectWidth / 2 + textMargin
+                    } else if (alignment === 'right') {
+                        lineStartX = centerX + rectWidth / 2 - textMargin - lineTotalWidth
+                    } else {
+                        lineStartX = centerX - lineTotalWidth / 2
+                    }
+
+                    lineChars.forEach((char, charIndex) => {
+                        const charWidth = lineCharWidths[charIndex]
+                        const charX = lineStartX + lineCharWidths.slice(0, charIndex).reduce((sum, w) => sum + w, 0) + charWidth / 2
+
+                        ctx.save()
+                        ctx.translate(x, charX)
+                        ctx.rotate(position === 'left' ? -Math.PI / 2 : Math.PI / 2)
+                        ctx.scale(compression, stretchScale)
+
+                        const metrics = ctx.measureText(char)
+                        const path = new Path2D()
+                        path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                        const visualHeight = fontSize * stretchScale
+                        this.textPaths.push({
+                            text: char,
+                            path: path,
+                            type: 'company',
+                            bounds: {
+                                x: x - metrics.width / 2,
+                                y: charX - visualHeight / 2,
+                                width: metrics.width,
+                                height: visualHeight
+                            }
+                        })
+
+                        ctx.fillText(char, 0, 0)
+                        ctx.restore()
+                    })
+                }
             })
         } else {
             // 顶部、底部或中心位置，正常横向绘制
             lines.forEach((line, lineIndex) => {
                 const lineY = startY + lineIndex * (fontSize * 1.2)
-                const lineChars = line.split('')
-                
-                // 计算行的总宽度
-                const lineCharWidths = lineChars.map(char => {
-                    const metrics = ctx.measureText(char)
-                    return metrics.width * compression
-                })
-                const lineTotalWidth = lineCharWidths.reduce((sum, w) => sum + w, 0)
+                if (rtl) {
+                    const metrics = ctx.measureText(line)
+                    const visualWidth = metrics.width * compression
+                    const anchorX =
+                        alignment === 'left'
+                            ? centerX - rectWidth / 2 + textMargin
+                            : alignment === 'right'
+                              ? centerX + rectWidth / 2 - textMargin
+                              : centerX
+                    const axisCenter =
+                        alignment === 'left'
+                            ? anchorX + visualWidth / 2
+                            : alignment === 'right'
+                              ? anchorX - visualWidth / 2
+                              : anchorX
 
-                // 根据对齐方式计算起始X坐标
-                let lineStartX = centerX
-                if (alignment === 'left') {
-                    lineStartX = centerX - rectWidth / 2 + textMargin
-                } else if (alignment === 'right') {
-                    lineStartX = centerX + rectWidth / 2 - textMargin - lineTotalWidth
+                    ctx.save()
+                    ctx.translate(anchorX, lineY)
+                    ctx.scale(compression, stretchScale)
+                    ctx.textAlign = alignment
+                    ctx.textBaseline = 'middle'
+
+                    const path = new Path2D()
+                    path.rect(-visualWidth / 2, -fontSize / 2, visualWidth, fontSize)
+                    const visualHeight = fontSize * stretchScale
+                    this.textPaths.push({
+                        text: line,
+                        path: path,
+                        type: 'company',
+                        bounds: {
+                            x: axisCenter - visualWidth / 2,
+                            y: lineY - visualHeight / 2,
+                            width: visualWidth,
+                            height: visualHeight
+                        }
+                    })
+
+                    ctx.fillText(line, 0, 0)
+                    ctx.restore()
                 } else {
-                    lineStartX = centerX - lineTotalWidth / 2
-                }
+                    const lineChars = segmentGraphemes(line)
+                    const lineCharWidths = lineChars.map(char => {
+                        const metrics = ctx.measureText(char)
+                        return metrics.width * compression
+                    })
+                    const lineTotalWidth = lineCharWidths.reduce((sum, w) => sum + w, 0)
 
-                lineChars.forEach((char, charIndex) => {
-                    const charWidth = lineCharWidths[charIndex]
-                    const charX = lineStartX + lineCharWidths.slice(0, charIndex).reduce((sum, w) => sum + w, 0) + charWidth / 2
-
-                ctx.save()
-                ctx.translate(charX, lineY)
-                ctx.scale(compression, stretchScale)
-
-                const metrics = ctx.measureText(char)
-                const path = new Path2D()
-                path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
-                const visualHeight = fontSize * stretchScale
-                this.textPaths.push({
-                    text: char,
-                    path: path,
-                    type: 'company',
-                    bounds: {
-                        x: charX - metrics.width / 2,
-                        y: lineY - visualHeight / 2,
-                        width: metrics.width,
-                        height: visualHeight
+                    let lineStartX = centerX
+                    if (alignment === 'left') {
+                        lineStartX = centerX - rectWidth / 2 + textMargin
+                    } else if (alignment === 'right') {
+                        lineStartX = centerX + rectWidth / 2 - textMargin - lineTotalWidth
+                    } else {
+                        lineStartX = centerX - lineTotalWidth / 2
                     }
-                })
 
-                ctx.fillText(char, 0, 0)
-                ctx.restore()
-                })
+                    lineChars.forEach((char, charIndex) => {
+                        const charWidth = lineCharWidths[charIndex]
+                        const charX = lineStartX + lineCharWidths.slice(0, charIndex).reduce((sum, w) => sum + w, 0) + charWidth / 2
+
+                        ctx.save()
+                        ctx.translate(charX, lineY)
+                        ctx.scale(compression, stretchScale)
+
+                        const metrics = ctx.measureText(char)
+                        const path = new Path2D()
+                        path.rect(-metrics.width / 2, -fontSize / 2, metrics.width, fontSize)
+                        const visualHeight = fontSize * stretchScale
+                        this.textPaths.push({
+                            text: char,
+                            path: path,
+                            type: 'company',
+                            bounds: {
+                                x: charX - metrics.width / 2,
+                                y: lineY - visualHeight / 2,
+                                width: metrics.width,
+                                height: visualHeight
+                            }
+                        })
+
+                        ctx.fillText(char, 0, 0)
+                        ctx.restore()
+                    })
+                }
             })
         }
     }
@@ -576,7 +690,7 @@ export class DrawCompanyUtils {
         compression: number,
         stretchScale: number = 1
     ) {
-        const characters = text.split('')
+        const characters = segmentGraphemes(text)
         ctx.textBaseline = 'middle'
 
         // 计算文字总宽度
@@ -698,7 +812,7 @@ export class DrawCompanyUtils {
 
         // 计算可用高度（减去上下边距）
         const availableHeight = rectHeight - 2 * textMargin
-        const characters = text.split('')
+        const characters = segmentGraphemes(text)
 
         // 将文字按列分割（自动换行）
         const columns: string[] = []
@@ -749,7 +863,7 @@ export class DrawCompanyUtils {
 
             columns.forEach((column, columnIndex) => {
                 const columnX = startX + columnIndex * columnWidth
-                const columnChars = column.split('')
+                const columnChars = segmentGraphemes(column)
                 
                 // 计算列的总高度
                 const columnTotalHeight = columnChars.length * fontSize + (columnChars.length - 1) * actualLineSpacing
@@ -796,7 +910,7 @@ export class DrawCompanyUtils {
             // 左右位置，正常纵向绘制
             columns.forEach((column, columnIndex) => {
                 const columnX = startX + columnIndex * columnWidth
-                const columnChars = column.split('')
+                const columnChars = segmentGraphemes(column)
                 
                 // 计算列的总高度
                 const columnTotalHeight = columnChars.length * fontSize + (columnChars.length - 1) * actualLineSpacing
@@ -859,7 +973,7 @@ export class DrawCompanyUtils {
         compression: number,
         stretchScale: number = 1
     ) {
-        const characters = text.split('')
+        const characters = segmentGraphemes(text)
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
 

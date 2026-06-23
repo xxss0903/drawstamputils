@@ -1,4 +1,5 @@
 import { IStampType } from "../DrawStampTypes"
+import { isRtlText, segmentGraphemes } from "./textLayoutUtils"
 
 export class DrawStampTypeUtils {
     private mmToPixel = 10
@@ -78,7 +79,7 @@ export class DrawStampTypeUtils {
         if (orientation === 'vertical') {
             const baseY = centerY + radiusX * 0.5 + positionY * this.mmToPixel
             lines.forEach((line, lineIndex) => {
-                const chars = line.split('')
+                const chars = segmentGraphemes(line)
                 const totalHeight =
                     chars.length * fontSize + Math.max(0, chars.length - 1) * letterSpacingPx
                 const columnOffset =
@@ -97,6 +98,7 @@ export class DrawStampTypeUtils {
                     }
                     // compression 控制沿排布方向的压缩，stretchScale 单独拉伸高度
                     ctx.scale(stampType.compression, stretchScale)
+                    ctx.direction = isRtlText(char) ? 'rtl' : 'ltr'
                     ctx.fillText(char, 0, relativeY)
                     ctx.restore()
 
@@ -117,7 +119,39 @@ export class DrawStampTypeUtils {
             })
         } else {
             lines.forEach((line, lineIndex) => {
-                const chars = line.split('')
+                const rtlLine = isRtlText(line)
+                if (rtlLine) {
+                    const lineOffset = (lineIndex - (lineCount - 1) / 2) * (fontSize + lineSpacingPx)
+                    const textY = centerY + radiusX * 0.5 + positionY * this.mmToPixel + lineOffset
+
+                    ctx.save()
+                    ctx.translate(centerX + offsetX, textY)
+                    if (rotationRad !== 0) {
+                        ctx.rotate(rotationRad)
+                    }
+                    ctx.scale(stampType.compression, stretchScale)
+                    ctx.direction = 'rtl'
+                    ctx.fillText(line, 0, 0)
+                    ctx.restore()
+
+                    const metrics = ctx.measureText(line)
+                    const visualWidth = metrics.width * stampType.compression
+                    const visualHeight = fontSize * stretchScale
+                    this.textPaths.push({
+                        text: line,
+                        type: 'stampType',
+                        path: new Path2D(),
+                        bounds: {
+                            x: centerX + offsetX - visualWidth / 2,
+                            y: textY - visualHeight / 2,
+                            width: visualWidth,
+                            height: visualHeight
+                        }
+                    })
+                    return
+                }
+
+                const chars = segmentGraphemes(line)
                 const charWidths = chars.map((char) => ctx.measureText(char).width)
                 const totalWidth =
                     charWidths.reduce((sum, width) => sum + width, 0) +
@@ -135,6 +169,7 @@ export class DrawStampTypeUtils {
                     ctx.rotate(rotationRad)
                 }
                 ctx.scale(stampType.compression, stretchScale)
+                ctx.direction = 'ltr'
 
                 let currentX = -totalWidth / 2 // 从文本的左边缘开始
 

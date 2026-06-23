@@ -1,4 +1,5 @@
 import { ICode } from "../DrawStampTypes"
+import { getArcSegments, isRtlText } from "./textLayoutUtils"
 
 export class DrawCodeUtils {
     private mmToPixel = 10
@@ -49,11 +50,16 @@ export class DrawCodeUtils {
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
 
-        const characters = text.split('')
-        const characterCount = characters.length
+        const rtl = isRtlText(text)
+        ctx.direction = rtl ? 'rtl' : 'ltr'
+
+        const segments = getArcSegments(text, rtl)
+        const spaceUnits = rtl && segments.length > 1 ? 1 : 0
+        const totalUnits =
+          segments.reduce((sum, s) => sum + s.units, 0) + Math.max(0, segments.length - 1) * spaceUnits
 
         // 处理单个字符的情况
-        if (characterCount === 1) {
+        if (totalUnits <= 1) {
             // 单个字符直接绘制在底部中心位置
             const x = centerX
             const y = centerY + radiusY - fontSize - code.borderOffset * this.mmToPixel
@@ -83,12 +89,16 @@ export class DrawCodeUtils {
             ctx.restore()
         } else {
             // 多个字符时的弧形排列
-            const totalAngle = Math.PI * ((1 + characterCount) / code.textDistributionFactor)
+            const totalAngle = Math.PI * ((1 + totalUnits) / code.textDistributionFactor)
             const startAngle = Math.PI / 2 + totalAngle / 2
-            const anglePerChar = totalAngle / (characterCount - 1)
+            const anglePerUnit = totalAngle / totalUnits
 
-            characters.forEach((char, index) => {
-                const angle = startAngle - anglePerChar * index
+            const orderedSegments = rtl ? [...segments].reverse() : segments
+            let accUnits = 0
+
+            orderedSegments.forEach((seg) => {
+                const segMid = accUnits + seg.units / 2
+                const angle = startAngle - anglePerUnit * segMid
                 const x = centerX + Math.cos(angle) * (radiusX - fontSize / 2 - code.borderOffset * this.mmToPixel)
                 const y = centerY + Math.sin(angle) * (radiusY - fontSize / 2 - code.borderOffset * this.mmToPixel)
 
@@ -96,14 +106,14 @@ export class DrawCodeUtils {
                 ctx.translate(x, y)
                 ctx.rotate(angle - Math.PI / 2)
                 ctx.scale(code.compression, stretchScale)
-                ctx.fillText(char, 0, 0)
+                ctx.fillText(seg.text, 0, 0)
 
                 // 存储每个字符的路径
-                const metrics = ctx.measureText(char)
+                const metrics = ctx.measureText(seg.text)
                 const visualWidth = metrics.width * code.compression
                 const visualHeight = fontSize * stretchScale
                 this.textPaths.push({
-                    text: char,
+                    text: seg.text,
                     type: 'code',
                     path: new Path2D(),
                     bounds: {
@@ -115,6 +125,8 @@ export class DrawCodeUtils {
                 })
 
                 ctx.restore()
+
+                accUnits += seg.units + spaceUnits
             })
         }
 
