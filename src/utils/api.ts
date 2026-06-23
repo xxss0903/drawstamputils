@@ -13,7 +13,7 @@ const getApiBaseUrl = () => {
   }
   
   // 生产环境使用部署的 Workers
-  return 'https://sealmaker-api.xxss0903.workers.dev'
+  return 'https://sealmaker-api-production.xxss0903.workers.dev'
 }
 
 const API_BASE_URL = getApiBaseUrl()
@@ -23,6 +23,8 @@ export interface ApiResponse<T = any> {
   data?: T
   error?: string
   message?: string
+  code?: string
+  requestId?: string
 }
 
 export interface AuthResponse {

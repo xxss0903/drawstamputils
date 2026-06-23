@@ -18,7 +18,7 @@ const defaultOptions: CorsOptions = {
  * 处理 CORS 请求
  */
 export function handleCors(request: Request, options: CorsOptions = {}): Response | null {
-  const opts = { ...defaultOptions, ...options };
+  const opts = { ...defaultOptions, ...options } as Required<CorsOptions>;
   const origin = request.headers.get('Origin');
 
   // 处理预检请求
@@ -59,7 +59,7 @@ export function handleCors(request: Request, options: CorsOptions = {}): Respons
  * 添加 CORS 头到响应
  */
 export function addCorsHeaders(response: Response, request: Request, options: CorsOptions = {}): Response {
-  const opts = { ...defaultOptions, ...options };
+  const opts = { ...defaultOptions, ...options } as Required<CorsOptions>;
   const origin = request.headers.get('Origin');
   const newResponse = new Response(response.body, response);
 

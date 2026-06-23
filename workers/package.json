@@ -7,16 +7,18 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:migrate": "wrangler d1 migrations apply sealmaker-db",
+    "db:migrate:production": "wrangler d1 migrations apply sealmaker-db --env production",
+    "db:migrate:development": "wrangler d1 migrations apply sealmaker-db --env development",
     "db:create": "wrangler d1 create sealmaker-db",
     "init:templates": "node scripts/init-from-r2.js",
     "list:files": "node scripts/list-r2-files.js"
   },
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20240125.0"
+    "@cloudflare/workers-types": "^4.20240125.0",
+    "drawstamputils": "file:.."
   },
   "devDependencies": {
-    "wrangler": "^3.0.0",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "wrangler": "^3.0.0"
   }
 }
-

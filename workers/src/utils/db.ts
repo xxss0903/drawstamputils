@@ -9,10 +9,41 @@ export async function createUser(db: D1Database, email: string, passwordHash: st
   const id = crypto.randomUUID();
   const now = Date.now();
 
-  await db.prepare(
-    `INSERT INTO users (id, email, password_hash, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?)`
-  ).bind(id, email, passwordHash, now, now).run();
+  try {
+    const result = await db.prepare(
+      `INSERT INTO users (id, email, password_hash, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`
+    ).bind(id, email, passwordHash, now, now).run();
+
+    if (!result.success) {
+      const error = (result as any).error ? String((result as any).error) : 'D1 insert failed';
+      throw new Error(error);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+
+    if (/UNIQUE constraint failed:\s*users\.email/i.test(message)) {
+      throw new Error('USER_EMAIL_EXISTS');
+    }
+
+    if (
+      /no column named\s+(created_at|updated_at)/i.test(message) ||
+      /has no column named\s+(created_at|updated_at)/i.test(message) ||
+      /no such column:\s*(created_at|updated_at)/i.test(message)
+    ) {
+      const fallback = await db.prepare(
+        `INSERT INTO users (id, email, password_hash)
+         VALUES (?, ?, ?)`
+      ).bind(id, email, passwordHash).run();
+
+      if (!fallback.success) {
+        const fallbackError = (fallback as any).error ? String((fallback as any).error) : 'D1 insert failed';
+        throw new Error(fallbackError);
+      }
+    } else {
+      throw error;
+    }
+  }
 
   return {
     id,
@@ -392,4 +423,3 @@ export async function getTodaySaveCount(
 
   return result?.count || 0;
 }
-

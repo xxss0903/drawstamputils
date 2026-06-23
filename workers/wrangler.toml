@@ -21,8 +21,22 @@ JWT_EXPIRES_IN = "7d"
 # 生产环境配置
 [env.production]
 vars = { JWT_SECRET = "xxss0903", JWT_EXPIRES_IN = "7d" }
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "sealmaker-db"
+database_id = "22a79f9d-2653-4324-a2ad-2c0f95258802"
+[[env.production.r2_buckets]]
+binding = "TEMPLATES_BUCKET"
+bucket_name = "sealmaker-templates"
 
 # 开发环境配置
 [env.development]
 vars = { JWT_SECRET = "dev-secret-key-change-in-production", JWT_EXPIRES_IN = "7d" }
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "sealmaker-db"
+database_id = "22a79f9d-2653-4324-a2ad-2c0f95258802"
+[[env.development.r2_buckets]]
+binding = "TEMPLATES_BUCKET"
+bucket_name = "sealmaker-templates"
 

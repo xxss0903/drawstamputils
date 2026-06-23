@@ -18,13 +18,45 @@ export async function handleRegister(request: Request, env: Env): Promise<Respon
   }
 
   try {
-    const body: RegisterRequest = await request.json();
+    let body: RegisterRequest;
+    try {
+      body = await request.json();
+    } catch {
+      const response: ApiResponse = {
+        success: false,
+        error: '请求体必须是 JSON',
+        code: 'invalid_json',
+      };
+      return addCorsHeaders(
+        new Response(JSON.stringify(response), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
+
+    if (!body || typeof body.email !== 'string' || typeof body.password !== 'string') {
+      const response: ApiResponse = {
+        success: false,
+        error: '参数错误',
+        code: 'invalid_params',
+      };
+      return addCorsHeaders(
+        new Response(JSON.stringify(response), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        request
+      );
+    }
 
     // 验证邮箱
     if (!validateEmail(body.email)) {
       const response: ApiResponse = {
         success: false,
         error: '邮箱格式不正确',
+        code: 'invalid_email',
       };
       return addCorsHeaders(
         new Response(JSON.stringify(response), {
@@ -41,6 +73,7 @@ export async function handleRegister(request: Request, env: Env): Promise<Respon
       const response: ApiResponse = {
         success: false,
         error: passwordValidation.error,
+        code: 'invalid_password',
       };
       return addCorsHeaders(
         new Response(JSON.stringify(response), {
@@ -57,6 +90,7 @@ export async function handleRegister(request: Request, env: Env): Promise<Respon
       const response: ApiResponse = {
         success: false,
         error: '该邮箱已被注册',
+        code: 'email_exists',
       };
       return addCorsHeaders(
         new Response(JSON.stringify(response), {
@@ -69,7 +103,26 @@ export async function handleRegister(request: Request, env: Env): Promise<Respon
 
     // 创建用户
     const passwordHash = await hashPassword(body.password);
-    const user = await createUser(env.DB, body.email, passwordHash);
+    let user;
+    try {
+      user = await createUser(env.DB, body.email, passwordHash);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
+        const response: ApiResponse = {
+          success: false,
+          error: '该邮箱已被注册',
+          code: 'email_exists',
+        };
+        return addCorsHeaders(
+          new Response(JSON.stringify(response), {
+            status: 409,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+          request
+        );
+      }
+      throw error;
+    }
 
     // 生成 token
     const token = await createToken(
@@ -97,9 +150,14 @@ export async function handleRegister(request: Request, env: Env): Promise<Respon
       request
     );
   } catch (error) {
+    const requestId = crypto.randomUUID();
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('register_failed', { requestId, message });
     const response: ApiResponse = {
       success: false,
       error: '注册失败，请稍后重试',
+      code: 'register_failed',
+      requestId,
     };
     return addCorsHeaders(
       new Response(JSON.stringify(response), {
