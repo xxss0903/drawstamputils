@@ -375,7 +375,9 @@ export class DrawCompanyUtils {
         const srcW = Math.ceil(measuredWidth) + padding * 2
         const srcH = Math.ceil(ascent + descent) + padding * 2
         const baselineY = padding + ascent
-        const supersample = measuredWidth > 600 ? 1 : 2
+        const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1
+        const supersampleBase = Math.min(3, Math.max(2, Math.round(dpr)))
+        const supersample = company.compression > 2 ? Math.min(3, supersampleBase + 1) : supersampleBase
 
         const off = document.createElement('canvas')
         off.width = srcW * supersample
@@ -418,10 +420,11 @@ export class DrawCompanyUtils {
         ctx.imageSmoothingEnabled = true
         ;(ctx as any).imageSmoothingQuality = 'high'
 
-        const stepVisual = 1.5
+        const stepVisual = Math.max(0.9, Math.min(2.2, 1.1 + (company.compression - 1) * 0.6))
         const stepSrcBase = stepVisual / Math.max(0.001, company.compression)
         const sliceCount = Math.ceil(measuredWidth / stepSrcBase)
-        const overlap = 1
+        const overlapVisual = Math.max(1, Math.min(2, supersample * 0.8))
+        const overlapSrc = overlapVisual / Math.max(0.001, company.compression)
 
         for (let i = 0; i < sliceCount; i++) {
             const offsetSrc = i * stepSrcBase
@@ -434,8 +437,8 @@ export class DrawCompanyUtils {
             const normalAngle = Math.atan2(radiusX * Math.sin(angle), radiusY * Math.cos(angle))
 
             const srcX = textRight - offsetSrc - sliceSrcW
-            let sx = srcX - overlap / 2
-            let sw = sliceSrcW + overlap
+            let sx = srcX - overlapSrc / 2
+            let sw = sliceSrcW + overlapSrc
             if (sx < 0) {
                 sw += sx
                 sx = 0
@@ -455,7 +458,7 @@ export class DrawCompanyUtils {
                 0,
                 sw * supersample,
                 srcH * supersample,
-                -sliceSrcW / 2 - overlap / 2,
+                -sliceSrcW / 2 - overlapSrc / 2,
                 -baselineY,
                 sw,
                 srcH

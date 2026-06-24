@@ -186,7 +186,7 @@
                   type="range"
                   :value="company.compression"
                   min="0.5"
-                  max="1.5"
+                  max="3"
                   step="0.01"
                   @input="onNumberInput(index, 'compression', $event)"
                 />
@@ -497,7 +497,7 @@ const adjustStartAngle = (index: number, delta: number) => {
 
 const adjustCompression = (index: number, delta: number) => {
   updateConfig((company) => {
-    const newValue = Math.max(0.5, Math.min(1.5, company.compression + delta))
+    const newValue = Math.max(0.5, Math.min(3, company.compression + delta))
     company.compression = newValue
   }, index)
 }

@@ -114,7 +114,7 @@
             type="range"
             :value="type.compression"
             min="0.1"
-            max="1.5"
+            max="3"
             step="0.01"
             @input="updateStampType(index, 'compression', parseNumber($event))"
           />
@@ -379,7 +379,7 @@ const adjustCompression = (index: number, delta: number) => {
   emit('update-config', (config) => {
     const list = config.stampTypeList || []
     if (!list[index]) return
-    const newValue = Math.max(0.1, Math.min(1.5, list[index].compression + delta))
+    const newValue = Math.max(0.1, Math.min(3, list[index].compression + delta))
     list[index].compression = newValue
   })
 }
