@@ -375,21 +375,25 @@ export class DrawCompanyUtils {
         const srcW = Math.ceil(measuredWidth) + padding * 2
         const srcH = Math.ceil(ascent + descent) + padding * 2
         const baselineY = padding + ascent
+        const supersample = measuredWidth > 600 ? 1 : 2
 
         const off = document.createElement('canvas')
-        off.width = srcW
-        off.height = srcH
+        off.width = srcW * supersample
+        off.height = srcH * supersample
         const offCtx = off.getContext('2d')
         if (!offCtx) return
 
-        offCtx.clearRect(0, 0, srcW, srcH)
+        offCtx.setTransform(1, 0, 0, 1, 0, 0)
+        offCtx.clearRect(0, 0, off.width, off.height)
+        offCtx.setTransform(supersample, 0, 0, supersample, 0, 0)
         offCtx.font = ctx.font
         offCtx.fillStyle = color
         offCtx.textBaseline = 'alphabetic'
         offCtx.textAlign = 'right'
         offCtx.direction = 'rtl'
+        offCtx.imageSmoothingEnabled = true
+        ;(offCtx as any).imageSmoothingQuality = 'high'
         const textRight = srcW - padding
-        const textLeft = textRight - measuredWidth
         offCtx.fillText(text, textRight, baselineY)
 
         const visualWidth = measuredWidth * company.compression
@@ -411,15 +415,18 @@ export class DrawCompanyUtils {
             }
         })
 
-        const stepVisual = 2
+        ctx.imageSmoothingEnabled = true
+        ;(ctx as any).imageSmoothingQuality = 'high'
+
+        const stepVisual = 1.5
         const stepSrcBase = stepVisual / Math.max(0.001, company.compression)
         const sliceCount = Math.ceil(measuredWidth / stepSrcBase)
+        const overlap = 1
 
         for (let i = 0; i < sliceCount; i++) {
             const offsetSrc = i * stepSrcBase
             if (offsetSrc >= measuredWidth) break
             const sliceSrcW = Math.min(stepSrcBase, measuredWidth - offsetSrc)
-            const sliceVisualW = sliceSrcW * company.compression
             const t = (offsetSrc + sliceSrcW / 2) / measuredWidth
             const angle = startAngle + direction * totalAngle * t
             const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
@@ -427,6 +434,16 @@ export class DrawCompanyUtils {
             const normalAngle = Math.atan2(radiusX * Math.sin(angle), radiusY * Math.cos(angle))
 
             const srcX = textRight - offsetSrc - sliceSrcW
+            let sx = srcX - overlap / 2
+            let sw = sliceSrcW + overlap
+            if (sx < 0) {
+                sw += sx
+                sx = 0
+            }
+            if (sx + sw > srcW) {
+                sw = srcW - sx
+            }
+            if (sw <= 0) continue
 
             ctx.save()
             ctx.translate(x, y)
@@ -434,13 +451,13 @@ export class DrawCompanyUtils {
             ctx.scale(company.compression, stretchScale)
             ctx.drawImage(
                 off,
-                srcX,
+                sx * supersample,
                 0,
-                sliceSrcW,
-                srcH,
-                -sliceSrcW / 2,
+                sw * supersample,
+                srcH * supersample,
+                -sliceSrcW / 2 - overlap / 2,
                 -baselineY,
-                sliceSrcW,
+                sw,
                 srcH
             )
             ctx.restore()
