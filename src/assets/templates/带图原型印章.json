@@ -2214,12 +2214,12 @@
     ]
   },
   "company": {
-    "companyName": "印章绘制有限责任公司",
+    "companyName": "ئامىتابا تامغىسىنى ياساش",
     "compression": 1,
     "borderOffset": 1,
-    "textDistributionFactor": 5,
-    "fontFamily": "Songti SC",
-    "fontHeight": 4.2,
+    "textDistributionFactor": 4.2,
+    "fontFamily": "Noto Naskh Arabic",
+    "fontHeight": 4.4,
     "fontWeight": 400,
     "shape": "ellipse",
     "adjustEllipseText": false,
@@ -2298,12 +2298,12 @@
   ],
   "companyList": [
     {
-      "companyName": "模板2印章有限责任公司",
+      "companyName": "ئامىتابا تامغىسىنى ياساش",
       "compression": 1,
       "borderOffset": 1,
-      "textDistributionFactor": 3,
-      "fontFamily": "SimSun",
-      "fontHeight": 4.2,
+      "textDistributionFactor": 4.2,
+      "fontFamily": "Noto Naskh Arabic",
+      "fontHeight": 4.4,
       "fontWeight": "normal",
       "shape": "ellipse",
       "adjustEllipseText": true,

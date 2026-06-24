@@ -117,9 +117,29 @@ export class DrawCompanyUtils {
         const startAngle = (company.startAngle ? company.startAngle : 0) + (company.rotateDirection === 'clockwise' ? 
           Math.PI - totalAngle / 2 : 
           Math.PI + (Math.PI - totalAngle) / 2)
+
+        if (rtl) {
+          this.drawRtlWarpedEllipseText(
+            ctx,
+            company,
+            centerX,
+            centerY,
+            radiusX,
+            radiusY,
+            borderOffset,
+            fontSize,
+            stretchScale,
+            totalAngle,
+            startAngle,
+            direction,
+            color
+          )
+          ctx.restore()
+          return
+        }
       
         // 计算字符位置时考虑椭圆文字调整
-        if (company.adjustEllipseText && !rtl) {
+        if (company.adjustEllipseText) {
           const characters = segmentGraphemes(company.companyName)
           const characterCount = characters.length
           const anglePerChar = totalAngle / Math.max(1, characterCount)
@@ -228,7 +248,7 @@ export class DrawCompanyUtils {
             ctx.restore()
           })
         } else {
-          const orderedSegments = rtl ? [...segments].reverse() : segments
+          const orderedSegments = segments
           let accUnits = 0
 
           orderedSegments.forEach((seg, index) => {
@@ -240,7 +260,7 @@ export class DrawCompanyUtils {
             let y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
       
             // 应用单个文字的偏移调整（如果存在）
-            const charAdjustment = !rtl ? (company.charAdjustments && company.charAdjustments[index]) : undefined
+            const charAdjustment = company.charAdjustments && company.charAdjustments[index]
             if (charAdjustment) {
               // 计算椭圆在该点的切线和法线方向
               const tangentAngle = Math.atan2(-radiusX * Math.sin(angle), radiusY * Math.cos(angle))
@@ -303,7 +323,7 @@ export class DrawCompanyUtils {
 
             // 创建文字路径
             const metrics = ctx.measureText(seg.text)
-            const boxWidth = rtl ? metrics.width : fontSize
+            const boxWidth = fontSize
             const path = new Path2D()
             path.rect(-boxWidth / 2, -fontSize, boxWidth, fontSize)
             const visualHeight = fontSize * stretchScale
@@ -327,6 +347,104 @@ export class DrawCompanyUtils {
         }
       
         ctx.restore()
+    }
+
+    private drawRtlWarpedEllipseText(
+        ctx: CanvasRenderingContext2D,
+        company: ICompany,
+        centerX: number,
+        centerY: number,
+        radiusX: number,
+        radiusY: number,
+        borderOffset: number,
+        fontSize: number,
+        stretchScale: number,
+        totalAngle: number,
+        startAngle: number,
+        direction: number,
+        color: string
+    ) {
+        const text = company.companyName
+        const metrics = ctx.measureText(text)
+        const measuredWidth = metrics.width
+        if (!Number.isFinite(measuredWidth) || measuredWidth <= 0) return
+
+        const ascent = metrics.actualBoundingBoxAscent || fontSize
+        const descent = metrics.actualBoundingBoxDescent || fontSize * 0.25
+        const padding = 4
+        const srcW = Math.ceil(measuredWidth) + padding * 2
+        const srcH = Math.ceil(ascent + descent) + padding * 2
+        const baselineY = padding + ascent
+
+        const off = document.createElement('canvas')
+        off.width = srcW
+        off.height = srcH
+        const offCtx = off.getContext('2d')
+        if (!offCtx) return
+
+        offCtx.clearRect(0, 0, srcW, srcH)
+        offCtx.font = ctx.font
+        offCtx.fillStyle = color
+        offCtx.textBaseline = 'alphabetic'
+        offCtx.textAlign = 'right'
+        offCtx.direction = 'rtl'
+        const textRight = srcW - padding
+        const textLeft = textRight - measuredWidth
+        offCtx.fillText(text, textRight, baselineY)
+
+        const visualWidth = measuredWidth * company.compression
+        const visualHeight = fontSize * stretchScale
+        const midAngle = startAngle + direction * totalAngle * 0.5
+        const midX = centerX + Math.cos(midAngle) * (radiusX - fontSize - borderOffset)
+        const midY = centerY + Math.sin(midAngle) * (radiusY - fontSize - borderOffset)
+        const path = new Path2D()
+        path.rect(-visualWidth / 2, -fontSize, visualWidth, fontSize)
+        this.textPaths.push({
+            text,
+            path,
+            type: 'company',
+            bounds: {
+                x: midX - visualWidth / 2,
+                y: midY - visualHeight,
+                width: visualWidth,
+                height: visualHeight
+            }
+        })
+
+        const stepVisual = 2
+        const stepSrcBase = stepVisual / Math.max(0.001, company.compression)
+        const sliceCount = Math.ceil(measuredWidth / stepSrcBase)
+
+        for (let i = 0; i < sliceCount; i++) {
+            const offsetSrc = i * stepSrcBase
+            if (offsetSrc >= measuredWidth) break
+            const sliceSrcW = Math.min(stepSrcBase, measuredWidth - offsetSrc)
+            const sliceVisualW = sliceSrcW * company.compression
+            const t = (offsetSrc + sliceSrcW / 2) / measuredWidth
+            const angle = startAngle + direction * totalAngle * t
+            const x = centerX + Math.cos(angle) * (radiusX - fontSize - borderOffset)
+            const y = centerY + Math.sin(angle) * (radiusY - fontSize - borderOffset)
+            const normalAngle = Math.atan2(radiusX * Math.sin(angle), radiusY * Math.cos(angle))
+
+            const srcX = textRight - offsetSrc - sliceSrcW
+
+            ctx.save()
+            ctx.translate(x, y)
+            ctx.rotate(normalAngle + (company.rotateDirection === 'clockwise' ? -Math.PI / 2 : Math.PI / 2))
+            ctx.scale(company.compression, stretchScale)
+            ctx.drawImage(
+                off,
+                srcX,
+                0,
+                sliceSrcW,
+                srcH,
+                -sliceSrcW / 2,
+                -baselineY,
+                sliceSrcW,
+                srcH
+            )
+            ctx.restore()
+        }
     }
 
     /**

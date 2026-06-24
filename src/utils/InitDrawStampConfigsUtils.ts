@@ -31,12 +31,12 @@ export class InitDrawStampConfigsUtils {
         securityPatternParams: []
     }
     private company: ICompany = {
-        companyName: '印章绘制有限责任公司',
+        companyName: 'ئامىتابا تامغىسىنى ياساش',
         compression: 1,
         borderOffset: 1,
-        textDistributionFactor: 5,
-        fontFamily: 'SimSun',
-        fontHeight: 4.2,
+        textDistributionFactor: 4.2,
+        fontFamily: 'Noto Naskh Arabic',
+        fontHeight: 4.4,
         fontWeight: 'normal',
         shape: 'ellipse',
         adjustEllipseText: false,
@@ -154,12 +154,12 @@ export class InitDrawStampConfigsUtils {
     // 添加公司列表属性
     private companyList: ICompany[] = [
         {
-            companyName: '绘制印章有限责任公司',
+            companyName: 'ئامىتابا تامغىسىنى ياساش',
             compression: 1,
             borderOffset: 1,
-            textDistributionFactor: 3, // 将默认值从20改为10
-            fontFamily: 'SimSun',
-            fontHeight: 4.2,
+            textDistributionFactor: 4.2,
+            fontFamily: 'Noto Naskh Arabic',
+            fontHeight: 4.4,
             fontWeight: 'normal',
             fontWidth: 1,
             shape: 'ellipse',
