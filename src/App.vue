@@ -56,7 +56,6 @@ const handleAuthSuccess = () => {
         <div class="nav-links">
           <router-link to="/" class="nav-link">{{ t('menu.home') }}</router-link>
           <router-link to="/maker" class="nav-link">{{ t('navigation.maker') }}</router-link>
-          <router-link to="/certificate" class="nav-link">{{ t('navigation.certificate') }}</router-link>
           <router-link to="/about" class="nav-link">{{ t('navigation.about') }}</router-link>
           <router-link to="/contact" class="nav-link">{{ t('navigation.contact') }}</router-link>
         </div>

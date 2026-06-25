@@ -7,7 +7,6 @@ import AboutUs from '../components/AboutUs.vue'
 import ContactUs from '../components/ContactUs.vue'
 import TemplateManage from '../components/TemplateManage.vue'
 import PublicTemplates from '../components/PublicTemplates.vue'
-import CertificateMaker from '../components/certificate/CertificateMaker.vue'
 
 const routes = [
   {
@@ -57,12 +56,6 @@ const routes = [
     name: 'Contact',
     component: ContactUs,
     meta: { title: '联系我们 - DrawStamp' }
-  },
-  {
-    path: '/certificate',
-    name: 'Certificate',
-    component: CertificateMaker,
-    meta: { title: '奖状模板制作 - DrawStamp' }
   }
 ]
 
